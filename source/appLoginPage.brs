@@ -60,7 +60,7 @@ End Function
 '**********************************************************
 
 Function DisplayHomePage() As Dynamic
-    screen = CreateHomePage(m.curUserProfile.Title, "")
+    screen = CreateHomePage("", m.curUserProfile.Title)
     ShowHomePage(screen)
 
     return 0
