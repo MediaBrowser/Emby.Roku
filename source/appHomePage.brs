@@ -42,8 +42,8 @@ Function ShowHomePage(screen As Object) As Integer
     screen.SetContentList(0, moviesButtons)
 
     tvButtons = GetTVButtons()
-    screen.SetContentList(1, tvButtons)
     rowData[1] = tvButtons
+    screen.SetContentList(1, tvButtons)
 
     screen.Show()
 
@@ -71,7 +71,7 @@ Function ShowHomePage(screen As Object) As Integer
                     'DisplayDetailPage()
                 Else If rowData[row][selection].ContentType = "TVLibrary" Then
                     Print "TV Library"
-                    DisplayListPage("TVLibrary")
+                    ShowTVShowListPage()
 
                 Else If rowData[row][selection].ContentType = "Episode" Then
                     Print rowData[row][selection].Id
