@@ -80,6 +80,7 @@ Sub initTheme()
 
     theme = {
         BackgroundColor: backgroundColor
+
         OverhangSliceHD: "pkg:/images/Overhang_Background_HD.png"
         OverhangSliceSD: "pkg:/images/Overhang_Background_SD.png"
         OverhangLogoHD: "pkg:/images/mblogowhite.png"
@@ -108,6 +109,7 @@ Sub initTheme()
         GridScreenBackgroundColor: backgroundColor
         GridScreenListNameColor: brandingWhite
         GridScreenDescriptionTitleColor: brandingWhite
+        GridScreenDescriptionDateColor: brandingWhite
         GridScreenLogoHD: "pkg:/images/mblogowhite.png"
         GridScreenLogoSD: "pkg:/images/mblogowhite.png"
         GridScreenOverhangHeightHD: "124"
@@ -128,7 +130,30 @@ Sub initTheme()
         'GridScreenDescriptionOffsetSD:"(125,170)"
         'GridScreenDescriptionImageHD: "pkg:/images/grid/Grid_Description_Background_Portrait_HD.png"
         'GridScreenDescriptionOffsetHD:"(150,205)"
+
+        SpringboardActorColor: "#ffffff"
+
+        SpringboardAlbumColor: "#ffffff"
+        SpringboardAlbumLabel: "#ffffff"
+        SpringboardAlbumLabelColor: "#ffffff"
+
+        'SpringboardAllow6Buttons: false
+
+        SpringboardArtistColor: "#ffffff"
+        SpringboardArtistLabel: "#ffffff"
+        SpringboardArtistLabelColor: "#ffffff"
+
+        SpringboardDirectorColor: "#ffffff"
+        SpringboardDirectorLabel: "#ffffff"
+        SpringboardDirectorLabelColor: "#ffffff"
+        SpringboardDirectorPrefixText: "#ffffff"
+
+        SpringboardGenreColor: "#ffffff"
+        SpringboardRuntimeColor: "#ffffff"
+        SpringboardSynopsisColor: "#ffffff"
+        SpringboardTitleText: "#ffffff"
     }
 
     app.SetTheme( theme )
 End Sub
+
