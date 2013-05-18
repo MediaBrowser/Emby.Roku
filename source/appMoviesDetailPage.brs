@@ -116,8 +116,6 @@ Function GetMoviesDetails(movieId As String) As Object
 
                     itemData = ParseJSON(fixedString)
 
-                    Print "rating "; itemData.OfficialRating
-
                     ' Convert Data For Page
                     movieData = {
                         Id: itemData.Id
