@@ -61,14 +61,9 @@ Function ShowHomePage(screen As Object) As Integer
                 selection = msg.getData()
 
                 If rowData[row][selection].ContentType = "MovieLibrary" Then
-                    'DisplayListPage("MovieLibrary")
                     ShowMoviesListPage()
-
                 Else If rowData[row][selection].ContentType = "Movie" Then
-                    Print rowData[row][selection].Id
-
-                    'm.curItem = rowData[row][selection]
-                    'DisplayDetailPage()
+                    ShowMoviesDetailPage(rowData[row][selection].Id)
                 Else If rowData[row][selection].ContentType = "TVLibrary" Then
                     Print "TV Library"
                     ShowTVShowListPage()
