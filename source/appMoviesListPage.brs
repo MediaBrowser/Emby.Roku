@@ -8,6 +8,7 @@
 '**********************************************************
 
 Function ShowMoviesListPage() As Integer
+
     ' Setup Screen
     port   = CreateObject("roMessagePort")
     screen = CreateObject("roGridScreen")
@@ -23,6 +24,7 @@ Function ShowMoviesListPage() As Integer
 
     rowData = CreateObject("roArray", 2, true)
 
+    ' Get Data
     moviesAll = GetMoviesAll()
     rowData[0] = moviesAll
     screen.SetContentList(0, moviesAll)
@@ -47,8 +49,7 @@ Function ShowMoviesListPage() As Integer
                 selection = msg.getData()
 
                 If rowData[row][selection].ContentType = "Movie" Then
-                    Print rowData[row][selection].Id
-
+                    ShowMoviesDetailPage(rowData[row][selection].Id)
                 Else If rowData[row][selection].ContentType = "Genre" Then
                     Print rowData[row][selection].Id
 
