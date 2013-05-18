@@ -92,6 +92,8 @@ Sub initTheme()
         BreadcrumbTextRight: breadcrumbText
         BreadcrumbDelimiter: breadcrumbText
         
+        PosterScreenLine1Text: "#dddddd"
+
         ListItemText: listItemText
         ListItemHighlightText: listItemHighlight
         ListScreenDescriptionText: listItemText
@@ -103,6 +105,7 @@ Sub initTheme()
         GridScreenBackgroundColor: backgroundColor
         GridScreenListNameColor: brandingGreen
         GridScreenDescriptionTitleColor: brandingGreen
+
         GridScreenLogoHD: "pkg:/images/mblogowhite.png"
         GridScreenLogoSD: "pkg:/images/mblogowhite.png"
         GridScreenOverhangHeightHD: "124"
