@@ -35,7 +35,6 @@ Function ShowHomePage(screen As Object) As Integer
     screen.SetupLists(2)
     screen.SetListNames(["Movies","TV"])
 
-
     movieButtons = GetMovieButtons()
     screen.SetContentList(0, movieButtons)
 
@@ -89,8 +88,8 @@ Function GetMovieButtons() As Object
             Title: "Movie Library"
             ContentType: "MovieLibrary"
             ShortDescriptionLine1: "Movie Library"
-            HDPosterUrl: "pkg://images/items/collection.png"
-            SDPosterUrl: "pkg://images/items/collection.png"
+            HDPosterUrl: "pkg://images/items/Default_Movie_Collection_HD.png"
+            SDPosterUrl: "pkg://images/items/Default_Movie_Collection_SD.png"
         }
     ]
 
@@ -163,8 +162,8 @@ Function GetTVButtons() As Object
             Title: "TV Library"
             ContentType: "TVLibrary"
             ShortDescriptionLine1: "TV Library"
-            HDPosterUrl: "pkg://images/items/collection.png"
-            SDPosterUrl: "pkg://images/items/collection.png"
+            HDPosterUrl: "pkg://images/items/Default_Tv_Collection_HD.png"
+            SDPosterUrl: "pkg://images/items/Default_Tv_Collection_SD.png"
         }
     ]
 
