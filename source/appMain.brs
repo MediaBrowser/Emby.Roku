@@ -74,8 +74,8 @@ Sub initTheme()
     
     listItemHighlight           = "#ffffff"
     listItemText                = "#707070"
-    brandingGreen               = "#37491D"
-    backgroundColor             = "#c0c0c0"
+    brandingWhite               = "#eeeeee"
+    backgroundColor             = "#424242" '#c0c0c0
     breadcrumbText              = "#eeeeee"
 
     theme = {
@@ -88,11 +88,12 @@ Sub initTheme()
         OverhangOffsetSD_Y: "25"
         OverhangOffsetHD_X: "35"
         OverhangOffsetHD_Y: "25"
+
         BreadcrumbTextLeft: breadcrumbText
         BreadcrumbTextRight: breadcrumbText
         BreadcrumbDelimiter: breadcrumbText
         
-        PosterScreenLine1Text: "#dddddd"
+        PosterScreenLine1Text: "#ffffff"
 
         ListItemText: listItemText
         ListItemHighlightText: listItemHighlight
@@ -100,12 +101,13 @@ Sub initTheme()
         ListItemHighlightHD: "pkg:/images/select_bkgnd.png"
         ListItemHighlightSD: "pkg:/images/select_bkgnd.png"
 
-        CounterTextLeft: brandingGreen
-        CounterSeparator: brandingGreen
-        GridScreenBackgroundColor: backgroundColor
-        GridScreenListNameColor: brandingGreen
-        GridScreenDescriptionTitleColor: brandingGreen
+        CounterTextLeft: brandingWhite
+        CounterTextRight: brandingWhite
+        CounterSeparator: brandingWhite
 
+        GridScreenBackgroundColor: backgroundColor
+        GridScreenListNameColor: brandingWhite
+        GridScreenDescriptionTitleColor: brandingWhite
         GridScreenLogoHD: "pkg:/images/mblogowhite.png"
         GridScreenLogoSD: "pkg:/images/mblogowhite.png"
         GridScreenOverhangHeightHD: "124"
