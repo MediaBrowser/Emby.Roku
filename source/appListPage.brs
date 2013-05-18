@@ -33,12 +33,14 @@ Function ShowListPage(screen As Object) As Integer
     if validateParam(screen, "roGridScreen", "ShowListPage") = false return -1
 
     dataObj = GetLibraryItems()
-    list = dataObj.data
+    list = dataObj.Data
+    
+    'GetItemCategories(list)
 
-    screen.SetupLists(2)
-    screen.SetListNames(["All","Test"])
+    screen.SetupLists(1)
+    screen.SetListNames(["All"])
     screen.SetContentList(0, list)
-    screen.SetContentList(1, list)
+    'screen.SetContentList(1, list)
     screen.Show()
 
     ' Hide Description Popup
@@ -48,18 +50,43 @@ Function ShowListPage(screen As Object) As Integer
         msg = wait(0, screen.GetMessagePort())
 
         if type(msg) = "roGridScreenEvent" Then
-            print "ShowListPage | msg = "; msg.GetMessage() " | index = "; msg.GetIndex()
-
             if msg.isListItemFocused() then
-                print "list focused | index = "; msg.GetIndex(); " | category = "; 'm.curCategory
+                'print "list focused | index = "; msg.GetIndex(); " | category = "; 'm.curCategory
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()
-                print "list item selected row= "; row; " selection= "; selection
+                selectedItem = list[selection]
 
-               ' m.curItem = list[msg.GetIndex()]
-               ' m.curItemIndex = msg.GetIndex()
-               ' DisplayDetailPage(list)
+                m.curItem = list[msg.GetIndex()]
+                m.curItemIndex = msg.GetIndex()
+
+                ' Check Content Type
+                If selectedItem.ContentType = "Movie"
+                    Print "movie found"
+                    'If selectedItem.IsFolder = true
+                    '    m.curParent = selectedItem
+                    '    DisplayListPage()
+                    'Else
+                        DisplayDetailPage(list)
+                    'End If
+                Else If selectedItem.ContentType = "BoxSet"
+                    Print "boxset found"
+
+                        m.curParent = selectedItem
+                        DisplayListPage()
+
+                Else If selectedItem.ContentType = "Series"
+                    Print "tv series found"
+
+                Else
+                    Print "unknown found"
+
+                End If
+                
+                print "list item selected row= "; row; " selection= "; Selection
+                
+
+                'DisplayDetailPage(list)
             else if msg.isScreenClosed() then
                 return -1
             end if
@@ -76,10 +103,24 @@ End Function
 Function DisplayDetailPage(list) As Dynamic
     if validateParam(list, "roArray", "DisplayDetailPage") = false return -1
 
-    screen = CreateDetailPage(m.curCollection.Title, "")
+    screen = CreateDetailPage(m.curParent.Title, "")
     ShowDetailPage(screen, list)
 
     return 0
+End Function
+
+
+
+
+Function GetItemCategories(items) As Dynamic
+
+    categories = CreateObject("roArray", 10, true)
+
+    For each dataItems in items
+        
+
+    End For
+
 End Function
 
 
@@ -88,7 +129,8 @@ End Function
 '**********************************************************
 
 Function GetLibraryItems() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + m.curCollection.Id + "&SortBy=SortName&SortOrder=Ascending")
+    Print "current Parent Id "; m.curParent.Id
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + m.curParent.Id + "&SortBy=SortName&SortOrder=Ascending")
 
     if (request.AsyncGetToString())
         while (true)
@@ -99,6 +141,7 @@ Function GetLibraryItems() As Object
 
                 if (code = 200)
                     itemList = CreateObject("roArray", 10, true)
+
                     'json = ParseJSON(msg.GetString())
 
                     ' Fixes bug within BRS Json Parser
