@@ -231,7 +231,59 @@ Function GetTVRecentAdded() As Object
                             Title: "Recently Added"
                             ContentType: "Episode"
                             ShortDescriptionLine1: "Recently Added"
-                            ShortDescriptionLine2: itemData.SeriesName
+                            ShortDescriptionLine2: itemData.SeriesName + " - S " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
+                        }
+
+                        ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
+                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                        Else If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=150&width=&tag=" + itemData.ImageTags.Primary
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=94&width=&tag=" + itemData.ImageTags.Primary
+                        Else 
+                            tvData.HDPosterUrl = "pkg://images/items/collection.png"
+                            tvData.SDPosterUrl = "pkg://images/items/collection.png"
+                        End If
+
+                        list.push( tvData )
+                    end for
+                    return list
+                endif
+            else if (event = invalid)
+                request.AsyncCancel()
+            endif
+        end while
+    endif
+
+    Return invalid
+End Function
+
+
+'**********************************************************
+'** Get Recently Played TV Episodes From Server
+'**********************************************************
+
+Function GetTVRecentPlayed() As Object
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=1&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2CUserData&SortBy=DateCreated&SortOrder=Descending&Filters=IsNotFolder")
+
+    if (request.AsyncGetToString())
+        while (true)
+            msg = wait(0, request.GetPort())
+
+            if (type(msg) = "roUrlEvent")
+                code = msg.GetResponseCode()
+
+                if (code = 200)
+                    list     = CreateObject("roArray", 2, true)
+                    jsonData = ParseJSON(msg.GetString())
+                    for each itemData in jsonData.Items
+                        tvData = {
+                            Id: itemData.Id
+                            Title: "Recently Played"
+                            ContentType: "Episode"
+                            ShortDescriptionLine1: "Recently Played"
+                            ShortDescriptionLine2: itemData.SeriesName + " - S " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
                         }
 
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
