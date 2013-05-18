@@ -79,66 +79,6 @@ End Function
 
 
 '**********************************************************
-'** Get Library Collections From Server
-'**********************************************************
-Function GetLibraryCollections() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items")
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    collectionList = CreateObject("roArray", 10, true)
-                    json = ParseJSON(msg.GetString())
-                    for each collection in json.Items
-                        collectionData = {
-                            ID: collection.Id
-                            Title: collection.Name
-                            ShortDescriptionLine1: collection.Name
-                            IsFolder: collection.IsFolder
-                            CollectionType: collection.Type
-                        }
-
-                        ' Check If Collection has Image, otherwise use default
-                        If collection.ImageTags.Primary<>"" And collection.ImageTags.Primary<>invalid
-                            collectionData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + collection.Id + "/Images/Primary/0?height=300&width=&tag=" + collection.ImageTags.Primary
-                            collectionData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + collection.Id + "/Images/Primary/0?height=300&width=&tag=" + collection.ImageTags.Primary
-                        Else 
-                            collectionData.HDPosterUrl = "pkg://images/items/collection.png"
-                            collectionData.SDPosterUrl = "pkg://images/items/collection.png"
-                        End If
-
-                        collectionList.push( collectionData )
-                    end for
-                    return collectionList
-                endif
-            else if (event = invalid)
-                request.AsyncCancel()
-            endif
-        end while
-    endif
-
-    return invalid
-End Function
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'**********************************************************
 '** Get Movie Buttons Row
 '**********************************************************
 
@@ -168,7 +108,7 @@ End Function
 '**********************************************************
 
 Function GetMovieRecentAdded() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=2&Recursive=true&IncludeItemTypes=Movie&SortBy=DateCreated&SortOrder=Descending&Filters=IsNotFolder")
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=1&Recursive=true&IncludeItemTypes=Movie&SortBy=DateCreated&SortOrder=Descending&Filters=IsNotFolder")
 
     if (request.AsyncGetToString())
         while (true)
@@ -212,7 +152,6 @@ Function GetMovieRecentAdded() As Object
 End Function
 
 
-
 '**********************************************************
 '** Get TV Buttons Row
 '**********************************************************
@@ -243,7 +182,7 @@ End Function
 '**********************************************************
 
 Function GetTVRecentAdded() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=2&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo&SortBy=DateCreated&SortOrder=Descending&Filters=IsNotFolder")
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=1&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo&SortBy=DateCreated&SortOrder=Descending&Filters=IsNotFolder")
 
     if (request.AsyncGetToString())
         while (true)
