@@ -35,11 +35,15 @@ Function ShowHomePage(screen As Object) As Integer
     screen.SetupLists(2)
     screen.SetListNames(["Movies","TV"])
 
-    movieButtons = GetMovieButtons()
-    screen.SetContentList(0, movieButtons)
+    rowData = CreateObject("roArray", 2, true)
+
+    moviesButtons = GetMoviesButtons()
+    rowData[0] = moviesButtons
+    screen.SetContentList(0, moviesButtons)
 
     tvButtons = GetTVButtons()
     screen.SetContentList(1, tvButtons)
+    rowData[1] = tvButtons
 
     screen.Show()
 
@@ -52,9 +56,32 @@ Function ShowHomePage(screen As Object) As Integer
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListFocused() then
                 print "list focused | index = "; msg.GetIndex(); " | category = "; 'm.curCategory
-            else if msg.isListItemSelected() then
-                m.curParent = list[msg.GetIndex()]
-                DisplayListPage()
+            else if msg.isListItemSelected() Then
+                row = msg.GetIndex()
+                selection = msg.getData()
+
+                If rowData[row][selection].ContentType = "MovieLibrary" Then
+                    'DisplayListPage("MovieLibrary")
+                    ShowMoviesListPage()
+
+                Else If rowData[row][selection].ContentType = "Movie" Then
+                    Print rowData[row][selection].Id
+
+                    'm.curItem = rowData[row][selection]
+                    'DisplayDetailPage()
+                Else If rowData[row][selection].ContentType = "TVLibrary" Then
+                    Print "TV Library"
+                    DisplayListPage("TVLibrary")
+
+                Else If rowData[row][selection].ContentType = "Episode" Then
+                    Print rowData[row][selection].Id
+
+                Else 
+                    Print "Unknown Type found"
+                End If
+                
+                'm.curParent = list[msg.GetIndex()]
+                'DisplayListPage()
             else if msg.isScreenClosed() then
                 return -1
             end if
@@ -69,9 +96,14 @@ End Function
 '** Create And Display the List Page
 '**********************************************************
 
-Function DisplayListPage() As Dynamic
-    screen = CreateListPage("", m.curParent.Title)
-    ShowListPage(screen)
+Function DisplayListPage(mediaType As String) As Dynamic
+
+    if validateParam(mediaType, "roString", "DisplayListPage") = false return -1
+
+    ShowMoviesListPage()
+
+    'screen = CreateListPage("", m.curParent.Title)
+    'ShowListPage(screen)
 
     return 0
 End Function
@@ -81,7 +113,7 @@ End Function
 '** Get Movie Buttons Row
 '**********************************************************
 
-Function GetMovieButtons() As Object
+Function GetMoviesButtons() As Object
     ' Set the Default movie library button
     buttons = [
         {
@@ -93,7 +125,7 @@ Function GetMovieButtons() As Object
         }
     ]
 
-    recentMovies = GetMovieRecentAdded()
+    recentMovies = GetMoviesRecentAdded()
     If recentMovies<>invalid
         buttons.Append( recentMovies )
     End if
@@ -106,7 +138,7 @@ End Function
 '** Get Recently Added Movies From Server
 '**********************************************************
 
-Function GetMovieRecentAdded() As Object
+Function GetMoviesRecentAdded() As Object
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=1&Recursive=true&IncludeItemTypes=Movie&SortBy=DateCreated&SortOrder=Descending&Filters=IsNotFolder")
 
     if (request.AsyncGetToString())
