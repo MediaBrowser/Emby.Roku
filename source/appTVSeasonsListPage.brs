@@ -121,7 +121,7 @@ End Function
 '**********************************************************
 
 Function GetTVEpisodes(seasonId As String) As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + seasonId + "&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2COverview&SortBy=SortName&SortOrder=Ascending")
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + seasonId + "&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2COverview%2CMediaStreams&SortBy=SortName&SortOrder=Ascending")
 
     if (request.AsyncGetToString())
         while (true)
@@ -139,7 +139,6 @@ Function GetTVEpisodes(seasonId As String) As Object
                             Title: itemData.Name
                             ContentType: "Episode"
                             ShortDescriptionLine1: itemData.Name
-                            ShortDescriptionLine2: "Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
                             Description: itemData.Overview
                         }
 
@@ -151,6 +150,24 @@ Function GetTVEpisodes(seasonId As String) As Object
                             episodeData.HDPosterUrl = "pkg://images/items/collection.png"
                             episodeData.SDPosterUrl = "pkg://images/items/collection.png"
                         End If
+
+                        ' Check Media Streams For HD Video And Surround Sound Audio
+                        streamInfo = GetStreamInfo(itemData.MediaStreams)
+
+                        ' Build Extra Information Line
+                        episodeExtraInfo = "Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
+
+                        episodeExtraInfo = episodeExtraInfo + "  |  " + itemData.OfficialRating
+
+                        If streamInfo.isHDVideo=true
+                            episodeExtraInfo = episodeExtraInfo + "  |  HD" 
+                        End If
+
+                        If streamInfo.isSSAudio=true
+                            episodeExtraInfo = episodeExtraInfo + "  |  5.1" 
+                        End If
+
+                        episodeData.ShortDescriptionLine2 = episodeExtraInfo
 
                         list.push( episodeData )
                     end for
