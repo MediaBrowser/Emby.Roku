@@ -148,6 +148,15 @@ Function GetTVDetails(showId As String) As Object
                         episodeData.SDPosterUrl = "pkg://images/items/collection.png"
                     End If
 
+                    ' Check Media Streams For HD Video And Surround Sound Audio
+                    movieStreamInfo = GetStreamInfo(itemData.MediaStreams)
+
+                    episodeData.HDBranded = movieStreamInfo.isHDVideo
+
+                    If movieStreamInfo.isSSAudio=true
+                        episodeData.AudioFormat = "dolby-digital"
+                    End If
+
                     return episodeData
                 endif
             else if (event = invalid)
