@@ -65,9 +65,7 @@ Function ShowHomePage(screen As Object) As Integer
                 Else If rowData[row][selection].ContentType = "Movie" Then
                     ShowMoviesDetailPage(rowData[row][selection].Id)
                 Else If rowData[row][selection].ContentType = "TVLibrary" Then
-                    Print "TV Library"
                     ShowTVShowListPage()
-
                 Else If rowData[row][selection].ContentType = "Episode" Then
                     Print rowData[row][selection].Id
 
@@ -96,9 +94,6 @@ Function DisplayListPage(mediaType As String) As Dynamic
     if validateParam(mediaType, "roString", "DisplayListPage") = false return -1
 
     ShowMoviesListPage()
-
-    'screen = CreateListPage("", m.curParent.Title)
-    'ShowListPage(screen)
 
     return 0
 End Function
@@ -194,10 +189,15 @@ Function GetTVButtons() As Object
         }
     ]
 
-    recentShows = GetTVRecentAdded()
-    If recentShows<>invalid
-        buttons.Append( recentShows )
-    End if
+    recentTVAdded = GetTVRecentAdded()
+    If recentTVAdded<>invalid
+        buttons.Append( recentTVAdded )
+    End If
+
+    recentTVPlayed = GetTVRecentPlayed()
+    If recentTVPlayed<>invalid
+        buttons.Append( recentTVPlayed )
+    End If
 
     Return buttons
 End Function
@@ -260,7 +260,7 @@ End Function
 '**********************************************************
 
 Function GetTVRecentPlayed() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=1&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2CUserData&SortBy=DateCreated&SortOrder=Descending&Filters=IsNotFolder")
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=1&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo&SortBy=DatePlayed&SortOrder=Descending")
 
     if (request.AsyncGetToString())
         while (true)
