@@ -47,8 +47,7 @@ Function ShowTVShowListPage() As Integer
                 selection = msg.getData()
 
                 If rowData[row][selection].ContentType = "Series" Then
-                    Print rowData[row][selection].Id
-
+                    ShowTVSeasonsListPage(rowData[row][selection])
                 Else If rowData[row][selection].ContentType = "Genre" Then
                     Print rowData[row][selection].Id
 
