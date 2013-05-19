@@ -92,8 +92,6 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
 End Function
 
 
-
-
 '**********************************************************
 '** Get TV Details From Server
 '**********************************************************
@@ -123,9 +121,7 @@ Function GetTVDetails(showId As String) As Object
                         Id: itemData.Id
                         ContentType: "episode"
                         Title: itemData.Name
-                        'TitleSeason: itemData.SeriesName
-                        'EpisodeNumber: itemData.IndexNumber
-                        Description: itemData.Overview ' Chr(10) 
+                        Description: itemData.Overview 
                         Rating: itemData.OfficialRating
                     }
 
