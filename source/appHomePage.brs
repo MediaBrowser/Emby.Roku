@@ -226,7 +226,7 @@ Function GetTVRecentAdded() As Object
                             Title: "Recently Added"
                             ContentType: "Episode"
                             ShortDescriptionLine1: "Recently Added"
-                            ShortDescriptionLine2: itemData.SeriesName + " - S " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
+                            ShortDescriptionLine2: itemData.SeriesName + " - Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
                         }
 
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
@@ -278,7 +278,7 @@ Function GetTVRecentPlayed() As Object
                             Title: "Recently Played"
                             ContentType: "Episode"
                             ShortDescriptionLine1: "Recently Played"
-                            ShortDescriptionLine2: itemData.SeriesName + " - S " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
+                            ShortDescriptionLine2: itemData.SeriesName + " - Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
                         }
 
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
