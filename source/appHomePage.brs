@@ -67,8 +67,7 @@ Function ShowHomePage(screen As Object) As Integer
                 Else If rowData[row][selection].ContentType = "TVLibrary" Then
                     ShowTVShowListPage()
                 Else If rowData[row][selection].ContentType = "Episode" Then
-                    Print rowData[row][selection].Id
-
+                    ShowTVDetailPage(rowData[row][selection].Id)
                 Else 
                     Print "Unknown Type found"
                 End If

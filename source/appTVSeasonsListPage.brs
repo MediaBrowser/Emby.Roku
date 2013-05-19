@@ -49,6 +49,9 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
                 m.curShow = msg.GetIndex()
 
                 print "list item selected | current show = "; m.curShow
+
+                ShowTVDetailPage(episodeData[msg.GetIndex()].Id)
+
                 'm.curShow = displayShowDetailScreen(category, m.curShow)
                 'screen.SetFocusedListItem(m.curShow)
                 print "list item updated  | new show = "; m.curShow
