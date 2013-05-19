@@ -150,8 +150,17 @@ Function GetMoviesDetails(movieId As String) As Object
                     If itemData.People<>invalid And itemData.People.Count() > 0
                         movieData.Actors = CreateObject("roArray", 10, true)
 
-                        For i = 0 to 2
-                            movieData.Actors.Push(itemData.People[i].Name)
+                        maxPeople = itemData.People.Count()-1
+
+                        ' Check To Max sure there are 3 people
+                        If maxPeople > 3
+                            maxPeople = 2
+                        End If
+
+                        For i = 0 to maxPeople
+                            If itemData.People[i].Name<>"" And itemData.People[i].Name<>invalid
+                                movieData.Actors.Push(itemData.People[i].Name)
+                            End If
                         End For
                     End If
 
