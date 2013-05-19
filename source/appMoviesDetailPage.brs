@@ -166,11 +166,11 @@ Function GetMoviesDetails(movieId As String) As Object
                     End If
 
                     ' Check Media Streams For HD Video And Surround Sound Audio
-                    movieStreamInfo = GetStreamInfo(itemData.MediaStreams)
+                    streamInfo = GetStreamInfo(itemData.MediaStreams)
 
-                    movieData.HDBranded = movieStreamInfo.isHDVideo
+                    movieData.HDBranded = streamInfo.isHDVideo
 
-                    If movieStreamInfo.isSSAudio=true
+                    If streamInfo.isSSAudio=true
                         movieData.AudioFormat = "dolby-digital"
                     End If
                     
