@@ -18,7 +18,6 @@ Function ShowMoviesListPage() As Integer
     screen.SetGridStyle("two-row-flat-landscape-custom")
     screen.SetDisplayMode("scale-to-fit")
 
-    ' Show Screen
     screen.SetupLists(2)
     screen.SetListNames(["Movies A-Z","Genres"])
 
@@ -33,6 +32,7 @@ Function ShowMoviesListPage() As Integer
     rowData[1] = moviesGenres
     screen.SetContentList(1, moviesGenres)
 
+    ' Show Screen
     screen.Show()
 
     ' Hide Description Popup
