@@ -119,11 +119,12 @@ Function GetMoviesDetails(movieId As String) As Object
                     ' Convert Data For Page
                     movieData = {
                         Id: itemData.Id
-                        ContentType: "portrait"
+                        ContentType: "movie"
                         Title: itemData.Name
                         Description: itemData.Overview
                         Rating: itemData.OfficialRating
                         StarRating: itemData.CriticRating
+                        Watched: itemData.UserData.Played
                     }
 
                     ' Check For Production Year

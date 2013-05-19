@@ -75,7 +75,7 @@ End Function
 '**********************************************************
 
 Function GetMoviesAll() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&SortBy=SortName&SortOrder=Ascending")
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&Fields=UserData%2CMediaStreams&SortBy=SortName&SortOrder=Ascending")
 
     if (request.AsyncGetToString())
         while (true)
@@ -93,6 +93,7 @@ Function GetMoviesAll() As Object
                             Title: itemData.Name
                             ContentType: "Movie"
                             ShortDescriptionLine1: itemData.Name
+                            Watched: itemData.UserData.Played
                         }
 
                         ' Check If Item has Image, otherwise use default
