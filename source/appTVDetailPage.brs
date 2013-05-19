@@ -120,7 +120,9 @@ Function GetTVDetails(showId As String) As Object
                         Id: itemData.Id
                         ContentType: "episode"
                         Title: itemData.Name
-                        Description: itemData.Overview
+                        'TitleSeason: itemData.SeriesName
+                        'EpisodeNumber: itemData.IndexNumber
+                        Description: itemData.SeriesName + " - Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber) + Chr(10) + itemData.Overview
                         Rating: itemData.OfficialRating
                         StarRating: itemData.CriticRating
                     }
