@@ -35,6 +35,9 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
     screen.SetContent(tvDetails)
     screen.Show()
 
+    ' Hide Star Rating
+    screen.SetStaticRatingEnabled(false)
+
     ' Remote key id's for left/right navigation
     remoteKeyLeft  = 4
     remoteKeyRight = 5
@@ -122,10 +125,13 @@ Function GetTVDetails(showId As String) As Object
                         Title: itemData.Name
                         'TitleSeason: itemData.SeriesName
                         'EpisodeNumber: itemData.IndexNumber
-                        Description: itemData.SeriesName + " - Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber) + Chr(10) + itemData.Overview
+                        Description: itemData.Overview ' Chr(10) 
                         Rating: itemData.OfficialRating
-                        StarRating: itemData.CriticRating
                     }
+
+                    ' Use Actor Area For Series / Season / Episode
+                    episodeData.Actors = CreateObject("roArray", 1, true)
+                    episodeData.Actors.Push(itemData.SeriesName + " / Season " + Stri(itemData.ParentIndexNumber) + " / Episode "  + Stri(itemData.IndexNumber))
 
                     ' Check For Production Year
                     If Type(itemData.ProductionYear) = "Integer" Then
@@ -146,31 +152,6 @@ Function GetTVDetails(showId As String) As Object
                         episodeData.HDPosterUrl = "pkg://images/items/collection.png"
                         episodeData.SDPosterUrl = "pkg://images/items/collection.png"
                     End If
-
-                    ' Check For People, Grab First 3 If Exists
-                    If itemData.People<>invalid And itemData.People.Count() > 0
-                        episodeData.Actors = CreateObject("roArray", 10, true)
-
-                        maxPeople = itemData.People.Count()-1
-
-                        ' Check To Max sure there are 3 people
-                        If maxPeople > 3
-                            maxPeople = 2
-                        End If
-
-                        For i = 0 to maxPeople
-                            If itemData.People[i].Name<>"" And itemData.People[i].Name<>invalid
-                                episodeData.Actors.Push(itemData.People[i].Name)
-                            End If
-                        End For
-                    End If
-
-                   ' o.Categories = CreateObject("roArray", 10, true) 
-                   ' o.Categories.Push("[Category1]")
-                   ' o.Categories.Push("[Category2]")
-                   ' o.Categories.Push("[Category3]")
-                   ' o.Director = "[Director]"
-                   ' springBoard.SetContent(o)
 
                     return episodeData
                 endif
