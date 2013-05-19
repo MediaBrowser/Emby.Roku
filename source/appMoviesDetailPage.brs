@@ -165,6 +165,15 @@ Function GetMoviesDetails(movieId As String) As Object
                         End For
                     End If
 
+                    ' Check Media Streams For HD Video And Surround Sound Audio
+                    movieStreamInfo = GetStreamInfo(itemData.MediaStreams)
+
+                    movieData.HDBranded = movieStreamInfo.isHDVideo
+
+                    If movieStreamInfo.isSSAudio=true
+                        movieData.AudioFormat = "dolby-digital"
+                    End If
+                    
                    ' o.Categories = CreateObject("roArray", 10, true) 
                    ' o.Categories.Push("[Category1]")
                    ' o.Categories.Push("[Category2]")
@@ -182,11 +191,6 @@ Function GetMoviesDetails(movieId As String) As Object
 
     Return invalid
 End Function
-
-
-
-
-
 
 
 

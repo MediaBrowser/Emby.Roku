@@ -157,3 +157,41 @@ Sub initTheme()
     app.SetTheme( theme )
 End Sub
 
+
+'**********************************************************
+'** Get HD Video And SS Audio Information From 
+'** Media Streams
+'**********************************************************
+
+Function GetStreamInfo(streams As Object) As Object
+
+    if validateParam(streams, "roArray", "GetStreamInfo") = false return -1
+
+    videoFound = false
+    isHD = false
+
+    audioFound = false
+    isSurroundSound = false
+
+    ' Loop through streams, looking for video and audio information
+    For each itemData in streams
+        If itemData.Type="Video" And videoFound=false
+            videoFound = true
+            ' Check for HD Video
+            If itemData.Height > 718
+                isHD = true
+            End If
+        Else If itemData.Type="Audio" And audioFound=false
+            audioFound = true
+            ' Check for Surround Sound Audio
+            If itemData.Channels > 5
+                isSurroundSound = true
+            End If
+        End If
+    End For
+
+    return {
+        isHDVideo: isHD
+        isSSAudio: isSurroundSound
+    }
+End Function
