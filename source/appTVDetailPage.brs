@@ -126,8 +126,7 @@ Function GetTVDetails(showId As String) As Object
                     }
 
                     ' Use Actor Area For Series / Season / Episode
-                    episodeData.Actors = CreateObject("roArray", 1, true)
-                    episodeData.Actors.Push(itemData.SeriesName + " / Season " + Stri(itemData.ParentIndexNumber) + " / Episode "  + Stri(itemData.IndexNumber))
+                    episodeData.Actors = itemData.SeriesName + " / Season " + Stri(itemData.ParentIndexNumber) + " / Episode "  + Stri(itemData.IndexNumber)
 
                     ' Check For Production Year
                     If Type(itemData.ProductionYear) = "Integer" Then
