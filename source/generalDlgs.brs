@@ -138,3 +138,36 @@ Function ShowKeyboardScreen(prompt = "", secure = false)
     screen.Close()
     return result
 End Function
+
+
+'******************************************************
+' Show Dialog Box
+'******************************************************
+
+Function ShowDialog(title As dynamic, text As dynamic, buttonText As String) As Integer
+    if not isstr(title) title = ""
+    if not isstr(text) text = ""
+
+    port = CreateObject("roMessagePort")
+    screen = CreateObject("roMessageDialog")
+    screen.SetMessagePort(port)
+
+    screen.SetTitle(title)
+    screen.SetText(text)
+    screen.AddButton(0, buttonText)
+    screen.Show()
+
+    while true
+        msg = wait(0, screen.GetMessagePort())
+
+        If type(msg) = "roMessageDialogEvent"
+            If msg.isScreenClosed()
+                print "Screen closed"
+                Return 1
+            Else If msg.isButtonPressed()
+                print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
+                Return 1
+            End If
+        End If
+    end while
+End Function
