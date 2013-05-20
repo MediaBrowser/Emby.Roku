@@ -214,7 +214,15 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
     End If
     
     streamData = {}
-    bitrates = [384, 650, 1500, 3000]
+
+    ' Setup 5 Different Bitrates
+    bitrates = [384, 650, 1500, 2500, 3500]
+    urlBitrates = CreateObject("roArray", 5, true)
+    urlBitrates.push("&VideoBitRate=384000&MaxWidth=640&MaxHeight=360&Profile=high&Level=4.0")
+    urlBitrates.push("&VideoBitRate=650000&MaxWidth=1280&MaxHeight=720&Profile=high&Level=4.0")
+    urlBitrates.push("&VideoBitRate=1500000&MaxWidth=1280&MaxHeight=720&Profile=high&Level=4.0")
+    urlBitrates.push("&VideoBitRate=2500000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
+    urlBitrates.push("&VideoBitRate=3500000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
 
     If videoType="VideoFile"
         ' Determine Direct Play / Transcode By Extension
@@ -244,32 +252,66 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
         Else If (extension = ".m4v") 
             Print ".m4v file"
-            Return invalid
+            ' Direct Play
+            streamData = {
+                streamFormat: "m4v"
+                StreamBitrates: [0]
+                StreamUrls: [GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m4v?static=true"]
+                StreamQualities: ["HD"]
+            }
 
         Else If (extension = ".mkv")
             Print ".mkv file"
-            mkvUrls = CreateObject("roArray", 4, true)
-            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264&VideoBitRate=384000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264&VideoBitRate=650000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264&VideoBitRate=1500000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264&VideoBitRate=3000000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            ' Transcode Play
+            mkvUrls = CreateObject("roArray", 5, true)
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[1] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[2] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[3] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[4] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
 
             streamData = {
                 streamFormat: "ts"
                 StreamBitrates: bitrates
                 StreamUrls: mkvUrls
-                StreamQualities: ["SD","SD","HD","HD"]
+                StreamQualities: ["SD","HD","HD","HD","HD"]
             }
 
         Else If (extension = ".avi") 
             Print ".avi file"
-            Return invalid
+            ' Transcode Play
+            mkvUrls = CreateObject("roArray", 5, true)
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[1] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[2] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[3] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[4] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+
+            streamData = {
+                streamFormat: "ts"
+                StreamBitrates: bitrates
+                StreamUrls: mkvUrls
+                StreamQualities: ["SD","HD","HD","HD","HD"]
+            }
 
         Else 
             ' Check For Other Types
             If right(videoPath, 3) = ".ts"
                 Print ".ts file"
-                Return invalid
+                ' Transcode Play
+                mkvUrls = CreateObject("roArray", 5, true)
+                mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+                mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[1] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+                mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[2] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+                mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[3] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+                mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[4] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+
+                streamData = {
+                    streamFormat: "ts"
+                    StreamBitrates: bitrates
+                    StreamUrls: mkvUrls
+                    StreamQualities: ["SD","HD","HD","HD","HD"]
+                }
 
             Else If right(videoPath, 5) = ".webm"
                 Print ".webm file"
