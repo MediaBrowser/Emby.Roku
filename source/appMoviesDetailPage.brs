@@ -19,20 +19,8 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
     screen.SetBreadcrumbText("", "Movies")
     screen.SetDescriptionStyle("movie")
 
-    ' Get Data
-    moviesDetails = GetMoviesDetails(movieId)
-
-    ' Show Screen
-    screen.ClearButtons()
-
-    'If regread(show.contentid) <> invalid and regread(show.contentid).toint() >=30 Then
-        'screen.AddButton(1, "Resume playing")    
-        'screen.AddButton(2, "Play from beginning")    
-    'Else
-       screen.addbutton(2, "Play")
-    'End If
-    screen.SetContent(moviesDetails)
-    screen.Show()
+    ' Fetch / Refresh Screen Details
+    moviesDetails = RefreshMoviesDetailPage(screen, movieId, list)
 
     ' Remote key id's for left/right navigation
     remoteKeyLeft  = 4
@@ -57,21 +45,31 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
                     '   refreshShowDetail(screen, showList, showIndex)
                     'end if
                 endif
-            Else If msg.isButtonPressed() 
+            Else If msg.isButtonPressed()
                 print "ButtonPressed"
-                'if msg.GetIndex() = 1
-                '    PlayStart = RegRead(showList[showIndex].ContentId)
-                '    if PlayStart <> invalid then
-                '        showList[showIndex].PlayStart = PlayStart.ToInt()
-                '    endif
-                '    showVideoScreen(showList[showIndex])
-                '    refreshShowDetail(screen,showList,showIndex)
-                'endif
-                'if msg.GetIndex() = 2
-                '    showList[showIndex].PlayStart = 0
-                '    showVideoScreen(showList[showIndex])
-                '    refreshShowDetail(screen,showList,showIndex)
-                'endif
+                If msg.GetIndex() = 1
+                    ' Get Saved Play Status
+                    PlayStart = RegRead(moviesDetails.ContentId)
+
+                    If PlayStart<>invalid Then
+                        moviesDetails.PlayStart = PlayStart.ToInt()
+                    End If
+
+                    showVideoScreen(moviesDetails)
+                    moviesDetails = RefreshMoviesDetailPage(screen, movieId, list)
+                End If
+                If msg.GetIndex() = 2
+                    ' Reset Play To Beginning
+                    moviesDetails.PlayStart = 0
+
+                    ' Show Error Dialog For Unsupported video types - Should be temporary call
+                    If moviesDetails.DoesExist("streamFormat")=false
+                        ShowDialog("Playback Error", "That video type is not playable yet.", "Back")
+                    Else
+                        showVideoScreen(moviesDetails)
+                        moviesDetails = RefreshMoviesDetailPage(screen, movieId, list)
+                    End If
+                End If
                 'if msg.GetIndex() = 3
                 'endif
                 print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
@@ -86,8 +84,6 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
 
     return 0
 End Function
-
-
 
 
 '**********************************************************
@@ -119,6 +115,7 @@ Function GetMoviesDetails(movieId As String) As Object
                     ' Convert Data For Page
                     movieData = {
                         Id: itemData.Id
+                        ContentId: itemData.Id
                         ContentType: "movie"
                         Title: itemData.Name
                         Description: itemData.Overview
@@ -173,6 +170,17 @@ Function GetMoviesDetails(movieId As String) As Object
                     If streamInfo.isSSAudio=true
                         movieData.AudioFormat = "dolby-digital"
                     End If
+
+                    ' Setup Video Player
+                    streamData = SetupVideoStreams(movieId, itemData.VideoType, itemData.Path)
+
+                    If streamData<>invalid
+                        movieData.StreamContentIDs = streamData.StreamContentIDs
+                        movieData.streamFormat = streamData.streamFormat
+                        movieData.StreamBitrates = streamData.StreamBitrates
+                        movieData.StreamUrls = streamData.StreamUrls
+                        movieData.StreamQualities = streamData.StreamQualities
+                    End If
                     
                    ' o.Categories = CreateObject("roArray", 10, true) 
                    ' o.Categories.Push("[Category1]")
@@ -193,52 +201,46 @@ Function GetMoviesDetails(movieId As String) As Object
 End Function
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 '**************************************************************
-'** Refresh the contents of the show detail screen. This may be
-'** required on initial entry to the screen or as the user moves
-'** left/right on the springboard.  When the user is on the
-'** springboard, we generally let them press left/right arrow keys
-'** to navigate to the previous/next show in a circular manner.
-'** When leaving the screen, the should be positioned on the 
-'** corresponding item in the poster screen matching the current show
+'** Refresh the Contents of the Movies Detail Page
 '**************************************************************
-Function refreshShowDetail2(screen As Object, showList As Object, showIndex as Integer) As Integer
 
-    if validateParam(screen, "roSpringboardScreen", "refreshShowDetail") = false return -1
-    if validateParam(showList, "roArray", "refreshShowDetail") = false return -1
+Function RefreshMoviesDetailPage(screen As Object, movieId As String, list=invalid) As Object
 
-    show = showList[showIndex]
+    if validateParam(screen, "roSpringboardScreen", "RefreshMoviesDetailPage") = false return -1
+    if validateParam(movieId, "roString", "RefreshMoviesDetailPage") = false return -1
 
-    'Uncomment this statement to dump the details for each show
-    'PrintAA(show)
+    ' Get Data
+    moviesDetails = GetMoviesDetails(movieId)
 
+    ' Show Screen
     screen.ClearButtons()
-    'if regread(show.contentid) <> invalid and regread(show.contentid).toint() >=30 then
-        'screen.AddButton(1, "Resume playing")    
-        'screen.AddButton(2, "Play from beginning")    
-    'else
-        screen.addbutton(2, "Play")
-    'end if
-    screen.SetContent(show)
+
+    If RegRead(moviesDetails.ContentId)<>invalid and RegRead(moviesDetails.ContentId).toInt() >=30 Then
+        screen.AddButton(1, "Resume playing")    
+        screen.AddButton(2, "Play from beginning")    
+    Else
+        screen.AddButton(2, "Play")
+    End If
+
+    screen.SetContent(moviesDetails)
     screen.Show()
 
+    Return moviesDetails
 End Function
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 '********************************************************
 '** Get the next item in the list and handle the wrap 

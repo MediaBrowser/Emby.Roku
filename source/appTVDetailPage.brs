@@ -20,20 +20,8 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
     screen.SetDescriptionStyle("movie")
     screen.SetPosterStyle("rounded-rect-16x9-generic")
 
-    ' Get Data
-    tvDetails = GetTVDetails(showId)
-
-    ' Show Screen
-    screen.ClearButtons()
-
-    'If regread(show.contentid) <> invalid and regread(show.contentid).toint() >=30 Then
-        'screen.AddButton(1, "Resume playing")    
-        'screen.AddButton(2, "Play from beginning")    
-    'Else
-       screen.AddButton(2, "Play")
-    'End If
-    screen.SetContent(tvDetails)
-    screen.Show()
+    ' Fetch / Refresh Screen Details
+    tvDetails = RefreshTVDetailPage(screen, showId, list)
 
     ' Hide Star Rating
     screen.SetStaticRatingEnabled(false)
@@ -62,25 +50,27 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
             Else If msg.isButtonPressed() 
                 print "ButtonPressed"
                 If msg.GetIndex() = 1
-                '    PlayStart = RegRead(showList[showIndex].ContentId)
-                '    if PlayStart <> invalid then
-                '        showList[showIndex].PlayStart = PlayStart.ToInt()
-                '    endif
-                '    showVideoScreen(showList[showIndex])
-                '    refreshShowDetail(screen,showList,showIndex)
-                End If
-                If msg.GetIndex() = 2
+                    ' Get Saved Play Status
+                    PlayStart = RegRead(tvDetails.ContentId)
 
-                    ' Hide Playback Buttons If Invalid Or Blank - Should be temporary call
-                    If tvDetails.DoesExist("streamFormat")=false
-                        ShowDialog("Playback Error", "That video type Is Not playable yet.", "Back")
-                    Else 
-                        showVideoScreen(tvDetails)
+                    If PlayStart<>invalid Then
+                        tvDetails.PlayStart = PlayStart.ToInt()
                     End If
 
-                    'showList[showIndex].PlayStart = 0
-                    'showVideoScreen(showList[showIndex])
-                    'refreshShowDetail(screen,showList,showIndex)
+                    showVideoScreen(tvDetails)
+                    tvDetails = RefreshTVDetailPage(screen, showId, list)
+                End If
+                If msg.GetIndex() = 2
+                    ' Reset Play To Beginning
+                    tvDetails.PlayStart = 0
+
+                    ' Show Error Dialog For Unsupported video types - Should be temporary call
+                    If tvDetails.DoesExist("streamFormat")=false
+                        ShowDialog("Playback Error", "That video type is not playable yet.", "Back")
+                    Else
+                        showVideoScreen(tvDetails)
+                        tvDetails = RefreshTVDetailPage(screen, showId, list)
+                    End If
                 End If
                 'if msg.GetIndex() = 3
                 'endif
@@ -130,6 +120,7 @@ Function GetTVDetails(showId As String) As Object
                         Title: itemData.Name
                         Description: itemData.Overview 
                         Rating: itemData.OfficialRating
+                        Watched: itemData.UserData.Played
                     }
 
                     ' Use Actor Area For Series / Season / Episode
@@ -168,6 +159,7 @@ Function GetTVDetails(showId As String) As Object
                     streamData = SetupVideoStreams(showId, itemData.VideoType, itemData.Path)
 
                     If streamData<>invalid
+                        episodeData.StreamContentIDs = streamData.StreamContentIDs
                         episodeData.streamFormat = streamData.streamFormat
                         episodeData.StreamBitrates = streamData.StreamBitrates
                         episodeData.StreamUrls = streamData.StreamUrls
@@ -186,54 +178,47 @@ Function GetTVDetails(showId As String) As Object
 End Function
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 '**************************************************************
-'** Refresh the contents of the show detail screen. This may be
-'** required on initial entry to the screen or as the user moves
-'** left/right on the springboard.  When the user is on the
-'** springboard, we generally let them press left/right arrow keys
-'** to navigate to the previous/next show in a circular manner.
-'** When leaving the screen, the should be positioned on the 
-'** corresponding item in the poster screen matching the current show
+'** Refresh the Contents of the TV Detail Page
 '**************************************************************
-Function refreshShowDetail3(screen As Object, showList As Object, showIndex as Integer) As Integer
 
-    if validateParam(screen, "roSpringboardScreen", "refreshShowDetail") = false return -1
-    if validateParam(showList, "roArray", "refreshShowDetail") = false return -1
+Function RefreshTVDetailPage(screen As Object, showId As String, list=invalid) As Object
 
-    show = showList[showIndex]
+    if validateParam(screen, "roSpringboardScreen", "RefreshTVDetailPage") = false return -1
+    if validateParam(showId, "roString", "RefreshTVDetailPage") = false return -1
 
-    'Uncomment this statement to dump the details for each show
-    'PrintAA(show)
+    ' Get Data
+    tvDetails = GetTVDetails(showId)
 
+    ' Show Screen
     screen.ClearButtons()
-    'if regread(show.contentid) <> invalid and regread(show.contentid).toint() >=30 then
-        'screen.AddButton(1, "Resume playing")    
-        'screen.AddButton(2, "Play from beginning")    
-    'else
-        screen.addbutton(2, "Play")
-    'end if
-    screen.SetContent(show)
+
+    If RegRead(tvDetails.ContentId)<>invalid and RegRead(tvDetails.ContentId).toInt() >=30 Then
+        screen.AddButton(1, "Resume playing")    
+        screen.AddButton(2, "Play from beginning")    
+    Else
+        screen.AddButton(2, "Play")
+    End If
+
+    screen.SetContent(tvDetails)
     screen.Show()
 
+    Return tvDetails
 End Function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 '********************************************************
 '** Get the next item in the list and handle the wrap 
