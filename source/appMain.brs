@@ -195,3 +195,92 @@ Function GetStreamInfo(streams As Object) As Object
         isSSAudio: isSurroundSound
     }
 End Function
+
+
+'**********************************************************
+'** Setup Video Streams
+'**********************************************************
+
+Function SetupVideoStreams(videoId As String, videoType As String, videoPath As String) As Object
+    Print "Setup Video Streams"
+
+    regex = CreateObject("roRegex", "^.+\.(?:asf|ogv|ts|webm|wmv|mp4|m4v|mkv|mpeg|avi|m2ts)$", "i")
+    If (regex = invalid)
+        print "Error creating Regex:"
+    End If
+
+    If regex.isMatch(videoPath)=false
+        Print "Unsupported file type"
+    End If
+    
+    streamData = {}
+
+    If videoType="VideoFile"
+        ' Determine Direct Play / Transcode By Extension
+        extension = right(videoPath, 4)
+
+        If (extension = ".asf")
+            Print ".asf file"
+            Return invalid
+
+        Else If (extension = ".ogv") 
+            Print ".ogv file"
+            Return invalid
+
+        Else If (extension = ".wmv") 
+            Print ".wmv file"
+            Return invalid
+
+        Else If (extension = ".mp4") 
+            Print ".mp4 file"
+
+            streamData = {
+                streamFormat: "mp4"
+                StreamBitrates: [0]
+                StreamUrls: [GetServerBaseUrl() + "/Videos/" + videoId + "/stream.mp4?static=true"]
+                StreamQualities: ["HD"]
+            }
+
+        Else If (extension = ".m4v") 
+            Print ".m4v file"
+            Return invalid
+
+        Else If (extension = ".mkv") 
+            Print ".mkv file"
+            Return invalid
+
+        Else If (extension = ".avi") 
+            Print ".avi file"
+            Return invalid
+
+        Else 
+            ' Check For Other Types
+            If right(videoPath, 3) = ".ts"
+                Print ".ts file"
+                Return invalid
+
+            Else If right(videoPath, 5) = ".webm"
+                Print ".webm file"
+                Return invalid
+
+
+            Else If right(videoPath, 5) = ".mpeg"
+                Print ".mpeg file"
+                Return invalid
+
+            Else If right(videoPath, 5) = ".m2ts"
+                Print ".m2ts file"
+                Return invalid
+
+            Else
+                Print "unknown file type"
+                Return invalid
+
+            End If
+        End If
+
+        Return streamData
+
+    End If
+
+End Function
