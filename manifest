@@ -7,3 +7,4 @@ mm_icon_side_sd=pkg:/images/HomeChannel_Tile_Side_SD.png
 major_version=1
 minor_version=0
 build_version=00101
+requires_mkv=1
