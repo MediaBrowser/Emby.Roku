@@ -30,7 +30,7 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
         'screen.AddButton(1, "Resume playing")    
         'screen.AddButton(2, "Play from beginning")    
     'Else
-       screen.addbutton(2, "Play")
+       screen.AddButton(2, "Play")
     'End If
     screen.SetContent(tvDetails)
     screen.Show()
@@ -42,8 +42,6 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
     remoteKeyLeft  = 4
     remoteKeyRight = 5
  
-    'if list<>invalid
-
     while true
         msg = wait(0, screen.GetMessagePort())
 
@@ -63,19 +61,27 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
                 endif
             Else If msg.isButtonPressed() 
                 print "ButtonPressed"
-                'if msg.GetIndex() = 1
+                If msg.GetIndex() = 1
                 '    PlayStart = RegRead(showList[showIndex].ContentId)
                 '    if PlayStart <> invalid then
                 '        showList[showIndex].PlayStart = PlayStart.ToInt()
                 '    endif
                 '    showVideoScreen(showList[showIndex])
                 '    refreshShowDetail(screen,showList,showIndex)
-                'endif
-                'if msg.GetIndex() = 2
-                '    showList[showIndex].PlayStart = 0
-                '    showVideoScreen(showList[showIndex])
-                '    refreshShowDetail(screen,showList,showIndex)
-                'endif
+                End If
+                If msg.GetIndex() = 2
+
+                    ' Hide Playback Buttons If Invalid Or Blank - Should be temporary call
+                    If tvDetails.DoesExist("streamFormat")=false
+                        ShowDialog("Playback Error", "That video type Is Not playable yet.", "Back")
+                    Else 
+                        showVideoScreen(tvDetails)
+                    End If
+
+                    'showList[showIndex].PlayStart = 0
+                    'showVideoScreen(showList[showIndex])
+                    'refreshShowDetail(screen,showList,showIndex)
+                End If
                 'if msg.GetIndex() = 3
                 'endif
                 print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
@@ -119,6 +125,7 @@ Function GetTVDetails(showId As String) As Object
                     ' Convert Data For Page
                     episodeData = {
                         Id: itemData.Id
+                        ContentId: itemData.Id
                         ContentType: "episode"
                         Title: itemData.Name
                         Description: itemData.Overview 
@@ -157,6 +164,16 @@ Function GetTVDetails(showId As String) As Object
                         episodeData.AudioFormat = "dolby-digital"
                     End If
 
+                    ' Setup Video Player
+                    streamData = SetupVideoStreams(showId, itemData.VideoType, itemData.Path)
+
+                    If streamData<>invalid
+                        episodeData.streamFormat = streamData.streamFormat
+                        episodeData.StreamBitrates = streamData.StreamBitrates
+                        episodeData.StreamUrls = streamData.StreamUrls
+                        episodeData.StreamQualities = streamData.StreamQualities
+                    End If
+
                     return episodeData
                 endif
             else if (event = invalid)
@@ -167,9 +184,6 @@ Function GetTVDetails(showId As String) As Object
 
     Return invalid
 End Function
-
-
-
 
 
 
