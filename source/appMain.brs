@@ -214,6 +214,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
     End If
     
     streamData = {}
+    bitrates = [384, 650, 1500, 3000]
 
     If videoType="VideoFile"
         ' Determine Direct Play / Transcode By Extension
@@ -233,7 +234,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
         Else If (extension = ".mp4") 
             Print ".mp4 file"
-
+            ' Direct Play
             streamData = {
                 streamFormat: "mp4"
                 StreamBitrates: [0]
@@ -245,9 +246,20 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             Print ".m4v file"
             Return invalid
 
-        Else If (extension = ".mkv") 
+        Else If (extension = ".mkv")
             Print ".mkv file"
-            Return invalid
+            mkvUrls = CreateObject("roArray", 4, true)
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264&VideoBitRate=384000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264&VideoBitRate=650000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264&VideoBitRate=1500000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264&VideoBitRate=3000000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+
+            streamData = {
+                streamFormat: "ts"
+                StreamBitrates: bitrates
+                StreamUrls: mkvUrls
+                StreamQualities: ["SD","SD","HD","HD"]
+            }
 
         Else If (extension = ".avi") 
             Print ".avi file"
