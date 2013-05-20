@@ -9,10 +9,10 @@
 
 Function showVideoScreen(episode As Object)
 
-    if type(episode) <> "roAssociativeArray" then
+    If type(episode) <> "roAssociativeArray" then
         print "invalid data passed to showVideoScreen"
         return -1
-    endif
+    End if
 
     port = CreateObject("roMessagePort")
     screen = CreateObject("roVideoScreen")
@@ -23,7 +23,7 @@ Function showVideoScreen(episode As Object)
     screen.Show()
 
     'Uncomment his line to dump the contents of the episode to be played
-    PrintAA(episode)
+    'PrintAA(episode)
 
     while true
         msg = wait(0, port)
@@ -40,8 +40,8 @@ Function showVideoScreen(episode As Object)
             elseif msg.isButtonPressed()
                 print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
             elseif msg.isPlaybackPosition() then
-                nowpos = msg.GetIndex()
-                'RegWrite(episode.ContentId, nowpos.toStr())
+                nowPosition = msg.GetIndex()
+                RegWrite(episode.ContentId, nowPosition.toStr())
             else
                 print "Unexpected event type: "; msg.GetType()
             end if
