@@ -18,7 +18,7 @@ Function showVideoScreen(episode As Object)
     screen = CreateObject("roVideoScreen")
     screen.SetMessagePort(port)
 
-    screen.SetPositionNotificationPeriod(30)
+    screen.SetPositionNotificationPeriod(20)
     screen.SetContent(episode)
     screen.Show()
 
@@ -30,21 +30,29 @@ Function showVideoScreen(episode As Object)
 
         if type(msg) = "roVideoScreenEvent" then
             print "showHomeScreen | msg = "; msg.getMessage() " | index = "; msg.GetIndex()
-            if msg.isScreenClosed()
+            If msg.isScreenClosed() Then
                 print "Screen closed"
                 exit while
-            elseif msg.isRequestFailed()
+            Else If msg.isRequestFailed() Then
                 print "Video request failure: "; msg.GetIndex(); " " msg.GetData() 
-            elseif msg.isStatusMessage()
+            Else If msg.isStatusMessage() Then
                 print "Video status: "; msg.GetIndex(); " " msg.GetData() 
-            elseif msg.isButtonPressed()
+            Else If msg.isButtonPressed()
                 print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
-            elseif msg.isPlaybackPosition() then
+            Else If msg.isPartialResult() Then
+                Print "partial result"
+                nowPosition = msg.GetIndex()
+                'RegWrite(episode.ContentId, nowPosition.toStr())
+                exit while
+            Else If msg.isFullResult() Then
+                RegDelete(episode.ContentId)
+                exit while
+            Else If msg.isPlaybackPosition() Then
                 nowPosition = msg.GetIndex()
                 RegWrite(episode.ContentId, nowPosition.toStr())
-            else
+            Else
                 print "Unexpected event type: "; msg.GetType()
-            end if
+            End If
         else
             print "Unexpected message class: "; type(msg)
         end if
