@@ -50,14 +50,10 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
             Else If msg.isButtonPressed() 
                 print "ButtonPressed"
                 If msg.GetIndex() = 1
-                    ' Get Saved Play Status
-                    PlayStart = RegRead(tvDetails.ContentId)
-
-                    If PlayStart<>invalid Then
-                        tvDetails.PlayStart = PlayStart.ToInt()
-
+                    ' Set Saved Play Status
+                    If tvDetails.PlaybackPosition<>"" And tvDetails.PlaybackPosition<>"0" Then
                         ' Update URLs for Resume
-                        tvDetails.StreamUrls = AddResumeOffset(tvDetails.StreamUrls, PlayStart.ToInt())
+                        tvDetails.StreamUrls = AddResumeOffset(tvDetails.StreamUrls, tvDetails.PlaybackPosition)
                     End If
 
                     showVideoScreen(tvDetails)
@@ -113,6 +109,9 @@ Function GetTVDetails(showId As String) As Object
                     regex = CreateObject("roRegex", Chr(34) + "RunTimeTicks" + Chr(34) + ":([0-9]+),", "i")
                     fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "RunTimeTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
 
+                    regex = CreateObject("roRegex", Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":([0-9]+),", "i")
+                    fixedString = regex.ReplaceAll(fixedString, Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
+
                     itemData = ParseJSON(fixedString)
 
                     ' Convert Data For Page
@@ -138,6 +137,12 @@ Function GetTVDetails(showId As String) As Object
                     itemRunTime = itemData.RunTimeTicks
                     If itemRunTime<>"" And itemRunTime<>invalid
                         episodeData.Length = Int(((itemRunTime).ToFloat() / 10000) / 1000)
+                    End If
+
+                    ' Check For Playback Position Time
+                    itemPlaybackPositionTime = itemData.UserData.PlaybackPositionTicks
+                    If itemPlaybackPositionTime<>"" And itemPlaybackPositionTime<>invalid
+                        episodeData.PlaybackPosition = (itemPlaybackPositionTime) 'Int(((itemPlaybackPositionTime).ToFloat() / 10000) / 1000)
                     End If
 
                     ' Check If Item has Image, otherwise use default
@@ -197,7 +202,9 @@ Function RefreshTVDetailPage(screen As Object, showId As String, list=invalid) A
     ' Setup Buttons
     screen.ClearButtons()
 
-    If RegRead(showId)<>invalid and RegRead(showId).toInt() >=30 Then
+    Print "Playback Pos: "; tvDetails.PlaybackPosition
+
+    If tvDetails.PlaybackPosition<>"" And tvDetails.PlaybackPosition<>"0" Then
         screen.AddButton(1, "Resume playing")    
         screen.AddButton(2, "Play from beginning")    
     Else

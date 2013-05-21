@@ -382,16 +382,20 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 End Function
 
 
-Function AddResumeOffset(StreamUrls As Object, offset As Integer) As Object
+'**********************************************************
+'** Append Resume Time To Stream URLs
+'**********************************************************
+
+Function AddResumeOffset(StreamUrls As Object, offset As String) As Object
 
     if validateParam(StreamUrls, "roArray", "AddResumeOffset") = false return -1
-    if validateParam(offset, "roInt", "AddResumeOffset") = false return -1
+    if validateParam(offset, "roString", "AddResumeOffset") = false return -1
 
     newUrls = CreateObject("roArray", 5, true)
 
     ' Loop through urls, adding offset
     For each url in StreamUrls
-        newUrls.push(url + "&StartTimeTicks=" + itostr((offset * 1000) * 10000))
+        newUrls.push(url + "&StartTimeTicks=" + offset)
     End For
 
     Return newUrls
