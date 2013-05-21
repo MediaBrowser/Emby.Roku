@@ -60,9 +60,6 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
                     tvDetails = RefreshTVDetailPage(screen, showId, list)
                 End If
                 If msg.GetIndex() = 2
-                    ' Reset Play To Beginning
-                    tvDetails.PlayStart = 0
-
                     ' Show Error Dialog For Unsupported video types - Should be temporary call
                     If tvDetails.DoesExist("streamFormat")=false
                         ShowDialog("Playback Error", "That video type is not playable yet.", "Back")
