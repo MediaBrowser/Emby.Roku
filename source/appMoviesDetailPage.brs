@@ -166,6 +166,7 @@ Function GetMoviesDetails(movieId As String) As Object
                     streamInfo = GetStreamInfo(itemData.MediaStreams)
 
                     movieData.HDBranded = streamInfo.isHDVideo
+                    movieData.IsHD = streamInfo.isHDVideo
 
                     If streamInfo.isSSAudio=true
                         movieData.AudioFormat = "dolby-digital"
