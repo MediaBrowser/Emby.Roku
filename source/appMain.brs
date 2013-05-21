@@ -202,7 +202,10 @@ End Function
 '**********************************************************
 
 Function SetupVideoStreams(videoId As String, videoType As String, videoPath As String) As Object
-    Print "Setup Video Streams"
+
+    if validateParam(videoId, "roString", "SetupVideoStreams") = false return -1
+    if validateParam(videoType, "roString", "SetupVideoStreams") = false return -1
+    if validateParam(videoPath, "roString", "SetupVideoStreams") = false return -1
 
     regex = CreateObject("roRegex", "^.+\.(?:asf|ogv|ts|webm|wmv|mp4|m4v|mkv|mpeg|avi|m2ts)$", "i")
     If (regex = invalid)
@@ -375,5 +378,22 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
         Return streamData
 
     End If
+
+End Function
+
+
+Function AddResumeOffset(StreamUrls As Object, offset As Integer) As Object
+
+    if validateParam(StreamUrls, "roArray", "AddResumeOffset") = false return -1
+    if validateParam(offset, "roInt", "AddResumeOffset") = false return -1
+
+    newUrls = CreateObject("roArray", 5, true)
+
+    ' Loop through urls, adding offset
+    For each url in StreamUrls
+        newUrls.push(url + "&StartTimeTicks=" + itostr((offset * 1000) * 10000))
+    End For
+
+    Return newUrls
 
 End Function
