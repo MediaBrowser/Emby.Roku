@@ -53,6 +53,9 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
 
                     If PlayStart<>invalid Then
                         moviesDetails.PlayStart = PlayStart.ToInt()
+
+                        ' Update URLs for Resume
+                        moviesDetails.StreamUrls = AddResumeOffset(moviesDetails.StreamUrls, PlayStart.ToInt())
                     End If
 
                     showVideoScreen(moviesDetails)
@@ -214,16 +217,17 @@ Function RefreshMoviesDetailPage(screen As Object, movieId As String, list=inval
     ' Get Data
     moviesDetails = GetMoviesDetails(movieId)
 
-    ' Show Screen
+    ' Setup Buttons
     screen.ClearButtons()
 
-    If RegRead(moviesDetails.ContentId)<>invalid and RegRead(moviesDetails.ContentId).toInt() >=30 Then
-        screen.AddButton(1, "Resume playing")    
-        screen.AddButton(2, "Play from beginning")    
+    If RegRead(movieId)<>invalid and RegRead(movieId).toInt() >=30 Then
+        screen.AddButton(1, "Resume playing")
+        screen.AddButton(2, "Play from beginning")
     Else
         screen.AddButton(2, "Play")
     End If
 
+    ' Show Screen
     screen.SetContent(moviesDetails)
     screen.Show()
 
