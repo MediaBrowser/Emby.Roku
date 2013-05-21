@@ -48,23 +48,16 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
             Else If msg.isButtonPressed()
                 print "ButtonPressed"
                 If msg.GetIndex() = 1
-                    ' Get Saved Play Status
-                    PlayStart = RegRead(moviesDetails.ContentId)
-
-                    If PlayStart<>invalid Then
-                        moviesDetails.PlayStart = PlayStart.ToInt()
-
+                    ' Set Saved Play Status
+                    If moviesDetails.PlaybackPosition<>"" And moviesDetails.PlaybackPosition<>"0" Then
                         ' Update URLs for Resume
-                        moviesDetails.StreamUrls = AddResumeOffset(moviesDetails.StreamUrls, PlayStart.ToInt())
+                        moviesDetails.StreamUrls = AddResumeOffset(moviesDetails.StreamUrls, moviesDetails.PlaybackPosition)
                     End If
 
                     showVideoScreen(moviesDetails)
                     moviesDetails = RefreshMoviesDetailPage(screen, movieId, list)
                 End If
                 If msg.GetIndex() = 2
-                    ' Reset Play To Beginning
-                    moviesDetails.PlayStart = 0
-
                     ' Show Error Dialog For Unsupported video types - Should be temporary call
                     If moviesDetails.DoesExist("streamFormat")=false
                         ShowDialog("Playback Error", "That video type is not playable yet.", "Back")
@@ -113,6 +106,9 @@ Function GetMoviesDetails(movieId As String) As Object
                     regex = CreateObject("roRegex", Chr(34) + "RunTimeTicks" + Chr(34) + ":([0-9]+),", "i")
                     fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "RunTimeTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
 
+                    regex = CreateObject("roRegex", Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":([0-9]+),", "i")
+                    fixedString = regex.ReplaceAll(fixedString, Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
+
                     itemData = ParseJSON(fixedString)
 
                     ' Convert Data For Page
@@ -136,6 +132,12 @@ Function GetMoviesDetails(movieId As String) As Object
                     itemRunTime = itemData.RunTimeTicks
                     If itemRunTime<>"" And itemRunTime<>invalid
                         movieData.Length = Int(((itemRunTime).ToFloat() / 10000) / 1000)
+                    End If
+
+                    ' Check For Playback Position Time
+                    itemPlaybackPositionTime = itemData.UserData.PlaybackPositionTicks
+                    If itemPlaybackPositionTime<>"" And itemPlaybackPositionTime<>invalid
+                        movieData.PlaybackPosition = itemPlaybackPositionTime
                     End If
 
                     ' Check If Item has Image, otherwise use default
@@ -220,7 +222,9 @@ Function RefreshMoviesDetailPage(screen As Object, movieId As String, list=inval
     ' Setup Buttons
     screen.ClearButtons()
 
-    If RegRead(movieId)<>invalid and RegRead(movieId).toInt() >=30 Then
+    Print "Playback Pos: "; moviesDetails.PlaybackPosition
+
+    If moviesDetails.PlaybackPosition<>"" And moviesDetails.PlaybackPosition<>"0" Then
         screen.AddButton(1, "Resume playing")
         screen.AddButton(2, "Play from beginning")
     Else
