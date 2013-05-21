@@ -25,6 +25,13 @@ Function showVideoScreen(episode As Object)
     'Uncomment his line to dump the contents of the episode to be played
     'PrintAA(episode)
 
+    ' Set Offset For Index
+    If episode.PlayStart >= 30
+        offset = episode.PlayStart-1
+    Else
+        offset = 0
+    End If
+    
     while true
         msg = wait(0, port)
 
@@ -48,7 +55,8 @@ Function showVideoScreen(episode As Object)
                 RegDelete(episode.ContentId)
                 exit while
             Else If msg.isPlaybackPosition() Then
-                nowPosition = msg.GetIndex()
+                nowPosition = msg.GetIndex() + offset
+                Print "Now Position:"; nowPosition
                 RegWrite(episode.ContentId, nowPosition.toStr())
             Else
                 print "Unexpected event type: "; msg.GetType()
