@@ -55,6 +55,9 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
 
                     If PlayStart<>invalid Then
                         tvDetails.PlayStart = PlayStart.ToInt()
+
+                        ' Update URLs for Resume
+                        tvDetails.StreamUrls = AddResumeOffset(tvDetails.StreamUrls, PlayStart.ToInt())
                     End If
 
                     showVideoScreen(tvDetails)
@@ -191,16 +194,17 @@ Function RefreshTVDetailPage(screen As Object, showId As String, list=invalid) A
     ' Get Data
     tvDetails = GetTVDetails(showId)
 
-    ' Show Screen
+    ' Setup Buttons
     screen.ClearButtons()
 
-    If RegRead(tvDetails.ContentId)<>invalid and RegRead(tvDetails.ContentId).toInt() >=30 Then
+    If RegRead(showId)<>invalid and RegRead(showId).toInt() >=30 Then
         screen.AddButton(1, "Resume playing")    
         screen.AddButton(2, "Play from beginning")    
     Else
         screen.AddButton(2, "Play")
     End If
 
+    ' Show Screen
     screen.SetContent(tvDetails)
     screen.Show()
 
