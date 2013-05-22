@@ -18,19 +18,22 @@ Function showVideoScreen(episode As Object)
     screen = CreateObject("roVideoScreen")
     screen.SetMessagePort(port)
 
+    episode.PlayStart=245
+    episode.StreamStartTimeOffset=245
     screen.SetPositionNotificationPeriod(20)
     screen.SetContent(episode)
     screen.Show()
+
 
     'Uncomment his line to dump the contents of the episode to be played
     'PrintAA(episode)
 
     ' Set Offset For Index
-    If episode.PlayStart >= 30
-        offset = episode.PlayStart-1
-    Else
+    'If episode.PlayStart >= 30
+    '    offset = episode.PlayStart-1
+    'Else
         offset = 0
-    End If
+    'End If
     
     while true
         msg = wait(0, port)
@@ -52,12 +55,17 @@ Function showVideoScreen(episode As Object)
                 'RegWrite(episode.ContentId, nowPosition.toStr())
                 exit while
             Else If msg.isFullResult() Then
-                RegDelete(episode.ContentId)
+                'RegDelete(episode.ContentId)
                 exit while
             Else If msg.isPlaybackPosition() Then
                 nowPosition = msg.GetIndex() + offset
                 Print "Now Position:"; nowPosition
-                RegWrite(episode.ContentId, nowPosition.toStr())
+                'RegWrite(episode.ContentId, nowPosition.toStr())
+            Else If msg.isStreamSegmentInfo() Then
+                print " Stream Seg: = "; msg.getMessage() " | index = "; msg.GetIndex()
+                PrintAA(msg.GetInfo())
+
+
             Else
                 print "Unexpected event type: "; msg.GetType()
             End If
