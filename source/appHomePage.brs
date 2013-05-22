@@ -311,8 +311,15 @@ Function GetOptionsButtons() As Object
             Title: "Switch User"
             ContentType: "SwitchUser"
             ShortDescriptionLine1: "Switch User"
-            HDPosterUrl: "pkg://images/items/Default_Movie_Collection_HD.png"
-            SDPosterUrl: "pkg://images/items/Default_Movie_Collection_SD.png"
+            HDPosterUrl: "pkg://images/items/Default_SwitchUser_HD.png"
+            SDPosterUrl: "pkg://images/items/Default_SwitchUser_SD.png"
+        },
+        {
+            Title: "About"
+            ContentType: "About"
+            ShortDescriptionLine1: "Version 1.2"
+            'HDPosterUrl: "pkg://images/Default_SwitchUser_HD.png"
+            'SDPosterUrl: "pkg://images/Default_SwitchUser_SD.png"
         }
     ]
 
