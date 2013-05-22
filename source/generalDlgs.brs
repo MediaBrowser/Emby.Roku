@@ -76,7 +76,7 @@ Function ShowManualServerConfiguration() As Integer
     ' Show Keyboard For Both Fields
     serverAddress = ShowKeyboardScreen("Enter Server IP Address")
     If serverAddress <> ""
-      portNumber = ShowKeyboardScreen("Enter Server Port #")
+        portNumber = ShowKeyboardScreen("Enter Server Port #")
     End if
 
     ' If they filled them both out, save them To Memory And registry
