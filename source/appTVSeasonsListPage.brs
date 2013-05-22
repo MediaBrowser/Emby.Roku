@@ -84,7 +84,7 @@ End Function
 '**********************************************************
 
 Function GetTVSeasons(seriesId As String) As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + seriesId + "&Recursive=true&IncludeItemTypes=Season&SortBy=SortName&SortOrder=Ascending")
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + seriesId + "&Recursive=true&IncludeItemTypes=Season&SortBy=SortName&SortOrder=Ascending", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -121,7 +121,7 @@ End Function
 '**********************************************************
 
 Function GetTVEpisodes(seasonId As String) As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + seasonId + "&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2COverview%2CMediaStreams&SortBy=SortName&SortOrder=Ascending")
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + seasonId + "&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2COverview%2CMediaStreams&SortBy=SortName&SortOrder=Ascending", true)
 
     if (request.AsyncGetToString())
         while (true)

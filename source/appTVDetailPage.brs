@@ -92,7 +92,7 @@ Function GetTVDetails(showId As String) As Object
 
     if validateParam(showId, "roString", "GetTVDetails") = false return -1
 
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items/" + showId)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items/" + showId, true)
 
     if (request.AsyncGetToString())
         while (true)

@@ -90,7 +90,7 @@ Function GetMoviesDetails(movieId As String) As Object
 
     if validateParam(movieId, "roString", "GetMoviesDetails") = false return -1
 
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items/" + movieId)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items/" + movieId, true)
 
     if (request.AsyncGetToString())
         while (true)
