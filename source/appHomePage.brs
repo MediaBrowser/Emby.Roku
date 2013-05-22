@@ -2,40 +2,27 @@
 '**  Media Browser Roku Client - Home Page
 '*****************************************************************
 
-'**********************************************************
-'** Create Home Page
-'**********************************************************
-
-Function CreateHomePage(breadA=invalid, breadB=invalid) As Object
-
-    if validateParam(breadA, "roString", "CreateHomePage", true) = false return -1
-    if validateParam(breadA, "roString", "CreateHomePage", true) = false return -1
-
-    port   = CreateObject("roMessagePort")
-    screen = CreateObject("roGridScreen")
-    screen.SetMessagePort(port)
-    if breadA<>invalid and breadB<>invalid then
-        screen.SetBreadcrumbText(breadA, breadB)
-    end if
-
-    screen.SetGridStyle("two-row-flat-landscape-custom")
-    screen.SetDisplayMode("scale-to-fit")
-    return screen
-End Function
-
 
 '**********************************************************
 '** Show Home Page
 '**********************************************************
 
-Function ShowHomePage(screen As Object) As Integer
+Function ShowHomePage()
 
-    if validateParam(screen, "roGridScreen", "ShowHomePage") = false return -1
+    ' Setup Screen
+    port   = CreateObject("roMessagePort")
+    screen = CreateObject("roGridScreen")
+    screen.SetMessagePort(port)
 
-    screen.SetupLists(2)
-    screen.SetListNames(["Movies","TV"])
+    screen.SetBreadcrumbText("", m.curUserProfile.Title)
+    screen.SetGridStyle("two-row-flat-landscape-custom")
+    screen.SetDisplayMode("scale-to-fit")
 
-    rowData = CreateObject("roArray", 2, true)
+    ' Get Data
+    screen.SetupLists(3)
+    screen.SetListNames(["Movies","TV","Options"])
+
+    rowData = CreateObject("roArray", 3, true)
 
     moviesButtons = GetMoviesButtons()
     rowData[0] = moviesButtons
@@ -45,6 +32,11 @@ Function ShowHomePage(screen As Object) As Integer
     rowData[1] = tvButtons
     screen.SetContentList(1, tvButtons)
 
+    optionButtons = GetOptionsButtons()
+    rowData[2] = optionButtons
+    screen.SetContentList(2, optionButtons)
+
+    ' Show Screen
     screen.Show()
 
     ' Hide Description Popup
@@ -68,19 +60,21 @@ Function ShowHomePage(screen As Object) As Integer
                     ShowTVShowListPage()
                 Else If rowData[row][selection].ContentType = "Episode" Then
                     ShowTVDetailPage(rowData[row][selection].Id)
+                Else If rowData[row][selection].ContentType = "SwitchUser" Then
+                    RegDelete("userId")
+                    Print "Switch User"
+                    return true
                 Else 
                     Print "Unknown Type found"
                 End If
-                
-                'm.curParent = list[msg.GetIndex()]
-                'DisplayListPage()
-            else if msg.isScreenClosed() then
-                return -1
-            end if
+            Else If msg.isScreenClosed() Then
+                Print "Close home screen"
+                return false
+            End If
         end if
     end while
 
-    return 0
+    return false
 End Function
 
 
@@ -303,4 +297,24 @@ Function GetTVRecentPlayed() As Object
     endif
 
     Return invalid
+End Function
+
+
+'**********************************************************
+'** Get Options Buttons Row
+'**********************************************************
+
+Function GetOptionsButtons() As Object
+    ' Set the Options buttons
+    buttons = [
+        {
+            Title: "Switch User"
+            ContentType: "SwitchUser"
+            ShortDescriptionLine1: "Switch User"
+            HDPosterUrl: "pkg://images/items/Default_Movie_Collection_HD.png"
+            SDPosterUrl: "pkg://images/items/Default_Movie_Collection_SD.png"
+        }
+    ]
+
+    Return buttons
 End Function

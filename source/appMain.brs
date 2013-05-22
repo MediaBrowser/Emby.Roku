@@ -52,15 +52,32 @@ Sub Main()
     'Close Dialog Box
     dialogBox.Close()
 
-    'prepare the screen for display and get ready to begin
-    screen = CreateLoginPage("", "")
-    if screen = invalid then
-        print "Unexpected error in CreateLoginPage"
-        return
-    end if
+    ' Goto Marker
+    checkLoginStatus:
 
-    'set to go, time to get started
-    ShowLoginPage(screen)
+    ' Check to see if they have already selected a User
+    ' Show home page if so, otherwise show login page.
+    If RegRead("userId")<>invalid And RegRead("userId")<>""
+        Print "Saved User"
+        m.curUserProfile = GetUserProfile(RegRead("userId"))
+        homeResult = ShowHomePage()
+        If homeResult = true Then
+            Print "recheck login From home"
+            ' Retry Login Check
+            Goto checkLoginStatus
+        End If
+    Else
+        Print "Force Select User"
+        loginResult = ShowLoginPage()
+        If loginResult = true Then
+            Print "recheck login From login"
+            ' Retry Login Check
+            Goto checkLoginStatus
+        End If
+    End If
+
+    ' Exit Application
+    Return
 
 End Sub
 
