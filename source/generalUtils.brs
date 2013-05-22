@@ -1,12 +1,35 @@
-'**********************************************************
-'**  Video Player Example Application - General Utilities 
-'**  November 2009
-'**  Copyright (c) 2009 Roku Inc. All Rights Reserved.
-'**********************************************************
+'*****************************************************************
+'**  Media Browser Roku Client - General Utils
+'*****************************************************************
+
 
 '******************************************************
-'Registry Helper Functions
+' Validate parameter is the correct type
 '******************************************************
+Function validateParam(param As Object, paramType As String,functionName As String, allowInvalid = false) As Boolean
+    if paramType = "roString" or paramType = "String" then
+        if type(param) = "roString" or type(param) = "String" then
+            return true
+        end if
+    else if type(param) = paramType then
+        return true
+    endif
+
+    if allowInvalid = true then
+        if type(param) = invalid then
+            return true
+        endif
+    endif
+
+    print "invalid parameter of type "; type(param); " for "; paramType; " in function "; functionName
+    return false
+End Function
+
+
+'******************************************************
+' Registry Helpers
+'******************************************************
+
 Function RegRead(key, section=invalid)
     if section = invalid then section = "Default"
     sec = CreateObject("roRegistrySection", section)
@@ -29,6 +52,10 @@ Function RegDelete(key, section=invalid)
 End Function
 
 
+'******************************************************
+' Get Roku Model Name from Model Id
+'******************************************************
+
 Function GetModelName(model As String) as Object
 
     If model = "2400X" Or model = "2450X"
@@ -46,6 +73,27 @@ Function GetModelName(model As String) as Object
     End If
 
 End Function
+
+
+'******************************************************
+' Get a " char as a string
+'******************************************************
+Function Quote()
+    q$ = Chr(34)
+    return q$
+End Function
+
+
+
+
+
+
+
+'**********************************************************
+'**  Video Player Example Application - General Utilities 
+'**  November 2009
+'**  Copyright (c) 2009 Roku Inc. All Rights Reserved.
+'**********************************************************
 
 
 '******************************************************
@@ -98,13 +146,6 @@ Function tostr(any)
 End Function
 
 
-'******************************************************
-'Get a " char as a string
-'******************************************************
-Function Quote()
-    q$ = Chr(34)
-    return q$
-End Function
 
 
 '******************************************************
@@ -325,136 +366,6 @@ End Function
 
 
 '******************************************************
-'Get all XML subelements by name
-'
-'return list of 0 or more elements
-'******************************************************
-Function GetXMLElementsByName(xml As Object, name As String) As Object
-    list = CreateObject("roArray", 100, true)
-    if islist(xml.GetBody()) = false return list
-
-    for each e in xml.GetBody()
-        if e.GetName() = name then
-            list.Push(e)
-        endif
-    next
-
-    return list
-End Function
-
-
-'******************************************************
-'Get all XML subelement's string bodies by name
-'
-'return list of 0 or more strings
-'******************************************************
-Function GetXMLElementBodiesByName(xml As Object, name As String) As Object
-    list = CreateObject("roArray", 100, true)
-    if islist(xml.GetBody()) = false return list
-
-    for each e in xml.GetBody()
-        if e.GetName() = name then
-            b = e.GetBody()
-            if type(b) = "roString" or type(b) = "String" list.Push(b)
-        endif
-    next
-
-    return list
-End Function
-
-
-'******************************************************
-'Get first XML subelement by name
-'
-'return invalid if not found, else the element
-'******************************************************
-Function GetFirstXMLElementByName(xml As Object, name As String) As dynamic
-    if islist(xml.GetBody()) = false return invalid
-
-    for each e in xml.GetBody()
-        if e.GetName() = name return e
-    next
-
-    return invalid
-End Function
-
-
-'******************************************************
-'Get first XML subelement's string body by name
-'
-'return invalid if not found, else the subelement's body string
-'******************************************************
-Function GetFirstXMLElementBodyStringByName(xml As Object, name As String) As dynamic
-    e = GetFirstXMLElementByName(xml, name)
-    if e = invalid return invalid
-    if type(e.GetBody()) <> "roString" and type(e.GetBody()) <> "String" return invalid
-    return e.GetBody()
-End Function
-
-
-'******************************************************
-'Get the xml element as an integer
-'
-'return invalid if body not a string, else the integer as converted by strtoi
-'******************************************************
-Function GetXMLBodyAsInteger(xml As Object) As dynamic
-    if type(xml.GetBody()) <> "roString" and type(xml.GetBody()) <> "String" return invalid
-    return strtoi(xml.GetBody())
-End Function
-
-
-'******************************************************
-'Parse a string into a roXMLElement
-'
-'return invalid on error, else the xml object
-'******************************************************
-Function ParseXML(str As String) As dynamic
-    if str = invalid return invalid
-    xml=CreateObject("roXMLElement")
-    if not xml.Parse(str) return invalid
-    return xml
-End Function
-
-
-'******************************************************
-'Get XML sub elements whose bodies are strings into an associative array.
-'subelements that are themselves parents are skipped
-'namespace :'s are replaced with _'s
-'
-'So an XML element like...
-'
-'<blah>
-'    <This>abcdefg</This>
-'    <Sucks>xyz</Sucks>
-'    <sub>
-'        <sub2>
-'        ....
-'        </sub2>
-'    </sub>
-'    <ns:doh>homer</ns:doh>
-'</blah>
-'
-'returns an AA with:
-'
-'aa.This = "abcdefg"
-'aa.Sucks = "xyz"
-'aa.ns_doh = "homer"
-'
-'return an empty AA if nothing found
-'******************************************************
-Sub GetXMLintoAA(xml As Object, aa As Object)
-    for each e in xml.GetBody()
-        body = e.GetBody()
-        if type(body) = "roString" or type(body) = "String" then
-            name = e.GetName()
-            name = strReplace(name, ":", "_")
-            aa.AddReplace(name, body)
-        endif
-    next
-End Sub
-
-
-'******************************************************
 'Walk an AA and print it
 '******************************************************
 Sub PrintAA(aa as Object)
@@ -658,24 +569,3 @@ Sub DumpString(str As String)
 End Sub
 
 
-'******************************************************
-'Validate parameter is the correct type
-'******************************************************
-Function validateParam(param As Object, paramType As String,functionName As String, allowInvalid = false) As Boolean
-    if paramType = "roString" or paramType = "String" then
-        if type(param) = "roString" or type(param) = "String" then
-            return true
-        end if
-    else if type(param) = paramType then
-        return true
-    endif
-
-    if allowInvalid = true then
-        if type(param) = invalid then
-            return true
-        endif
-    endif
-
-    print "invalid parameter of type "; type(param); " for "; paramType; " in function "; functionName
-    return false
-End Function
