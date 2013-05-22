@@ -29,6 +29,25 @@ Function RegDelete(key, section=invalid)
 End Function
 
 
+Function GetModelName(model As String) as Object
+
+    If model = "2400X" Or model = "2450X"
+        Return "Roku LT"
+    Else If model = "3000X"
+        Return "Roku 2 HD"
+    Else If model = "3050X"
+        Return "Roku 2 XD"
+    Else If model = "3100X"
+        Return "Roku 2 XS"
+    Else If model = "4200X"
+        Return "Roku 3"
+    Else 
+        Return "Unknown"
+    End If
+
+End Function
+
+
 '******************************************************
 'Insertion Sort
 'Will sort an array directly, or use a key function
