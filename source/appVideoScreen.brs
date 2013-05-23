@@ -52,7 +52,7 @@ Function showVideoScreen(episode As Object)
 
             Else If msg.isStreamStarted() Then
                 Print "started stream"
-                PostPlaybackStarted(episode.Id)
+                PostPlayback(episode.Id, "start")
 
             Else If msg.isPartialResult() Then
                 Print "partial result"
@@ -104,13 +104,20 @@ End Function
 
 
 '**********************************************************
-'** Post Playback Started to Server
+'** Post Playback to Server
 '**********************************************************
 
-Function PostPlaybackStarted(videoId As String) As Boolean
+Function PostPlayback(videoId As String, action As String) As Boolean
 
-    request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
-
+    If action = "start"
+        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
+    Else If action = "progress"
+        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
+    Else If action = "stop"
+        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
+        request.SetRequest("DELETE")
+    End If
+    
     if (request.AsyncPostFromString(""))
         while (true)
             msg = wait(0, request.GetPort())
@@ -119,39 +126,6 @@ Function PostPlaybackStarted(videoId As String) As Boolean
                 code = msg.GetResponseCode()
 
                 If (code = 200)
-                    Print "playback startup success"
-                    Return true
-                End if
-            else if (event = invalid)
-                request.AsyncCancel()
-                exit while
-            endif
-        end while
-    endif
-
-    return false
-End Function
-
-
-'**********************************************************
-'** Post Playback Stopped to Server
-'**********************************************************
-
-Function PostPlaybackStopped(videoId As String) As Boolean
-
-    request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
-
-    request.SetRequest("DELETE")
-
-    if (request.AsyncPostFromString(""))
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                If (code = 200)
-                    Print "playback stopped success"
                     Return true
                 End if
             else if (event = invalid)
