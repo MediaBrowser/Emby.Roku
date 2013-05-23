@@ -113,6 +113,11 @@ Function GetMoviesButtons() As Object
         buttons.Append( recentMovies )
     End if
 
+    resumeMovies = GetMoviesResumable()
+    If resumeMovies<>invalid
+        buttons.Append( resumeMovies )
+    End if
+
     Return buttons
 End Function
 
@@ -167,6 +172,55 @@ End Function
 
 
 '**********************************************************
+'** Get Resumable Movies From Server
+'**********************************************************
+
+Function GetMoviesResumable() As Object
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=7&Recursive=true&IncludeItemTypes=Movie&SortBy=DatePlayed&SortOrder=Descending&Filters=IsResumable", true)
+
+    if (request.AsyncGetToString())
+        while (true)
+            msg = wait(0, request.GetPort())
+
+            if (type(msg) = "roUrlEvent")
+                code = msg.GetResponseCode()
+
+                if (code = 200)
+                    list     = CreateObject("roArray", 2, true)
+                    jsonData = ParseJSON(msg.GetString())
+                    for each itemData in jsonData.Items
+                        movieData = {
+                            Id: itemData.Id
+                            Title: "Resume"
+                            ContentType: "Movie"
+                            ShortDescriptionLine1: "Resume"
+                            ShortDescriptionLine2: itemData.Name
+                        }
+
+                        ' Check If Item has Image, otherwise use default
+                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
+                            movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                            movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                        Else 
+                            movieData.HDPosterUrl = "pkg://images/items/collection.png"
+                            movieData.SDPosterUrl = "pkg://images/items/collection.png"
+                        End If
+
+                        list.push( movieData )
+                    end for
+                    return list
+                endif
+            else if (event = invalid)
+                request.AsyncCancel()
+            endif
+        end while
+    endif
+
+    Return invalid
+End Function
+
+
+'**********************************************************
 '** Get TV Buttons Row
 '**********************************************************
 
@@ -185,6 +239,11 @@ Function GetTVButtons() As Object
     recentTVAdded = GetTVRecentAdded()
     If recentTVAdded<>invalid
         buttons.Append( recentTVAdded )
+    End If
+
+    resumeTV = GetTVResumable()
+    If resumeTV<>invalid
+        buttons.Append( resumeTV )
     End If
 
     recentTVPlayed = GetTVRecentPlayed()
@@ -301,6 +360,58 @@ End Function
 
 
 '**********************************************************
+'** Get Resumable TV From Server
+'**********************************************************
+
+Function GetTVResumable() As Object
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=7&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo&SortBy=DatePlayed&SortOrder=Descending&Filters=IsResumable", true)
+
+    if (request.AsyncGetToString())
+        while (true)
+            msg = wait(0, request.GetPort())
+
+            if (type(msg) = "roUrlEvent")
+                code = msg.GetResponseCode()
+
+                if (code = 200)
+                    list     = CreateObject("roArray", 2, true)
+                    jsonData = ParseJSON(msg.GetString())
+                    for each itemData in jsonData.Items
+                        tvData = {
+                            Id: itemData.Id
+                            Title: "Resume"
+                            ContentType: "Episode"
+                            ShortDescriptionLine1: "Resume"
+                            ShortDescriptionLine2: itemData.SeriesName + " - Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
+                        }
+
+                        ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
+                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                        Else If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=150&width=&tag=" + itemData.ImageTags.Primary
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=94&width=&tag=" + itemData.ImageTags.Primary
+                        Else 
+                            tvData.HDPosterUrl = "pkg://images/items/collection.png"
+                            tvData.SDPosterUrl = "pkg://images/items/collection.png"
+                        End If
+
+                        list.push( tvData )
+                    end for
+                    return list
+                endif
+            else if (event = invalid)
+                request.AsyncCancel()
+            endif
+        end while
+    endif
+
+    Return invalid
+End Function
+
+
+'**********************************************************
 '** Get Options Buttons Row
 '**********************************************************
 
@@ -317,7 +428,7 @@ Function GetOptionsButtons() As Object
         {
             Title: "About"
             ContentType: "About"
-            ShortDescriptionLine1: "Version 1.2"
+            ShortDescriptionLine1: "Version 1.3"
             'HDPosterUrl: "pkg://images/Default_SwitchUser_HD.png"
             'SDPosterUrl: "pkg://images/Default_SwitchUser_SD.png"
         }
