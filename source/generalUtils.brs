@@ -6,6 +6,7 @@
 '******************************************************
 ' Validate parameter is the correct type
 '******************************************************
+
 Function validateParam(param As Object, paramType As String,functionName As String, allowInvalid = false) As Boolean
     if paramType = "roString" or paramType = "String" then
         if type(param) = "roString" or type(param) = "String" then
@@ -78,11 +79,44 @@ End Function
 '******************************************************
 ' Get a " char as a string
 '******************************************************
+
 Function Quote()
     q$ = Chr(34)
     return q$
 End Function
 
+
+'******************************************************
+' Pluralize simple strings like "1 minute" or "2 minutes"
+'******************************************************
+
+Function Pluralize(val As Integer, str As String) As String
+    ret = itostr(val) + " " + str
+    if val <> 1 ret = ret + "s"
+    return ret
+End Function
+
+
+'******************************************************
+' Convert int to string. This is necessary because
+' the builtin Stri(x) prepends whitespace
+'******************************************************
+
+Function itostr(i As Integer) As String
+    str = Stri(i)
+    return strTrim(str)
+End Function
+
+
+'******************************************************
+' Trim a string
+'******************************************************
+
+Function strTrim(str As String) As String
+    st = CreateObject("roString")
+    st.SetString(str)
+    return st.Trim()
+End Function
 
 
 
@@ -147,17 +181,6 @@ End Function
 
 
 
-
-'******************************************************
-'isxmlelement
-'
-'Determine if the given object supports the ifXMLElement interface
-'******************************************************
-Function isxmlelement(obj as dynamic) As Boolean
-    if obj = invalid return false
-    if GetInterface(obj, "ifXMLElement") = invalid return false
-    return true
-End Function
 
 
 '******************************************************
@@ -276,16 +299,6 @@ Function strtobool(obj As dynamic) As Boolean
 End Function
 
 
-'******************************************************
-'itostr
-'
-'Convert int to string. This is necessary because
-'the builtin Stri(x) prepends whitespace
-'******************************************************
-Function itostr(i As Integer) As String
-    str = Stri(i)
-    return strTrim(str)
-End Function
 
 
 '******************************************************
@@ -308,24 +321,9 @@ Function minutesLeft(seconds As Integer) As Integer
 End Function
 
 
-'******************************************************
-'Pluralize simple strings like "1 minute" or "2 minutes"
-'******************************************************
-Function Pluralize(val As Integer, str As String) As String
-    ret = itostr(val) + " " + str
-    if val <> 1 ret = ret + "s"
-    return ret
-End Function
 
 
-'******************************************************
-'Trim a string
-'******************************************************
-Function strTrim(str As String) As String
-    st=CreateObject("roString")
-    st.SetString(str)
-    return st.Trim()
-End Function
+
 
 
 '******************************************************
