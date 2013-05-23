@@ -72,10 +72,15 @@ Function showVideoScreen(episode As Object)
                 Print "Now Position:"; nowPosition
 
             Else If msg.isPaused() Then
+                nowPosition = msg.GetIndex() + offset
+                Print "Paused Position: "; nowPosition
+
                 print "paused video"
 
             Else If msg.isResumed() Then
+                nowPosition = msg.GetIndex() + offset
                 print "resume video"
+                Print "Resume Position: "; nowPosition
 
             Else If msg.isScreenClosed() Then
                 print "Screen closed"
@@ -105,8 +110,6 @@ End Function
 Function PostPlaybackStarted(videoId As String) As Boolean
 
     request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
-
-    'request.SetRequest("DELETE")
 
     if (request.AsyncPostFromString(""))
         while (true)
