@@ -73,7 +73,7 @@ End Function
 '**********************************************************
 
 Function GetTVShowAll() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Series&SortBy=SortName&SortOrder=Ascending", true)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Series&Fields=ItemCounts&SortBy=SortName&SortOrder=Ascending", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -91,6 +91,7 @@ Function GetTVShowAll() As Object
                             Title: itemData.Name
                             ContentType: "Series"
                             ShortDescriptionLine1: itemData.Name
+                            ShortDescriptionLine2: Pluralize(itemData.ChildCount, "season")
                         }
 
                         ' Check If Item has Image, otherwise use default
