@@ -16,7 +16,7 @@ Function ShowHomePage()
 
     screen.SetBreadcrumbText("", m.curUserProfile.Title)
     screen.SetGridStyle("two-row-flat-landscape-custom")
-    screen.SetDisplayMode("scale-to-fit")
+    screen.SetDisplayMode("scale-to-fill")
 
     ' Get Data
     screen.SetupLists(3)
