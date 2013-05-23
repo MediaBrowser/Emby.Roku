@@ -7,7 +7,7 @@
 '** Show Video Screen
 '**********************************************************
 
-Function showVideoScreen(episode As Object)
+Function showVideoScreen(episode As Object, PlayStart As Dynamic)
 
     If type(episode) <> "roAssociativeArray" then
         print "invalid data passed to showVideoScreen"
@@ -18,22 +18,13 @@ Function showVideoScreen(episode As Object)
     screen = CreateObject("roVideoScreen")
     screen.SetMessagePort(port)
 
-    episode.PlayStart=245
-    episode.StreamStartTimeOffset=245
-    screen.SetPositionNotificationPeriod(20)
+    screen.SetPositionNotificationPeriod(10)
     screen.SetContent(episode)
     screen.Show()
 
 
     'Uncomment his line to dump the contents of the episode to be played
     'PrintAA(episode)
-
-    ' Set Offset For Index
-    'If episode.PlayStart >= 30
-    '    offset = episode.PlayStart-1
-    'Else
-        offset = 0
-    'End If
     
     while true
         msg = wait(0, port)
@@ -68,17 +59,26 @@ Function showVideoScreen(episode As Object)
                 exit While
                 
             Else If msg.isPlaybackPosition() Then
-                nowPosition = msg.GetIndex() + offset
-                Print "Now Position:"; nowPosition
+                nowPositionMs# = msg.GetIndex() * 1000
+                nowPositionTicks# = nowPositionMs# * 10000
+                nowPosition = nowPositionTicks# + PlayStart
+
+                Print "MS: "; nowPositionMs#
+                Print "Ticks: "; nowPositionTicks#
+
+                Print "Position: "; nowPosition
+                Print "Type: "; Type(nowPosition)
+
+                'PostPlayback(episode.Id, "progress", nowPosition)
 
             Else If msg.isPaused() Then
-                nowPosition = msg.GetIndex() + offset
+                nowPosition = msg.GetIndex()
                 Print "Paused Position: "; nowPosition
 
                 print "paused video"
 
             Else If msg.isResumed() Then
-                nowPosition = msg.GetIndex() + offset
+                nowPosition = msg.GetIndex()
                 print "resume video"
                 Print "Resume Position: "; nowPosition
 
@@ -107,14 +107,14 @@ End Function
 '** Post Playback to Server
 '**********************************************************
 
-Function PostPlayback(videoId As String, action As String) As Boolean
+Function PostPlayback(videoId As String, action As String, position=invalid) As Boolean
 
     If action = "start"
         request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
     Else If action = "progress"
-        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
+        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId + "?PositionTicks=" + position, true)
     Else If action = "stop"
-        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
+        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId + "?PositionTicks=" + position, true)
         request.SetRequest("DELETE")
     End If
     
