@@ -79,20 +79,6 @@ End Function
 
 
 '**********************************************************
-'** Create And Display the List Page
-'**********************************************************
-
-Function DisplayListPage(mediaType As String) As Dynamic
-
-    if validateParam(mediaType, "roString", "DisplayListPage") = false return -1
-
-    ShowMoviesListPage()
-
-    return 0
-End Function
-
-
-'**********************************************************
 '** Get Movie Buttons Row
 '**********************************************************
 
@@ -108,14 +94,14 @@ Function GetMoviesButtons() As Object
         }
     ]
 
-    recentMovies = GetMoviesRecentAdded()
-    If recentMovies<>invalid
-        buttons.Append( recentMovies )
-    End if
-
     resumeMovies = GetMoviesResumable()
     If resumeMovies<>invalid
         buttons.Append( resumeMovies )
+    End if
+
+    recentMovies = GetMoviesRecentAdded()
+    If recentMovies<>invalid
+        buttons.Append( recentMovies )
     End if
 
     Return buttons
@@ -236,20 +222,20 @@ Function GetTVButtons() As Object
         }
     ]
 
-    recentTVAdded = GetTVRecentAdded()
-    If recentTVAdded<>invalid
-        buttons.Append( recentTVAdded )
-    End If
-
     resumeTV = GetTVResumable()
     If resumeTV<>invalid
         buttons.Append( resumeTV )
     End If
 
-    recentTVPlayed = GetTVRecentPlayed()
-    If recentTVPlayed<>invalid
-        buttons.Append( recentTVPlayed )
+    recentTVAdded = GetTVRecentAdded()
+    If recentTVAdded<>invalid
+        buttons.Append( recentTVAdded )
     End If
+
+    'recentTVPlayed = GetTVRecentPlayed()
+    'If recentTVPlayed<>invalid
+    '    buttons.Append( recentTVPlayed )
+    'End If
 
     Return buttons
 End Function
