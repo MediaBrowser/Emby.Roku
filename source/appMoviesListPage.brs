@@ -49,7 +49,8 @@ Function ShowMoviesListPage() As Integer
                 selection = msg.getData()
 
                 If rowData[row][selection].ContentType = "Movie" Then
-                    ShowMoviesDetailPage(rowData[row][selection].Id)
+                    movieIndex = ShowMoviesDetailPage(rowData[row][selection].Id, moviesAll, selection)
+                    screen.SetFocusedListItem(row, movieIndex)
                 Else If rowData[row][selection].ContentType = "Genre" Then
                     Print rowData[row][selection].Id
 

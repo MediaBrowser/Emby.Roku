@@ -7,10 +7,15 @@
 '** Show Movies Details Page
 '**********************************************************
 
-Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
+Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=invalid) As Integer
 
     if validateParam(movieId, "roString", "ShowMoviesDetailPage") = false return -1
 
+    ' Handle Direct Access from Home
+    If movieIndex=invalid Then
+        movieIndex = 0
+    End If
+    
     ' Setup Screen
     port   = CreateObject("roMessagePort")
     screen = CreateObject("roSpringboardScreen")
@@ -20,7 +25,7 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
     screen.SetDescriptionStyle("movie")
 
     ' Fetch / Refresh Screen Details
-    moviesDetails = RefreshMoviesDetailPage(screen, movieId, list)
+    moviesDetails = RefreshMoviesDetailPage(screen, movieId)
 
     ' Remote key id's for left/right navigation
     remoteKeyLeft  = 4
@@ -33,18 +38,24 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
 
         if type(msg) = "roSpringboardScreenEvent" then
             If msg.isRemoteKeyPressed() 
-                print "Remote key pressed"
-                if msg.GetIndex() = remoteKeyLeft then
-                    'showIndex = getPrevShow(showList, m.curItemIndex)
-                    'if showIndex <> -1
-                    '    refreshShowDetail(screen, showList, showIndex)
-                    'end if
-                else if msg.GetIndex() = remoteKeyRight
-                    'showIndex = getNextShow(showList, m.curItemIndex)
-                    'if showIndex <> -1
-                    '   refreshShowDetail(screen, showList, showIndex)
-                    'end if
-                endif
+                ' Only allow left/right navigation if movieList provided
+                If movieList<>invalid Then
+                    If msg.GetIndex() = remoteKeyLeft Then
+                        movieIndex = getPreviousMovie(movieList, movieIndex)
+
+                        If movieIndex <> -1
+                            movieId = movieList[movieIndex].Id
+                            moviesDetails = RefreshMoviesDetailPage(screen, movieId)
+                        End If
+                    Else If msg.GetIndex() = remoteKeyRight
+                        movieIndex = getNextMovie(movieList, movieIndex)
+
+                        If movieIndex <> -1
+                            movieId = movieList[movieIndex].Id
+                            moviesDetails = RefreshMoviesDetailPage(screen, movieId)
+                        End If
+                    End If
+                End If
             Else If msg.isButtonPressed()
                 print "ButtonPressed"
                 If msg.GetIndex() = 1
@@ -59,7 +70,7 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
                     End If
 
                     showVideoScreen(moviesDetails, PlayStart)
-                    moviesDetails = RefreshMoviesDetailPage(screen, movieId, list)
+                    moviesDetails = RefreshMoviesDetailPage(screen, movieId)
                 End If
                 If msg.GetIndex() = 2
                     ' Show Error Dialog For Unsupported video types - Should be temporary call
@@ -68,7 +79,7 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
                     Else
                         PlayStart = 0
                         showVideoScreen(moviesDetails, PlayStart)
-                        moviesDetails = RefreshMoviesDetailPage(screen, movieId, list)
+                        moviesDetails = RefreshMoviesDetailPage(screen, movieId)
                     End If
                 End If
                 'if msg.GetIndex() = 3
@@ -76,14 +87,14 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
                 print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
             Else If msg.isScreenClosed()
                 print "Screen closed"
-                return -1
+                Exit While
             End If
         Else
             print "Unexpected message class: "; type(msg)
         End If
     end while
 
-    return 0
+    return movieIndex
 End Function
 
 
@@ -216,7 +227,7 @@ End Function
 '** Refresh the Contents of the Movies Detail Page
 '**************************************************************
 
-Function RefreshMoviesDetailPage(screen As Object, movieId As String, list=invalid) As Object
+Function RefreshMoviesDetailPage(screen As Object, movieId As String) As Object
 
     if validateParam(screen, "roSpringboardScreen", "RefreshMoviesDetailPage") = false return -1
     if validateParam(movieId, "roString", "RefreshMoviesDetailPage") = false return -1
@@ -226,8 +237,6 @@ Function RefreshMoviesDetailPage(screen As Object, movieId As String, list=inval
 
     ' Setup Buttons
     screen.ClearButtons()
-
-    Print "Playback Pos: "; moviesDetails.PlaybackPosition
 
     If moviesDetails.PlaybackPosition<>"" And moviesDetails.PlaybackPosition<>"0" Then
         screen.AddButton(1, "Resume playing")
@@ -244,62 +253,49 @@ Function RefreshMoviesDetailPage(screen As Object, movieId As String, list=inval
 End Function
 
 
+'**********************************************************
+'** Get Next Movie from List
+'**********************************************************
 
+Function getNextMovie(movieList As Object, movieIndex As Integer) As Integer
 
+    if validateParam(movieList, "roArray", "getNextMovie") = false return -1
 
-
-
-
-
-
-
-
-
-
-'********************************************************
-'** Get the next item in the list and handle the wrap 
-'** around case to implement a circular list for left/right 
-'** navigation on the springboard screen
-'********************************************************
-Function getNextShow2(showList As Object, showIndex As Integer) As Integer
-    if validateParam(showList, "roArray", "getNextShow") = false return -1
-
-    nextIndex = showIndex + 1
-    if nextIndex >= showList.Count() or nextIndex < 0 then
+    nextIndex = movieIndex + 1
+    if nextIndex >= movieList.Count() Or nextIndex < 0 then
        nextIndex = 0 
     end if
 
-    show = showList[nextIndex]
-    if validateParam(show, "roAssociativeArray", "getNextShow") = false return -1 
+    movie = movieList[nextIndex]
 
-    m.curItemIndex = nextIndex
+    if validateParam(movie, "roAssociativeArray", "getNextMovie") = false return -1 
 
     return nextIndex
+
 End Function
 
 
-'********************************************************
-'** Get the previous item in the list and handle the wrap 
-'** around case to implement a circular list for left/right 
-'** navigation on the springboard screen
-'********************************************************
-Function getPrevShow2(showList As Object, showIndex As Integer) As Integer
-    if validateParam(showList, "roArray", "getPrevShow") = false return -1 
+'**********************************************************
+'** Get Previous Movie from List
+'**********************************************************
 
-    prevIndex = showIndex - 1
-    if prevIndex < 0 or prevIndex >= showList.Count() then
-        if showList.Count() > 0 then
-            prevIndex = showList.Count() - 1 
+Function getPreviousMovie(movieList As Object, movieIndex As Integer) As Integer
+
+    if validateParam(movieList, "roArray", "getPrevMovie") = false return -1 
+
+    prevIndex = movieIndex - 1
+    if prevIndex < 0 or prevIndex >= movieList.Count() then
+        if movieList.Count() > 0 then
+            prevIndex = movieList.Count() - 1 
         else
             return -1
         end if
     end if
 
-    show = showList[prevIndex]
-    if validateParam(show, "roAssociativeArray", "getPrevShow") = false return -1 
+    movie = movieList[prevIndex]
 
-    m.curItemIndex = prevIndex
+    if validateParam(movie, "roAssociativeArray", "getPrevMovie") = false return -1 
 
     return prevIndex
-End Function
 
+End Function
