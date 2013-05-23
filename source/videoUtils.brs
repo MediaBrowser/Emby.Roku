@@ -51,15 +51,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
     if validateParam(videoType, "roString", "SetupVideoStreams") = false return -1
     if validateParam(videoPath, "roString", "SetupVideoStreams") = false return -1
 
-    regex = CreateObject("roRegex", "^.+\.(?:asf|ogv|ts|webm|wmv|mp4|m4v|mkv|mpeg|avi|m2ts)$", "i")
-    If (regex = invalid)
-        print "Error creating Regex:"
-    End If
-
-    If regex.isMatch(videoPath)=false
-        Print "Unsupported file type"
-    End If
-    
+    ' Setup array    
     streamData = {}
 
     ' Setup 5 Different Bitrates
@@ -72,6 +64,15 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
     urlBitrates.push("&VideoBitRate=3800000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
 
     If videoType="VideoFile"
+        regex = CreateObject("roRegex", "^.+\.(?:asf|ogv|ts|webm|wmv|mp4|m4v|mkv|mpeg|avi|m2ts)$", "i")
+        If (regex = invalid)
+            print "Error creating Regex:"
+        End If
+
+        If regex.isMatch(videoPath)=false
+            Print "Unsupported file type"
+        End If
+
         ' Determine Direct Play / Transcode By Extension
         extension = right(videoPath, 4)
 
@@ -219,10 +220,27 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             End If
         End If
 
-        Return streamData
+    Else If videoType="Dvd" Or videoType="BluRay" Or videoType="Iso"
+
+        Print ".ts file"
+        ' Transcode Play
+        tsUrls = CreateObject("roArray", 5, true)
+        tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+        tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[1] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+        tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[2] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+        tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[3] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+        tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[4] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+
+        streamData = {
+            streamFormat: "ts"
+            StreamBitrates: bitrates
+            StreamUrls: tsUrls
+            StreamQualities: ["SD","HD","HD","HD","HD"]
+        }
 
     End If
 
+    Return streamData
 End Function
 
 
