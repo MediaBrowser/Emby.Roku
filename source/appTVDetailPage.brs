@@ -52,11 +52,15 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
                 If msg.GetIndex() = 1
                     ' Set Saved Play Status
                     If tvDetails.PlaybackPosition<>"" And tvDetails.PlaybackPosition<>"0" Then
+                        PlayStart = (tvDetails.PlaybackPosition).ToFloat()
+
                         ' Update URLs for Resume
                         tvDetails.StreamUrls = AddResumeOffset(tvDetails.StreamUrls, tvDetails.PlaybackPosition)
+                    Else
+                        PlayStart = 0
                     End If
 
-                    showVideoScreen(tvDetails)
+                    showVideoScreen(tvDetails, PlayStart)
                     tvDetails = RefreshTVDetailPage(screen, showId, list)
                 End If
                 If msg.GetIndex() = 2
@@ -64,7 +68,8 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
                     If tvDetails.DoesExist("streamFormat")=false
                         ShowDialog("Playback Error", "That video type is not playable yet.", "Back")
                     Else
-                        showVideoScreen(tvDetails)
+                        PlayStart = 0
+                        showVideoScreen(tvDetails, PlayStart)
                         tvDetails = RefreshTVDetailPage(screen, showId, list)
                     End If
                 End If

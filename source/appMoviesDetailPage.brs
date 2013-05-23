@@ -50,11 +50,15 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
                 If msg.GetIndex() = 1
                     ' Set Saved Play Status
                     If moviesDetails.PlaybackPosition<>"" And moviesDetails.PlaybackPosition<>"0" Then
+                        PlayStart = (moviesDetails.PlaybackPosition).ToFloat()
+
                         ' Update URLs for Resume
                         moviesDetails.StreamUrls = AddResumeOffset(moviesDetails.StreamUrls, moviesDetails.PlaybackPosition)
+                    Else
+                        PlayStart = 0
                     End If
 
-                    showVideoScreen(moviesDetails)
+                    showVideoScreen(moviesDetails, PlayStart)
                     moviesDetails = RefreshMoviesDetailPage(screen, movieId, list)
                 End If
                 If msg.GetIndex() = 2
@@ -62,7 +66,8 @@ Function ShowMoviesDetailPage(movieId As String, list=invalid) As Integer
                     If moviesDetails.DoesExist("streamFormat")=false
                         ShowDialog("Playback Error", "That video type is not playable yet.", "Back")
                     Else
-                        showVideoScreen(moviesDetails)
+                        PlayStart = 0
+                        showVideoScreen(moviesDetails, PlayStart)
                         moviesDetails = RefreshMoviesDetailPage(screen, movieId, list)
                     End If
                 End If
