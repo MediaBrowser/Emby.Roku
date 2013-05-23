@@ -299,6 +299,13 @@ Function strtobool(obj As dynamic) As Boolean
 End Function
 
 
+Function DoubleToString(x# as Double) as String
+   onemill# = 1000000
+   xhi = Int(x#/onemill#).toStr()
+   xlo = Int((x#-onemill#*Int(x#/onemill#))).toStr()
+   xlo = String(6-xlo.Len(),"0") + xlo
+   return xhi+xlo
+End Function
 
 
 '******************************************************
