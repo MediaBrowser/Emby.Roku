@@ -521,34 +521,6 @@ End Function
 
 
 '******************************************************
-'Walk an XML tree and print it
-'******************************************************
-Sub PrintXML(element As Object, depth As Integer)
-    print tab(depth*3);"Name: [" + element.GetName() + "]"
-    if invalid <> element.GetAttributes() then
-        print tab(depth*3);"Attributes: ";
-        for each a in element.GetAttributes()
-            print a;"=";left(element.GetAttributes()[a], 4000);
-            if element.GetAttributes().IsNext() then print ", ";
-        next
-        print
-    endif
-
-    if element.GetBody()=invalid then
-        ' print tab(depth*3);"No Body"
-    else if type(element.GetBody())="roString" or type(element.GetBody())="String" then
-        print tab(depth*3);"Contains string: [" + left(element.GetBody(), 4000) + "]"
-    else
-        print tab(depth*3);"Contains list:"
-        for each e in element.GetBody()
-            PrintXML(e, depth+1)
-        next
-    endif
-    print
-end sub
-
-
-'******************************************************
 'Dump the bytes of a string
 '******************************************************
 Sub DumpString(str As String)
