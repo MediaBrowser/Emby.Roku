@@ -49,9 +49,8 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
             Else If msg.isPartialResult() Then
                 Print "partial result"
 
-                nowPosition = msg.GetIndex()
-                'RegWrite(episode.ContentId, nowPosition.toStr())
-                exit While
+                PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
+                exit while
                 
             Else If msg.isFullResult() Then
                 Print "full result"
@@ -66,10 +65,9 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
 
                 Print "MS: "; nowPositionMs#
                 Print "Ticks: "; nowPositionTicks#
+                Print "Position:"; nowPosition
 
-                Print "Position: "; nowPosition
-
-                'PostPlayback(episode.Id, "progress", nowPosition)
+                PostPlayback(episode.Id, "progress", DoubleToString(nowPosition))
 
             Else If msg.isPaused() Then
                 nowPosition = msg.GetIndex()
@@ -111,7 +109,7 @@ Function PostPlayback(videoId As String, action As String, position=invalid) As 
     If action = "start"
         request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
     Else If action = "progress"
-        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId + "?PositionTicks=" + position, true)
+        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId + "/Progress?PositionTicks=" + position, true)
     Else If action = "stop"
         request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId + "?PositionTicks=" + position, true)
         request.SetRequest("DELETE")
