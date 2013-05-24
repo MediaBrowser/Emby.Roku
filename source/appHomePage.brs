@@ -467,7 +467,7 @@ Function GetOptionsButtons() As Object
         {
             Title: "About"
             ContentType: "About"
-            ShortDescriptionLine1: "Version 1.3"
+            ShortDescriptionLine1: "Version 1.4"
             'HDPosterUrl: "pkg://images/Default_SwitchUser_HD.png"
             'SDPosterUrl: "pkg://images/Default_SwitchUser_SD.png"
         }
