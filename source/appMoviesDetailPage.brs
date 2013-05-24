@@ -290,7 +290,7 @@ End Function
 
 Function getPreviousMovie(movieList As Object, movieIndex As Integer) As Integer
 
-    if validateParam(movieList, "roArray", "getPrevMovie") = false return -1 
+    if validateParam(movieList, "roArray", "getPreviousMovie") = false return -1 
 
     prevIndex = movieIndex - 1
     if prevIndex < 0 or prevIndex >= movieList.Count() then
@@ -303,7 +303,7 @@ Function getPreviousMovie(movieList As Object, movieIndex As Integer) As Integer
 
     movie = movieList[prevIndex]
 
-    if validateParam(movie, "roAssociativeArray", "getPrevMovie") = false return -1 
+    if validateParam(movie, "roAssociativeArray", "getPreviousMovie") = false return -1 
 
     return prevIndex
 
