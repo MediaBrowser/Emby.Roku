@@ -222,7 +222,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
     Else If videoType="Dvd" Or videoType="BluRay" Or videoType="Iso"
 
-        Print ".ts file"
+        Print "DVD/BluRay/Iso file"
         ' Transcode Play
         tsUrls = CreateObject("roArray", 5, true)
         tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
