@@ -19,22 +19,47 @@ Function ShowHomePage()
     screen.SetDisplayMode("scale-to-fill")
 
     ' Get Data
-    screen.SetupLists(3)
-    screen.SetListNames(["Movies","TV","Options"])
+    itemCounts = GetItemCounts()
+
+    ' Only Add Section if it has Items
+    sectionNames = CreateObject("roArray", 3, true)
+    sectionIndex = 0
+
+    If itemCounts.MovieCount > 0 Then
+        sectionNames.push( "Movies" )
+        movieIndex = sectionIndex
+        sectionIndex = sectionIndex + 1
+    End If
+
+    If itemCounts.SeriesCount > 0 Then
+        sectionNames.push( "TV" )
+        tvIndex = sectionIndex
+        sectionIndex = sectionIndex + 1
+    End If
+
+    sectionNames.push( "Options" )
+    optionsIndex = sectionIndex
+
+    screen.SetupLists(sectionNames.Count())
+    screen.SetListNames(sectionNames)
 
     rowData = CreateObject("roArray", 3, true)
 
-    moviesButtons = GetMoviesButtons()
-    rowData[0] = moviesButtons
-    screen.SetContentList(0, moviesButtons)
+    If itemCounts.MovieCount > 0 Then
+        moviesButtons = GetMoviesButtons()
+        rowData[movieIndex] = moviesButtons
+        screen.SetContentList(movieIndex, moviesButtons)
+    End If
 
-    tvButtons = GetTVButtons()
-    rowData[1] = tvButtons
-    screen.SetContentList(1, tvButtons)
+    If itemCounts.SeriesCount > 0 Then
+        tvButtons = GetTVButtons()
+        rowData[tvIndex] = tvButtons
+        screen.SetContentList(tvIndex, tvButtons)
+    End If
 
     optionButtons = GetOptionsButtons()
-    rowData[2] = optionButtons
-    screen.SetContentList(2, optionButtons)
+    rowData[optionsIndex] = optionButtons
+    screen.SetContentList(optionsIndex, optionButtons)
 
     ' Show Screen
     screen.Show()
@@ -75,6 +100,34 @@ Function ShowHomePage()
     end while
 
     return false
+End Function
+
+
+'**********************************************************
+'** Get Item Counts From Server
+'**********************************************************
+
+Function GetItemCounts() As Object
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Items/Counts?UserId=" + m.curUserProfile.Id, true)
+
+    if (request.AsyncGetToString())
+        while (true)
+            msg = wait(0, request.GetPort())
+
+            if (type(msg) = "roUrlEvent")
+                code = msg.GetResponseCode()
+
+                if (code = 200)
+                    jsonData = ParseJSON(msg.GetString())
+                    return jsonData
+                endif
+            else if (event = invalid)
+                request.AsyncCancel()
+            endif
+        end while
+    endif
+
+    Return invalid
 End Function
 
 
