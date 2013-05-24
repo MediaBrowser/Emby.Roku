@@ -32,11 +32,19 @@ Function ShowLoginPage()
                 userProfile = list[msg.GetIndex()]
 
                 If userProfile.HasPassword=true
-                    Print "Check password"
-                    m.curUserProfile = userProfile
-                    RegWrite("userId", m.curUserProfile.Id)
-                    result = true
-                    exit while
+                    ' Check User Password
+                    userPassed = ShowPasswordBox(userProfile.Id)
+
+                    If userPassed=1 Then
+                        m.curUserProfile = userProfile
+                        RegWrite("userId", m.curUserProfile.Id)
+                        result = true
+                        exit while
+                    Else If userPassed=2 Then
+                        ShowPasswordFailed()
+                    End If
+
+                    'result = false
                 Else
                     m.curUserProfile = userProfile
                     RegWrite("userId", m.curUserProfile.Id)

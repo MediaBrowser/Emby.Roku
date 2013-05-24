@@ -117,14 +117,41 @@ Function FindServer() As Integer
 End Function
 
 
+'******************************************************
+' Checks the User Password with SHA1 Encoded Password
+'******************************************************
 
+Function CheckUserPassword(userId As String, passwordText As String) As Boolean
+    ba = CreateObject("roByteArray")
+    ba.FromAsciiString(passwordText)
 
+    digest = CreateObject("roEVPDigest")
+    digest.Setup("sha1")
+    sha1Password = digest.Process(ba)
 
+    request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + userId + "/Authenticate")
+    
+    If (request.AsyncPostFromString("Password=" + sha1Password))
+        while (true)
+            msg = wait(0, request.GetPort())
 
+            if (type(msg) = "roUrlEvent")
+                code = msg.GetResponseCode()
 
+                If (code = 200)
+                    Return true
+                Else
+                    Return false
+                End if
+            else if (event = invalid)
+                request.AsyncCancel()
+                exit while
+            endif
+        end while
+    End If
 
-
-
+    Return false
+End Function
 
 
 

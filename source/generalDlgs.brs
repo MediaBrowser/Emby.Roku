@@ -91,6 +91,65 @@ End Function
 
 
 '******************************************************
+' Show Password Box Keyboard Screen
+'******************************************************
+
+Function ShowPasswordBox(userId As String) As Integer
+    ' Show Keyboard For Password Field
+    passwordText = ShowKeyboardScreen("Enter Password")
+
+    ' If they filled it out, check it
+    If passwordText <> ""
+        ' Check password
+        validUser = CheckUserPassword(userId, passwordText)
+
+        If validUser = true
+            Return 1
+        Else
+            Return 2
+        End If
+    End if
+
+    Return 0
+End Function
+
+
+'******************************************************
+' Show Password Failed
+'******************************************************
+
+Function ShowPasswordFailed() As Integer
+    title = "Login Failed"
+    message = "The password for that user is incorrect. Please double check the password and try again or try another user."
+
+    port = CreateObject("roMessagePort")
+    dialog = CreateObject("roMessageDialog")
+    dialog.SetMessagePort(port)
+
+    dialog.SetTitle(title)
+    dialog.SetText(message)
+
+    dialog.AddButton(0, "Back")
+
+    dialog.Show()
+
+    while true
+        dlgMsg = wait(0, dialog.GetMessagePort())
+
+        if type(dlgMsg) = "roMessageDialogEvent"
+            if dlgMsg.isScreenClosed()
+                dialog = invalid
+                return 0
+            else if dlgMsg.isButtonPressed()
+                dialog = invalid
+                return dlgMsg.GetIndex()
+            endif
+        endif
+    end while
+End Function
+
+
+'******************************************************
 ' Show Keyboard Screen
 '******************************************************
 
