@@ -77,6 +77,18 @@ End Function
 
 
 '******************************************************
+' Format a Date Stamp
+'******************************************************
+
+Function formatDateStamp(dateStamp As String)
+    dateOnly = left(dateStamp, 10)
+
+    '2013-05-08T17:55:33.5408293Z
+    return dateOnly
+End Function
+
+
+'******************************************************
 ' Get a " char as a string
 '******************************************************
 
