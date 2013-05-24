@@ -34,6 +34,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
 
             If msg.isRequestFailed() Then
                 print "Video request failure: "; msg.GetIndex(); " " msg.GetData()
+                exit while
 
             Else If msg.isStatusMessage() Then
                 print "Video status: "; msg.GetIndex(); " " msg.GetData()
@@ -67,7 +68,6 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 Print "Ticks: "; nowPositionTicks#
 
                 Print "Position: "; nowPosition
-                Print "Type: "; Type(nowPosition)
 
                 'PostPlayback(episode.Id, "progress", nowPosition)
 
@@ -90,7 +90,6 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
             Else If msg.isStreamSegmentInfo() Then
                 print " Stream Seg: = "; msg.getMessage() " | index = "; msg.GetIndex()
                 PrintAA(msg.GetInfo())
-
 
             Else
                 print "Unexpected event type: "; msg.GetType()
