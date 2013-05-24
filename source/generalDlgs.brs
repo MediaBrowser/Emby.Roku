@@ -96,7 +96,7 @@ End Function
 
 Function ShowPasswordBox(userId As String) As Integer
     ' Show Keyboard For Password Field
-    passwordText = ShowKeyboardScreen("Enter Password")
+    passwordText = ShowKeyboardScreen("Enter Password", true)
 
     ' If they filled it out, check it
     If passwordText <> ""
