@@ -7,9 +7,14 @@
 '** Show TV Details Page
 '**********************************************************
 
-Function ShowTVDetailPage(showId As String, list=invalid) As Integer
+Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex=invalid) As Integer
 
-    if validateParam(showId, "roString", "ShowTVDetailPage") = false return -1
+    if validateParam(episodeId, "roString", "ShowTVDetailPage") = false return -1
+
+    ' Handle Direct Access from Home
+    If episodeIndex=invalid Then
+        episodeIndex = 0
+    End If
 
     ' Setup Screen
     port   = CreateObject("roMessagePort")
@@ -21,7 +26,7 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
     screen.SetPosterStyle("rounded-rect-16x9-generic")
 
     ' Fetch / Refresh Screen Details
-    tvDetails = RefreshTVDetailPage(screen, showId, list)
+    tvDetails = RefreshTVDetailPage(screen, episodeId)
 
     ' Hide Star Rating
     screen.SetStaticRatingEnabled(false)
@@ -35,18 +40,24 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
 
         if type(msg) = "roSpringboardScreenEvent" then
             If msg.isRemoteKeyPressed() 
-                print "Remote key pressed"
-                if msg.GetIndex() = remoteKeyLeft then
-                    'showIndex = getPrevShow(showList, m.curItemIndex)
-                    'if showIndex <> -1
-                    '    refreshShowDetail(screen, showList, showIndex)
-                    'end if
-                else if msg.GetIndex() = remoteKeyRight
-                    'showIndex = getNextShow(showList, m.curItemIndex)
-                    'if showIndex <> -1
-                    '   refreshShowDetail(screen, showList, showIndex)
-                    'end if
-                endif
+                ' Only allow left/right navigation if episodeList provided
+                If episodeList<>invalid Then
+                    If msg.GetIndex() = remoteKeyLeft Then
+                        episodeIndex = getPreviousEpisode(episodeList, episodeIndex)
+
+                        If episodeIndex <> -1
+                            episodeId = episodeList[episodeIndex].Id
+                            tvDetails = RefreshTVDetailPage(screen, episodeId)
+                        End If
+                    Else If msg.GetIndex() = remoteKeyRight
+                        episodeIndex = getNextEpisode(episodeList, episodeIndex)
+
+                        If episodeIndex <> -1
+                            episodeId = episodeList[episodeIndex].Id
+                            tvDetails = RefreshTVDetailPage(screen, episodeId)
+                        End If
+                    End If
+                End If
             Else If msg.isButtonPressed() 
                 print "ButtonPressed"
                 If msg.GetIndex() = 1
@@ -61,7 +72,7 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
                     End If
 
                     showVideoScreen(tvDetails, PlayStart)
-                    tvDetails = RefreshTVDetailPage(screen, showId, list)
+                    tvDetails = RefreshTVDetailPage(screen, episodeId)
                 End If
                 If msg.GetIndex() = 2
                     ' Show Error Dialog For Unsupported video types - Should be temporary call
@@ -70,7 +81,7 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
                     Else
                         PlayStart = 0
                         showVideoScreen(tvDetails, PlayStart)
-                        tvDetails = RefreshTVDetailPage(screen, showId, list)
+                        tvDetails = RefreshTVDetailPage(screen, episodeId)
                     End If
                 End If
                 'if msg.GetIndex() = 3
@@ -78,14 +89,14 @@ Function ShowTVDetailPage(showId As String, list=invalid) As Integer
                 print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
             Else If msg.isScreenClosed()
                 print "Screen closed"
-                return -1
+                Exit While
             End If
         Else
             print "Unexpected message class: "; type(msg)
         End If
     end while
 
-    return 0
+    return episodeIndex
 End Function
 
 
@@ -93,11 +104,11 @@ End Function
 '** Get TV Details From Server
 '**********************************************************
 
-Function GetTVDetails(showId As String) As Object
+Function GetTVDetails(episodeId As String) As Object
 
-    if validateParam(showId, "roString", "GetTVDetails") = false return -1
+    if validateParam(episodeId, "roString", "GetTVDetails") = false return -1
 
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items/" + showId, true)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items/" + episodeId, true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -167,7 +178,7 @@ Function GetTVDetails(showId As String) As Object
                     End If
 
                     ' Setup Video Player
-                    streamData = SetupVideoStreams(showId, itemData.VideoType, itemData.Path)
+                    streamData = SetupVideoStreams(episodeId, itemData.VideoType, itemData.Path)
 
                     If streamData<>invalid
                         episodeData.StreamContentIDs = streamData.StreamContentIDs
@@ -193,18 +204,16 @@ End Function
 '** Refresh the Contents of the TV Detail Page
 '**************************************************************
 
-Function RefreshTVDetailPage(screen As Object, showId As String, list=invalid) As Object
+Function RefreshTVDetailPage(screen As Object, episodeId As String) As Object
 
     if validateParam(screen, "roSpringboardScreen", "RefreshTVDetailPage") = false return -1
-    if validateParam(showId, "roString", "RefreshTVDetailPage") = false return -1
+    if validateParam(episodeId, "roString", "RefreshTVDetailPage") = false return -1
 
     ' Get Data
-    tvDetails = GetTVDetails(showId)
+    tvDetails = GetTVDetails(episodeId)
 
     ' Setup Buttons
     screen.ClearButtons()
-
-    Print "Playback Pos: "; tvDetails.PlaybackPosition
 
     If tvDetails.PlaybackPosition<>"" And tvDetails.PlaybackPosition<>"0" Then
         screen.AddButton(1, "Resume playing")    
@@ -221,63 +230,49 @@ Function RefreshTVDetailPage(screen As Object, showId As String, list=invalid) A
 End Function
 
 
+'**********************************************************
+'** Get Next Episode from List
+'**********************************************************
 
+Function getNextEpisode(episodeList As Object, episodeIndex As Integer) As Integer
 
+    if validateParam(episodeList, "roArray", "getNextEpisode") = false return -1
 
-
-
-
-
-
-
-
-
-
-
-'********************************************************
-'** Get the next item in the list and handle the wrap 
-'** around case to implement a circular list for left/right 
-'** navigation on the springboard screen
-'********************************************************
-Function getNextShow3(showList As Object, showIndex As Integer) As Integer
-    if validateParam(showList, "roArray", "getNextShow") = false return -1
-
-    nextIndex = showIndex + 1
-    if nextIndex >= showList.Count() or nextIndex < 0 then
+    nextIndex = episodeIndex + 1
+    if nextIndex >= episodeList.Count() Or nextIndex < 0 then
        nextIndex = 0 
     end if
 
-    show = showList[nextIndex]
-    if validateParam(show, "roAssociativeArray", "getNextShow") = false return -1 
+    episode = episodeList[nextIndex]
 
-    m.curItemIndex = nextIndex
+    if validateParam(episode, "roAssociativeArray", "getNextEpisode") = false return -1 
 
     return nextIndex
+
 End Function
 
 
-'********************************************************
-'** Get the previous item in the list and handle the wrap 
-'** around case to implement a circular list for left/right 
-'** navigation on the springboard screen
-'********************************************************
-Function getPrevShow3(showList As Object, showIndex As Integer) As Integer
-    if validateParam(showList, "roArray", "getPrevShow") = false return -1 
+'**********************************************************
+'** Get Previous Episode from List
+'**********************************************************
 
-    prevIndex = showIndex - 1
-    if prevIndex < 0 or prevIndex >= showList.Count() then
-        if showList.Count() > 0 then
-            prevIndex = showList.Count() - 1 
+Function getPreviousEpisode(episodeList As Object, episodeIndex As Integer) As Integer
+
+    if validateParam(episodeList, "roArray", "getPreviousEpisode") = false return -1 
+
+    prevIndex = episodeIndex - 1
+    if prevIndex < 0 or prevIndex >= episodeList.Count() then
+        if episodeList.Count() > 0 then
+            prevIndex = episodeList.Count() - 1 
         else
             return -1
         end if
     end if
 
-    show = showList[prevIndex]
-    if validateParam(show, "roAssociativeArray", "getPrevShow") = false return -1 
+    episode = episodeList[prevIndex]
 
-    m.curItemIndex = prevIndex
+    if validateParam(episode, "roAssociativeArray", "getPreviousEpisode") = false return -1 
 
     return prevIndex
-End Function
 
+End Function

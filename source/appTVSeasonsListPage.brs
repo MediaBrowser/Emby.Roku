@@ -46,15 +46,11 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
 
                 screen.ClearMessage()
             Else If msg.isListItemSelected() Then
-                m.curShow = msg.GetIndex()
+                selection = msg.GetIndex()
 
-                print "list item selected | current show = "; m.curShow
+                episodeIndex = ShowTVDetailPage(episodeData[msg.GetIndex()].Id, episodeData, selection)
+                screen.SetFocusedListItem(episodeIndex)
 
-                ShowTVDetailPage(episodeData[msg.GetIndex()].Id)
-
-                'm.curShow = displayShowDetailScreen(category, m.curShow)
-                'screen.SetFocusedListItem(m.curShow)
-                print "list item updated  | new show = "; m.curShow
 
                 'If rowData[row][selection].ContentType = "Series" Then
                 '    Print rowData[row][selection].Id
