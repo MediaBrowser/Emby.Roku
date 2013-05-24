@@ -23,6 +23,7 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
 
     screen.SetBreadcrumbText("", "Movies")
     screen.SetDescriptionStyle("movie")
+    screen.SetStaticRatingEnabled(false)
 
     ' Fetch / Refresh Screen Details
     moviesDetails = RefreshMoviesDetailPage(screen, movieId)
@@ -203,12 +204,20 @@ Function GetMoviesDetails(movieId As String) As Object
                         movieData.StreamUrls = streamData.StreamUrls
                         movieData.StreamQualities = streamData.StreamQualities
                     End If
+
+                    If itemData.UserData.Played<>invalid And itemData.UserData.Played=true
+                        If itemData.UserData.LastPlayedDate<>invalid
+                            movieData.Categories = "Watched on " + formatDateStamp(itemData.UserData.LastPlayedDate)
+                        Else
+                            movieData.Categories = "Watched"
+                        End If
+                        
+                    End If
                     
                    ' o.Categories = CreateObject("roArray", 10, true) 
                    ' o.Categories.Push("[Category1]")
                    ' o.Categories.Push("[Category2]")
                    ' o.Categories.Push("[Category3]")
-                   ' o.Director = "[Director]"
                    ' springBoard.SetContent(o)
 
                     return movieData
