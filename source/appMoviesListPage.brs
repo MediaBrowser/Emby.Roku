@@ -56,7 +56,6 @@ Function ShowMoviesListPage() As Integer
                 Else 
                     Print "Unknown Type found"
                 End If
-                
 
             else if msg.isScreenClosed() then
                 return -1
