@@ -147,8 +147,20 @@ Function GetMoviesButtons() As Object
         }
     ]
 
+    resumeButton = [
+        {
+            Title: "Resume"
+            ContentType: "Spacer"
+            'ShortDescriptionLine1: "Movie Library"
+            'HDPosterUrl: "pkg://images/items/Default_Movie_Collection_HD.png"
+            'SDPosterUrl: "pkg://images/items/Default_Movie_Collection_SD.png"
+        }
+    ]
+
+
     resumeMovies = GetMoviesResumable()
     If resumeMovies<>invalid
+        buttons.Append( resumeButton )
         buttons.Append( resumeMovies )
     End if
 
@@ -467,7 +479,7 @@ Function GetOptionsButtons() As Object
         {
             Title: "About"
             ContentType: "About"
-            ShortDescriptionLine1: "Version 1.4"
+            ShortDescriptionLine1: "Version 1.5"
             'HDPosterUrl: "pkg://images/Default_SwitchUser_HD.png"
             'SDPosterUrl: "pkg://images/Default_SwitchUser_SD.png"
         }
