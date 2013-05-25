@@ -5,6 +5,6 @@ mm_icon_side_hd=pkg:/images/HomeChannel_Tile_Side_HD.png
 mm_icon_focus_sd=pkg:/images/HomeChannel_Tile_Focus_SD.png
 mm_icon_side_sd=pkg:/images/HomeChannel_Tile_Side_SD.png
 major_version=1
-minor_version=3
+minor_version=5
 build_version=00001
 requires_mkv=1
