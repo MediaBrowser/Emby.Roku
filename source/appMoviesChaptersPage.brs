@@ -65,8 +65,6 @@ Function GetChapterTime(positionTicks As Object) As String
     textTime = ""
     hasHours = false
 
-    Print "seconds - "; seconds
-
     ' Special Check For Zero
     If seconds = 0
         Return "0:00"
