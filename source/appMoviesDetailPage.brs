@@ -32,8 +32,6 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
     remoteKeyLeft  = 4
     remoteKeyRight = 5
  
-    'if list<>invalid
-
     while true
         msg = wait(0, screen.GetMessagePort())
 
@@ -83,9 +81,10 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
                         moviesDetails = RefreshMoviesDetailPage(screen, movieId)
                     End If
                 End If
-                'if msg.GetIndex() = 3
-                'endif
-                print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
+                If msg.GetIndex() = 3
+                    ShowMoviesChaptersPage(moviesDetails)
+                    moviesDetails = RefreshMoviesDetailPage(screen, movieId)
+                End If
             Else If msg.isScreenClosed()
                 print "Screen closed"
                 Exit While
@@ -117,8 +116,6 @@ Function GetMoviesDetails(movieId As String) As Object
                 code = msg.GetResponseCode()
 
                 if (code = 200)
-                    list     = CreateObject("roArray", 2, true)
-
                     ' Fixes bug within BRS Json Parser
                     regex = CreateObject("roRegex", Chr(34) + "RunTimeTicks" + Chr(34) + ":([0-9]+),", "i")
                     fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "RunTimeTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
@@ -126,13 +123,16 @@ Function GetMoviesDetails(movieId As String) As Object
                     regex = CreateObject("roRegex", Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":([0-9]+),", "i")
                     fixedString = regex.ReplaceAll(fixedString, Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
 
+                    regex = CreateObject("roRegex", Chr(34) + "StartPositionTicks" + Chr(34) + ":([0-9]+),", "i")
+                    fixedString = regex.ReplaceAll(fixedString, Chr(34) + "StartPositionTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
+
                     itemData = ParseJSON(fixedString)
 
                     ' Convert Data For Page
                     movieData = {
                         Id: itemData.Id
                         ContentId: itemData.Id
-                        ContentType: "movie"
+                        ContentType: "Movie"
                         Title: itemData.Name
                         Description: itemData.Overview
                         Rating: itemData.OfficialRating
@@ -205,20 +205,40 @@ Function GetMoviesDetails(movieId As String) As Object
                         movieData.StreamQualities = streamData.StreamQualities
                     End If
 
+                    ' Setup Watched
                     If itemData.UserData.Played<>invalid And itemData.UserData.Played=true
                         If itemData.UserData.LastPlayedDate<>invalid
                             movieData.Categories = "Watched on " + formatDateStamp(itemData.UserData.LastPlayedDate)
                         Else
                             movieData.Categories = "Watched"
                         End If
-                        
                     End If
-                    
-                   ' o.Categories = CreateObject("roArray", 10, true) 
-                   ' o.Categories.Push("[Category1]")
-                   ' o.Categories.Push("[Category2]")
-                   ' o.Categories.Push("[Category3]")
-                   ' springBoard.SetContent(o)
+
+                    ' Setup Chapters
+                    If itemData.Chapters<>invalid
+                        movieData.Chapters = CreateObject("roArray", 3, true)
+                        chapterCount = 0
+                        For each chapterData in itemData.Chapters
+                            chapterList = {
+                                Title: chapterData.Name
+                                ShortDescriptionLine1: chapterData.Name
+                                ShortDescriptionLine2: GetChapterTime(chapterData.StartPositionTicks)
+                                StartPositionTicks: chapterData.StartPositionTicks
+                            }
+
+                            ' Check If Chapter has Image, otherwise use default
+                            If chapterData.ImageTag<>"" And chapterData.ImageTag<>invalid
+                                chapterList.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?height=141&width=&tag=" + chapterData.ImageTag
+                                chapterList.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?height=94&width=&tag=" + chapterData.ImageTag
+                            Else 
+                                chapterList.HDPosterUrl = "pkg://images/items/collection.png"
+                                chapterList.SDPosterUrl = "pkg://images/items/collection.png"
+                            End If
+
+                            chapterCount = chapterCount + 1
+                            movieData.Chapters.push(chapterList)
+                        End For
+                    End If
 
                     return movieData
                 endif
@@ -253,6 +273,8 @@ Function RefreshMoviesDetailPage(screen As Object, movieId As String) As Object
     Else
         screen.AddButton(2, "Play")
     End If
+
+    screen.AddButton(3, "View Chapters")
 
     ' Show Screen
     screen.SetContent(moviesDetails)
