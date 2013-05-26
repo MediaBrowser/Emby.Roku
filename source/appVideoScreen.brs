@@ -22,7 +22,6 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
     screen.SetContent(episode)
     screen.Show()
 
-
     'Uncomment his line to dump the contents of the episode to be played
     'PrintAA(episode)
     
@@ -55,7 +54,6 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
             Else If msg.isFullResult() Then
                 Print "full result"
 
-                'RegDelete(episode.ContentId)
                 exit While
                 
             Else If msg.isPlaybackPosition() Then
