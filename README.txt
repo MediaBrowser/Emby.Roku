@@ -1,1 +1,17 @@
 MediaBrowser Roku
+
+Changelog
+
+1.6 - Added support for Movie Box Sets; Added support for Movie chapters
+
+1.5 - Added Genres support for TV/Movies
+
+1.4 - Added prev/next navigation to episode level; Added password checks for profiles; Hide sections that have no items
+
+1.3 - Saves playstate to server; Added support for DVD/Bluray folder rips, ISO playback; Added prev/next navigation from detail screen on movies; Checks in activity with server
+
+1.2 - Added Save User / Switch User Ability; Added Play/Resume from server
+
+1.1 - Added Video Playback for mkv, mp4, avi
+
+1.0 - Initial Browsing
