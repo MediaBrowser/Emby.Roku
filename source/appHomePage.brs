@@ -160,7 +160,7 @@ Function GetMoviesButtons() As Object
 
     resumeMovies = GetMoviesResumable()
     If resumeMovies<>invalid
-        buttons.Append( resumeButton )
+        'buttons.Append( resumeButton )
         buttons.Append( resumeMovies )
     End if
 
@@ -479,7 +479,7 @@ Function GetOptionsButtons() As Object
         {
             Title: "About"
             ContentType: "About"
-            ShortDescriptionLine1: "Version 1.5"
+            ShortDescriptionLine1: "Version 1.6"
             'HDPosterUrl: "pkg://images/Default_SwitchUser_HD.png"
             'SDPosterUrl: "pkg://images/Default_SwitchUser_SD.png"
         }
