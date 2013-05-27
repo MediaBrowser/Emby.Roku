@@ -4,7 +4,39 @@
 
 
 '******************************************************
-' Show Basic Dialog message box
+' Show Dialog Box
+'******************************************************
+
+Function ShowError(title As dynamic, message As dynamic) As Object
+    port = CreateObject("roMessagePort")
+    dialog = CreateObject("roMessageDialog")
+    dialog.SetMessagePort(port)
+
+    dialog.SetTitle(title)
+    dialog.SetText(message)
+
+    dialog.AddButton(0, "Back")
+
+    dialog.Show()
+
+    while true
+        dlgMsg = wait(0, dialog.GetMessagePort())
+
+        if type(dlgMsg) = "roMessageDialogEvent"
+            if dlgMsg.isScreenClosed()
+                dialog = invalid
+                return 0
+            else if dlgMsg.isButtonPressed()
+                dialog = invalid
+                return dlgMsg.GetIndex()
+            endif
+        endif
+    end while
+End Function
+
+
+'******************************************************
+' Show Please Wait Dialog
 '******************************************************
 
 Function ShowPleaseWait(title As dynamic, message As dynamic) As Object

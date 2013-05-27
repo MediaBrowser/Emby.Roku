@@ -21,6 +21,11 @@ Function ShowHomePage()
     ' Get Data
     itemCounts = GetItemCounts()
 
+    If itemCounts=invalid Then
+        ShowError("Error", "Could Not Get Item Counts")
+        return false
+    End If
+
     ' Only Add Section if it has Items
     sectionNames = CreateObject("roArray", 3, true)
     sectionIndex = 0
@@ -120,12 +125,14 @@ Function GetItemCounts() As Object
                 if (code = 200)
                     jsonData = ParseJSON(msg.GetString())
                     return jsonData
-                endif
+                else
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
