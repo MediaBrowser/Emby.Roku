@@ -99,9 +99,9 @@ Sub initTheme()
         OverhangLogoHD: "pkg:/images/mblogowhite.png"
         OverhangLogoSD: "pkg:/images/mblogowhite.png"
         OverhangOffsetSD_X: "35"
-        OverhangOffsetSD_Y: "25"
+        OverhangOffsetSD_Y: "35"
         OverhangOffsetHD_X: "35"
-        OverhangOffsetHD_Y: "25"
+        OverhangOffsetHD_Y: "35"
 
         BreadcrumbTextLeft: breadcrumbText
         BreadcrumbTextRight: breadcrumbText
@@ -130,9 +130,9 @@ Sub initTheme()
         GridScreenOverhangSliceHD: "pkg:/images/Overhang_Background_HD.png"
         GridScreenOverhangSliceSD: "pkg:/images/Overhang_Background_SD.png"
         GridScreenLogoOffsetHD_X: "35"
-        GridScreenLogoOffsetHD_Y: "25"
+        GridScreenLogoOffsetHD_Y: "35"
         GridScreenLogoOffsetSD_X: "35"
-        GridScreenLogoOffsetSD_Y: "25"
+        GridScreenLogoOffsetSD_Y: "35"
 
         'GridScreenFocusBorderSD: "pkg:/images/grid/GridCenter_Border_Movies_SD43.png"
         'GridScreenBorderOffsetSD: "(-26,-25)"
