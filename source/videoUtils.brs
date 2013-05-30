@@ -2,6 +2,64 @@
 '**  Media Browser Roku Client - MB Video Utils
 '**********************************************************
 
+
+'**********************************************************
+'** Get Chapter Time From Position Ticks
+'**********************************************************
+
+Function GetChapterTime(positionTicks As Object) As String
+    seconds = Int(((positionTicks).ToFloat() / 10000) / 1000)
+    textTime = ""
+    hasHours = false
+
+    ' Special Check For Zero
+    If seconds = 0
+        Return "0:00"
+    End If
+    
+    ' Hours
+    If seconds >= 3600
+        textTime = textTime + itostr(seconds / 3600) + ":"
+        hasHours = true
+        seconds = seconds Mod 3600
+    End If
+    
+    ' Minutes
+    If seconds >= 60
+        If hasHours
+            textTime = textTime + PadChapterTime(itostr(seconds / 60)) + ":"
+        Else
+            textTime = textTime + itostr(seconds / 60) + ":"
+        End If
+        
+        seconds = seconds Mod 60
+    Else
+        If hasHours
+            textTime = textTime + "00:"
+        End If
+    End If
+
+    ' Seconds
+    textTime = textTime + PadChapterTime(itostr(seconds))
+
+    return textTime
+End Function
+
+
+'**********************************************************
+'** Pad Chapter Time with Zero
+'**********************************************************
+
+Function PadChapterTime(timeText As String) As String
+
+    If timeText.Len() < 2
+        timeText = "0" + timeText
+    End If
+    
+    Return timeText
+End Function
+
+
 '**********************************************************
 '** Get HD Video And SS Audio Information From 
 '** Media Streams
