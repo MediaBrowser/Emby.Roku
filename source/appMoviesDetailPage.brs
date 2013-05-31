@@ -63,7 +63,7 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
                         PlayStart = (moviesDetails.PlaybackPosition).ToFloat()
 
                         ' Update URLs for Resume
-                        moviesDetails.StreamUrls = AddResumeOffset(moviesDetails.StreamUrls, moviesDetails.PlaybackPosition)
+                        moviesDetails.StreamData = AddResumeOffset(moviesDetails.StreamData, moviesDetails.PlaybackPosition)
                     Else
                         PlayStart = 0
                     End If
@@ -73,7 +73,7 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
                 End If
                 If msg.GetIndex() = 2
                     ' Show Error Dialog For Unsupported video types - Should be temporary call
-                    If moviesDetails.DoesExist("streamFormat")=false
+                    If moviesDetails.DoesExist("StreamData")=false
                         ShowDialog("Playback Error", "That video type is not playable yet.", "Back")
                     Else
                         PlayStart = 0
@@ -198,11 +198,7 @@ Function GetMoviesDetails(movieId As String) As Object
                     streamData = SetupVideoStreams(movieId, itemData.VideoType, itemData.Path)
 
                     If streamData<>invalid
-                        movieData.StreamContentIDs = streamData.StreamContentIDs
-                        movieData.streamFormat = streamData.streamFormat
-                        movieData.StreamBitrates = streamData.StreamBitrates
-                        movieData.StreamUrls = streamData.StreamUrls
-                        movieData.StreamQualities = streamData.StreamQualities
+                        movieData.StreamData = streamData
                     End If
 
                     ' Setup Watched

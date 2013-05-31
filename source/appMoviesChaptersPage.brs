@@ -39,7 +39,7 @@ Function ShowMoviesChaptersPage(movieInfo As Object) As Integer
                 originalUrls = movieInfo.StreamUrls
 
                 ' Update URLs for Resume
-                movieInfo.StreamUrls = AddResumeOffset(movieInfo.StreamUrls, movieInfo.Chapters[selection].StartPositionTicks)
+                movieInfo.StreamData = AddResumeOffset(movieInfo.StreamData, movieInfo.Chapters[selection].StartPositionTicks)
 
                 ' Show Video
                 showVideoScreen(movieInfo, PlayStart)

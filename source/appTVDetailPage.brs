@@ -66,7 +66,7 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
                         PlayStart = (tvDetails.PlaybackPosition).ToFloat()
 
                         ' Update URLs for Resume
-                        tvDetails.StreamUrls = AddResumeOffset(tvDetails.StreamUrls, tvDetails.PlaybackPosition)
+                        tvDetails.StreamData = AddResumeOffset(tvDetails.StreamData, tvDetails.PlaybackPosition)
                     Else
                         PlayStart = 0
                     End If
@@ -76,7 +76,7 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
                 End If
                 If msg.GetIndex() = 2
                     ' Show Error Dialog For Unsupported video types - Should be temporary call
-                    If tvDetails.DoesExist("streamFormat")=false
+                    If tvDetails.DoesExist("StreamData")=false
                         ShowDialog("Playback Error", "That video type is not playable yet.", "Back")
                     Else
                         PlayStart = 0
@@ -181,11 +181,7 @@ Function GetTVDetails(episodeId As String) As Object
                     streamData = SetupVideoStreams(episodeId, itemData.VideoType, itemData.Path)
 
                     If streamData<>invalid
-                        episodeData.StreamContentIDs = streamData.StreamContentIDs
-                        episodeData.streamFormat = streamData.streamFormat
-                        episodeData.StreamBitrates = streamData.StreamBitrates
-                        episodeData.StreamUrls = streamData.StreamUrls
-                        episodeData.StreamQualities = streamData.StreamQualities
+                        episodeData.StreamData = streamData
                     End If
 
                     return episodeData

@@ -113,13 +113,15 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
     streamData = {}
 
     ' Setup 5 Different Bitrates
-    bitrates = [664, 996, 1320, 2600, 3800]
+    videoBitrates = [664, 996, 1320, 2600, 3200]
+
+    ' Setup video url bitrates and video sizes
     urlBitrates = CreateObject("roArray", 5, true)
     urlBitrates.push("&VideoBitRate=664000&MaxWidth=640&MaxHeight=360&Profile=high&Level=4.0")
     urlBitrates.push("&VideoBitRate=996000&MaxWidth=1280&MaxHeight=720&Profile=high&Level=4.0")
     urlBitrates.push("&VideoBitRate=1320000&MaxWidth=1280&MaxHeight=720&Profile=high&Level=4.0")
     urlBitrates.push("&VideoBitRate=2600000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
-    urlBitrates.push("&VideoBitRate=3800000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
+    urlBitrates.push("&VideoBitRate=3200000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
 
     If videoType="VideoFile"
         regex = CreateObject("roRegex", "^.+\.(?:asf|ogv|ts|webm|wmv|mp4|m4v|mkv|mpeg|avi|m2ts)$", "i")
@@ -137,52 +139,79 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
         If (extension = ".asf")
             Print ".asf file"
             ' Transcode Play
-            asfUrls = CreateObject("roArray", 5, true)
-            asfUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            asfUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[1] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            asfUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[2] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            asfUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[3] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            asfUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[4] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            streamList = CreateObject("roArray", 5, true)
+
+            For i = 0 to 4
+                stream = {}
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.bitrate = videoBitrates[i]
+
+                If videoBitrates[i] > 700 Then
+                    stream.quality = true
+                Else
+                    stream.quality = false
+                End If
+
+                stream.contentid = "x-" + itostr(videoBitrates[i])
+
+                streamList.push( stream )
+            End For
 
             streamData = {
-                streamFormat: "ts"
-                StreamBitrates: bitrates
-                StreamUrls: asfUrls
-                StreamQualities: ["SD","HD","HD","HD","HD"]
+                StreamFormat: "ts"
+                Streams: streamList
             }
 
         Else If (extension = ".ogv") 
             Print ".ogv file"
             ' Transcode Play
-            ogvUrls = CreateObject("roArray", 5, true)
-            ogvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            ogvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[1] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            ogvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[2] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            ogvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[3] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            ogvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[4] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            streamList = CreateObject("roArray", 5, true)
+
+            For i = 0 to 4
+                stream = {}
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.bitrate = videoBitrates[i]
+
+                If videoBitrates[i] > 700 Then
+                    stream.quality = true
+                Else
+                    stream.quality = false
+                End If
+
+                stream.contentid = "x-" + itostr(videoBitrates[i])
+
+                streamList.push( stream )
+            End For
 
             streamData = {
-                streamFormat: "ts"
-                StreamBitrates: bitrates
-                StreamUrls: ogvUrls
-                StreamQualities: ["SD","HD","HD","HD","HD"]
+                StreamFormat: "ts"
+                Streams: streamList
             }
 
         Else If (extension = ".wmv") 
             Print ".wmv file"
             ' Transcode Play
-            wmvUrls = CreateObject("roArray", 5, true)
-            wmvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            wmvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[1] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            wmvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[2] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            wmvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[3] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            wmvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[4] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            streamList = CreateObject("roArray", 5, true)
+
+            For i = 0 to 4
+                stream = {}
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.bitrate = videoBitrates[i]
+
+                If videoBitrates[i] > 700 Then
+                    stream.quality = true
+                Else
+                    stream.quality = false
+                End If
+
+                stream.contentid = "x-" + itostr(videoBitrates[i])
+
+                streamList.push( stream )
+            End For
 
             streamData = {
-                streamFormat: "ts"
-                StreamBitrates: bitrates
-                StreamUrls: wmvUrls
-                StreamQualities: ["SD","HD","HD","HD","HD"]
+                StreamFormat: "ts"
+                Streams: streamList
             }
 
         Else If (extension = ".mp4") 
@@ -208,54 +237,79 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
         Else If (extension = ".mkv")
             Print ".mkv file"
             ' Transcode Play
-            mkvUrls = CreateObject("roArray", 5, true)
-            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[1] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[2] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[3] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            mkvUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[4] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            streamList = CreateObject("roArray", 5, true)
+
+            For i = 0 to 4
+                stream = {}
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.bitrate = videoBitrates[i]
+
+                If videoBitrates[i] > 700 Then
+                    stream.quality = true
+                Else
+                    stream.quality = false
+                End If
+
+                stream.contentid = "x-" + itostr(videoBitrates[i])
+
+                streamList.push( stream )
+            End For
 
             streamData = {
-                streamFormat: "ts"
-                StreamBitrates: bitrates
-                StreamUrls: mkvUrls
-                StreamQualities: ["SD","HD","HD","HD","HD"]
+                StreamFormat: "ts"
+                Streams: streamList
             }
-
         Else If (extension = ".avi") 
             Print ".avi file"
             ' Transcode Play
-            aviUrls = CreateObject("roArray", 5, true)
-            aviUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            aviUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[1] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            aviUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[2] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            aviUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[3] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-            aviUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[4] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+            streamList = CreateObject("roArray", 5, true)
+
+            For i = 0 to 4
+                stream = {}
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.bitrate = videoBitrates[i]
+
+                If videoBitrates[i] > 700 Then
+                    stream.quality = true
+                Else
+                    stream.quality = false
+                End If
+
+                stream.contentid = "x-" + itostr(videoBitrates[i])
+
+                streamList.push( stream )
+            End For
 
             streamData = {
-                streamFormat: "ts"
-                StreamBitrates: bitrates
-                StreamUrls: aviUrls
-                StreamQualities: ["SD","HD","HD","HD","HD"]
+                StreamFormat: "ts"
+                Streams: streamList
             }
-
         Else 
             ' Check For Other Types
             If right(videoPath, 3) = ".ts"
                 Print ".ts file"
                 ' Transcode Play
-                tsUrls = CreateObject("roArray", 5, true)
-                tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-                tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[1] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-                tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[2] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-                tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[3] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-                tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[4] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+                streamList = CreateObject("roArray", 5, true)
+
+                For i = 0 to 4
+                    stream = {}
+                    stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                    stream.bitrate = videoBitrates[i]
+
+                    If videoBitrates[i] > 700 Then
+                        stream.quality = true
+                    Else
+                        stream.quality = false
+                    End If
+
+                    stream.contentid = "x-" + itostr(videoBitrates[i])
+
+                    streamList.push( stream )
+                End For
 
                 streamData = {
-                    streamFormat: "ts"
-                    StreamBitrates: bitrates
-                    StreamUrls: tsUrls
-                    StreamQualities: ["SD","HD","HD","HD","HD"]
+                    StreamFormat: "ts"
+                    Streams: streamList
                 }
 
             Else If right(videoPath, 5) = ".webm"
@@ -282,18 +336,27 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
         Print "DVD/BluRay/Iso file"
         ' Transcode Play
-        tsUrls = CreateObject("roArray", 5, true)
-        tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[0] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-        tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[1] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-        tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[2] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-        tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[3] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
-        tsUrls.push( GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[4] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100" )
+        streamList = CreateObject("roArray", 5, true)
+
+        For i = 0 to 4
+            stream = {}
+            stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+            stream.bitrate = videoBitrates[i]
+
+            If videoBitrates[i] > 700 Then
+                stream.quality = true
+            Else
+                stream.quality = false
+            End If
+
+            stream.contentid = "x-" + itostr(videoBitrates[i])
+
+            streamList.push( stream )
+        End For
 
         streamData = {
-            streamFormat: "ts"
-            StreamBitrates: bitrates
-            StreamUrls: tsUrls
-            StreamQualities: ["SD","HD","HD","HD","HD"]
+            StreamFormat: "ts"
+            Streams: streamList
         }
 
     End If
@@ -306,18 +369,16 @@ End Function
 '** Append Resume Time To Stream URLs
 '**********************************************************
 
-Function AddResumeOffset(StreamUrls As Object, offset As String) As Object
+Function AddResumeOffset(StreamData As Object, offset As String) As Object
 
-    if validateParam(StreamUrls, "roArray", "AddResumeOffset") = false return -1
+    if validateParam(StreamData, "roAssociativeArray", "AddResumeOffset") = false return -1
     if validateParam(offset, "roString", "AddResumeOffset") = false return -1
 
-    newUrls = CreateObject("roArray", 5, true)
-
     ' Loop through urls, adding offset
-    For each url in StreamUrls
-        newUrls.push(url + "&StartTimeTicks=" + offset)
+    For each stream in StreamData.Streams
+        stream.url = stream.url + "&StartTimeTicks=" + offset
     End For
 
-    Return newUrls
+    Return StreamData
 
 End Function
