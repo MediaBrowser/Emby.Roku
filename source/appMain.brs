@@ -88,7 +88,7 @@ Sub initTheme()
     listItemHighlight           = "#ffffff"
     listItemText                = "#707070"
     brandingWhite               = "#eeeeee"
-    backgroundColor             = "#424242" '#c0c0c0
+    backgroundColor             = "#504B4B"
     breadcrumbText              = "#eeeeee"
 
     theme = {
