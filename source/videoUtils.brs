@@ -217,23 +217,30 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
         Else If (extension = ".mp4") 
             Print ".mp4 file"
             ' Direct Play
+            stream = {}
+            stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.mp4?static=true"
+            stream.bitrate = 0
+            stream.quality = true
+            stream.contentid = "x-direct"
+
             streamData = {
-                streamFormat: "mp4"
-                StreamBitrates: [0]
-                StreamUrls: [GetServerBaseUrl() + "/Videos/" + videoId + "/stream.mp4?static=true"]
-                StreamQualities: ["HD"]
+                StreamFormat: "mp4"
+                Streams: stream
             }
 
         Else If (extension = ".m4v") 
             Print ".m4v file"
             ' Direct Play
-            streamData = {
-                streamFormat: "m4v"
-                StreamBitrates: [0]
-                StreamUrls: [GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m4v?static=true"]
-                StreamQualities: ["HD"]
-            }
+            stream = {}
+            stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m4v?static=true"
+            stream.bitrate = 0
+            stream.quality = true
+            stream.contentid = "x-direct"
 
+            streamData = {
+                StreamFormat: "m4v"
+                Streams: stream
+            }
         Else If (extension = ".mkv")
             Print ".mkv file"
             ' Transcode Play
