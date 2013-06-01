@@ -4,11 +4,25 @@
 
 
 '**********************************************************
-'** Get Chapter Time From Position Ticks
+'** Format Chapter Time From Position Ticks
 '**********************************************************
 
-Function GetChapterTime(positionTicks As Object) As String
+Function FormatChapterTime(positionTicks As Object) As String
     seconds = Int(((positionTicks).ToFloat() / 10000) / 1000)
+    chapterTime = FormatTime(seconds)
+
+    return chapterTime
+End Function
+
+
+'**********************************************************
+'** Format Time From Seconds
+'**********************************************************
+
+Function FormatTime(seconds As Integer) As String
+
+    if validateParam(seconds, "roInt", "FormatTime") = false return -1
+
     textTime = ""
     hasHours = false
 
@@ -27,7 +41,7 @@ Function GetChapterTime(positionTicks As Object) As String
     ' Minutes
     If seconds >= 60
         If hasHours
-            textTime = textTime + PadChapterTime(itostr(seconds / 60)) + ":"
+            textTime = textTime + PadTime(itostr(seconds / 60)) + ":"
         Else
             textTime = textTime + itostr(seconds / 60) + ":"
         End If
@@ -40,17 +54,17 @@ Function GetChapterTime(positionTicks As Object) As String
     End If
 
     ' Seconds
-    textTime = textTime + PadChapterTime(itostr(seconds))
+    textTime = textTime + PadTime(itostr(seconds))
 
     return textTime
 End Function
 
 
 '**********************************************************
-'** Pad Chapter Time with Zero
+'** Pad Time with Zero
 '**********************************************************
 
-Function PadChapterTime(timeText As String) As String
+Function PadTime(timeText As String) As String
 
     If timeText.Len() < 2
         timeText = "0" + timeText

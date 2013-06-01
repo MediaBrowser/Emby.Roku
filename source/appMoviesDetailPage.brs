@@ -218,7 +218,7 @@ Function GetMoviesDetails(movieId As String) As Object
                             chapterList = {
                                 Title: chapterData.Name
                                 ShortDescriptionLine1: chapterData.Name
-                                ShortDescriptionLine2: GetChapterTime(chapterData.StartPositionTicks)
+                                ShortDescriptionLine2: FormatChapterTime(chapterData.StartPositionTicks)
                                 StartPositionTicks: chapterData.StartPositionTicks
                             }
 
