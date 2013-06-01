@@ -27,8 +27,8 @@ Function FormatTime(seconds As Integer) As String
     hasHours = false
 
     ' Special Check For Zero
-    If seconds = 0
-        Return "0:00"
+    If seconds < 60
+        Return "0:" + PadTime(itostr(seconds))
     End If
     
     ' Hours
