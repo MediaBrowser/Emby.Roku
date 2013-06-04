@@ -84,8 +84,10 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
                         tvDetails = RefreshTVDetailPage(screen, episodeId)
                     End If
                 End If
-                'if msg.GetIndex() = 3
-                'endif
+                If msg.GetIndex() = 3
+                    ShowTVChaptersPage(tvDetails)
+                    tvDetails = RefreshTVDetailPage(screen, episodeId)
+                End If
                 print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
             Else If msg.isScreenClosed()
                 print "Screen closed"
@@ -124,6 +126,9 @@ Function GetTVDetails(episodeId As String) As Object
 
                     regex = CreateObject("roRegex", Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":([0-9]+),", "i")
                     fixedString = regex.ReplaceAll(fixedString, Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
+
+                    regex = CreateObject("roRegex", Chr(34) + "StartPositionTicks" + Chr(34) + ":([0-9]+),", "i")
+                    fixedString = regex.ReplaceAll(fixedString, Chr(34) + "StartPositionTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
 
                     itemData = ParseJSON(fixedString)
 
@@ -184,6 +189,41 @@ Function GetTVDetails(episodeId As String) As Object
                         episodeData.StreamData = streamData
                     End If
 
+                    ' Setup Watched
+                    If itemData.UserData.Played<>invalid And itemData.UserData.Played=true
+                        If itemData.UserData.LastPlayedDate<>invalid
+                            episodeData.Categories = "Watched on " + formatDateStamp(itemData.UserData.LastPlayedDate)
+                        Else
+                            episodeData.Categories = "Watched"
+                        End If
+                    End If
+
+                    ' Setup Chapters
+                    If itemData.Chapters<>invalid
+                        episodeData.Chapters = CreateObject("roArray", 3, true)
+                        chapterCount = 0
+                        For each chapterData in itemData.Chapters
+                            chapterList = {
+                                Title: chapterData.Name
+                                ShortDescriptionLine1: chapterData.Name
+                                ShortDescriptionLine2: FormatChapterTime(chapterData.StartPositionTicks)
+                                StartPositionTicks: chapterData.StartPositionTicks
+                            }
+
+                            ' Check If Chapter has Image, otherwise use default
+                            If chapterData.ImageTag<>"" And chapterData.ImageTag<>invalid
+                                chapterList.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?height=141&width=&tag=" + chapterData.ImageTag
+                                chapterList.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?height=94&width=&tag=" + chapterData.ImageTag
+                            Else 
+                                chapterList.HDPosterUrl = "pkg://images/items/collection.png"
+                                chapterList.SDPosterUrl = "pkg://images/items/collection.png"
+                            End If
+
+                            chapterCount = chapterCount + 1
+                            episodeData.Chapters.push(chapterList)
+                        End For
+                    End If
+
                     return episodeData
                 endif
             else if (event = invalid)
@@ -217,6 +257,8 @@ Function RefreshTVDetailPage(screen As Object, episodeId As String) As Object
     Else
         screen.AddButton(2, "Play")
     End If
+
+    screen.AddButton(3, "View Chapters")
 
     ' Show Screen
     screen.SetContent(tvDetails)
