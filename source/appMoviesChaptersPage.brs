@@ -36,7 +36,7 @@ Function ShowMoviesChaptersPage(movieInfo As Object) As Integer
                 PlayStart = (movieInfo.Chapters[selection].StartPositionTicks).ToFloat()
 
                 ' Original Stream URLs
-                originalUrls = movieInfo.StreamUrls
+                'originalUrls = movieInfo.StreamUrls
 
                 ' Update URLs for Resume
                 movieInfo.StreamData = AddResumeOffset(movieInfo.StreamData, movieInfo.Chapters[selection].StartPositionTicks)
@@ -45,7 +45,7 @@ Function ShowMoviesChaptersPage(movieInfo As Object) As Integer
                 showVideoScreen(movieInfo, PlayStart)
 
                 ' Restore URLs
-                movieInfo.StreamUrls = originalUrls
+                'movieInfo.StreamUrls = originalUrls
 
                 return -1
             Else If msg.isScreenClosed() then
