@@ -17,6 +17,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
 
     m.playbackPosition    = 0 ' (in seconds)
     m.paused   = false 'is the video currently paused?
+    m.moreinfo = false 'more information about video
 
     port = CreateObject("roMessagePort")
 
@@ -27,10 +28,9 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
 
     m.player = CreateObject("roVideoPlayer")
     m.player.SetMessagePort(port)
-    m.player.SetLoop(false)
-    m.player.SetPositionNotificationPeriod(5)
+    m.player.SetPositionNotificationPeriod(1)
     m.player.SetDestinationRect(0,0,0,0)
-    m.player.SetContentList([episode.StreamData])
+    m.player.AddContent(episode.StreamData)
     m.player.Play()
 
     m.canvas.AllowUpdates(false)
@@ -55,62 +55,38 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
     while true
         msg = wait(0, port)
 
-        If msg <> invalid Then
+        If type(msg) = "roVideoPlayerEvent" Then
 
-            If msg.isRequestFailed() Then
+            If msg.isFullResult() Then
+                Print "full result"
+                PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
+                exit while
+
+            Else If msg.isPartialResult() Then
+                Print "partial result"
+                PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
+                exit while
+
+            Else If msg.isRequestFailed() Then
                 print "Video request failure: "; msg.GetIndex(); " " msg.GetData()
-                'exit while
-
-            Else If msg.isStatusMessage() and msg.GetMessage() = "startup progress"
-                paused = false
-                progress% = msg.GetIndex() / 10
-                if m.progress <> progress%
-                    m.progress = progress%
-                    PaintFullscreenCanvas()
-                end If
-
-            Else If msg.isStatusMessage() Then
-                print "Video status: "; msg.GetIndex(); " " msg.GetData()
-
-            Else If msg.isRemoteKeyPressed()
-                index = msg.GetIndex()
-
-                print "Remote button pressed: " + index.tostr()
-
-                If index = remoteKeyUp Then
-                    m.player.Stop()
-                    m.canvas.Close()
-                    PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
-                    Return -1
-                Else If index = remoteKeyDown Then
-
-                Else If index = remoteKeyLeft or index = remoteKeyRev Then
-                    'm.position = m.position - 60
-                    'm.player.Seek(m.position * 1000)
-
-                Else If index = remoteKeyRight or index = remoteKeyFwd Then
-                    'm.position = m.position + 60
-                    'm.player.Seek(m.position * 1000)
-
-                Else If index = remoteKeyPause Then
-                    if m.paused m.player.Resume() else m.player.Pause()
-                End if
+                exit While
+                
+            Else If msg.isScreenClosed() Then
+                print "Screen closed"
+                exit while
 
             Else If msg.isStreamStarted() Then
                 Print "--- started stream ---"
                 PostPlayback(episode.Id, "start")
 
-            Else If msg.isPartialResult() Then
-                Print "partial result"
+            Else If msg.isStatusMessage() and msg.GetMessage() = "startup progress"
+                paused = false
+                progress% = msg.GetIndex() / 10
+                If m.progress <> progress%
+                    m.progress = progress%
+                    PaintFullscreenCanvas()
+                End If
 
-                PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
-                exit while
-                
-            Else If msg.isFullResult() Then
-                Print "full result"
-
-                exit while
-                
             Else If msg.isPlaybackPosition() Then
                 nowPositionSec = msg.GetIndex() + PlayStartSeconds
                 nowPositionMs# = msg.GetIndex() * 1000
@@ -121,41 +97,81 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
 
                 PaintFullscreenCanvas()
 
-                Print "Time: "; FormatTime(nowPositionSec) + " / " + FormatTime(episode.Length)
-                Print "Seconds: "; nowPositionSec 'FormatTime(nowPositionSec) + " / " + FormatTime(episode.Length)
-                Print "MS: "; nowPositionMs#
-                Print "Ticks: "; nowPositionTicks#
-                Print "Position:"; nowPosition
+                'Print "Time: "; FormatTime(nowPositionSec) + " / " + FormatTime(episode.Length)
+                'Print "Seconds: "; nowPositionSec
+                'Print "MS: "; nowPositionMs#
+                'Print "Ticks: "; nowPositionTicks#
+                'Print "Position:"; nowPosition
 
-                PostPlayback(episode.Id, "progress", DoubleToString(nowPosition))
+                ' Only Post Playback every 10 seconds
+                If msg.GetIndex() Mod 10 = 0
+                    PostPlayback(episode.Id, "progress", DoubleToString(nowPosition))
+                End If
 
             Else If msg.isPaused() Then
-                nowPosition = msg.GetIndex()
-                Print "Paused Position: "; nowPosition
+                Print "Paused Position: "; nowPositionSec
 
                 m.paused = true
+                m.moreinfo = false ' Hide more info on pause
+
                 PaintFullscreenCanvas()
 
             Else If msg.isResumed() Then
-                nowPosition = msg.GetIndex()
-                Print "Resume Position: "; nowPosition
+                Print "Resume Position: "; nowPositionSec
 
                 m.paused = false
                 PaintFullscreenCanvas()
 
-            Else If msg.isScreenClosed() Then
-                print "Screen closed"
-                exit while
+            'Else If msg.isStatusMessage() Then
+            '    print "Video status: "; msg.GetIndex(); " " msg.GetData()
+            '    print "Video message: "; msg.GetMessage();
 
             End If
 
-            'Output events for debug
-            print msg.GetType(); ","; msg.GetIndex(); ": "; msg.GetMessage()
-            if msg.GetInfo() <> invalid print msg.GetInfo();
-        end if
+        Else If type(msg) = "roImageCanvasEvent" Then
+
+            If msg.isRemoteKeyPressed()
+                index = msg.GetIndex()
+
+                If index = remoteKeyUp Then
+                    PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
+                    exit while
+
+                Else If index = remoteKeyDown Then
+                    If m.moreinfo Then
+                        m.moreinfo = false
+                    Else
+                        m.moreinfo = true
+                    End If
+                    PaintFullscreenCanvas()
+                    
+                Else If index = remoteKeyLeft or index = remoteKeyRev Then
+                    'm.position = m.position - 60
+                    'm.player.Seek(m.position * 1000)
+
+                Else If index = remoteKeyRight or index = remoteKeyFwd Then
+                    'm.position = m.position + 60
+                    'm.player.Seek(m.position * 1000)
+
+                Else If index = remoteKeyPause Then
+                    if m.paused m.player.Resume() else m.player.Pause()
+
+                End if
+
+            End If
+
+        End If
+        
+        'Output events for debug
+        'print msg.GetType(); ","; msg.GetIndex(); ": "; msg.GetMessage()
+        'if msg.GetInfo() <> invalid print msg.GetInfo();
+
     end while
 
+    m.player.Stop()
+    m.canvas.Close()
 
+    return true
 End Function
 
 
@@ -196,55 +212,69 @@ End Function
 
 
 '**********************************************************
-'** Show Video Screen (Custom)
+'** Paint Canvas
 '**********************************************************
 
 Sub PaintFullscreenCanvas()
     list = []
+    progress_bar = invalid
 
-    if m.progress < 100
+    If m.progress < 100
         color = "#000000" 'opaque black
         list.Push({
             Text: "Loading..." + m.progress.tostr() + "%"
             TargetRect: { x:0, y:0, w:0, h:0 }
         })
-    else if m.paused
+
+    Else If m.paused
         color = "#80000000" 'semi-transparent black
         list.Push({
             Text: "Paused"
             TargetRect: { x:0, y:0, w:0, h:0 }
         })
-    else
-        color = "#00000000" 'fully transparent
-    end If
 
-    progress_bar = BuildProgressBar()
+        progress_bar = BuildProgressBar()
+
+    Else If m.moreinfo
+        color = "#00000000" 'fully transparent
+        progress_bar = BuildProgressBar()
+
+    Else
+        color = "#00000000" 'fully transparent
+        m.canvas.ClearLayer(2) 'hide progress bar
+    End If
 
     m.canvas.SetLayer(0, { Color: color, CompositionMode: "Source" })
     m.canvas.SetLayer(1, list)
-    m.canvas.SetLayer(2, progress_bar)
+
+    ' Only Show Progress Bar If Paused
+    If progress_bar<>invalid Then
+        m.canvas.SetLayer(2, progress_bar)
+    End If
 End Sub
 
+
+'**********************************************************
+'** Build Progress Bar for Canvas
+'**********************************************************
 
 Function BuildProgressBar() As Object
     progress_bar = []
 
     mode = CreateObject("roDeviceInfo").GetDisplayMode()
 
-    Print "pos: "; m.position
-
     If mode = "720p"
-        If m.position = 0 Or m.position = 1
+        If m.position < 10
             barWidth = 1
         Else
-            barWidth = Int((m.position / m.runtime) * 598)
+            barWidth = Int((m.position / m.runtime) * 600)
         End If
         
-        overlay       = {TargetRect: {x: 250, y: 600, w: 800, h: 150}, Color: "#80000000" }
-        barBackground = {TargetRect: {x: 350, y: 650, w: 598, h: 18}, url: "pkg:/images/progressbar/background.png"}
-        barPosition   = {TargetRect: {x: 351, y: 651, w: barWidth, h: 15}, url: "pkg:/images/progressbar/bar.png"}
+        'overlay       = {TargetRect: {x: 250, y: 600, w: 800, h: 150}, Color: "#80000000" }
+        barBackground = {TargetRect: {x: 350, y: 650, w: 600, h: 18}, url: "pkg:/images/progressbar/background.png"}
+        barPosition   = {TargetRect: {x: 351, y: 651, w: barWidth, h: 16}, url: "pkg:/images/progressbar/bar.png"}
 
-        progress_bar.Push(overlay)
+        'progress_bar.Push(overlay)
         progress_bar.Push(barBackground)
         progress_bar.Push(barPosition)
 
@@ -252,14 +282,14 @@ Function BuildProgressBar() As Object
         progress_bar.Push({
             Text: FormatTime(m.position)
             TextAttrs: { font: "small", color: "#FFFFFF" }
-            TargetRect: { x: 250, y: 640, w: 100, h: 37 }
+            TargetRect: { x: 250, y: 642, w: 100, h: 37 }
         })
 
         ' Run Time
         progress_bar.Push({
             Text: FormatTime(m.runtime)
             TextAttrs: { font: "small", color: "#FFFFFF" }
-            TargetRect: { x: 950, y: 640, w: 100, h: 37 }
+            TargetRect: { x: 952, y: 642, w: 100, h: 37 }
         })
     Else
 
