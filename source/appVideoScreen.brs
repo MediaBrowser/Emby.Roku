@@ -37,6 +37,9 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
     PaintFullscreenCanvas()
     m.canvas.AllowUpdates(true)
 
+    ' Stream Started
+    streamStarted = false
+
     ' PlayStart in seconds
     PlayStartSeconds = Int((PlayStart / 10000) / 1000)
 
@@ -80,6 +83,13 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 PostPlayback(episode.Id, "start")
 
             Else If msg.isStatusMessage() and msg.GetMessage() = "startup progress"
+                ' Extra Check to Prevent Playback Loop
+                If streamStarted Then
+                    Print "--- 2nd attempt at stream started, exit loop ---"
+                    PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
+                    exit while
+                End If
+
                 paused = false
                 progress% = msg.GetIndex() / 10
                 If m.progress <> progress%
@@ -96,6 +106,10 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 m.position = msg.GetIndex() + PlayStartSeconds
 
                 PaintFullscreenCanvas()
+
+                ' Stream Started - doing flag here because isStreamStarted()
+                ' gets fired before startup progress completes
+                streamStarted = true
 
                 'Print "Time: "; FormatTime(nowPositionSec) + " / " + FormatTime(episode.Length)
                 'Print "Seconds: "; nowPositionSec
