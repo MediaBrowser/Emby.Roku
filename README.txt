@@ -2,6 +2,8 @@ MediaBrowser Roku
 
 Changelog
 
+1.7 - Added custom video player; Added support for TV chapters
+
 1.6 - Added support for Movie Box Sets; Added support for Movie chapters
 
 1.5 - Added Genres support for TV/Movies
