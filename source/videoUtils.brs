@@ -150,60 +150,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
         ' Determine Direct Play / Transcode By Extension
         extension = right(videoPath, 4)
 
-        If (extension = ".asf")
-            Print ".asf file"
-            ' Transcode Play
-            streamList = CreateObject("roArray", 5, true)
-
-            For i = 0 to 4
-                stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
-                stream.bitrate = videoBitrates[i]
-
-                If videoBitrates[i] > 700 Then
-                    stream.quality = true
-                Else
-                    stream.quality = false
-                End If
-
-                stream.contentid = "x-" + itostr(videoBitrates[i])
-
-                streamList.push( stream )
-            End For
-
-            streamData = {
-                StreamFormat: "hls"
-                Streams: streamList
-            }
-
-        Else If (extension = ".ogv") 
-            Print ".ogv file"
-            ' Transcode Play
-            streamList = CreateObject("roArray", 5, true)
-
-            For i = 0 to 4
-                stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
-                stream.bitrate = videoBitrates[i]
-
-                If videoBitrates[i] > 700 Then
-                    stream.quality = true
-                Else
-                    stream.quality = false
-                End If
-
-                stream.contentid = "x-" + itostr(videoBitrates[i])
-
-                streamList.push( stream )
-            End For
-
-            streamData = {
-                StreamFormat: "hls"
-                Streams: streamList
-            }
-
-        Else If (extension = ".wmv") 
-            Print ".wmv file"
+        If (extension = ".asf" Or extension = ".ogv" Or extension = ".wmv" Or extension = ".mkv" Or extension = ".avi")
             ' Transcode Play
             streamList = CreateObject("roArray", 5, true)
 
@@ -255,56 +202,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
                 StreamFormat: "m4v"
                 Stream: stream
             }
-        Else If (extension = ".mkv")
-            Print ".mkv file"
-            ' Transcode Play
-            streamList = CreateObject("roArray", 5, true)
 
-            For i = 0 to 4
-                stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
-                stream.bitrate = videoBitrates[i]
-
-                If videoBitrates[i] > 700 Then
-                    stream.quality = true
-                Else
-                    stream.quality = false
-                End If
-
-                stream.contentid = "x-" + itostr(videoBitrates[i])
-
-                streamList.push( stream )
-            End For
-
-            streamData = {
-                StreamFormat: "hls"
-                Streams: streamList
-            }
-        Else If (extension = ".avi") 
-            Print ".avi file"
-            ' Transcode Play
-            streamList = CreateObject("roArray", 5, true)
-
-            For i = 0 to 4
-                stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
-                stream.bitrate = videoBitrates[i]
-
-                If videoBitrates[i] > 700 Then
-                    stream.quality = true
-                Else
-                    stream.quality = false
-                End If
-
-                stream.contentid = "x-" + itostr(videoBitrates[i])
-
-                streamList.push( stream )
-            End For
-
-            streamData = {
-                StreamFormat: "hls"
-                Streams: streamList
-            }
         Else 
             ' Check For Other Types
             If right(videoPath, 3) = ".ts"
@@ -333,17 +231,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
                     Streams: streamList
                 }
 
-            Else If right(videoPath, 5) = ".webm"
-                Print ".webm file"
-                Return invalid
-
-
-            Else If right(videoPath, 5) = ".mpeg"
-                Print ".mpeg file"
-                Return invalid
-
-            Else If right(videoPath, 5) = ".m2ts"
-                Print ".m2ts file"
+            Else If right(videoPath, 5) = ".webm" Or right(videoPath, 5) = ".mpeg" Or right(videoPath, 5) = ".m2ts"
                 Return invalid
 
             Else
@@ -353,9 +241,9 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             End If
         End If
 
-    Else If videoType="Dvd" Or videoType="BluRay" Or videoType="Iso"
+    Else If videoType="Dvd" Or videoType="BluRay" Or videoType="Iso" Or videoType="HdDvd"
 
-        Print "DVD/BluRay/Iso file"
+        Print "DVD/BluRay/HDDVD/Iso file"
         ' Transcode Play
         streamList = CreateObject("roArray", 5, true)
 
