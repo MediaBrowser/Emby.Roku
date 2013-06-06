@@ -157,7 +157,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
             For i = 0 to 4
                 stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
                 stream.bitrate = videoBitrates[i]
 
                 If videoBitrates[i] > 700 Then
@@ -172,7 +172,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             End For
 
             streamData = {
-                StreamFormat: "ts"
+                StreamFormat: "hls"
                 Streams: streamList
             }
 
@@ -183,7 +183,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
             For i = 0 to 4
                 stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
                 stream.bitrate = videoBitrates[i]
 
                 If videoBitrates[i] > 700 Then
@@ -198,7 +198,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             End For
 
             streamData = {
-                StreamFormat: "ts"
+                StreamFormat: "hls"
                 Streams: streamList
             }
 
@@ -209,7 +209,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
             For i = 0 to 4
                 stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
                 stream.bitrate = videoBitrates[i]
 
                 If videoBitrates[i] > 700 Then
@@ -224,7 +224,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             End For
 
             streamData = {
-                StreamFormat: "ts"
+                StreamFormat: "hls"
                 Streams: streamList
             }
 
@@ -262,7 +262,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
             For i = 0 to 4
                 stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
                 stream.bitrate = videoBitrates[i]
 
                 If videoBitrates[i] > 700 Then
@@ -277,7 +277,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             End For
 
             streamData = {
-                StreamFormat: "ts"
+                StreamFormat: "hls"
                 Streams: streamList
             }
         Else If (extension = ".avi") 
@@ -287,7 +287,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
             For i = 0 to 4
                 stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
                 stream.bitrate = videoBitrates[i]
 
                 If videoBitrates[i] > 700 Then
@@ -302,7 +302,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             End For
 
             streamData = {
-                StreamFormat: "ts"
+                StreamFormat: "hls"
                 Streams: streamList
             }
         Else 
@@ -314,7 +314,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
                 For i = 0 to 4
                     stream = {}
-                    stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                    stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
                     stream.bitrate = videoBitrates[i]
 
                     If videoBitrates[i] > 700 Then
@@ -329,7 +329,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
                 End For
 
                 streamData = {
-                    StreamFormat: "ts"
+                    StreamFormat: "hls"
                     Streams: streamList
                 }
 
@@ -361,7 +361,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
         For i = 0 to 4
             stream = {}
-            stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.ts?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+            stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
             stream.bitrate = videoBitrates[i]
 
             If videoBitrates[i] > 700 Then
@@ -376,7 +376,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
         End For
 
         streamData = {
-            StreamFormat: "ts"
+            StreamFormat: "hls"
             Streams: streamList
         }
 
