@@ -239,7 +239,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
             streamData = {
                 StreamFormat: "mp4"
-                Streams: stream
+                Stream: stream
             }
 
         Else If (extension = ".m4v") 
@@ -253,7 +253,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
             streamData = {
                 StreamFormat: "m4v"
-                Streams: stream
+                Stream: stream
             }
         Else If (extension = ".mkv")
             Print ".mkv file"
@@ -395,10 +395,14 @@ Function AddResumeOffset(StreamData As Object, offset As String) As Object
     if validateParam(StreamData, "roAssociativeArray", "AddResumeOffset") = false return -1
     if validateParam(offset, "roString", "AddResumeOffset") = false return -1
 
-    ' Loop through urls, adding offset
-    For each stream in StreamData.Streams
-        stream.url = stream.url + "&StartTimeTicks=" + offset
-    End For
+    If StreamData.Streams<>invalid Then
+        ' Loop through urls, adding offset
+        For each stream in StreamData.Streams
+            stream.url = stream.url + "&StartTimeTicks=" + offset
+        End For
+    Else
+        StreamData.Stream.url = StreamData.Stream.url + "&StartTimeTicks=" + offset
+    End If
 
     Return StreamData
 
