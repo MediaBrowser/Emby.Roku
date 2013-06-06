@@ -11,6 +11,8 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
 
     if validateParam(episode, "roAssociativeArray", "showVideoScreen") = false return -1
 
+    'PrintAA(episode)
+
     m.progress = 0 'buffering progress
     m.position = 0 'playback position (in seconds)
     m.runtime  = episode.Length 'runtime (in seconds)
