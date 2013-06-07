@@ -18,23 +18,53 @@ Function ShowMoviesListPage() As Integer
     screen.SetGridStyle("two-row-flat-landscape-custom")
     screen.SetDisplayMode("scale-to-fit")
 
-    screen.SetupLists(3)
-    screen.SetListNames(["Movies A-Z","Box Sets","Genres"])
+    ' Get Data
+    sectionNames = CreateObject("roArray", 3, true)
+    sectionIndex = 1
 
     rowData = CreateObject("roArray", 3, true)
 
-    ' Get Data
+    ' Movies
     moviesAll = GetMoviesAll()
-    rowData[0] = moviesAll
-    screen.SetContentList(0, moviesAll)
+    sectionNames.push( "Movies A-Z" )
+    movieIndex = 0
 
+    ' Box Sets
     moviesBoxsets = GetMoviesBoxsets()
-    rowData[1] = moviesBoxsets
-    screen.SetContentList(1, moviesBoxsets)
 
+    If moviesBoxsets.Count() > 0 Then
+        sectionNames.push( "Box Sets" )
+        boxsetIndex  = sectionIndex
+        sectionIndex = sectionIndex + 1
+    End If
+
+    ' Genres
     moviesGenres = GetMoviesGenres()
-    rowData[2] = moviesGenres
-    screen.SetContentList(2, moviesGenres)
+
+    If moviesGenres.Count() > 0 Then
+        sectionNames.push( "Genres" )
+        genreIndex = sectionIndex
+        sectionIndex = sectionIndex + 1
+    End If
+
+    screen.SetupLists(sectionNames.Count())
+    screen.SetListNames(sectionNames)
+
+    ' Movie data
+    rowData[movieIndex] = moviesAll
+    screen.SetContentList(movieIndex, moviesAll)
+
+    ' Box Sets Data
+    If moviesBoxsets.Count() > 0 Then
+        rowData[boxsetIndex] = moviesBoxsets
+        screen.SetContentList(boxsetIndex, moviesBoxsets)
+    End If
+
+    ' Genres Data
+    If moviesGenres.Count() > 0 Then
+        rowData[genreIndex] = moviesGenres
+        screen.SetContentList(genreIndex, moviesGenres)
+    End If
 
     ' Show Screen
     screen.Show()
@@ -111,7 +141,7 @@ Function GetMoviesAll() As Object
                         list.push( movieData )
                     end for
                     return list
-                endif
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
             endif
