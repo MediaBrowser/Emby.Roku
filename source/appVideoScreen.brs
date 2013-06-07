@@ -45,6 +45,12 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
     ' PlayStart in seconds
     PlayStartSeconds = Int((PlayStart / 10000) / 1000)
 
+    ' Direct Play Offset
+    If episode.IsDirectPlay And PlayStartSeconds<>0 Then
+        Print "seek: "; PlayStartSeconds * 1000
+        m.player.Seek(PlayStartSeconds * 1000)
+    End If
+
     ' Remote key id's for navigation
     remoteKeyUp    = 2
     remoteKeyDown  = 3
@@ -100,12 +106,22 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 End If
 
             Else If msg.isPlaybackPosition() Then
-                nowPositionSec = msg.GetIndex() + PlayStartSeconds
-                nowPositionMs# = msg.GetIndex() * 1000
-                nowPositionTicks# = nowPositionMs# * 10000
-                nowPosition = nowPositionTicks# + PlayStart
+                ' Direct Play does not need offset added
+                If episode.IsDirectPlay Then
+                    nowPositionSec = msg.GetIndex()
+                    nowPositionMs# = msg.GetIndex() * 1000
+                    nowPositionTicks# = nowPositionMs# * 10000
+                    nowPosition = nowPositionTicks#
 
-                m.position = msg.GetIndex() + PlayStartSeconds
+                    m.position = msg.GetIndex()
+                Else 
+                    nowPositionSec = msg.GetIndex() + PlayStartSeconds
+                    nowPositionMs# = msg.GetIndex() * 1000
+                    nowPositionTicks# = nowPositionMs# * 10000
+                    nowPosition = nowPositionTicks# + PlayStart
+
+                    m.position = msg.GetIndex() + PlayStartSeconds
+                End If
 
                 PaintFullscreenCanvas()
 
@@ -162,15 +178,27 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                     PaintFullscreenCanvas()
                     
                 Else If index = remoteKeyLeft or index = remoteKeyRev Then
-                    'm.position = m.position - 60
-                    'm.player.Seek(m.position * 1000)
+                    ' Direct Play can Seek
+                    If episode.IsDirectPlay Then
+                        streamStarted = false ' Seeking, so reset stream started
+                        m.paused = false ' Seeking so, un-pause
+
+                        m.position = m.position - 60
+                        m.player.Seek(m.position * 1000)
+                    End If
 
                 Else If index = remoteKeyRight or index = remoteKeyFwd Then
-                    'm.position = m.position + 60
-                    'm.player.Seek(m.position * 1000)
+                    ' Direct Play can Seek
+                    If episode.IsDirectPlay Then
+                        streamStarted = false ' Seeking, so reset stream started
+                        m.paused = false ' Seeking so, un-pause
+
+                        m.position = m.position + 60
+                        m.player.Seek(m.position * 1000)
+                    End If
 
                 Else If index = remoteKeyPause Then
-                    if m.paused m.player.Resume() else m.player.Pause()
+                    If m.paused m.player.Resume() Else m.player.Pause()
 
                 End if
 
