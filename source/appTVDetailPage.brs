@@ -65,8 +65,11 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
                     If tvDetails.PlaybackPosition<>"" And tvDetails.PlaybackPosition<>"0" Then
                         PlayStart = (tvDetails.PlaybackPosition).ToFloat()
 
-                        ' Update URLs for Resume
-                        tvDetails.StreamData = AddResumeOffset(tvDetails.StreamData, tvDetails.PlaybackPosition)
+                        ' Only update URLs if not direct play
+                        If Not tvDetails.IsDirectPlay Then
+                            ' Update URLs for Resume
+                            tvDetails.StreamData = AddResumeOffset(tvDetails.StreamData, tvDetails.PlaybackPosition)
+                        End If
                     Else
                         PlayStart = 0
                     End If
@@ -187,6 +190,14 @@ Function GetTVDetails(episodeId As String) As Object
 
                     If streamData<>invalid
                         episodeData.StreamData = streamData
+
+                        ' Determine Direct Play
+                        If StreamData.Stream<>invalid Then
+                            episodeData.IsDirectPlay = true
+                        Else
+                            episodeData.IsDirectPlay = false
+                        End If
+
                     End If
 
                     ' Setup Watched

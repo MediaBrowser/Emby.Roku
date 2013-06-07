@@ -62,8 +62,11 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
                     If moviesDetails.PlaybackPosition<>"" And moviesDetails.PlaybackPosition<>"0" Then
                         PlayStart = (moviesDetails.PlaybackPosition).ToFloat()
 
-                        ' Update URLs for Resume
-                        moviesDetails.StreamData = AddResumeOffset(moviesDetails.StreamData, moviesDetails.PlaybackPosition)
+                        ' Only update URLs if not direct play
+                        If Not moviesDetails.IsDirectPlay Then
+                            ' Update URLs for Resume
+                            moviesDetails.StreamData = AddResumeOffset(moviesDetails.StreamData, moviesDetails.PlaybackPosition)
+                        End If
                     Else
                         PlayStart = 0
                     End If
@@ -199,6 +202,14 @@ Function GetMoviesDetails(movieId As String) As Object
 
                     If streamData<>invalid
                         movieData.StreamData = streamData
+
+                        ' Determine Direct Play
+                        If StreamData.Stream<>invalid Then
+                            movieData.IsDirectPlay = true
+                        Else
+                            movieData.IsDirectPlay = false
+                        End If
+
                     End If
 
                     ' Setup Watched
