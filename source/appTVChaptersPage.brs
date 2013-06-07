@@ -38,8 +38,11 @@ Function ShowTVChaptersPage(episodeInfo As Object) As Integer
                 ' Original Stream URLs
                 'originalUrls = episodeInfo.StreamUrls
 
-                ' Update URLs for Resume
-                episodeInfo.StreamData = AddResumeOffset(episodeInfo.StreamData, episodeInfo.Chapters[selection].StartPositionTicks)
+                ' Only update URLs if not direct play
+                If Not episodeInfo.IsDirectPlay Then
+                    ' Update URLs for Resume
+                    episodeInfo.StreamData = AddResumeOffset(episodeInfo.StreamData, episodeInfo.Chapters[selection].StartPositionTicks)
+                End If
 
                 ' Show Video
                 showVideoScreen(episodeInfo, PlayStart)
