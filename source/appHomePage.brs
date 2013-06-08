@@ -94,6 +94,8 @@ Function ShowHomePage()
                     RegDelete("userId")
                     Print "Switch User"
                     return true
+                Else If rowData[row][selection].ContentType = "Preferences" Then
+                    ShowPreferencesPage()
                 Else 
                     Print "Unknown Type found"
                 End If
@@ -482,6 +484,13 @@ Function GetOptionsButtons() As Object
             ShortDescriptionLine1: "Switch User"
             HDPosterUrl: "pkg://images/items/Default_SwitchUser_HD.png"
             SDPosterUrl: "pkg://images/items/Default_SwitchUser_SD.png"
+        },
+        {
+            Title: "Preferences"
+            ContentType: "Preferences"
+            ShortDescriptionLine1: "Preferences"
+            'HDPosterUrl: "pkg://images/items/Default_SwitchUser_HD.png"
+            'SDPosterUrl: "pkg://images/items/Default_SwitchUser_SD.png"
         },
         {
             Title: "About"
