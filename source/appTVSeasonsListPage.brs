@@ -126,8 +126,8 @@ Function GetTVEpisodes(seasonId As String) As Object
 
                         ' Check If Item has Image, otherwise use default
                         If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                            episodeData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=141&width=&tag=" + itemData.ImageTags.Primary
-                            episodeData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=94&width=&tag=" + itemData.ImageTags.Primary
+                            episodeData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=141&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                            episodeData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=94&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
                         Else 
                             episodeData.HDPosterUrl = "pkg://images/items/collection.png"
                             episodeData.SDPosterUrl = "pkg://images/items/collection.png"
