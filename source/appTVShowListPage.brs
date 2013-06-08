@@ -14,13 +14,24 @@ Function ShowTVShowListPage() As Integer
     screen.SetMessagePort(port)
 
     screen.SetBreadcrumbText("", "TV")
-    screen.SetGridStyle("two-row-flat-landscape-custom")
-    screen.SetDisplayMode("scale-to-fit")
+
+    ' Determine Display Type
+    If RegRead("prefTVImageType") = "poster" Then
+        screen.SetGridStyle("mixed-aspect-ratio")
+    Else
+        screen.SetGridStyle("two-row-flat-landscape-custom")
+    End If
+    
+    screen.SetDisplayMode("scale-to-fill")
 
     ' Show Screen
     screen.SetupLists(2)
     screen.SetListNames(["TV Shows A-Z","Genres"])
 
+    If RegRead("prefTVImageType") = "poster" Then
+        screen.SetListPosterStyles(["portrait", "landscape"])
+    End If
+    
     rowData = CreateObject("roArray", 2, true)
 
     tvShowAll = GetTVShowAll()
@@ -86,17 +97,49 @@ Function GetTVShowAll() As Object
                             Id: itemData.Id
                             Title: itemData.Name
                             ContentType: "Series"
-                            ShortDescriptionLine1: itemData.Name
                             ShortDescriptionLine2: Pluralize(itemData.ChildCount, "season")
                         }
 
-                        ' Check If Item has Image, otherwise use default
-                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                            seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
-                        Else 
-                            seriesData.HDPosterUrl = "pkg://images/items/collection.png"
-                            seriesData.SDPosterUrl = "pkg://images/items/collection.png"
+                        ' Get Image Type From Preference
+                        If RegRead("prefTVImageType") = "poster" Then
+
+                            ' Check If Item has Image, otherwise use default
+                            If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
+                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=192&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=140&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                            Else 
+                                seriesData.HDPosterUrl = "pkg://images/items/collection.png"
+                                seriesData.SDPosterUrl = "pkg://images/items/collection.png"
+                            End If
+
+                        Else If RegRead("prefTVImageType") = "thumb" Then
+
+                            ' Check If Item has Image, otherwise use default
+                            If itemData.ImageTags.Thumb<>"" And itemData.ImageTags.Thumb<>invalid
+                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?height=150&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
+                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?height=94&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
+                            Else 
+                                seriesData.HDPosterUrl = "pkg://images/items/collection.png"
+                                seriesData.SDPosterUrl = "pkg://images/items/collection.png"
+                            End If
+
+                        Else
+
+                            ' Check If Item has Image, otherwise use default
+                            If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
+                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                            Else 
+                                seriesData.HDPosterUrl = "pkg://images/items/collection.png"
+                                seriesData.SDPosterUrl = "pkg://images/items/collection.png"
+                            End If
+
+                        End If
+
+
+                        ' Show / Hide Series Name
+                        If RegRead("prefTVTitle") = "show" Then
+                            seriesData.ShortDescriptionLine1 = itemData.Name
                         End If
 
                         list.push( seriesData )
