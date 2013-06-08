@@ -49,21 +49,7 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
                 selection = msg.GetIndex()
 
                 episodeIndex = ShowTVDetailPage(episodeData[msg.GetIndex()].Id, episodeData, selection)
-                screen.SetFocusedListItem(episodeIndex)
-
-
-                'If rowData[row][selection].ContentType = "Series" Then
-                '    Print rowData[row][selection].Id
-
-                'Else If rowData[row][selection].ContentType = "Genre" Then
-                '    Print rowData[row][selection].Id
-
-                    'm.curItem = rowData[row][selection]
-                    'DisplayDetailPage()
-                'Else 
-                '    Print "Unknown Type found"
-                'End If
-                
+                screen.SetFocusedListItem(episodeIndex)               
 
             Else If msg.isScreenClosed() then
                 return -1
