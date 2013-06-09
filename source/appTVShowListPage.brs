@@ -183,9 +183,9 @@ Function GetTVShowGenres() As Object
                         }
 
                         ' Check If Item has Image, otherwise use default
-                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                            seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                        If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
+                            seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=150&width=&tag=" + itemData.ImageTags.Primary
+                            seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=94&width=&tag=" + itemData.ImageTags.Primary
                         Else 
                             seriesData.HDPosterUrl = "pkg://images/items/collection.png"
                             seriesData.SDPosterUrl = "pkg://images/items/collection.png"
