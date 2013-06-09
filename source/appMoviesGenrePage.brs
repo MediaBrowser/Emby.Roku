@@ -17,8 +17,15 @@ Function ShowMoviesGenrePage(genre As String) As Integer
     screen.SetMessagePort(port)
 
     screen.SetBreadcrumbText(genre, "Movies")
-    screen.SetGridStyle("two-row-flat-landscape-custom")
-    screen.SetDisplayMode("scale-to-fit")
+
+    ' Determine Display Type
+    If RegRead("prefMovieImageType") = "poster" Then
+        screen.SetGridStyle("flat-movie")
+    Else
+        screen.SetGridStyle("two-row-flat-landscape-custom")
+    End If
+
+    screen.SetDisplayMode("scale-to-fill")
 
     screen.SetupLists(1)
     screen.SetListNames([genre + " Movies"])
@@ -90,17 +97,48 @@ Function GetMoviesInGenre(genre As String) As Object
                             Id: itemData.Id
                             Title: itemData.Name
                             ContentType: "Movie"
-                            ShortDescriptionLine1: itemData.Name
                             Watched: itemData.UserData.Played
                         }
 
-                        ' Check If Item has Image, otherwise use default
-                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                            movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
-                        Else 
-                            movieData.HDPosterUrl = "pkg://images/items/collection.png"
-                            movieData.SDPosterUrl = "pkg://images/items/collection.png"
+                        ' Get Image Type From Preference
+                        If RegRead("prefMovieImageType") = "poster" Then
+
+                            ' Check If Item has Image, otherwise use default
+                            If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
+                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=192&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=140&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                            Else 
+                                movieData.HDPosterUrl = "pkg://images/items/collection.png"
+                                movieData.SDPosterUrl = "pkg://images/items/collection.png"
+                            End If
+
+                        Else If RegRead("prefMovieImageType") = "thumb" Then
+
+                            ' Check If Item has Image, otherwise use default
+                            If itemData.ImageTags.Thumb<>"" And itemData.ImageTags.Thumb<>invalid
+                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?height=150&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
+                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?height=94&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
+                            Else 
+                                movieData.HDPosterUrl = "pkg://images/items/collection.png"
+                                movieData.SDPosterUrl = "pkg://images/items/collection.png"
+                            End If
+
+                        Else
+
+                            ' Check If Item has Image, otherwise use default
+                            If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
+                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                            Else 
+                                movieData.HDPosterUrl = "pkg://images/items/collection.png"
+                                movieData.SDPosterUrl = "pkg://images/items/collection.png"
+                            End If
+
+                        End If
+
+                        ' Show / Hide Series Name
+                        If RegRead("prefMovieTitle") = "show" Then
+                            movieData.ShortDescriptionLine1 = itemData.Name
                         End If
 
                         list.push( movieData )
