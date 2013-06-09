@@ -136,7 +136,6 @@ Function GetTVShowAll() As Object
 
                         End If
 
-
                         ' Show / Hide Series Name
                         If RegRead("prefTVTitle") = "show" Then
                             seriesData.ShortDescriptionLine1 = itemData.Name
