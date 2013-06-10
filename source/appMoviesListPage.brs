@@ -31,10 +31,16 @@ Function ShowMoviesListPage() As Integer
 
     rowData = CreateObject("roArray", 3, true)
 
+    listStyles = CreateObject("roArray", 3, true)
+
     ' Movies
     moviesAll = GetMoviesAll()
     sectionNames.push( "Movies A-Z" )
     movieIndex = 0
+
+    If RegRead("prefMovieImageType") = "poster" Then
+        listStyles.push( "portrait" )
+    End If
 
     ' Box Sets
     moviesBoxsets = GetMoviesBoxsets()
@@ -43,6 +49,10 @@ Function ShowMoviesListPage() As Integer
         sectionNames.push( "Box Sets" )
         boxsetIndex  = sectionIndex
         sectionIndex = sectionIndex + 1
+
+        If RegRead("prefMovieImageType") = "poster" Then
+            listStyles.push( "landscape" )
+        End If
     End If
 
     ' Genres
@@ -52,13 +62,17 @@ Function ShowMoviesListPage() As Integer
         sectionNames.push( "Genres" )
         genreIndex = sectionIndex
         sectionIndex = sectionIndex + 1
+
+        If RegRead("prefMovieImageType") = "poster" Then
+            listStyles.push( "landscape" )
+        End If
     End If
 
     screen.SetupLists(sectionNames.Count())
     screen.SetListNames(sectionNames)
 
     If RegRead("prefMovieImageType") = "poster" Then
-        screen.SetListPosterStyles(["portrait", "landscape", "landscape"])
+        screen.SetListPosterStyles(listStyles)
     End If
 
     ' Movie data
