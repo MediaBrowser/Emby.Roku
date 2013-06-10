@@ -52,16 +52,17 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
     End If
 
     ' Remote key id's for navigation
-    remoteKeyUp    = 2
-    remoteKeyDown  = 3
-    remoteKeyLeft  = 4
-    remoteKeyRight = 5
-    remoteKeyOK    = 6
-    remoteKeySkBk  = 7
-    remoteKeyRev   = 8
-    remoteKeyFwd   = 9
-    remoteKeyStar  = 10
-    remoteKeyPause = 13
+    remoteKeyBack   = 0
+    remoteKeyUp     = 2
+    remoteKeyDown   = 3
+    remoteKeyLeft   = 4
+    remoteKeyRight  = 5
+    remoteKeyOK     = 6
+    remoteKeyReplay = 7
+    remoteKeyRev    = 8
+    remoteKeyFwd    = 9
+    remoteKeyStar   = 10
+    remoteKeyPause  = 13
 
     while true
         msg = wait(0, port)
@@ -165,7 +166,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
             If msg.isRemoteKeyPressed()
                 index = msg.GetIndex()
 
-                If index = remoteKeyUp Then
+                If index = remoteKeyUp or index = remoteKeyBack Then
                     PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
                     exit while
 
@@ -197,7 +198,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                         m.player.Seek(m.position * 1000)
                     End If
 
-                Else If index = remoteKeyPause Then
+                Else If index = remoteKeyPause or index = remoteKeyOK Then
                     If m.paused m.player.Resume() Else m.player.Pause()
 
                 End if
