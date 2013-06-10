@@ -489,8 +489,8 @@ Function GetOptionsButtons() As Object
             Title: "Preferences"
             ContentType: "Preferences"
             ShortDescriptionLine1: "Preferences"
-            'HDPosterUrl: "pkg://images/items/Default_SwitchUser_HD.png"
-            'SDPosterUrl: "pkg://images/items/Default_SwitchUser_SD.png"
+            HDPosterUrl: "pkg://images/items/Default_Preferences_HD.png"
+            SDPosterUrl: "pkg://images/items/Default_Preferences_SD.png"
         },
         {
             Title: "About"
