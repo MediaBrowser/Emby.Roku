@@ -199,7 +199,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             stream.contentid = "x-direct"
 
             streamData = {
-                StreamFormat: "m4v"
+                StreamFormat: "mp4"
                 Stream: stream
             }
 
@@ -294,4 +294,9 @@ Function AddResumeOffset(StreamData As Object, offset As String) As Object
 
     Return StreamData
 
+End Function
+
+Function GetExtension(filename as String) as String
+    l = filename.tokenize(".")
+    if l.count()>0 then return l.GetTail() else return ""
 End Function
