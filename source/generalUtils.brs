@@ -110,6 +110,25 @@ End Function
 
 
 '******************************************************
+' Truncate a String To the desired length
+'******************************************************
+
+Function Truncate(words As String, length As Integer, ellipsis As Boolean) as String
+    truncated = ""
+
+    If words.Len() > length
+        truncated = left(words, length)
+
+        If ellipsis
+            truncated = truncated + "..."
+        End If
+
+    End If
+
+    Return truncated
+End Function
+
+'******************************************************
 ' Convert int to string. This is necessary because
 ' the builtin Stri(x) prepends whitespace
 '******************************************************
