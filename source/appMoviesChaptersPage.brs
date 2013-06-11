@@ -39,9 +39,9 @@ Function ShowMoviesChaptersPage(movieInfo As Object) As Integer
                 'originalUrls = movieInfo.StreamUrls
 
                 ' Only update URLs if not direct play
-                If Not moviesDetails.IsDirectPlay Then
+                If Not movieInfo.IsDirectPlay Then
                     ' Update URLs for Resume
-                    movieInfo.StreamData = AddResumeOffset(moviesDetails.StreamData, moviesDetails.PlaybackPosition)
+                    movieInfo.StreamData = AddResumeOffset(movieInfo.StreamData, movieInfo.Chapters[selection].StartPositionTicks)
                 End If
 
                 ' Show Video
