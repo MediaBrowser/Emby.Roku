@@ -42,6 +42,9 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
     ' Stream Started
     streamStarted = false
 
+    ' Currently Seeking
+    currentSeeking = false
+
     ' PlayStart in seconds
     PlayStartSeconds = Int((PlayStart / 10000) / 1000)
 
@@ -130,6 +133,9 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 ' gets fired before startup progress completes
                 streamStarted = true
 
+                ' Playback restart, so no longer seeking
+                currentSeeking = false
+
                 'Print "Time: "; FormatTime(nowPositionSec) + " / " + FormatTime(episode.Length)
                 'Print "Seconds: "; nowPositionSec
                 'Print "MS: "; nowPositionMs#
@@ -185,17 +191,30 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                         m.paused = false ' Seeking so, un-pause
 
                         m.position = m.position - 60
-                        m.player.Seek(m.position * 1000)
+
+                        ' Can't Seek below start
+                        If m.position < 0 Then m.position = 0
+
+                        If Not currentSeeking Then
+                            currentSeeking = true
+                            m.player.Seek(m.position * 1000)
+                        End If
                     End If
 
                 Else If index = remoteKeyRight or index = remoteKeyFwd Then
+
                     ' Direct Play can Seek
                     If episode.IsDirectPlay Then
                         streamStarted = false ' Seeking, so reset stream started
                         m.paused = false ' Seeking so, un-pause
 
                         m.position = m.position + 60
-                        m.player.Seek(m.position * 1000)
+
+                        If Not currentSeeking Then
+                            currentSeeking = true
+                            m.player.Seek(m.position * 1000)
+                        End If
+
                     End If
 
                 Else If index = remoteKeyPause or index = remoteKeyOK Then
