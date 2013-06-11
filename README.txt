@@ -2,6 +2,8 @@ MediaBrowser Roku
 
 Changelog
 
+1.9 - Added additional button commands; Fixed problem with chapter selection in movies; Added more info screen while video is playing;
+
 1.8 - Switched to HLS; Fixed problem with direct play offset; Added FF/RW for direct play; Added display preferences
 
 1.7 - Added custom video player; Added support for TV chapters
