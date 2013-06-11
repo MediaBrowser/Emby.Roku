@@ -13,6 +13,8 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
 
     'PrintAA(episode)
 
+    m.videoInfo = episode ' All the information about the video
+
     m.progress = 0 'buffering progress
     m.position = 0 'playback position (in seconds)
     m.runtime  = episode.Length 'runtime (in seconds)
@@ -282,6 +284,7 @@ End Function
 Sub PaintFullscreenCanvas()
     list = []
     progress_bar = invalid
+    more_info = invalid
 
     If m.progress < 100
         color = "#000000" 'opaque black
@@ -301,11 +304,14 @@ Sub PaintFullscreenCanvas()
 
     Else If m.moreinfo
         color = "#00000000" 'fully transparent
-        progress_bar = BuildProgressBar()
+
+        more_info = BuildMoreInfo()
 
     Else
         color = "#00000000" 'fully transparent
         m.canvas.ClearLayer(2) 'hide progress bar
+        m.canvas.ClearLayer(3) 'hide more info
+
     End If
 
     m.canvas.SetLayer(0, { Color: color, CompositionMode: "Source" })
@@ -314,6 +320,11 @@ Sub PaintFullscreenCanvas()
     ' Only Show Progress Bar If Paused
     If progress_bar<>invalid Then
         m.canvas.SetLayer(2, progress_bar)
+    End If
+
+    ' Only Show More Info If Button Pressed
+    If more_info<>invalid Then
+        m.canvas.SetLayer(3, more_info)
     End If
 End Sub
 
@@ -360,4 +371,68 @@ Function BuildProgressBar() As Object
     End If
 
     return progress_bar
+End Function
+
+
+'**********************************************************
+'** Build More Information for Canvas
+'**********************************************************
+
+Function BuildMoreInfo() As Object
+    more_info = []
+
+    mode = CreateObject("roDeviceInfo").GetDisplayMode()
+
+    If mode = "720p"
+        overlay = {TargetRect: {x: 0, y: 460, w: 1280, h: 200}, Color: "#80000000" }
+        more_info.Push(overlay)
+
+        If m.videoInfo.ContentType = "movie" Or m.videoInfo.ContentType = "Movie"
+
+            ' Show Title
+            more_info.Push({
+                Text: m.videoInfo.Title
+                TextAttrs: { font: "medium", color: "#FFFFFF", halign: "left", valign: "top" }
+                TargetRect: { x: 250, y: 475, w: 750, h: 35 }
+            })
+
+            ' Episode Description
+            more_info.Push({
+                Text:  Truncate(m.videoInfo.Description, 250, true)
+                TextAttrs: { font: "small", color: "#FFFFFF", halign: "left", valign: "top" }
+                TargetRect: { x: 250, y: 515, w: 750, h: 40 }
+            })
+
+        Else If m.videoInfo.ContentType = "episode" Or m.videoInfo.ContentType = "Episode"
+
+            ' Show Title
+            more_info.Push({
+                Text: m.videoInfo.SeriesTitle
+                TextAttrs: { font: "medium", color: "#FFFFFF", halign: "left", valign: "top" }
+                TargetRect: { x: 250, y: 475, w: 750, h: 35 }
+            })
+
+            ' Episode Title
+            more_info.Push({
+                Text:  m.videoInfo.Title
+                TextAttrs: { font: "small", color: "#FFFFFF", halign: "left", valign: "top" }
+                TargetRect: { x: 250, y: 515, w: 750, h: 35 }
+            })
+
+            ' Episode Description
+            more_info.Push({
+                Text:  Truncate(m.videoInfo.Description, 250, true)
+                TextAttrs: { font: "small", color: "#FFFFFF", halign: "left", valign: "top" }
+                TargetRect: { x: 250, y: 555, w: 750, h: 40 }
+            })
+
+        Else
+            Return invalid
+
+        End If
+    Else
+
+    End If
+
+    return more_info
 End Function
