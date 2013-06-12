@@ -54,25 +54,36 @@ End Function
 
 
 '******************************************************
-' Get Roku Model Name from Model Id
+' Get Roku Model Name from Model Number
 '******************************************************
 
-Function GetModelName(model As String) as Object
+Function GetModelName(modelNumber As String) as String
 
-    If model = "2400X" Or model = "2450X"
-        Return "Roku LT"
-    Else If model = "3000X"
-        Return "Roku 2 HD"
-    Else If model = "3050X"
-        Return "Roku 2 XD"
-    Else If model = "3100X"
-        Return "Roku 2 XS"
-    Else If model = "4200X"
-        Return "Roku 3"
-    Else 
-        Return "Unknown"
+    models = {}
+    models["N1050"] = "Roku SD"
+    models["N1000"] = "Roku HD Classsic"
+    models["N1100"] = "Roku HD Classsic"
+    models["2050X"] = "Roku XD"
+    models["2050N"] = "Roku XD"
+    models["N1101"] = "Roku XD|S Classic"
+    models["2100X"] = "Roku XD|S"
+    models["2100N"] = "Roku XD|S"
+    models["2000C"] = "Roku HD"
+    models["2500X"] = "Roku HD"
+    models["2400X"] = "Roku LT"
+    models["2450X"] = "Roku LT"
+    models["3000X"] = "Roku 2 HD"
+    models["3050X"] = "Roku 2 XD"
+    models["3100X"] = "Roku 2 XS"
+    models["3400X"] = "Roku Streaming Stick"
+    models["3420X"] = "Roku Streaming Stick"
+    models["4200X"] = "Roku 3"
+
+    If models.DoesExist(modelNumber) Then
+        Return models[modelNumber]
     End If
 
+    Return modelNumber
 End Function
 
 
