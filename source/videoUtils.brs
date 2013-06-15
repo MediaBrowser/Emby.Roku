@@ -127,15 +127,16 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
     streamData = {}
 
     ' Setup 5 Different Bitrates
-    videoBitrates = [664, 996, 1320, 2600, 3200]
+    'videoBitrates = [664, 996, 1320, 2600, 3200]
+    videoBitrate = 3200
 
     ' Setup video url bitrates and video sizes
-    urlBitrates = CreateObject("roArray", 5, true)
-    urlBitrates.push("&VideoBitRate=664000&MaxWidth=640&MaxHeight=360&Profile=high&Level=4.0")
-    urlBitrates.push("&VideoBitRate=996000&MaxWidth=1280&MaxHeight=720&Profile=high&Level=4.0")
-    urlBitrates.push("&VideoBitRate=1320000&MaxWidth=1280&MaxHeight=720&Profile=high&Level=4.0")
-    urlBitrates.push("&VideoBitRate=2600000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
-    urlBitrates.push("&VideoBitRate=3200000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
+    urlBitrates = {}
+    urlBitrates.AddReplace("664",  "&VideoBitRate=664000&MaxWidth=640&MaxHeight=360&Profile=high&Level=4.0")
+    urlBitrates.AddReplace("996",  "&VideoBitRate=996000&MaxWidth=1280&MaxHeight=720&Profile=high&Level=4.0")
+    urlBitrates.AddReplace("1320", "&VideoBitRate=1320000&MaxWidth=1280&MaxHeight=720&Profile=high&Level=4.0")
+    urlBitrates.AddReplace("2600", "&VideoBitRate=2600000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
+    urlBitrates.AddReplace("3200", "&VideoBitRate=3200000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
 
     If videoType="VideoFile"
         regex = CreateObject("roRegex", "^.+\.(?:asf|ogv|ts|webm|wmv|mp4|m4v|mkv|mpeg|avi|m2ts)$", "i")
@@ -152,27 +153,21 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
         If (extension = ".asf" Or extension = ".ogv" Or extension = ".wmv" Or extension = ".mkv" Or extension = ".avi")
             ' Transcode Play
-            streamList = CreateObject("roArray", 5, true)
+            stream = {}
+            stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(itostr(videoBitrate)) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+            stream.bitrate = videoBitrate
 
-            For i = 0 to 4
-                stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
-                stream.bitrate = videoBitrates[i]
+            If videoBitrate > 700 Then
+                stream.quality = true
+            Else
+                stream.quality = false
+            End If
 
-                If videoBitrates[i] > 700 Then
-                    stream.quality = true
-                Else
-                    stream.quality = false
-                End If
-
-                stream.contentid = "x-" + itostr(videoBitrates[i])
-
-                streamList.push( stream )
-            End For
+            stream.contentid = "x-" + itostr(videoBitrate)
 
             streamData = {
                 StreamFormat: "hls"
-                Streams: streamList
+                Streams: [stream]
             }
 
         Else If (extension = ".mp4") 
@@ -208,27 +203,21 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             If right(videoPath, 3) = ".ts"
                 Print ".ts file"
                 ' Transcode Play
-                streamList = CreateObject("roArray", 5, true)
+                stream = {}
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(itostr(videoBitrate)) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.bitrate = videoBitrate
 
-                For i = 0 to 4
-                    stream = {}
-                    stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
-                    stream.bitrate = videoBitrates[i]
+                If videoBitrate > 700 Then
+                    stream.quality = true
+                Else
+                    stream.quality = false
+                End If
 
-                    If videoBitrates[i] > 700 Then
-                        stream.quality = true
-                    Else
-                        stream.quality = false
-                    End If
-
-                    stream.contentid = "x-" + itostr(videoBitrates[i])
-
-                    streamList.push( stream )
-                End For
+                stream.contentid = "x-" + itostr(videoBitrate)
 
                 streamData = {
                     StreamFormat: "hls"
-                    Streams: streamList
+                    Streams: [stream]
                 }
 
             Else If right(videoPath, 5) = ".webm" Or right(videoPath, 5) = ".mpeg" Or right(videoPath, 5) = ".m2ts"
@@ -245,27 +234,22 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
         Print "DVD/BluRay/HDDVD/Iso file"
         ' Transcode Play
-        streamList = CreateObject("roArray", 5, true)
+        stream = {}
+        stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(itostr(videoBitrate)) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+        stream.bitrate = videoBitrate
 
-        For i = 0 to 4
-            stream = {}
-            stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates[i] + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
-            stream.bitrate = videoBitrates[i]
+        If videoBitrate > 700 Then
+            stream.quality = true
+        Else
+            stream.quality = false
+        End If
 
-            If videoBitrates[i] > 700 Then
-                stream.quality = true
-            Else
-                stream.quality = false
-            End If
+        stream.contentid = "x-" + itostr(videoBitrate)
 
-            stream.contentid = "x-" + itostr(videoBitrates[i])
-
-            streamList.push( stream )
-        End For
 
         streamData = {
             StreamFormat: "hls"
-            Streams: streamList
+            Streams: [stream]
         }
 
     End If
