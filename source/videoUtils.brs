@@ -139,19 +139,12 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
     urlBitrates.AddReplace("3200", "&VideoBitRate=3200000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
 
     If videoType="VideoFile"
-        regex = CreateObject("roRegex", "^.+\.(?:asf|ogv|ts|webm|wmv|mp4|m4v|mkv|mpeg|avi|m2ts)$", "i")
-        If (regex = invalid)
-            print "Error creating Regex:"
-        End If
-
-        If regex.isMatch(videoPath)=false
-            Print "Unsupported file type"
-        End If
-
         ' Determine Direct Play / Transcode By Extension
-        extension = right(videoPath, 4)
+        extension = GetExtension(videoPath)
 
-        If (extension = ".asf" Or extension = ".ogv" Or extension = ".wmv" Or extension = ".mkv" Or extension = ".avi")
+        print "file type: "; extension
+
+        If (extension = "asf" Or extension = "avi" Or extension = "mkv" Or extension = "mpeg" Or extension = "m2ts" Or extension = "ogv" Or extension = "ts" Or extension = "webm" Or extension = "wmv"  )
             ' Transcode Play
             stream = {}
             stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(itostr(videoBitrate)) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
@@ -170,8 +163,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
                 Streams: [stream]
             }
 
-        Else If (extension = ".mp4") 
-            Print ".mp4 file"
+        Else If (extension = "mp4") 
             ' Direct Play
             stream = {}
             stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.mp4?static=true"
@@ -184,8 +176,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
                 Stream: stream
             }
 
-        Else If (extension = ".m4v") 
-            Print ".m4v file"
+        Else If (extension = "m4v")
             ' Direct Play
             stream = {}
             stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m4v?static=true"
@@ -199,35 +190,10 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             }
 
         Else 
-            ' Check For Other Types
-            If right(videoPath, 3) = ".ts"
-                Print ".ts file"
-                ' Transcode Play
-                stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(itostr(videoBitrate)) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
-                stream.bitrate = videoBitrate
 
-                If videoBitrate > 700 Then
-                    stream.quality = true
-                Else
-                    stream.quality = false
-                End If
+            Print "unknown file type"
+            Return invalid
 
-                stream.contentid = "x-" + itostr(videoBitrate)
-
-                streamData = {
-                    StreamFormat: "hls"
-                    Streams: [stream]
-                }
-
-            Else If right(videoPath, 5) = ".webm" Or right(videoPath, 5) = ".mpeg" Or right(videoPath, 5) = ".m2ts"
-                Return invalid
-
-            Else
-                Print "unknown file type"
-                Return invalid
-
-            End If
         End If
 
     Else If videoType="Dvd" Or videoType="BluRay" Or videoType="Iso" Or videoType="HdDvd"
@@ -245,7 +211,6 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
         End If
 
         stream.contentid = "x-" + itostr(videoBitrate)
-
 
         streamData = {
             StreamFormat: "hls"
@@ -280,7 +245,12 @@ Function AddResumeOffset(StreamData As Object, offset As String) As Object
 
 End Function
 
+
+'**********************************************************
+'** Get Filename Extension
+'**********************************************************
+
 Function GetExtension(filename as String) as String
-    l = filename.tokenize(".")
-    if l.count()>0 then return l.GetTail() else return ""
+    list = filename.tokenize(".")
+    if list.count()>0 then return list.GetTail() else return ""
 End Function
