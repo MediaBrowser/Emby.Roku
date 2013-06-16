@@ -179,10 +179,12 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                     exit while
 
                 Else If index = remoteKeyDown Then
-                    If m.moreinfo Then
-                        m.moreinfo = false
-                    Else
-                        m.moreinfo = true
+                    If Not m.paused Then
+                        If m.moreinfo Then
+                            m.moreinfo = false
+                        Else
+                            m.moreinfo = true
+                        End If
                     End If
                     PaintFullscreenCanvas()
                     
@@ -201,6 +203,8 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                             currentSeeking = true
                             m.player.Seek(m.position * 1000)
                         End If
+
+                    Else
                     End If
 
                 Else If index = remoteKeyRight or index = remoteKeyFwd Then
@@ -216,6 +220,8 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                             currentSeeking = true
                             m.player.Seek(m.position * 1000)
                         End If
+
+                    Else
 
                     End If
 
