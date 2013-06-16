@@ -19,6 +19,7 @@ Function ShowPreferencesPage()
 
     ' Get Preference Functions
     preferenceFunctions = [
+        GetPreferenceVideoQuality,
         GetPreferenceMovieImageType,
         GetPreferenceMovieTitle,
         GetPreferenceTVImageType,
@@ -84,6 +85,11 @@ End Function
 Function GetPreferenceList() as Object
     preferenceList = [
         {
+            Title: "Video Quality: " + GetSelectedPreference(GetPreferenceVideoQuality(), RegRead("prefVideoQuality")),
+            ID: "VideoQuality",
+            ShortDescriptionLine1: "Select the quality of the video streams"
+        },
+        {
             Title: "Movie Image Type: " + GetSelectedPreference(GetPreferenceMovieImageType(), RegRead("prefMovieImageType")),
             ID: "MovieImageType",
             ShortDescriptionLine1: "Select from backdrop, poster, or thumb image"
@@ -117,14 +123,24 @@ Function GetSelectedPreference(list As Object, selected) as String
 
     if validateParam(list, "roArray", "GetSelectedPreference") = false return -1
 
+    index = 0
+    defaultIndex = 0
+
     For each itemData in list
+        ' Find Default Index
+        If itemData.IsDefault Then
+            defaultIndex = index
+        End If
+
         If itemData.Id = selected Then
             return itemData.Title
         End If
+
+        index = index + 1
     End For
 
-    ' Nothing selected, return first item
-    return list[0].Title
+    ' Nothing selected, return default item
+    return list[defaultIndex].Title
 End Function
 
 
@@ -138,13 +154,25 @@ Function GetNextPreference(list As Object, selected) as Object
 
     index = 0
     currentIndex = 0
+    defaultIndex = 0
+
     For each itemData in list
+        ' Find Default Index
+        If itemData.IsDefault Then
+            defaultIndex = index
+        End If
+
         If itemData.Id = selected Then
             currentIndex = index
             Exit For
         End If
         index = index + 1
     End For
+
+    ' Handle Default
+    If selected = invalid Then
+        currentIndex = defaultIndex
+    End If
 
     nextIndex = currentIndex + 1
     if nextIndex >= list.Count() then
@@ -158,19 +186,54 @@ End Function
 '** Get Preference Options
 '**********************************************************
 
+Function GetPreferenceVideoQuality() as Object
+    prefOptions = [
+        {
+            Title: "664 Kbps SD",
+            Id: "664",
+            IsDefault: false
+        },
+        {
+            Title: "996 Kbps HD",
+            Id: "996",
+            IsDefault: false
+        },
+        {
+            Title: "1.3 Mbps HD",
+            Id: "1320",
+            IsDefault: false
+        },
+        {
+            Title: "2.6 Mbps HD",
+            Id: "2600",
+            IsDefault: false
+        },
+        {
+            Title: "3.2 Mbps HD [default]",
+            Id: "3200",
+            IsDefault: true
+        }
+    ]
+
+    return prefOptions
+End Function
+
 Function GetPreferenceMovieImageType() as Object
     prefOptions = [
         {
             Title: "Backdrop [default]",
-            Id: "backdrop"
+            Id: "backdrop",
+            IsDefault: true
         },
         {
             Title: "Poster",
-            Id: "poster"
+            Id: "poster",
+            IsDefault: false
         },
         {
             Title: "Thumb",
-            Id: "thumb"
+            Id: "thumb",
+            IsDefault: false
         }
     ]
 
@@ -181,11 +244,13 @@ Function GetPreferenceMovieTitle() as Object
     prefOptions = [
         {
             Title: "Show [default]",
-            Id: "show"
+            Id: "show",
+            IsDefault: true
         },
         {
             Title: "Hide",
-            Id: "hide"
+            Id: "hide",
+            IsDefault: false
         }
     ]
 
@@ -196,15 +261,18 @@ Function GetPreferenceTVImageType() as Object
     prefOptions = [
         {
             Title: "Backdrop [default]",
-            Id: "backdrop"
+            Id: "backdrop",
+            IsDefault: true
         },
         {
             Title: "Poster",
-            Id: "poster"
+            Id: "poster",
+            IsDefault: false
         },
         {
             Title: "Thumb",
-            Id: "thumb"
+            Id: "thumb",
+            IsDefault: false
         }
     ]
 
@@ -215,11 +283,13 @@ Function GetPreferenceTVTitle() as Object
     prefOptions = [
         {
             Title: "Show [default]",
-            Id: "show"
+            Id: "show",
+            IsDefault: true
         },
         {
             Title: "Hide",
-            Id: "hide"
+            Id: "hide",
+            IsDefault: false
         }
     ]
 
