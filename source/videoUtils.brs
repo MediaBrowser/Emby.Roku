@@ -126,9 +126,12 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
     ' Setup array    
     streamData = {}
 
-    ' Setup 5 Different Bitrates
-    'videoBitrates = [664, 996, 1320, 2600, 3200]
-    videoBitrate = 3200
+    ' Setup the selected video quality
+    If RegRead("prefVideoQuality") <> invalid Then
+        videoBitrate = RegRead("prefVideoQuality")
+    Else
+        videoBitrate = "3200"
+    End If
 
     ' Setup video url bitrates and video sizes
     urlBitrates = {}
@@ -147,16 +150,16 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
         If (extension = "asf" Or extension = "avi" Or extension = "mkv" Or extension = "mpeg" Or extension = "m2ts" Or extension = "ogv" Or extension = "ts" Or extension = "webm" Or extension = "wmv"  )
             ' Transcode Play
             stream = {}
-            stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(itostr(videoBitrate)) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
-            stream.bitrate = videoBitrate
+            stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(videoBitrate) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+            stream.bitrate = videoBitrate.ToInt()
 
-            If videoBitrate > 700 Then
+            If videoBitrate.ToInt() > 700 Then
                 stream.quality = true
             Else
                 stream.quality = false
             End If
 
-            stream.contentid = "x-" + itostr(videoBitrate)
+            stream.contentid = "x-" + videoBitrate
 
             streamData = {
                 StreamFormat: "hls"
@@ -201,16 +204,16 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
         Print "DVD/BluRay/HDDVD/Iso file"
         ' Transcode Play
         stream = {}
-        stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(itostr(videoBitrate)) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
-        stream.bitrate = videoBitrate
+        stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(videoBitrate) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+        stream.bitrate = videoBitrate.ToInt()
 
-        If videoBitrate > 700 Then
+        If videoBitrate.ToInt() > 700 Then
             stream.quality = true
         Else
             stream.quality = false
         End If
 
-        stream.contentid = "x-" + itostr(videoBitrate)
+        stream.contentid = "x-" + videoBitrate
 
         streamData = {
             StreamFormat: "hls"
