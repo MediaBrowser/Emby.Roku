@@ -31,7 +31,10 @@ Function ShowTVShowListPage() As Integer
     If RegRead("prefTVImageType") = "poster" Then
         screen.SetListPosterStyles(["portrait", "landscape"])
     End If
-    
+
+    ' Setup Jump List
+    m.jumpList = {}
+
     rowData = CreateObject("roArray", 2, true)
 
     tvShowAll = GetTVShowAll()
@@ -46,6 +49,9 @@ Function ShowTVShowListPage() As Integer
 
     ' Hide Description Popup
     screen.SetDescriptionVisible(false)
+
+    ' Remote key id's for navigation
+    remoteKeyStar = 10
 
     while true
         msg = wait(0, screen.GetMessagePort())
@@ -65,6 +71,18 @@ Function ShowTVShowListPage() As Integer
                     Print "Unknown Type found"
                 End If
 
+            else if msg.isRemoteKeyPressed() then
+                index = msg.GetIndex()
+
+                If index = remoteKeyStar Then
+                    letterSelected = CreateJumpListDialog()
+
+                    If letterSelected <> invalid Then
+                        letter = FindClosestLetter(letterSelected)
+                        screen.SetFocusedListItem(0, m.jumpList.Lookup(letter))
+                    End If
+                End If
+
             else if msg.isScreenClosed() then
                 return -1
             end if
@@ -80,7 +98,7 @@ End Function
 '**********************************************************
 
 Function GetTVShowAll() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Series&Fields=ItemCounts&SortBy=SortName&SortOrder=Ascending", true)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Series&Fields=ItemCounts%2CSortName&SortBy=SortName&SortOrder=Ascending", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -90,6 +108,7 @@ Function GetTVShowAll() As Object
                 code = msg.GetResponseCode()
 
                 if (code = 200)
+                    index    = 0
                     list     = CreateObject("roArray", 2, true)
                     jsonData = ParseJSON(msg.GetString())
                     for each itemData in jsonData.Items
@@ -140,6 +159,15 @@ Function GetTVShowAll() As Object
                         If RegRead("prefTVTitle") = "show" Then
                             seriesData.ShortDescriptionLine1 = itemData.Name
                         End If
+
+                        ' Build Jump List
+                        firstChar = Left(itemData.SortName, 1)
+                        If Not m.jumpList.DoesExist(firstChar) Then
+                            m.jumpList.AddReplace(firstChar, index)
+                        End If
+
+                        ' Increment Count
+                        index = index + 1
 
                         list.push( seriesData )
                     end for
