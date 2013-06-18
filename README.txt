@@ -2,7 +2,7 @@ MediaBrowser Roku
 
 Changelog
 
-1.10 - Fixed problem with server requesting multiple streams; Added new video quality preference; Added new jump to letter feature for movies;
+1.10 - Fixed problem with server requesting multiple streams; Added new video quality preference; Added new jump to letter feature for movies and tv;
 
 1.9 - Added additional button commands; Fixed problem with chapter selection in movies; Added more info screen while video is playing;
 
