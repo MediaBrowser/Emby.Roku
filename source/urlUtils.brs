@@ -2,6 +2,12 @@
 '**  Media Browser Roku Client - URL Utilities
 '**********************************************************
 
+'**********************************************************
+'**  Video Player Example Application - URL Utilities 
+'**  November 2009
+'**  Copyright (c) 2009 Roku Inc. All Rights Reserved.
+'**********************************************************
+
 
 '**********************************************************
 '** Creates URL Transfer Object
@@ -49,35 +55,36 @@ Function CreateURLTransferObjectJson(url As String, authorized=invalid) as Objec
 End Function
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 '**********************************************************
-'**  Video Player Example Application - URL Utilities 
-'**  November 2009
-'**  Copyright (c) 2009 Roku Inc. All Rights Reserved.
+'** HTTP Encode a String
 '**********************************************************
+
+Function HttpEncode(str As String) As String
+    obj= CreateObject("roUrlTransfer")
+    return obj.Escape(str)
+End Function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 REM ******************************************************
@@ -142,14 +149,6 @@ Function NewHttp2(url As String, contentHeader As String) as Object
 End Function
 
 
-REM ******************************************************
-REM HttpEncode - just encode a string
-REM ******************************************************
-
-Function HttpEncode(str As String) As String
-    o = CreateObject("roUrlTransfer")
-    return o.Escape(str)
-End Function
 
 REM ******************************************************
 REM Prepare the current url for adding query parameters
