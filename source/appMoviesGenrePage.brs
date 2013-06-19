@@ -77,8 +77,7 @@ End Function
 Function GetMoviesInGenre(genre As String) As Object
 
     ' Clean Genre Name
-    obj = CreateObject("roUrlTransfer")
-    genre = obj.Escape(genre)
+    genre = HttpEncode(genre)
 
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&Genres=" + genre + "&Fields=UserData%2CGenres&SortBy=SortName&SortOrder=Ascending", true)
 
