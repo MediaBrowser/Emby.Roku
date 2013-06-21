@@ -207,6 +207,25 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                     Else
                     End If
 
+                Else If index = remoteKeyReplay Then
+                    ' Direct Play can Seek
+                    If episode.IsDirectPlay Then
+                        streamStarted = false ' Seeking, so reset stream started
+                        m.paused = false ' Seeking so, un-pause
+
+                        m.position = m.position - 8
+
+                        ' Can't Seek below start
+                        If m.position < 0 Then m.position = 0
+
+                        If Not currentSeeking Then
+                            currentSeeking = true
+                            m.player.Seek(m.position * 1000)
+                        End If
+
+                    Else
+                    End If
+
                 Else If index = remoteKeyRight or index = remoteKeyFwd Then
 
                     ' Direct Play can Seek
