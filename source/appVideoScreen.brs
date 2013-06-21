@@ -235,6 +235,9 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
 
                         m.position = m.position + 60
 
+                        ' Can't Seek after end
+                        If m.position > m.runtime Then m.position = m.runtime-1
+
                         If Not currentSeeking Then
                             currentSeeking = true
                             m.player.Seek(m.position * 1000)
