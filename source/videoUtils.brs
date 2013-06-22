@@ -28,7 +28,7 @@ Function FormatTime(seconds As Integer) As String
 
     ' Special Check For Zero
     If seconds < 60
-        Return "0:" + PadTime(itostr(seconds))
+        Return "0:" + ZeroPad(itostr(seconds))
     End If
     
     ' Hours
@@ -41,7 +41,7 @@ Function FormatTime(seconds As Integer) As String
     ' Minutes
     If seconds >= 60
         If hasHours
-            textTime = textTime + PadTime(itostr(seconds / 60)) + ":"
+            textTime = textTime + ZeroPad(itostr(seconds / 60)) + ":"
         Else
             textTime = textTime + itostr(seconds / 60) + ":"
         End If
@@ -54,23 +54,9 @@ Function FormatTime(seconds As Integer) As String
     End If
 
     ' Seconds
-    textTime = textTime + PadTime(itostr(seconds))
+    textTime = textTime + ZeroPad(itostr(seconds))
 
     return textTime
-End Function
-
-
-'**********************************************************
-'** Pad Time with Zero
-'**********************************************************
-
-Function PadTime(timeText As String) As String
-
-    If timeText.Len() < 2
-        timeText = "0" + timeText
-    End If
-    
-    Return timeText
 End Function
 
 
