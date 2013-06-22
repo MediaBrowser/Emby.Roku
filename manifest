@@ -7,5 +7,5 @@ mm_icon_side_sd=pkg:/images/HomeChannel_Tile_Side_SD.jpg
 splash_screen_hd=pkg:/images/Splash_HD.jpg
 splash_screen_sd=pkg:/images/Splash_SD43.jpg
 major_version=1
-minor_version=10
+minor_version=11
 build_version=0
