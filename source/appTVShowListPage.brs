@@ -24,27 +24,31 @@ Function ShowTVShowListPage() As Integer
     
     screen.SetDisplayMode("scale-to-fill")
 
-    ' Show Screen
-    screen.SetupLists(2)
-    screen.SetListNames(["TV Shows A-Z","Genres"])
-
-    If RegRead("prefTVImageType") = "poster" Then
-        screen.SetListPosterStyles(["portrait", "landscape"])
-    End If
-
     ' Setup Jump List
     m.jumpList = {}
 
-    rowData = CreateObject("roArray", 2, true)
+    ' Setup Row Data
+    m.rowNames  = CreateObject("roArray", 2, true)
+    m.rowStyles = CreateObject("roArray", 2, true)
+    m.rowData   = CreateObject("roArray", 2, true)
 
-    tvShowAll = GetTVShowAll()
-    rowData[0] = tvShowAll
-    screen.SetContentList(0, tvShowAll)
+    AddGridRow(screen, "TV Series", "portrait")
+    AddGridRow(screen, "Genres", "landscape")
 
+    ShowGridNames(screen)
+
+    If RegRead("prefTVImageType") = "poster" Then
+        screen.SetListPosterStyles(m.rowStyles)
+    End If
+
+    ' Get Data
+    tvShowAll    = GetTVShowAll()
     tvShowGenres = GetTVShowGenres()
-    rowData[1] = tvShowGenres
-    screen.SetContentList(1, tvShowGenres)
 
+    AddGridRowContent(screen, tvShowAll)
+    AddGridRowContent(screen, tvShowGenres)
+
+    ' Show Screen
     screen.Show()
 
     ' Hide Description Popup
@@ -63,10 +67,10 @@ Function ShowTVShowListPage() As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                If rowData[row][selection].ContentType = "Series" Then
-                    ShowTVSeasonsListPage(rowData[row][selection])
-                Else If rowData[row][selection].ContentType = "Genre" Then
-                    ShowTVShowGenrePage(rowData[row][selection].Id)
+                If m.rowData[row][selection].ContentType = "Series" Then
+                    ShowTVSeasonsListPage(m.rowData[row][selection])
+                Else If m.rowData[row][selection].ContentType = "Genre" Then
+                    ShowTVShowGenrePage(m.rowData[row][selection].Id)
                 Else 
                     Print "Unknown Type found"
                 End If
