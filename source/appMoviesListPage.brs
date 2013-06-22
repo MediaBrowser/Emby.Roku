@@ -25,74 +25,32 @@ Function ShowMoviesListPage() As Integer
 
     screen.SetDisplayMode("scale-to-fill")
 
-    ' Get Data
-    sectionNames = CreateObject("roArray", 3, true)
-    sectionIndex = 1
-
-    rowData = CreateObject("roArray", 3, true)
-
-    listStyles = CreateObject("roArray", 3, true)
-
     ' Setup Jump List
     m.jumpList = {}
 
-    ' Movies
-    moviesAll = GetMoviesAll()
-    sectionNames.push( "Movies A-Z" )
-    movieIndex = 0
+    ' Setup Row Data
+    m.rowNames  = CreateObject("roArray", 3, true)
+    m.rowStyles = CreateObject("roArray", 3, true)
+    m.rowData   = CreateObject("roArray", 3, true)
+
+    AddGridRow(screen, "Movies A-Z", "portrait")
+    AddGridRow(screen, "Box Sets", "landscape")
+    AddGridRow(screen, "Genres", "landscape")
+
+    ShowGridNames(screen)
 
     If RegRead("prefMovieImageType") = "poster" Then
-        listStyles.push( "portrait" )
+        screen.SetListPosterStyles(m.rowStyles)
     End If
 
-    ' Box Sets
+    ' Get Data
+    moviesAll     = GetMoviesAll()
     moviesBoxsets = GetMoviesBoxsets()
+    moviesGenres  = GetMoviesGenres()
 
-    If moviesBoxsets.Count() > 0 Then
-        sectionNames.push( "Box Sets" )
-        boxsetIndex  = sectionIndex
-        sectionIndex = sectionIndex + 1
-
-        If RegRead("prefMovieImageType") = "poster" Then
-            listStyles.push( "landscape" )
-        End If
-    End If
-
-    ' Genres
-    moviesGenres = GetMoviesGenres()
-
-    If moviesGenres.Count() > 0 Then
-        sectionNames.push( "Genres" )
-        genreIndex = sectionIndex
-        sectionIndex = sectionIndex + 1
-
-        If RegRead("prefMovieImageType") = "poster" Then
-            listStyles.push( "landscape" )
-        End If
-    End If
-
-    screen.SetupLists(sectionNames.Count())
-    screen.SetListNames(sectionNames)
-
-    If RegRead("prefMovieImageType") = "poster" Then
-        screen.SetListPosterStyles(listStyles)
-    End If
-
-    ' Movie data
-    rowData[movieIndex] = moviesAll
-    screen.SetContentList(movieIndex, moviesAll)
-
-    ' Box Sets Data
-    If moviesBoxsets.Count() > 0 Then
-        rowData[boxsetIndex] = moviesBoxsets
-        screen.SetContentList(boxsetIndex, moviesBoxsets)
-    End If
-
-    ' Genres Data
-    If moviesGenres.Count() > 0 Then
-        rowData[genreIndex] = moviesGenres
-        screen.SetContentList(genreIndex, moviesGenres)
-    End If
+    AddGridRowContent(screen, moviesAll)
+    AddGridRowContent(screen, moviesBoxsets)
+    AddGridRowContent(screen, moviesGenres)
 
     ' Show Screen
     screen.Show()
@@ -113,13 +71,13 @@ Function ShowMoviesListPage() As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                If rowData[row][selection].ContentType = "Movie" Then
-                    movieIndex = ShowMoviesDetailPage(rowData[row][selection].Id, moviesAll, selection)
+                If m.rowData[row][selection].ContentType = "Movie" Then
+                    movieIndex = ShowMoviesDetailPage(m.rowData[row][selection].Id, moviesAll, selection)
                     screen.SetFocusedListItem(row, movieIndex)
-                Else If rowData[row][selection].ContentType = "Genre" Then
-                    ShowMoviesGenrePage(rowData[row][selection].Id)
-                Else If rowData[row][selection].ContentType = "BoxSet" Then
-                    ShowMoviesBoxsetPage(rowData[row][selection].Id, rowData[row][selection].Title)
+                Else If m.rowData[row][selection].ContentType = "Genre" Then
+                    ShowMoviesGenrePage(m.rowData[row][selection].Id)
+                Else If m.rowData[row][selection].ContentType = "BoxSet" Then
+                    ShowMoviesBoxsetPage(m.rowData[row][selection].Id, m.rowData[row][selection].Title)
                 Else 
                     Print "Unknown Type found"
                 End If
