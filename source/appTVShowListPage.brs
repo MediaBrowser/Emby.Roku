@@ -41,6 +41,9 @@ Function ShowTVShowListPage() As Integer
         screen.SetListPosterStyles(m.rowStyles)
     End If
 
+    ' Show Loading Dialog
+    dialogBox = ShowPleaseWait("Loading...","")
+
     ' Get Data
     tvShowAll    = GetTVShowAll()
     tvShowGenres = GetTVShowGenres()
@@ -50,6 +53,9 @@ Function ShowTVShowListPage() As Integer
 
     ' Show Screen
     screen.Show()
+
+    ' Close Loading Dialog
+    dialogBox.Close()
 
     ' Hide Description Popup
     screen.SetDescriptionVisible(false)

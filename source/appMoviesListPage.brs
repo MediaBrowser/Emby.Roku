@@ -43,6 +43,9 @@ Function ShowMoviesListPage() As Integer
         screen.SetListPosterStyles(m.rowStyles)
     End If
 
+    ' Show Loading Dialog
+    dialogBox = ShowPleaseWait("Loading...","")
+
     ' Get Data
     moviesAll     = GetMoviesAll()
     moviesBoxsets = GetMoviesBoxsets()
@@ -54,6 +57,9 @@ Function ShowMoviesListPage() As Integer
 
     ' Show Screen
     screen.Show()
+
+    ' Close Loading Dialog
+    dialogBox.Close()
 
     ' Hide Description Popup
     screen.SetDescriptionVisible(false)
