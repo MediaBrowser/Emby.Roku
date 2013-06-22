@@ -2,6 +2,57 @@
 '**  Media Browser Roku Client - MB Grid Utils
 '**********************************************************
 
+
+'**********************************************************
+'** Add Grid Row Titles
+'**********************************************************
+
+Function AddGridRow(screen As Object, title As String, rowStyle As String) As Boolean
+
+    m.rowNames.push(title)
+
+    If rowStyle = "portrait" Then
+        m.rowStyles.push( "portrait" )
+    Else
+        m.rowStyles.push( "landscape" )
+    End If
+
+    Return true
+End Function
+
+
+'**********************************************************
+'** Show Grid Row Titles
+'**********************************************************
+
+Function ShowGridNames(screen As Object) As Boolean
+    screen.SetupLists(m.rowNames.Count())
+    screen.SetListNames(m.rowNames)
+
+    Return true
+End Function
+
+
+'**********************************************************
+'** Add Grid Row Content (Hide if no content)
+'**********************************************************
+
+Function AddGridRowContent(screen As Object, rowContent As Object) As Boolean
+
+    m.rowData.push(rowContent)
+
+    rowIndex = m.rowData.Count() - 1
+
+    screen.SetContentList(rowIndex, rowContent)
+
+    If rowContent.Count() < 1 Then
+        screen.SetListVisible(rowIndex, false)
+    End If
+
+    Return true
+End Function
+
+
 '**********************************************************
 '** Find Closest Letter with Data
 '**********************************************************
