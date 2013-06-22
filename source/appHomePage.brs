@@ -18,53 +18,43 @@ Function ShowHomePage()
     screen.SetGridStyle("two-row-flat-landscape-custom")
     screen.SetDisplayMode("scale-to-fill")
 
-    ' Get Data
     itemCounts = GetItemCounts()
 
     If itemCounts=invalid Then
-        ShowError("Error", "Could Not Get Item Counts")
+        ShowError("Error", "Could Not Get Data From Server")
         return false
     End If
 
-    ' Only Add Section if it has Items
-    sectionNames = CreateObject("roArray", 3, true)
-    sectionIndex = 0
+    ' Setup Row Data
+    m.rowNames  = CreateObject("roArray", 3, true)
+    m.rowStyles = CreateObject("roArray", 3, true)
+    m.rowData   = CreateObject("roArray", 3, true)
 
     If itemCounts.MovieCount > 0 Then
-        sectionNames.push( "Movies" )
-        movieIndex = sectionIndex
-        sectionIndex = sectionIndex + 1
+        AddGridRow(screen, "Movies", "landscape")
     End If
 
     If itemCounts.SeriesCount > 0 Then
-        sectionNames.push( "TV" )
-        tvIndex = sectionIndex
-        sectionIndex = sectionIndex + 1
+        AddGridRow(screen, "TV", "landscape")
     End If
 
-    sectionNames.push( "Options" )
-    optionsIndex = sectionIndex
+    AddGridRow(screen, "Options", "landscape")
 
-    screen.SetupLists(sectionNames.Count())
-    screen.SetListNames(sectionNames)
+    ShowGridNames(screen)
 
-    rowData = CreateObject("roArray", 3, true)
-
+    ' Get Data
     If itemCounts.MovieCount > 0 Then
         moviesButtons = GetMoviesButtons()
-        rowData[movieIndex] = moviesButtons
-        screen.SetContentList(movieIndex, moviesButtons)
+        AddGridRowContent(screen, moviesButtons)
     End If
 
     If itemCounts.SeriesCount > 0 Then
         tvButtons = GetTVButtons()
-        rowData[tvIndex] = tvButtons
-        screen.SetContentList(tvIndex, tvButtons)
+        AddGridRowContent(screen, tvButtons)
     End If
 
     optionButtons = GetOptionsButtons()
-    rowData[optionsIndex] = optionButtons
-    screen.SetContentList(optionsIndex, optionButtons)
+    AddGridRowContent(screen, optionButtons)
 
     ' Show Screen
     screen.Show()
@@ -82,19 +72,19 @@ Function ShowHomePage()
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                If rowData[row][selection].ContentType = "MovieLibrary" Then
+                If m.rowData[row][selection].ContentType = "MovieLibrary" Then
                     ShowMoviesListPage()
-                Else If rowData[row][selection].ContentType = "Movie" Then
-                    ShowMoviesDetailPage(rowData[row][selection].Id)
-                Else If rowData[row][selection].ContentType = "TVLibrary" Then
+                Else If m.rowData[row][selection].ContentType = "Movie" Then
+                    ShowMoviesDetailPage(m.rowData[row][selection].Id)
+                Else If m.rowData[row][selection].ContentType = "TVLibrary" Then
                     ShowTVShowListPage()
-                Else If rowData[row][selection].ContentType = "Episode" Then
-                    ShowTVDetailPage(rowData[row][selection].Id)
-                Else If rowData[row][selection].ContentType = "SwitchUser" Then
+                Else If m.rowData[row][selection].ContentType = "Episode" Then
+                    ShowTVDetailPage(m.rowData[row][selection].Id)
+                Else If m.rowData[row][selection].ContentType = "SwitchUser" Then
                     RegDelete("userId")
                     Print "Switch User"
                     return true
-                Else If rowData[row][selection].ContentType = "Preferences" Then
+                Else If m.rowData[row][selection].ContentType = "Preferences" Then
                     ShowPreferencesPage()
                 Else 
                     Print "Unknown Type found"
