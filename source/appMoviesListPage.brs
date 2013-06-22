@@ -33,7 +33,7 @@ Function ShowMoviesListPage() As Integer
     m.rowStyles = CreateObject("roArray", 3, true)
     m.rowData   = CreateObject("roArray", 3, true)
 
-    AddGridRow(screen, "Movies A-Z", "portrait")
+    AddGridRow(screen, "Movies", "portrait")
     AddGridRow(screen, "Box Sets", "landscape")
     AddGridRow(screen, "Genres", "landscape")
 
