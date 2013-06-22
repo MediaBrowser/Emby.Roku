@@ -162,6 +162,25 @@ Function strTrim(str As String) As String
 End Function
 
 
+'**********************************************************
+'** Zero Pad Text
+'**********************************************************
+
+Function ZeroPad(text As String, length = invalid) As String
+    if length = invalid then length = 2
+
+    If text.Len() < length
+        For i = 1 to length-1
+            text = "0" + text
+        End For
+    End If
+    
+    Return text
+End Function
+
+
+
+
 
 
 
