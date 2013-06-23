@@ -9,29 +9,20 @@
 
 Function ShowMoviesListPage() As Integer
 
-    ' Setup Screen
-    port   = CreateObject("roMessagePort")
-    screen = CreateObject("roGridScreen")
-    screen.SetMessagePort(port)
-
-    screen.SetBreadcrumbText("", "Movies")
-
-    ' Determine Display Type
+    ' Create Grid Screen
     If RegRead("prefMovieImageType") = "poster" Then
-        screen.SetGridStyle("mixed-aspect-ratio")
+        screen = CreateGridScreen("", "Movies", "mixed-aspect-ratio")
     Else
-        screen.SetGridStyle("two-row-flat-landscape-custom")
+        screen = CreateGridScreen("", "Movies", "two-row-flat-landscape-custom")
     End If
-
-    screen.SetDisplayMode("scale-to-fill")
 
     ' Setup Jump List
     m.jumpList = {}
 
     ' Setup Row Data
-    m.rowNames  = CreateObject("roArray", 3, true)
-    m.rowStyles = CreateObject("roArray", 3, true)
-    m.rowData   = CreateObject("roArray", 3, true)
+    screen.rowNames   = CreateObject("roArray", 3, true)
+    screen.rowStyles  = CreateObject("roArray", 3, true)
+    screen.rowContent = CreateObject("roArray", 3, true)
 
     AddGridRow(screen, "Movies", "portrait")
     AddGridRow(screen, "Box Sets", "landscape")
@@ -40,7 +31,7 @@ Function ShowMoviesListPage() As Integer
     ShowGridNames(screen)
 
     If RegRead("prefMovieImageType") = "poster" Then
-        screen.SetListPosterStyles(m.rowStyles)
+        screen.Screen.SetListPosterStyles(screen.rowStyles)
     End If
 
     ' Show Loading Dialog
@@ -56,19 +47,19 @@ Function ShowMoviesListPage() As Integer
     AddGridRowContent(screen, moviesGenres)
 
     ' Show Screen
-    screen.Show()
+    screen.Screen.Show()
 
     ' Close Loading Dialog
     dialogBox.Close()
 
     ' Hide Description Popup
-    screen.SetDescriptionVisible(false)
+    screen.Screen.SetDescriptionVisible(false)
 
     ' Remote key id's for navigation
     remoteKeyStar = 10
 
     while true
-        msg = wait(0, screen.GetMessagePort())
+        msg = wait(0, screen.Screen.GetMessagePort())
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListItemFocused() then
@@ -77,13 +68,13 @@ Function ShowMoviesListPage() As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                If m.rowData[row][selection].ContentType = "Movie" Then
-                    movieIndex = ShowMoviesDetailPage(m.rowData[row][selection].Id, moviesAll, selection)
-                    screen.SetFocusedListItem(row, movieIndex)
-                Else If m.rowData[row][selection].ContentType = "Genre" Then
-                    ShowMoviesGenrePage(m.rowData[row][selection].Id)
-                Else If m.rowData[row][selection].ContentType = "BoxSet" Then
-                    ShowMoviesBoxsetPage(m.rowData[row][selection].Id, m.rowData[row][selection].Title)
+                If screen.rowContent[row][selection].ContentType = "Movie" Then
+                    movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesAll, selection)
+                    screen.Screen.SetFocusedListItem(row, movieIndex)
+                Else If screen.rowContent[row][selection].ContentType = "Genre" Then
+                    ShowMoviesGenrePage(screen.rowContent[row][selection].Id)
+                Else If screen.rowContent[row][selection].ContentType = "BoxSet" Then
+                    ShowMoviesBoxsetPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title)
                 Else 
                     Print "Unknown Type found"
                 End If
@@ -96,7 +87,7 @@ Function ShowMoviesListPage() As Integer
 
                     If letterSelected <> invalid Then
                         letter = FindClosestLetter(letterSelected)
-                        screen.SetFocusedListItem(0, m.jumpList.Lookup(letter))
+                        screen.Screen.SetFocusedListItem(0, m.jumpList.Lookup(letter))
                     End If
                 End If
 
