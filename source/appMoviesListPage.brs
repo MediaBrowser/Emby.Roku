@@ -25,7 +25,7 @@ Function ShowMoviesListPage() As Integer
     screen.rowContent = CreateObject("roArray", 3, true)
 
     AddGridRow(screen, "Movies", "portrait")
-    AddGridRow(screen, "Box Sets", "landscape")
+    AddGridRow(screen, "Box Sets", "portrait")
     AddGridRow(screen, "Genres", "landscape")
 
     ShowGridNames(screen)
@@ -132,8 +132,8 @@ Function GetMoviesAll() As Object
 
                             ' Check If Item has Image, otherwise use default
                             If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=192&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=140&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=274&width=192&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=180&width=140&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
                             Else 
                                 movieData.HDPosterUrl = "pkg://images/items/collection.png"
                                 movieData.SDPosterUrl = "pkg://images/items/collection.png"
@@ -225,8 +225,8 @@ Function GetMoviesGenres() As Object
 
                             ' Check If Item has Image, otherwise use default
                             If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?height=192&width=&tag=" + itemData.ImageTags.Primary
-                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?height=94&width=&tag=" + itemData.ImageTags.Primary
+                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?height=192&width=192&tag=" + itemData.ImageTags.Primary
+                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?height=126&width=140&tag=" + itemData.ImageTags.Primary
                             Else 
                                 movieData.HDPosterUrl = "pkg://images/items/collection.png"
                                 movieData.SDPosterUrl = "pkg://images/items/collection.png"
@@ -290,13 +290,40 @@ Function GetMoviesBoxsets() As Object
                             Watched: itemData.UserData.Played
                         }
 
-                        ' Check If Item has Image, otherwise use default
-                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                            movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
-                        Else 
-                            movieData.HDPosterUrl = "pkg://images/items/collection.png"
-                            movieData.SDPosterUrl = "pkg://images/items/collection.png"
+                        ' Get Image Type From Preference
+                        If RegRead("prefMovieImageType") = "poster" Then
+
+                            ' Check If Item has Image, otherwise use default
+                            If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
+                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=274&width=192&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=180&width=140&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                            Else 
+                                movieData.HDPosterUrl = "pkg://images/items/collection.png"
+                                movieData.SDPosterUrl = "pkg://images/items/collection.png"
+                            End If
+
+                        Else If RegRead("prefMovieImageType") = "thumb" Then
+
+                            ' Check If Item has Image, otherwise use default
+                            If itemData.ImageTags.Thumb<>"" And itemData.ImageTags.Thumb<>invalid
+                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?height=150&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
+                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?height=94&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
+                            Else 
+                                movieData.HDPosterUrl = "pkg://images/items/collection.png"
+                                movieData.SDPosterUrl = "pkg://images/items/collection.png"
+                            End If
+
+                        Else
+
+                            ' Check If Item has Image, otherwise use default
+                            If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
+                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                            Else 
+                                movieData.HDPosterUrl = "pkg://images/items/collection.png"
+                                movieData.SDPosterUrl = "pkg://images/items/collection.png"
+                            End If
+
                         End If
 
                         list.push( movieData )
