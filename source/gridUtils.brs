@@ -19,7 +19,7 @@ Function CreateGridScreen(breadCrumbA As String, breadCrumbB As String, style As
     screen.Screen.SetBreadcrumbText(breadCrumbA, breadCrumbB)
 
     screen.Screen.SetGridStyle(style)
-    screen.Screen.SetDisplayMode("scale-to-fill")
+    screen.Screen.SetDisplayMode("scale-to-fit")
 
     Return screen
 End Function
