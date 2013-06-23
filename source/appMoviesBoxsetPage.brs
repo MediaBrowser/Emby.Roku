@@ -11,40 +11,35 @@ Function ShowMoviesBoxsetPage(boxsetId As String, boxsetName As String) As Integ
 
     if validateParam(boxsetId, "roString", "ShowMoviesBoxsetPage") = false return -1
 
-    ' Setup Screen
-    port   = CreateObject("roMessagePort")
-    screen = CreateObject("roGridScreen")
-    screen.SetMessagePort(port)
-
-    screen.SetBreadcrumbText(boxsetName, "Movies")
-
-    ' Determine Display Type
+    ' Create Grid Screen
     If RegRead("prefMovieImageType") = "poster" Then
-        screen.SetGridStyle("flat-movie")
+        screen = CreateGridScreen(boxsetName, "Movies", "flat-movie")
     Else
-        screen.SetGridStyle("two-row-flat-landscape-custom")
+        screen = CreateGridScreen(boxsetName, "Movies", "two-row-flat-landscape-custom")
     End If
 
-    screen.SetDisplayMode("scale-to-fill")
+    ' Setup Row Data
+    screen.rowNames   = CreateObject("roArray", 1, true)
+    screen.rowStyles  = CreateObject("roArray", 1, true)
+    screen.rowContent = CreateObject("roArray", 1, true)
 
-    screen.SetupLists(1)
-    screen.SetListNames([boxsetName])
+    AddGridRow(screen, "Movies", "portrait")
 
-    rowData = CreateObject("roArray", 1, true)
+    ShowGridNames(screen)
 
     ' Get Data
     moviesAll = GetMoviesInBoxset(boxsetId)
-    rowData[0] = moviesAll
-    screen.SetContentList(0, moviesAll)
+
+    AddGridRowContent(screen, moviesAll)
 
     ' Show Screen
-    screen.Show()
+    screen.Screen.Show()
 
     ' Hide Description Popup
-    screen.SetDescriptionVisible(false)
+    screen.Screen.SetDescriptionVisible(false)
 
     while true
-        msg = wait(0, screen.GetMessagePort())
+        msg = wait(0, screen.Screen.GetMessagePort())
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListItemFocused() then
@@ -53,9 +48,9 @@ Function ShowMoviesBoxsetPage(boxsetId As String, boxsetName As String) As Integ
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                If rowData[row][selection].ContentType = "Movie" Then
-                    movieIndex = ShowMoviesDetailPage(rowData[row][selection].Id, moviesAll, selection)
-                    screen.SetFocusedListItem(row, movieIndex)
+                If screen.rowContent[row][selection].ContentType = "Movie" Then
+                    movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesAll, selection)
+                    screen.Screen.SetFocusedListItem(row, movieIndex)
                 Else 
                     Print "Unknown Type found"
                 End If
@@ -101,8 +96,8 @@ Function GetMoviesInBoxset(boxsetId As String) As Object
 
                             ' Check If Item has Image, otherwise use default
                             If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=192&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=140&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=270&width=210&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=150&width=110&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
                             Else 
                                 movieData.HDPosterUrl = "pkg://images/items/collection.png"
                                 movieData.SDPosterUrl = "pkg://images/items/collection.png"
