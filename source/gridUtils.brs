@@ -3,18 +3,39 @@
 '**********************************************************
 
 
+Function CreateGridScreen(breadCrumbA As String, breadCrumbB As String, style As String) As Object
+
+    ' Setup Screen
+    screen = CreateObject("roAssociativeArray")
+
+    port = CreateObject("roMessagePort")
+    grid = CreateObject("roGridScreen")
+
+    screen.Screen = grid
+
+    screen.Screen.SetMessagePort(port)
+
+    ' Set Breadcrumbs
+    screen.Screen.SetBreadcrumbText(breadCrumbA, breadCrumbB)
+
+    screen.Screen.SetGridStyle(style)
+    screen.Screen.SetDisplayMode("scale-to-fill")
+
+    Return screen
+End Function
+
 '**********************************************************
 '** Add Grid Row Titles
 '**********************************************************
 
-Function AddGridRow(screen As Object, title As String, rowStyle As String) As Boolean
+Function AddGridRow(screenContent As Object, title As String, rowStyle As String) As Boolean
 
-    m.rowNames.push(title)
+    screenContent.rowNames.push(title)
 
     If rowStyle = "portrait" Then
-        m.rowStyles.push( "portrait" )
+        screenContent.rowStyles.push( "portrait" )
     Else
-        m.rowStyles.push( "landscape" )
+        screenContent.rowStyles.push( "landscape" )
     End If
 
     Return true
@@ -25,9 +46,9 @@ End Function
 '** Show Grid Row Titles
 '**********************************************************
 
-Function ShowGridNames(screen As Object) As Boolean
-    screen.SetupLists(m.rowNames.Count())
-    screen.SetListNames(m.rowNames)
+Function ShowGridNames(screenContent As Object) As Boolean
+    screenContent.Screen.SetupLists(screenContent.rowNames.Count())
+    screenContent.Screen.SetListNames(screenContent.rowNames)
 
     Return true
 End Function
@@ -37,16 +58,16 @@ End Function
 '** Add Grid Row Content (Hide if no content)
 '**********************************************************
 
-Function AddGridRowContent(screen As Object, rowContent As Object) As Boolean
+Function AddGridRowContent(screenContent As Object, rowData As Object) As Boolean
 
-    m.rowData.push(rowContent)
+    screenContent.rowContent.push(rowData)
 
-    rowIndex = m.rowData.Count() - 1
+    rowIndex = screenContent.rowContent.Count() - 1
 
-    screen.SetContentList(rowIndex, rowContent)
+    screenContent.Screen.SetContentList(rowIndex, rowData)
 
-    If rowContent.Count() < 1 Then
-        screen.SetListVisible(rowIndex, false)
+    If rowData.Count() = 0 Then
+        screenContent.Screen.SetListVisible(rowIndex, false)
     End If
 
     Return true
