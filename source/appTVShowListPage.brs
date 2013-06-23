@@ -8,37 +8,30 @@
 '**********************************************************
 
 Function ShowTVShowListPage() As Integer
-    ' Setup Screen
-    port   = CreateObject("roMessagePort")
-    screen = CreateObject("roGridScreen")
-    screen.SetMessagePort(port)
 
-    screen.SetBreadcrumbText("", "TV")
-
-    ' Determine Display Type
+    ' Create Grid Screen
     If RegRead("prefTVImageType") = "poster" Then
-        screen.SetGridStyle("mixed-aspect-ratio")
+        screen = CreateGridScreen("", "TV", "mixed-aspect-ratio")
     Else
-        screen.SetGridStyle("two-row-flat-landscape-custom")
+        screen = CreateGridScreen("", "TV", "two-row-flat-landscape-custom")
     End If
-    
-    screen.SetDisplayMode("scale-to-fill")
 
     ' Setup Jump List
     m.jumpList = {}
 
     ' Setup Row Data
-    m.rowNames  = CreateObject("roArray", 2, true)
-    m.rowStyles = CreateObject("roArray", 2, true)
-    m.rowData   = CreateObject("roArray", 2, true)
+    screen.rowNames   = CreateObject("roArray", 2, true)
+    screen.rowStyles  = CreateObject("roArray", 2, true)
+    screen.rowContent = CreateObject("roArray", 2, true)
 
     AddGridRow(screen, "TV Series", "portrait")
+    AddGridRow(screen, "Next Episodes to Watch", "landscape")
     AddGridRow(screen, "Genres", "landscape")
 
     ShowGridNames(screen)
 
     If RegRead("prefTVImageType") = "poster" Then
-        screen.SetListPosterStyles(m.rowStyles)
+        screen.Screen.SetListPosterStyles(screen.rowStyles)
     End If
 
     ' Show Loading Dialog
@@ -46,25 +39,27 @@ Function ShowTVShowListPage() As Integer
 
     ' Get Data
     tvShowAll    = GetTVShowAll()
+    tvShowNextUp = GetTVShowNextUp()
     tvShowGenres = GetTVShowGenres()
 
     AddGridRowContent(screen, tvShowAll)
+    AddGridRowContent(screen, tvShowNextUp)
     AddGridRowContent(screen, tvShowGenres)
 
     ' Show Screen
-    screen.Show()
+    screen.Screen.Show()
 
     ' Close Loading Dialog
     dialogBox.Close()
 
     ' Hide Description Popup
-    screen.SetDescriptionVisible(false)
+    screen.Screen.SetDescriptionVisible(false)
 
     ' Remote key id's for navigation
     remoteKeyStar = 10
 
     while true
-        msg = wait(0, screen.GetMessagePort())
+        msg = wait(0, screen.Screen.GetMessagePort())
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListItemFocused() then
@@ -73,10 +68,12 @@ Function ShowTVShowListPage() As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                If m.rowData[row][selection].ContentType = "Series" Then
-                    ShowTVSeasonsListPage(m.rowData[row][selection])
-                Else If m.rowData[row][selection].ContentType = "Genre" Then
-                    ShowTVShowGenrePage(m.rowData[row][selection].Id)
+                If screen.rowContent[row][selection].ContentType = "Series" Then
+                    ShowTVSeasonsListPage(screen.rowContent[row][selection])
+                Else If screen.rowContent[row][selection].ContentType = "Episode" Then
+                    ShowTVDetailPage(screen.rowContent[row][selection].Id)
+                Else If screen.rowContent[row][selection].ContentType = "Genre" Then
+                    ShowTVShowGenrePage(screen.rowContent[row][selection].Id)
                 Else 
                     Print "Unknown Type found"
                 End If
@@ -89,11 +86,12 @@ Function ShowTVShowListPage() As Integer
 
                     If letterSelected <> invalid Then
                         letter = FindClosestLetter(letterSelected)
-                        screen.SetFocusedListItem(0, m.jumpList.Lookup(letter))
+                        screen.Screen.SetFocusedListItem(0, m.jumpList.Lookup(letter))
                     End If
                 End If
 
-            else if msg.isScreenClosed() then
+            else if msg.isScreenClosed() Then
+                Print "Close tv screen"
                 return -1
             end if
         end if
@@ -180,6 +178,58 @@ Function GetTVShowAll() As Object
                         index = index + 1
 
                         list.push( seriesData )
+                    end for
+                    return list
+                endif
+            else if (event = invalid)
+                request.AsyncCancel()
+            endif
+        end while
+    endif
+
+    Return invalid
+End Function
+
+
+'**********************************************************
+'** Get Next Up TV Episodes From Server
+'**********************************************************
+
+Function GetTVShowNextUp() As Object
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Shows/NextUp?UserId=" + m.curUserProfile.Id + "&Limit=8&Fields=SeriesInfo%2CDateCreated", true)
+
+    if (request.AsyncGetToString())
+        while (true)
+            msg = wait(0, request.GetPort())
+
+            if (type(msg) = "roUrlEvent")
+                code = msg.GetResponseCode()
+
+                if (code = 200)
+                    list     = CreateObject("roArray", 2, true)
+                    jsonData = ParseJSON(msg.GetString())
+                    for each itemData in jsonData.Items
+                        tvData = {
+                            Id: itemData.Id
+                            Title: itemData.SeriesName
+                            ContentType: "Episode"
+                            ShortDescriptionLine1: itemData.SeriesName
+                            ShortDescriptionLine2: itostr(itemData.ParentIndexNumber) + "x"  + ZeroPad(itostr(itemData.IndexNumber)) + " - " + itemData.Name
+                        }
+
+                        ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
+                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                        Else If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=150&width=&tag=" + itemData.ImageTags.Primary
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=94&width=&tag=" + itemData.ImageTags.Primary
+                        Else 
+                            tvData.HDPosterUrl = "pkg://images/items/collection.png"
+                            tvData.SDPosterUrl = "pkg://images/items/collection.png"
+                        End If
+
+                        list.push( tvData )
                     end for
                     return list
                 endif
