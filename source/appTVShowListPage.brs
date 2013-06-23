@@ -24,7 +24,7 @@ Function ShowTVShowListPage() As Integer
     screen.rowStyles  = CreateObject("roArray", 2, true)
     screen.rowContent = CreateObject("roArray", 2, true)
 
-    AddGridRow(screen, "TV Series", "portrait")
+    AddGridRow(screen, "Shows", "portrait")
     AddGridRow(screen, "Next Episodes to Watch", "landscape")
     AddGridRow(screen, "Genres", "landscape")
 
@@ -143,8 +143,8 @@ Function GetTVShowAll() As Object
 
                             ' Check If Item has Image, otherwise use default
                             If itemData.ImageTags.Thumb<>"" And itemData.ImageTags.Thumb<>invalid
-                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?height=150&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
-                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?height=94&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
+                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?height=150&width=266&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
+                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?height=94&width=140&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
                             Else 
                                 seriesData.HDPosterUrl = "pkg://images/items/collection.png"
                                 seriesData.SDPosterUrl = "pkg://images/items/collection.png"
@@ -154,8 +154,8 @@ Function GetTVShowAll() As Object
 
                             ' Check If Item has Image, otherwise use default
                             If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=266&tag=" + itemData.BackdropImageTags[0]
+                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=140&tag=" + itemData.BackdropImageTags[0]
                             Else 
                                 seriesData.HDPosterUrl = "pkg://images/items/collection.png"
                                 seriesData.SDPosterUrl = "pkg://images/items/collection.png"
@@ -196,7 +196,7 @@ End Function
 '**********************************************************
 
 Function GetTVShowNextUp() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Shows/NextUp?UserId=" + m.curUserProfile.Id + "&Limit=8&Fields=SeriesInfo%2CDateCreated", true)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Shows/NextUp?UserId=" + m.curUserProfile.Id + "&Limit=10&Fields=SeriesInfo%2CDateCreated", true)
 
     if (request.AsyncGetToString())
         while (true)
