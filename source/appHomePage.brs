@@ -9,15 +9,10 @@
 
 Function ShowHomePage()
 
-    ' Setup Screen
-    port   = CreateObject("roMessagePort")
-    screen = CreateObject("roGridScreen")
-    screen.SetMessagePort(port)
+    ' Create Grid Screen
+    screen = CreateGridScreen("", m.curUserProfile.Title, "two-row-flat-landscape-custom")
 
-    screen.SetBreadcrumbText("", m.curUserProfile.Title)
-    screen.SetGridStyle("two-row-flat-landscape-custom")
-    screen.SetDisplayMode("scale-to-fill")
-
+    ' Get Item Counts
     itemCounts = GetItemCounts()
 
     If itemCounts=invalid Then
@@ -26,9 +21,9 @@ Function ShowHomePage()
     End If
 
     ' Setup Row Data
-    m.rowNames  = CreateObject("roArray", 3, true)
-    m.rowStyles = CreateObject("roArray", 3, true)
-    m.rowData   = CreateObject("roArray", 3, true)
+    screen.rowNames   = CreateObject("roArray", 3, true)
+    screen.rowStyles  = CreateObject("roArray", 3, true)
+    screen.rowContent = CreateObject("roArray", 3, true)
 
     If itemCounts.MovieCount > 0 Then
         AddGridRow(screen, "Movies", "landscape")
@@ -57,13 +52,13 @@ Function ShowHomePage()
     AddGridRowContent(screen, optionButtons)
 
     ' Show Screen
-    screen.Show()
+    screen.Screen.Show()
 
     ' Hide Description Popup
-    screen.SetDescriptionVisible(false)
+    screen.Screen.SetDescriptionVisible(false)
 
     while true
-        msg = wait(0, screen.GetMessagePort())
+        msg = wait(0, screen.Screen.GetMessagePort())
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListFocused() then
@@ -72,19 +67,21 @@ Function ShowHomePage()
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                If m.rowData[row][selection].ContentType = "MovieLibrary" Then
+                Print "Content type: "; screen.rowContent[row][selection].ContentType
+
+                If screen.rowContent[row][selection].ContentType = "MovieLibrary" Then
                     ShowMoviesListPage()
-                Else If m.rowData[row][selection].ContentType = "Movie" Then
-                    ShowMoviesDetailPage(m.rowData[row][selection].Id)
-                Else If m.rowData[row][selection].ContentType = "TVLibrary" Then
+                Else If screen.rowContent[row][selection].ContentType = "Movie" Then
+                    ShowMoviesDetailPage(screen.rowContent[row][selection].Id)
+                Else If screen.rowContent[row][selection].ContentType = "TVLibrary" Then
                     ShowTVShowListPage()
-                Else If m.rowData[row][selection].ContentType = "Episode" Then
-                    ShowTVDetailPage(m.rowData[row][selection].Id)
-                Else If m.rowData[row][selection].ContentType = "SwitchUser" Then
+                Else If screen.rowContent[row][selection].ContentType = "Episode" Then
+                    ShowTVDetailPage(screen.rowContent[row][selection].Id)
+                Else If screen.rowContent[row][selection].ContentType = "SwitchUser" Then
                     RegDelete("userId")
                     Print "Switch User"
                     return true
-                Else If m.rowData[row][selection].ContentType = "Preferences" Then
+                Else If screen.rowContent[row][selection].ContentType = "Preferences" Then
                     ShowPreferencesPage()
                 Else 
                     Print "Unknown Type found"
