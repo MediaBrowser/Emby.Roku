@@ -75,6 +75,24 @@ End Function
 
 
 '**********************************************************
+'** Update Grid Row Content (Hide if no content)
+'**********************************************************
+
+Function UpdateGridRowContent(screenContent As Object, rowIndex As Integer, rowData As Object) As Boolean
+
+    screenContent.rowContent[rowIndex] = rowData
+
+    screenContent.Screen.SetContentList(rowIndex, rowData)
+
+    If rowData.Count() = 0 Then
+        screenContent.Screen.SetListVisible(rowIndex, false)
+    End If
+
+    Return true
+End Function
+
+
+'**********************************************************
 '** Find Closest Letter with Data
 '**********************************************************
 
