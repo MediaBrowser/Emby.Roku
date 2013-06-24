@@ -103,7 +103,7 @@ End Function
 '**********************************************************
 
 Function GetTVEpisodes(seasonId As String) As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + seasonId + "&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2COverview%2CMediaStreams&SortBy=SortName&SortOrder=Ascending", true)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + seasonId + "&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2COverview%2CMediaStreams%2CUserData&SortBy=SortName&SortOrder=Ascending", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -114,7 +114,15 @@ Function GetTVEpisodes(seasonId As String) As Object
 
                 if (code = 200)
                     list     = CreateObject("roArray", 2, true)
-                    jsonData = ParseJSON(msg.GetString())
+
+                    ' Fixes bug within BRS Json Parser
+                    regex = CreateObject("roRegex", Chr(34) + "RunTimeTicks" + Chr(34) + ":([0-9]+),", "i")
+                    fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "RunTimeTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
+
+                    regex = CreateObject("roRegex", Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":([0-9]+),", "i")
+                    fixedString = regex.ReplaceAll(fixedString, Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
+
+                    jsonData = ParseJSON(fixedString)
                     for each itemData in jsonData.Items
                         episodeData = {
                             Id: itemData.Id
@@ -132,6 +140,19 @@ Function GetTVEpisodes(seasonId As String) As Object
                             episodeData.HDPosterUrl = "pkg://images/items/collection.png"
                             episodeData.SDPosterUrl = "pkg://images/items/collection.png"
                         End If
+
+                        ' Check For Run Time
+                        itemRunTime = itemData.RunTimeTicks
+                        If itemRunTime<>"" And itemRunTime<>invalid
+                            episodeData.Length = Int(((itemRunTime).ToFloat() / 10000) / 1000)
+                        End If
+
+                        ' Check For Playback Position Time
+                        itemPlaybackPositionTime = itemData.UserData.PlaybackPositionTicks
+                        If itemPlaybackPositionTime<>"" And itemPlaybackPositionTime<>invalid
+                            episodeData.BookmarkPosition = Int(((itemPlaybackPositionTime).ToFloat() / 10000) / 1000)
+                        End If
+
 
                         ' Check Media Streams For HD Video And Surround Sound Audio
                         streamInfo = GetStreamInfo(itemData.MediaStreams)
