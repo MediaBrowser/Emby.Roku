@@ -174,7 +174,7 @@ End Function
 '**********************************************************
 
 Function GetMoviesRecentAdded() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=1&Recursive=true&IncludeItemTypes=Movie&SortBy=DateCreated&SortOrder=Descending&Filters=IsNotFolder", true)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=3&Recursive=true&IncludeItemTypes=Movie&SortBy=DateCreated&SortOrder=Descending&Filters=IsNotFolder", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -189,10 +189,9 @@ Function GetMoviesRecentAdded() As Object
                     for each itemData in jsonData.Items
                         movieData = {
                             Id: itemData.Id
-                            Title: "Recently Added"
+                            Title: itemData.Name
                             ContentType: "Movie"
-                            ShortDescriptionLine1: "Recently Added"
-                            ShortDescriptionLine2: itemData.Name
+                            ShortDescriptionLine1: itemData.Name
                         }
 
                         ' Check If Item has Image, otherwise use default
@@ -283,13 +282,25 @@ Function GetTVButtons() As Object
         }
     ]
 
+    resumeButton = [
+        {
+            Title: "Resume"
+            ContentType: "Spacer"
+            'ShortDescriptionLine1: "Movie Library"
+            'HDPosterUrl: "pkg://images/items/Default_Movie_Collection_HD.png"
+            'SDPosterUrl: "pkg://images/items/Default_Movie_Collection_SD.png"
+        }
+    ]
+
     resumeTV = GetTVResumable()
     If resumeTV<>invalid
+        'buttons.Append( resumeButton )
         buttons.Append( resumeTV )
     End If
 
     recentTVAdded = GetTVRecentAdded()
     If recentTVAdded<>invalid
+        'buttons.Append( resumeButton )
         buttons.Append( recentTVAdded )
     End If
 
@@ -307,7 +318,7 @@ End Function
 '**********************************************************
 
 Function GetTVRecentAdded() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=1&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo&SortBy=DateCreated&SortOrder=Descending&Filters=IsNotFolder", true)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=5&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2CUserData&SortBy=DateCreated&SortOrder=Descending&Filters=IsUnplayed", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -324,8 +335,8 @@ Function GetTVRecentAdded() As Object
                             Id: itemData.Id
                             Title: "Recently Added"
                             ContentType: "Episode"
-                            ShortDescriptionLine1: "Recently Added"
-                            ShortDescriptionLine2: itemData.SeriesName + " - Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
+                            ShortDescriptionLine1: itemData.SeriesName
+                            ShortDescriptionLine2: itostr(itemData.ParentIndexNumber) + "x"  + ZeroPad(itostr(itemData.IndexNumber)) + " - " + itemData.Name
                         }
 
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
@@ -374,7 +385,7 @@ Function GetTVRecentPlayed() As Object
                     for each itemData in jsonData.Items
                         tvData = {
                             Id: itemData.Id
-                            Title: "Recently Played"
+                            Title: itemData.SeriesName
                             ContentType: "Episode"
                             ShortDescriptionLine1: "Recently Played"
                             ShortDescriptionLine2: itemData.SeriesName + " - Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
@@ -411,7 +422,7 @@ End Function
 '**********************************************************
 
 Function GetTVResumable() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=7&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo&SortBy=DatePlayed&SortOrder=Descending&Filters=IsResumable", true)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=5&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo&SortBy=DatePlayed&SortOrder=Descending&Filters=IsResumable", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -426,10 +437,10 @@ Function GetTVResumable() As Object
                     for each itemData in jsonData.Items
                         tvData = {
                             Id: itemData.Id
-                            Title: "Resume"
+                            Title: itemData.SeriesName
                             ContentType: "Episode"
-                            ShortDescriptionLine1: "Resume"
-                            ShortDescriptionLine2: itemData.SeriesName + " - Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
+                            ShortDescriptionLine1: itemData.SeriesName
+                            ShortDescriptionLine2: itostr(itemData.ParentIndexNumber) + "x"  + ZeroPad(itostr(itemData.IndexNumber)) + " - " + itemData.Name
                         }
 
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
