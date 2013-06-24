@@ -72,6 +72,9 @@ Function ShowTVShowListPage() As Integer
                     ShowTVSeasonsListPage(screen.rowContent[row][selection])
                 Else If screen.rowContent[row][selection].ContentType = "Episode" Then
                     ShowTVDetailPage(screen.rowContent[row][selection].Id)
+                    ' Refresh Next Up Data
+                    tvShowNextUp = GetTVShowNextUp()
+                    UpdateGridRowContent(screen, row, tvShowNextUp)
                 Else If screen.rowContent[row][selection].ContentType = "Genre" Then
                     ShowTVShowGenrePage(screen.rowContent[row][selection].Id)
                 Else 
