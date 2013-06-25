@@ -20,6 +20,10 @@ Function ShowHomePage()
         return false
     End If
 
+    ' Setup Globals
+    m.movieToggle = ""
+    m.tvToggle    = ""
+
     ' Setup Row Data
     screen.rowNames   = CreateObject("roArray", 3, true)
     screen.rowStyles  = CreateObject("roArray", 3, true)
@@ -71,10 +75,20 @@ Function ShowHomePage()
 
                 If screen.rowContent[row][selection].ContentType = "MovieLibrary" Then
                     ShowMoviesListPage()
+                Else If screen.rowContent[row][selection].ContentType = "MovieToggle" Then
+                    ' Toggle Movie Display
+                    GetNextMovieToggle()
+                    moviesButtons = GetMoviesButtons()
+                    UpdateGridRowContent(screen, row, moviesButtons)
                 Else If screen.rowContent[row][selection].ContentType = "Movie" Then
                     ShowMoviesDetailPage(screen.rowContent[row][selection].Id)
                 Else If screen.rowContent[row][selection].ContentType = "TVLibrary" Then
                     ShowTVShowListPage()
+                Else If screen.rowContent[row][selection].ContentType = "TVToggle" Then
+                    ' Toggle TV Display
+                    GetNextTVToggle()
+                    tvButtons = GetTVButtons()
+                    UpdateGridRowContent(screen, row, tvButtons)
                 Else If screen.rowContent[row][selection].ContentType = "Episode" Then
                     ShowTVDetailPage(screen.rowContent[row][selection].Id)
                 Else If screen.rowContent[row][selection].ContentType = "SwitchUser" Then
@@ -143,31 +157,64 @@ Function GetMoviesButtons() As Object
         }
     ]
 
-    resumeButton = [
+    switchButton = [
         {
-            Title: "Resume"
-            ContentType: "Spacer"
-            'ShortDescriptionLine1: "Movie Library"
-            'HDPosterUrl: "pkg://images/items/Default_Movie_Collection_HD.png"
-            'SDPosterUrl: "pkg://images/items/Default_Movie_Collection_SD.png"
+            Title: "Toggle Movie"
+            ContentType: "MovieToggle"
+            ShortDescriptionLine1: "Toggle Display"
         }
     ]
 
+    If m.movieToggle = "latest" Then
+        switchButton[0].HDPosterUrl = ""
+        switchButton[0].SDPosterUrl = ""
 
-    resumeMovies = GetMoviesResumable()
-    If resumeMovies<>invalid
-        'buttons.Append( resumeButton )
-        buttons.Append( resumeMovies )
-    End if
+        ' Get Latest Unwatched Movies
+        recentMovies = GetMoviesRecentAdded()
+        If recentMovies<>invalid
+            buttons.Append( switchButton )
+            buttons.Append( recentMovies )
+        End if
 
-    recentMovies = GetMoviesRecentAdded()
-    If recentMovies<>invalid
-        buttons.Append( recentMovies )
-    End if
+    Else If m.movieToggle = "favorite" Then
+        switchButton[0].HDPosterUrl = ""
+        switchButton[0].SDPosterUrl = ""
+
+        buttons.Append( switchButton )
+
+    Else
+
+        switchButton[0].HDPosterUrl = ""
+        switchButton[0].SDPosterUrl = ""
+
+        ' Check For Resumable Movies
+        resumeMovies = GetMoviesResumable()
+        If resumeMovies<>invalid And resumeMovies.Count() > 0
+            buttons.Append( switchButton )
+            buttons.Append( resumeMovies )
+        Else
+            buttons.Append( switchButton )
+        End if
+
+    End If
 
     Return buttons
 End Function
 
+
+'**********************************************************
+'** Get Next Movie Toggle
+'**********************************************************
+
+Function GetNextMovieToggle()
+    If m.movieToggle = "latest" Then
+        m.movieToggle = "favorite"
+    Else If m.movieToggle = "favorite" Then
+        m.movieToggle = "resume"
+    Else
+        m.movieToggle = "latest"
+    End If
+End Function
 
 '**********************************************************
 '** Get Recently Added Movies From Server
@@ -282,36 +329,64 @@ Function GetTVButtons() As Object
         }
     ]
 
-    resumeButton = [
+    switchButton = [
         {
-            Title: "Resume"
-            ContentType: "Spacer"
-            'ShortDescriptionLine1: "Movie Library"
-            'HDPosterUrl: "pkg://images/items/Default_Movie_Collection_HD.png"
-            'SDPosterUrl: "pkg://images/items/Default_Movie_Collection_SD.png"
+            Title: "Toggle TV"
+            ContentType: "TVToggle"
+            ShortDescriptionLine1: "Toggle Display"
         }
     ]
 
-    resumeTV = GetTVResumable()
-    If resumeTV<>invalid
-        'buttons.Append( resumeButton )
-        buttons.Append( resumeTV )
-    End If
+    If m.tvToggle = "latest" Then
+        switchButton[0].HDPosterUrl = ""
+        switchButton[0].SDPosterUrl = ""
 
-    recentTVAdded = GetTVRecentAdded()
-    If recentTVAdded<>invalid
-        'buttons.Append( resumeButton )
-        buttons.Append( recentTVAdded )
-    End If
+        ' Get Latest Unwatched TV
+        recentTV = GetTVRecentAdded()
+        If recentTV<>invalid
+            buttons.Append( switchButton )
+            buttons.Append( recentTV )
+        End if
 
-    'recentTVPlayed = GetTVRecentPlayed()
-    'If recentTVPlayed<>invalid
-    '    buttons.Append( recentTVPlayed )
-    'End If
+    Else If m.tvToggle = "favorite" Then
+        switchButton[0].HDPosterUrl = ""
+        switchButton[0].SDPosterUrl = ""
+
+        buttons.Append( switchButton )
+
+    Else
+
+        switchButton[0].HDPosterUrl = ""
+        switchButton[0].SDPosterUrl = ""
+
+        ' Check For Resumable TV
+        resumeTV = GetTVResumable()
+        If resumeTV<>invalid And resumeTV.Count() > 0
+            buttons.Append( switchButton )
+            buttons.Append( resumeTV )
+        Else
+            buttons.Append( switchButton )
+        End if
+
+    End If
 
     Return buttons
 End Function
 
+
+'**********************************************************
+'** Get Next TV Toggle
+'**********************************************************
+
+Function GetNextTVToggle()
+    If m.tvToggle = "latest" Then
+        m.tvToggle = "favorite"
+    Else If m.tvToggle = "favorite" Then
+        m.tvToggle = "resume"
+    Else
+        m.tvToggle = "latest"
+    End If
+End Function
 
 '**********************************************************
 '** Get Recently Added TV Episodes From Server
