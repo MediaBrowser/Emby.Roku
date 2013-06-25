@@ -183,17 +183,27 @@ Function GetMoviesButtons() As Object
         buttons.Append( switchButton )
 
     Else
-
         switchButton[0].HDPosterUrl = ""
         switchButton[0].SDPosterUrl = ""
 
-        ' Check For Resumable Movies
+        ' Check For Resumable Movies, otherwise default to latest
         resumeMovies = GetMoviesResumable()
         If resumeMovies<>invalid And resumeMovies.Count() > 0
             buttons.Append( switchButton )
             buttons.Append( resumeMovies )
         Else
-            buttons.Append( switchButton )
+            m.movieToggle = "latest"
+
+            ' Override Image
+            switchButton[0].HDPosterUrl = ""
+            switchButton[0].SDPosterUrl = ""
+
+            ' Get Latest Unwatched Movies
+            recentMovies = GetMoviesRecentAdded()
+            If recentMovies<>invalid
+                buttons.Append( switchButton )
+                buttons.Append( recentMovies )
+            End if
         End if
 
     End If
@@ -359,13 +369,24 @@ Function GetTVButtons() As Object
         switchButton[0].HDPosterUrl = ""
         switchButton[0].SDPosterUrl = ""
 
-        ' Check For Resumable TV
+        ' Check For Resumable TV, otherwise default to latest
         resumeTV = GetTVResumable()
         If resumeTV<>invalid And resumeTV.Count() > 0
             buttons.Append( switchButton )
             buttons.Append( resumeTV )
         Else
-            buttons.Append( switchButton )
+            m.tvToggle = "latest"
+
+            ' Override Image
+            switchButton[0].HDPosterUrl = ""
+            switchButton[0].SDPosterUrl = ""
+
+            ' Get Latest Unwatched TV
+            recentTV = GetTVRecentAdded()
+            If recentTV<>invalid
+                buttons.Append( switchButton )
+                buttons.Append( recentTV )
+            End if
         End if
 
     End If
