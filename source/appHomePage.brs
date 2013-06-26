@@ -23,6 +23,7 @@ Function ShowHomePage()
     ' Setup Globals
     m.movieToggle = ""
     m.tvToggle    = ""
+    m.musicToggle = ""
 
     ' Setup Row Data
     screen.rowNames   = CreateObject("roArray", 3, true)
@@ -35,6 +36,10 @@ Function ShowHomePage()
 
     If itemCounts.SeriesCount > 0 Then
         AddGridRow(screen, "TV", "landscape")
+    End If
+
+    If itemCounts.SongCount > 0 Then
+        AddGridRow(screen, "Music", "landscape")
     End If
 
     AddGridRow(screen, "Options", "landscape")
@@ -50,6 +55,11 @@ Function ShowHomePage()
     If itemCounts.SeriesCount > 0 Then
         tvButtons = GetTVButtons()
         AddGridRowContent(screen, tvButtons)
+    End If
+
+    If itemCounts.SongCount > 0 Then
+        musicButtons = GetMusicButtons()
+        AddGridRowContent(screen, musicButtons)
     End If
 
     optionButtons = GetOptionsButtons()
@@ -75,28 +85,39 @@ Function ShowHomePage()
 
                 If screen.rowContent[row][selection].ContentType = "MovieLibrary" Then
                     ShowMoviesListPage()
+
                 Else If screen.rowContent[row][selection].ContentType = "MovieToggle" Then
                     ' Toggle Movie Display
                     GetNextMovieToggle()
                     moviesButtons = GetMoviesButtons()
                     UpdateGridRowContent(screen, row, moviesButtons)
+
                 Else If screen.rowContent[row][selection].ContentType = "Movie" Then
                     ShowMoviesDetailPage(screen.rowContent[row][selection].Id)
+
                 Else If screen.rowContent[row][selection].ContentType = "TVLibrary" Then
                     ShowTVShowListPage()
+
                 Else If screen.rowContent[row][selection].ContentType = "TVToggle" Then
                     ' Toggle TV Display
                     GetNextTVToggle()
                     tvButtons = GetTVButtons()
                     UpdateGridRowContent(screen, row, tvButtons)
+
                 Else If screen.rowContent[row][selection].ContentType = "Episode" Then
                     ShowTVDetailPage(screen.rowContent[row][selection].Id)
+
+                Else If screen.rowContent[row][selection].ContentType = "MusicLibrary" Then
+                    ShowMusicListPage()
+
                 Else If screen.rowContent[row][selection].ContentType = "SwitchUser" Then
                     RegDelete("userId")
                     Print "Switch User"
                     return true
+
                 Else If screen.rowContent[row][selection].ContentType = "Preferences" Then
                     ShowPreferencesPage()
+
                 Else 
                     Print "Unknown Type found"
                 End If
@@ -562,6 +583,34 @@ Function GetTVResumable() As Object
     endif
 
     Return invalid
+End Function
+
+
+'**********************************************************
+'** Get Music Buttons Row
+'**********************************************************
+
+Function GetMusicButtons() As Object
+    ' Set the Default Music library button
+    buttons = [
+        {
+            Title: "Music Library"
+            ContentType: "MusicLibrary"
+            ShortDescriptionLine1: "Music Library"
+            HDPosterUrl: "pkg://images/items/Default_Tv_Collection_HD.png"
+            SDPosterUrl: "pkg://images/items/Default_Tv_Collection_SD.png"
+        }
+    ]
+
+    switchButton = [
+        {
+            Title: "Toggle Music"
+            ContentType: "MusicToggle"
+            ShortDescriptionLine1: "Toggle Display"
+        }
+    ]
+
+    Return buttons
 End Function
 
 
