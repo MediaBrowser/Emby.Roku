@@ -15,7 +15,6 @@ Function ShowPreferencesPage()
     screen.SetMessagePort(port)
 
     screen.SetBreadcrumbText("", "Preferences")
-    'screen.SetHeader("Welcome to The Channel Diner")
 
     ' Get Preference Functions
     preferenceFunctions = [
