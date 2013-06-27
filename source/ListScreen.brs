@@ -13,11 +13,12 @@ Function CreateListScreen(lastLocation As String, currentLocation As String) As 
     list.SetMessagePort(port)
 
     ' Setup Common Items
-    screen.Screen    = list
-    screen.Port      = port
-    screen.SetHeader = SetListHeader
-    screen.SetTitle  = SetListTitle
-    screen.Show      = ShowListScreen
+    screen.Screen     = list
+    screen.Port       = port
+    screen.SetHeader  = SetListHeader
+    screen.SetTitle   = SetListTitle
+    screen.SetContent = SetListContent
+    screen.Show       = ShowListScreen
 
     ' Set Breadcrumbs
     screen.Screen.SetBreadcrumbText(lastLocation, currentLocation)
@@ -49,11 +50,18 @@ End Function
 
 
 '**********************************************************
+'** Set Content for List Screen
+'**********************************************************
+
+Function SetListContent(contentList As Object)
+    m.screen.SetContent(contentList)
+End Function
+
+
+'**********************************************************
 '** Show List Screen
 '**********************************************************
 
-Function ShowListScreen() As Integer
+Function ShowListScreen()
     m.screen.Show()
-
-    Return 0
 End Function
