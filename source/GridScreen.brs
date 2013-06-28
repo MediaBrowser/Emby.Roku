@@ -1,23 +1,26 @@
 '**********************************************************
-'**  Media Browser Roku Client - MB Grid Utils
+'**  Media Browser Roku Client - Grid Screen
 '**********************************************************
 
 
-Function CreateGridScreen(breadCrumbA As String, breadCrumbB As String, style As String) As Object
+Function CreateGridScreen(lastLocation As String, currentLocation As String, style As String) As Object
 
     ' Setup Screen
     screen = CreateObject("roAssociativeArray")
 
     port = CreateObject("roMessagePort")
     grid = CreateObject("roGridScreen")
+    grid.SetMessagePort(port)
 
+    ' Setup Common Items
     screen.Screen = grid
-
-    screen.Screen.SetMessagePort(port)
+    screen.Port   = port
+    screen.Show   = ShowGridScreen
 
     ' Set Breadcrumbs
-    screen.Screen.SetBreadcrumbText(breadCrumbA, breadCrumbB)
+    screen.Screen.SetBreadcrumbText(lastLocation, currentLocation)
 
+    ' Setup Display Style
     screen.Screen.SetGridStyle(style)
     screen.Screen.SetDisplayMode("scale-to-fit")
 
@@ -89,6 +92,15 @@ Function UpdateGridRowContent(screenContent As Object, rowIndex As Integer, rowD
     End If
 
     Return true
+End Function
+
+
+'**********************************************************
+'** Show Grid Screen
+'**********************************************************
+
+Function ShowGridScreen()
+    m.screen.Show()
 End Function
 
 
