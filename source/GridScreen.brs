@@ -13,9 +13,13 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
     grid.SetMessagePort(port)
 
     ' Setup Common Items
-    screen.Screen = grid
-    screen.Port   = port
-    screen.Show   = ShowGridScreen
+    screen.Screen           = grid
+    screen.Port             = Port
+    screen.AddRow           = AddGridRow
+    screen.ShowNames        = ShowGridNames
+    screen.AddRowContent    = AddGridRowContent
+    screen.UpdateRowContent = UpdateGridRowContent
+    screen.Show             = ShowGridScreen
 
     ' Set Breadcrumbs
     screen.Screen.SetBreadcrumbText(lastLocation, currentLocation)
@@ -26,6 +30,7 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
 
     Return screen
 End Function
+
 
 '**********************************************************
 '** Add Grid Row Titles
