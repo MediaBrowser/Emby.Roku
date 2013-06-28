@@ -100,8 +100,8 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 ' Extra Check to Prevent Playback Loop
                 If streamStarted Then
                     Print "--- 2nd attempt at stream started, exit loop ---"
-                    PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
-                    exit while
+                    'PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
+                    'exit while
                 End If
 
                 paused = false
