@@ -190,8 +190,8 @@ Function GetMoviesButtons() As Object
     ]
 
     If m.movieToggle = "latest" Then
-        switchButton[0].HDPosterUrl = ""
-        switchButton[0].SDPosterUrl = ""
+        switchButton[0].HDPosterUrl = "pkg://images/items/Toggle_Latest_HD.png"
+        switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Latest_SD.png"
 
         ' Get Latest Unwatched Movies
         recentMovies = GetMoviesRecentAdded()
@@ -201,14 +201,14 @@ Function GetMoviesButtons() As Object
         End if
 
     Else If m.movieToggle = "favorite" Then
-        switchButton[0].HDPosterUrl = ""
-        switchButton[0].SDPosterUrl = ""
+        switchButton[0].HDPosterUrl = "pkg://images/items/Toggle_Favorites_HD.png"
+        switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Favorites_SD.png"
 
         buttons.Append( switchButton )
 
     Else
-        switchButton[0].HDPosterUrl = ""
-        switchButton[0].SDPosterUrl = ""
+        switchButton[0].HDPosterUrl = "pkg://images/items/Toggle_Resume_HD.png"
+        switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Resume_SD.png"
 
         ' Check For Resumable Movies, otherwise default to latest
         resumeMovies = GetMoviesResumable()
@@ -219,8 +219,8 @@ Function GetMoviesButtons() As Object
             m.movieToggle = "latest"
 
             ' Override Image
-            switchButton[0].HDPosterUrl = ""
-            switchButton[0].SDPosterUrl = ""
+            switchButton[0].HDPosterUrl = "pkg://images/items/Toggle_Latest_HD.png"
+            switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Latest_SD.png"
 
             ' Get Latest Unwatched Movies
             recentMovies = GetMoviesRecentAdded()
@@ -372,8 +372,8 @@ Function GetTVButtons() As Object
     ]
 
     If m.tvToggle = "latest" Then
-        switchButton[0].HDPosterUrl = ""
-        switchButton[0].SDPosterUrl = ""
+        switchButton[0].HDPosterUrl = "pkg://images/items/Toggle_Latest_HD.png"
+        switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Latest_SD.png"
 
         ' Get Latest Unwatched TV
         recentTV = GetTVRecentAdded()
@@ -383,15 +383,15 @@ Function GetTVButtons() As Object
         End if
 
     Else If m.tvToggle = "favorite" Then
-        switchButton[0].HDPosterUrl = ""
-        switchButton[0].SDPosterUrl = ""
+        switchButton[0].HDPosterUrl = "pkg://images/items/Toggle_Favorites_HD.png"
+        switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Favorites_SD.png"
 
         buttons.Append( switchButton )
 
     Else
 
-        switchButton[0].HDPosterUrl = ""
-        switchButton[0].SDPosterUrl = ""
+        switchButton[0].HDPosterUrl = "pkg://images/items/Toggle_Resume_HD.png"
+        switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Resume_SD.png"
 
         ' Check For Resumable TV, otherwise default to latest
         resumeTV = GetTVResumable()
@@ -402,8 +402,8 @@ Function GetTVButtons() As Object
             m.tvToggle = "latest"
 
             ' Override Image
-            switchButton[0].HDPosterUrl = ""
-            switchButton[0].SDPosterUrl = ""
+            switchButton[0].HDPosterUrl = "pkg://images/items/Toggle_Latest_HD.png"
+            switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Latest_SD.png"
 
             ' Get Latest Unwatched TV
             recentTV = GetTVRecentAdded()
