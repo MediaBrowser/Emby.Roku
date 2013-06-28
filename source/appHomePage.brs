@@ -110,6 +110,9 @@ Function ShowHomePage()
                 Else If screen.rowContent[row][selection].ContentType = "MusicLibrary" Then
                     ShowMusicListPage()
 
+                Else If screen.rowContent[row][selection].ContentType = "MusicLibraryAlt" Then
+                    ShowAltMusicListPage()
+
                 Else If screen.rowContent[row][selection].ContentType = "SwitchUser" Then
                     RegDelete("userId")
                     Print "Switch User"
@@ -595,7 +598,7 @@ Function GetMusicButtons() As Object
     buttons = [
         {
             Title: "Music Library"
-            ContentType: "MusicLibrary"
+            ContentType: "MusicLibraryAlt"
             ShortDescriptionLine1: "Music Library"
             HDPosterUrl: "pkg://images/items/Default_Tv_Collection_HD.png"
             SDPosterUrl: "pkg://images/items/Default_Tv_Collection_SD.png"

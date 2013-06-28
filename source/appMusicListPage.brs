@@ -95,12 +95,83 @@ Function ShowMusicListPage() As Integer
 End Function
 
 
+
+Function ShowAltMusicListPage() As Integer
+
+    ' Create Poster Screen
+    screen = CreatePosterScreen("", "Music", "arced-square")
+
+    ' Setup Jump List
+    m.jumpList = {}
+
+    ' Get Data Functions
+    musicDataFunctions = [
+        GetMusicAlbums,
+        GetMusicArtists,
+        GetMusicGenres
+    ]
+
+    ' Get Default Data
+    musicData = musicDataFunctions[0]()
+
+    screen.Categories(["Albums","Artists","Genres"])
+
+    screen.Screen.SetContentList(musicData)
+
+    ' Show Screen
+    screen.Show()
+
+    while true
+        msg = wait(0, screen.Screen.GetMessagePort())
+
+        if type(msg) = "roPosterScreenEvent" Then
+            If msg.isListFocused() Then
+                category = msg.GetIndex()
+
+                ' Setup Message
+                screen.Screen.SetContentList([])
+                screen.Screen.SetFocusedListItem(0)
+                screen.Screen.ShowMessage("Retrieving")
+
+                ' Fetch Category
+                musicData = musicDataFunctions[category]()
+                screen.Screen.SetContentList(musicData)
+
+                screen.Screen.ClearMessage()
+            Else If msg.isListItemSelected() Then
+                selection = msg.GetIndex()
+
+                If musicData[selection].ContentType = "Album" Then
+                    ShowMusicSongPage(musicData[selection])
+
+                Else If musicData[selection].ContentType = "Artist" Then
+                    ShowMusicAlbumPage(musicData[selection])
+
+                Else If musicData[selection].ContentType = "Genre" Then
+
+                Else 
+                    Print "Unknown Type found"
+                End If
+
+            Else If msg.isScreenClosed() then
+                return -1
+            End If
+        end if
+    end while
+
+    return 0
+End Function
+
 '**********************************************************
 '** Get Music Albums From Server
 '**********************************************************
 
 Function GetMusicAlbums() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=MusicAlbum&Fields=UserData%2CItemCounts%2CSortName&SortBy=SortName&SortOrder=Ascending", true)
+
+    ' Clean Fields
+    fields = HttpEncode("ItemCounts,DateCreated,UserData,AudioInfo,ParentId,SortName")
+
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=MusicAlbum&Fields=" + fields + "&SortBy=SortName&SortOrder=Ascending", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -124,11 +195,20 @@ Function GetMusicAlbums() As Object
 
                         ' Check If Item has Image, otherwise use default
                         If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                            musicData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=192&width=192&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                            musicData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=86&width=96&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                            musicData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=300&width=300&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                            musicData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=145&width=285&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
                         Else 
                             musicData.HDPosterUrl = "pkg://images/items/collection.png"
                             musicData.SDPosterUrl = "pkg://images/items/collection.png"
+                        End If
+
+                        ' Check For Artist Name
+                        If itemData.AlbumArtist<>"" And itemData.AlbumArtist<>invalid
+                            musicData.Artist = itemData.AlbumArtist
+                        Else If itemData.Artists[0]<>"" And itemData.Artists[0]<>invalid
+                            musicData.Artist = itemData.Artists[0]
+                        Else
+                            musicData.Artist = ""
                         End If
 
                         ' Build Jump List
@@ -184,9 +264,9 @@ Function GetMusicArtists() As Object
                         artistName = HttpEncode(itemData.Name)
 
                         ' Check If Item has Image, otherwise use Default
-                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            musicData.HDPosterUrl = GetServerBaseUrl() + "/Artists/" + artistName + "/Images/Backdrop/0?height=150&width=&EnableImageEnhancers=false&tag=" + itemData.BackdropImageTags[0]
-                            musicData.SDPosterUrl = GetServerBaseUrl() + "/Artists/" + artistName + "/Images/Backdrop/0?height=94&width=&EnableImageEnhancers=false&tag=" + itemData.BackdropImageTags[0]
+                        If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
+                            musicData.HDPosterUrl = GetServerBaseUrl() + "/Artists/" + artistName + "/Images/Primary/0?height=300&width=300&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                            musicData.SDPosterUrl = GetServerBaseUrl() + "/Artists/" + artistName + "/Images/Primary/0?height=145&width=285&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
                         Else 
                             musicData.HDPosterUrl = "pkg://images/items/collection.png"
                             musicData.SDPosterUrl = "pkg://images/items/collection.png"
