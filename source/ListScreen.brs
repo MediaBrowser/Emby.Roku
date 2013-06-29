@@ -13,13 +13,14 @@ Function CreateListScreen(lastLocation As String, currentLocation As String) As 
     list.SetMessagePort(port)
 
     ' Setup Common Items
-    screen.Screen     = list
-    screen.Port       = port
-    screen.SetHeader  = SetListHeader
-    screen.SetTitle   = SetListTitle
-    screen.SetContent = SetListContent
-    screen.SetItem    = SetListItem
-    screen.Show       = ShowListScreen
+    screen.Screen         = list
+    screen.Port           = port
+    screen.SetHeader      = SetListHeader
+    screen.SetTitle       = SetListTitle
+    screen.SetContent     = SetListContent
+    screen.SetItem        = SetListItem
+    screen.SetFocusedItem = SetListFocusedItem
+    screen.Show           = ShowListScreen
 
     ' Set Breadcrumbs
     screen.Screen.SetBreadcrumbText(lastLocation, currentLocation)
@@ -65,6 +66,15 @@ End Function
 
 Function SetListItem(index as Integer, content as Object)
     m.screen.SetItem(index, content)
+End Function
+
+
+'**********************************************************
+'** Set Focused Item for List Screen
+'**********************************************************
+
+Function SetListFocusedItem(index as Integer)
+    m.screen.SetFocusedListItem(index)
 End Function
 
 
