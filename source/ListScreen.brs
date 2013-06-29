@@ -18,6 +18,7 @@ Function CreateListScreen(lastLocation As String, currentLocation As String) As 
     screen.SetHeader  = SetListHeader
     screen.SetTitle   = SetListTitle
     screen.SetContent = SetListContent
+    screen.SetItem    = SetListItem
     screen.Show       = ShowListScreen
 
     ' Set Breadcrumbs
@@ -55,6 +56,15 @@ End Function
 
 Function SetListContent(contentList As Object)
     m.screen.SetContent(contentList)
+End Function
+
+
+'**********************************************************
+'** Set Item for List Screen
+'**********************************************************
+
+Function SetListItem(index as Integer, content as Object)
+    m.screen.SetItem(index, content)
 End Function
 
 
