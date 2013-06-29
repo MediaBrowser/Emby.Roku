@@ -18,8 +18,10 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
     ' Get Data
     musicData = GetMusicSongsInAlbum(artistInfo.Id)
 
-    screen.SetHeader("Tracks (" + itostr(musicData.SongInfo.Count()) + ")")
-    'screen.SetHeader(Pluralize(musicData.Count(), "Track"))
+    ' Get Total Duration
+    totalDuration = GetTotalDuration(musicData.SongInfo)
+
+    screen.SetHeader("Tracks (" + itostr(musicData.SongInfo.Count()) + ") - " + totalDuration)
     screen.SetContent(musicData.SongInfo)
 
     ' Show Screen
@@ -30,7 +32,6 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
 
     ' Remote key id's for navigation
     remoteKeyOK     = 6
-    remoteKeyReplay = 7
     remoteKeyRev    = 8
     remoteKeyFwd    = 9
     remoteKeyStar   = 10
@@ -103,6 +104,7 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
 
     return 0
 End Function
+
 
 '**********************************************************
 '** Get Music Songs in Album From Server
@@ -214,4 +216,19 @@ Function PostAudioPlayback(audioId As String, action As String) As Boolean
     endif
 
     return false
+End Function
+
+
+'**********************************************************
+'** Get the total duration for all tracks
+'**********************************************************
+
+Function GetTotalDuration(songs As Object) As String
+    ' Add total time in seconds
+    total = 0
+    For each songData in songs
+        total = total + songData.Length
+    End For
+
+    Return FormatTime(total)
 End Function
