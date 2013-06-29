@@ -30,6 +30,12 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
     ' Add Album To Playlist
     player.AddPlaylist(musicData.SongStreams)
 
+    ' Previous Icon Location
+    prevIconIndex = invalid
+
+    ' Focused Item Index
+    focusedItemIndex = 0
+
     ' Remote key id's for navigation
     remoteKeyOK     = 6
     remoteKeyRev    = 8
@@ -47,7 +53,14 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
             Else If msg.isListItemSelected() Then
                 Print "Start Song"
                 PostAudioPlayback(musicData.SongInfo[player.CurrentIndex].Id, "start")
-            
+
+                ' Display Speaker Icon
+                If prevIconIndex<>invalid HideSpeakerIcon(screen, prevIconIndex, musicData.SongInfo)
+                prevIconIndex = ShowSpeakerIcon(screen, player.CurrentIndex, musicData.SongInfo)
+
+                ' Refocus Item
+                screen.SetFocusedItem(focusedItemIndex)
+
             Else If msg.isRequestSucceeded()
                 Print "End Song"
                 PostAudioPlayback(musicData.SongInfo[player.CurrentIndex].Id, "stop")
@@ -56,18 +69,32 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
             Else If msg.isFullResult() Then
                 Print "End Playlist"
                 player.IsPlaying = false
+                HideSpeakerIcon(screen, prevIconIndex, musicData.SongInfo, true)
 
             Else If msg.isPartialResult() Then
 
             Else If msg.isPaused()
                 print "Paused"
 
+                ' Display Pause Icon
+                 ShowPauseIcon(screen, player.CurrentIndex, musicData.SongInfo)
+
+                ' Refocus Item
+                screen.SetFocusedItem(focusedItemIndex)
+
             Else If msg.isResumed()
                 print "Resume"
+
+                ' Display Speaker Icon
+                ShowSpeakerIcon(screen, player.CurrentIndex, musicData.SongInfo)
+
+                ' Refocus Item
+                screen.SetFocusedItem(focusedItemIndex)
 
             End If
         Else If type(msg) = "roListScreenEvent" Then
             If msg.isListItemFocused() Then
+                focusedItemIndex = msg.GetIndex()
 
             Else If msg.isListItemSelected() Then
                 player.Play(msg.GetIndex())
@@ -220,6 +247,46 @@ End Function
 
 
 '**********************************************************
+'** Show Speaker Icon
+'**********************************************************
+
+Function ShowSpeakerIcon(screen As Object, index As Integer, musicData As Object) As Integer
+    musicData[index].HDSmallIconUrl = "pkg://images/items/SpeakerIcon.png"
+
+    screen.SetContent(musicData)
+    screen.Show()
+
+    Return index
+End Function
+
+
+'**********************************************************
+'** Show Pause Icon
+'**********************************************************
+
+Function ShowPauseIcon(screen As Object, index As Integer, musicData As Object)
+    musicData[index].HDSmallIconUrl = "pkg://images/items/PauseIcon.png"
+
+    screen.SetContent(musicData)
+    screen.Show()
+End Function
+
+
+'**********************************************************
+'** Hide Speaker Icon
+'**********************************************************
+
+Function HideSpeakerIcon(screen As Object, index As Integer, musicData As Object, refreshScreen=invalid)
+    musicData[index].HDSmallIconUrl = false
+
+    If refreshScreen<>invalid Then
+        screen.SetContent(musicData)
+        screen.Show()
+    End If
+End Function
+
+
+'**********************************************************
 '** Get the total duration for all tracks
 '**********************************************************
 
@@ -232,3 +299,5 @@ Function GetTotalDuration(songs As Object) As String
 
     Return FormatTime(total)
 End Function
+
+
