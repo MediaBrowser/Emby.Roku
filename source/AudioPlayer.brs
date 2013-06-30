@@ -16,15 +16,13 @@ Function CreateAudioPlayer(port=invalid) As Object
     audioPlayer = CreateObject("roAudioPlayer")
     audioPlayer.SetMessagePort(port)
 
-    ' Only Playthrough Once
-    audioPlayer.SetLoop(false)
-
     ' Setup Common Items
     o.audioPlayer    = audioPlayer
     o.Port           = port
     o.AddTrack       = AddAudioTrack
     o.AddPlaylist    = AddAudioPlaylist
     o.ClearContent   = ClearAudioContent
+    o.Repeat         = RepeatAudio
     o.Play           = PlayAudio
     o.Stop           = StopAudio
     o.Pause          = PauseAudio
@@ -61,6 +59,10 @@ End Function
 
 Function ClearAudioContent()
 	m.audioPlayer.ClearContent()
+End Function
+
+Function RepeatAudio(repeat As Boolean)
+	m.audioPlayer.SetLoop(repeat)
 End Function
 
 Function PlayAudio(track As Integer)
