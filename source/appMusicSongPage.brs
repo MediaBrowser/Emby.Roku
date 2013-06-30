@@ -30,6 +30,9 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
     ' Add Album To Playlist
     player.AddPlaylist(musicData.SongStreams)
 
+    ' Only Playthrough Once
+    player.Repeat(false)
+
     ' Previous Icon Location
     prevIconIndex = invalid
 
