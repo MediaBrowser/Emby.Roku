@@ -108,9 +108,6 @@ Function ShowHomePage()
                     ShowTVDetailPage(screen.rowContent[row][selection].Id)
 
                 Else If screen.rowContent[row][selection].ContentType = "MusicLibrary" Then
-                    ShowMusicListPage()
-
-                Else If screen.rowContent[row][selection].ContentType = "MusicLibraryAlt" Then
                     ShowAltMusicListPage()
 
                 Else If screen.rowContent[row][selection].ContentType = "SwitchUser" Then
@@ -598,7 +595,7 @@ Function GetMusicButtons() As Object
     buttons = [
         {
             Title: "Music Library"
-            ContentType: "MusicLibraryAlt"
+            ContentType: "MusicLibrary"
             ShortDescriptionLine1: "Music Library"
             HDPosterUrl: "pkg://images/items/Default_Tv_Collection_HD.png"
             SDPosterUrl: "pkg://images/items/Default_Tv_Collection_SD.png"
