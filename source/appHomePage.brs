@@ -173,8 +173,8 @@ Function GetMoviesButtons() As Object
             Title: "Movie Library"
             ContentType: "MovieLibrary"
             ShortDescriptionLine1: "Movie Library"
-            HDPosterUrl: "pkg://images/items/Default_Movie_Collection_HD.png"
-            SDPosterUrl: "pkg://images/items/Default_Movie_Collection_SD.png"
+            HDPosterUrl: "pkg://images/items/MovieTile_HD.png"
+            SDPosterUrl: "pkg://images/items/MovieTile_SD.png"
         }
     ]
 
@@ -355,8 +355,8 @@ Function GetTVButtons() As Object
             Title: "TV Library"
             ContentType: "TVLibrary"
             ShortDescriptionLine1: "TV Library"
-            HDPosterUrl: "pkg://images/items/Default_Tv_Collection_HD.png"
-            SDPosterUrl: "pkg://images/items/Default_Tv_Collection_SD.png"
+            HDPosterUrl: "pkg://images/items/TVTile_HD.png"
+            SDPosterUrl: "pkg://images/items/TVTile_SD.png"
         }
     ]
 
@@ -597,8 +597,8 @@ Function GetMusicButtons() As Object
             Title: "Music Library"
             ContentType: "MusicLibrary"
             ShortDescriptionLine1: "Music Library"
-            HDPosterUrl: "pkg://images/items/Default_Tv_Collection_HD.png"
-            SDPosterUrl: "pkg://images/items/Default_Tv_Collection_SD.png"
+            HDPosterUrl: "pkg://images/items/MusicTile_HD.png"
+            SDPosterUrl: "pkg://images/items/MusicTile_SD.png"
         }
     ]
 
@@ -625,22 +625,16 @@ Function GetOptionsButtons() As Object
             Title: "Switch User"
             ContentType: "SwitchUser"
             ShortDescriptionLine1: "Switch User"
-            HDPosterUrl: "pkg://images/items/Default_SwitchUser_HD.png"
-            SDPosterUrl: "pkg://images/items/Default_SwitchUser_SD.png"
+            HDPosterUrl: "pkg://images/items/SwitchUsersTile_HD.png"
+            SDPosterUrl: "pkg://images/items/SwitchUsersTile_SD.png"
         },
         {
             Title: "Preferences"
             ContentType: "Preferences"
             ShortDescriptionLine1: "Preferences"
-            HDPosterUrl: "pkg://images/items/Default_Preferences_HD.png"
-            SDPosterUrl: "pkg://images/items/Default_Preferences_SD.png"
-        },
-        {
-            Title: "About"
-            ContentType: "About"
-            ShortDescriptionLine1: "Version 1.11"
-            'HDPosterUrl: "pkg://images/Default_SwitchUser_HD.png"
-            'SDPosterUrl: "pkg://images/Default_SwitchUser_SD.png"
+            ShortDescriptionLine2: "Version 1.11"
+            HDPosterUrl: "pkg://images/items/PreferencesTile_HD.png"
+            SDPosterUrl: "pkg://images/items/PreferencesTile_SD.png"
         }
     ]
 
