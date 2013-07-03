@@ -28,6 +28,24 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     ' Show Screen
     screen.Show()
 
+    ' Fetch Theme Music
+    themeMusic = GetTVThemeMusic(seriesInfo.Id)
+
+    If themeMusic<>invalid And themeMusic.Count() <> 0 Then
+        Print "playing theme music"
+        ' Create Audio Player
+        player = CreateAudioPlayer()
+
+        ' Add Theme Music To Playlist
+        player.AddPlaylist(themeMusic)
+
+        ' Only Playthrough Once
+        player.Repeat(false)
+
+        ' Start Playing
+        player.Play(0)
+    End If
+
     while true
         msg = wait(0, screen.GetMessagePort())
 
@@ -48,8 +66,8 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
             Else If msg.isListItemSelected() Then
                 selection = msg.GetIndex()
 
-                episodeIndex = ShowTVDetailPage(episodeData[msg.GetIndex()].Id, episodeData, selection)
-                screen.SetFocusedListItem(episodeIndex)               
+                episodeIndex = ShowTVDetailPage(episodeData[msg.GetIndex()].Id, episodeData, selection, player)
+                screen.SetFocusedListItem(episodeIndex)
 
             Else If msg.isScreenClosed() then
                 return -1
@@ -173,6 +191,41 @@ Function GetTVEpisodes(seasonId As String) As Object
                         episodeData.ShortDescriptionLine2 = episodeExtraInfo
 
                         list.push( episodeData )
+                    end for
+                    return list
+                endif
+            else if (event = invalid)
+                request.AsyncCancel()
+            endif
+        end while
+    endif
+
+    Return invalid
+End Function
+
+
+'**********************************************************
+'** Get TV Theme Music From Server
+'**********************************************************
+
+Function GetTVThemeMusic(seriesId As String) As Object
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Items/" + seriesId + "/ThemeSongs?UserId=" + m.curUserProfile.Id, true)
+
+    if (request.AsyncGetToString())
+        while (true)
+            msg = wait(0, request.GetPort())
+
+            if (type(msg) = "roUrlEvent")
+                code = msg.GetResponseCode()
+
+                if (code = 200)
+                    list     = CreateObject("roArray", 10, true)
+                    jsonData = ParseJSON(msg.GetString())
+                    for each itemData in jsonData.Items
+                        ' Setup Song
+                        streamData = SetupAudioStream(itemData.Id, itemData.Path)
+
+                        list.push( streamData )
                     end for
                     return list
                 endif

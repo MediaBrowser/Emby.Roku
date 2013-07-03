@@ -7,7 +7,7 @@
 '** Show TV Chapters Page
 '**********************************************************
 
-Function ShowTVChaptersPage(episodeInfo As Object) As Integer
+Function ShowTVChaptersPage(episodeInfo As Object, audioPlayer=invalid) As Integer
     ' Setup Screen
     port   = CreateObject("roMessagePort")
     screen = CreateObject("roPosterScreen")
@@ -31,6 +31,13 @@ Function ShowTVChaptersPage(episodeInfo As Object) As Integer
 
             Else If msg.isListItemSelected() Then
                 selection = msg.GetIndex()
+
+                ' Stop Audio before playing video
+                If audioPlayer<>invalid And audioPlayer.IsPlaying Then
+                    Print "stop theme music"
+                    audioPlayer.Stop()
+                    sleep(300) ' Give enough time to stop music
+                End If
 
                 ' Set Play Status
                 PlayStart = (episodeInfo.Chapters[selection].StartPositionTicks).ToFloat()

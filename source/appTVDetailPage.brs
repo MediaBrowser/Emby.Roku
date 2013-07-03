@@ -7,7 +7,7 @@
 '** Show TV Details Page
 '**********************************************************
 
-Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex=invalid) As Integer
+Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex=invalid, audioPlayer=invalid) As Integer
 
     if validateParam(episodeId, "roString", "ShowTVDetailPage") = false return -1
 
@@ -59,8 +59,14 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
                     End If
                 End If
             Else If msg.isButtonPressed() 
-                print "ButtonPressed"
                 If msg.GetIndex() = 1
+                    ' Stop Audio before playing video
+                    If audioPlayer<>invalid And audioPlayer.IsPlaying Then
+                        Print "stop theme music"
+                        audioPlayer.Stop()
+                        sleep(300) ' Give enough time to stop music
+                    End If
+
                     ' Set Saved Play Status
                     If tvDetails.PlaybackPosition<>"" And tvDetails.PlaybackPosition<>"0" Then
                         PlayStart = (tvDetails.PlaybackPosition).ToFloat()
@@ -78,6 +84,13 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
                     tvDetails = RefreshTVDetailPage(screen, episodeId)
                 End If
                 If msg.GetIndex() = 2
+                    ' Stop Audio before playing video
+                    If audioPlayer<>invalid And audioPlayer.IsPlaying Then
+                        Print "stop theme music"
+                        audioPlayer.Stop()
+                        sleep(300) ' Give enough time to stop music
+                    End If
+
                     ' Show Error Dialog For Unsupported video types - Should be temporary call
                     If tvDetails.DoesExist("StreamData")=false
                         ShowDialog("Playback Error", "That video type is not playable yet.", "Back")
@@ -88,12 +101,11 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
                     End If
                 End If
                 If msg.GetIndex() = 3
-                    ShowTVChaptersPage(tvDetails)
+                    ShowTVChaptersPage(tvDetails, audioPlayer)
                     tvDetails = RefreshTVDetailPage(screen, episodeId)
                 End If
-                print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
             Else If msg.isScreenClosed()
-                print "Screen closed"
+                print "tv detail screen closed"
                 Exit While
             End If
         Else
