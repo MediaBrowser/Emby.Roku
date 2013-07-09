@@ -118,6 +118,9 @@ Function ShowHomePage()
                 Else If screen.rowContent[row][selection].ContentType = "Preferences" Then
                     ShowPreferencesPage()
 
+                Else If screen.rowContent[row][selection].ContentType = "ExpEHS" Then
+                    ShowExpEHS()
+
                 Else 
                     Print "Unknown Type found"
                 End If
@@ -252,7 +255,7 @@ End Function
 '**********************************************************
 
 Function GetMoviesRecentAdded() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=5&Recursive=true&IncludeItemTypes=Movie&SortBy=DateCreated&SortOrder=Descending&Filters=IsUnplayed", true)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=8&Recursive=true&IncludeItemTypes=Movie&SortBy=DateCreated&SortOrder=Descending&Filters=IsUnplayed", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -632,9 +635,14 @@ Function GetOptionsButtons() As Object
             Title: "Preferences"
             ContentType: "Preferences"
             ShortDescriptionLine1: "Preferences"
-            ShortDescriptionLine2: "Version 1.11"
+            ShortDescriptionLine2: "Version " + GetAppVersion()
             HDPosterUrl: "pkg://images/items/PreferencesTile_HD.png"
             SDPosterUrl: "pkg://images/items/PreferencesTile_SD.png"
+        },
+        {
+            Title: "Experimental EHS"
+            ContentType: "ExpEHS"
+            ShortDescriptionLine1: "Experimental EHS"
         }
     ]
 
