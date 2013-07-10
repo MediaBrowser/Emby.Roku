@@ -131,7 +131,7 @@ Function Truncate(words As String, length As Integer, ellipsis As Boolean) as St
         truncated = left(words, length)
 
         If ellipsis
-            truncated = truncated + "..."
+            truncated = truncated + ".."
         End If
     Else
         truncated = words
