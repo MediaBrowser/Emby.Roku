@@ -16,7 +16,13 @@ Function ShowExpEHS() As Integer
     canvas.SetMessagePort(port)
 
     m.FontRegistry = CreateObject("roFontRegistry")
+
+    ' Initialize Content Rows
     m.rowContent = []
+    m.rowContent[0] = []
+    m.rowContent[1] = []
+    m.rowContent[2] = []
+    m.rowContent[3] = []
 
     ' Header Text
     headerStaticArea = BuildHeaderStaticArea()
@@ -67,35 +73,33 @@ Function ShowExpEHS() As Integer
                     exit while
 
                 Else If index = remoteKeyLeft Then
-                    selectedIndex = selectedIndex-1
-
                     ' Check Bounds
-                    selectedIndex = CheckBounds(selectedRow, selectedIndex)
-
-                    If selectedIndex < 0
-                        selectedIndex = 0
-                    End If
-
+                    selectedIndex = CheckBounds(selectedRow, selectedIndex, "LEFT")
                     rowIndexes[selectedRow] = selectedIndex
 
                 Else If index = remoteKeyRight Then
-                    selectedIndex = selectedIndex+1
-
-
-                    If selectedIndex > 3
-                        selectedIndex = 3
+                    ' Move To Row 1, Column 3 For Large Tile
+                    If (selectedRow = 1 Or selectedRow = 2) And (selectedIndex = 0 Or selectedIndex = 1)
+                        selectedIndex = 2
+                        selectedRow = 1
+                    Else
+                        ' Check Bounds
+                        selectedIndex = CheckBounds(selectedRow, selectedIndex, "RIGHT")
                     End If
 
                     rowIndexes[selectedRow] = selectedIndex
 
                 Else If index = remoteKeyUp Then
-                    selectedRow = selectedRow-1
 
-                    If selectedRow < 0
+                    ' Handle Large Tile
+                    If (selectedRow = 1 Or selectedRow = 2) And (selectedIndex = 0 Or selectedIndex = 1)
                         selectedRow = 0
+                    Else
+                        ' Check Bounds
+                        selectedRow = CheckBounds(selectedRow, selectedIndex, "UP")
                     End If
-                    
-                    If selectedRow = 0
+
+                    If selectedRow = 0 Then
                         selectedIndex = rowIndexes[selectedRow]
 
                         ' Clear Select Box
@@ -111,28 +115,68 @@ Function ShowExpEHS() As Integer
                         canvas.SetLayer(3, mainMenuArea)
                     End If
 
-                    selectedRow = selectedRow+1
-                    If selectedRow > 3
-                        selectedRow = 3
+                    ' Handle Large Tile
+                    If (selectedRow = 1 Or selectedRow = 2) And (selectedIndex = 0 Or selectedIndex = 1)
+                        If m.rowContent[3].Count() > 0 Then
+                            selectedIndex = 0
+                            selectedRow = 3
+                        End If
+                    Else
+                        ' Check Bounds
+                        selectedRow = CheckBounds(selectedRow, selectedIndex, "DOWN")
                     End If
 
                     ' Reset row index to 0
                     rowIndexes[selectedRow] = 0
-                    
+
+                Else If index = remoteKeyOK Then
+
+                    If m.rowContent[selectedRow][selectedIndex].ContentType = "MovieLibrary" Then
+                        ShowMoviesListPage()
+
+                    Else If m.rowContent[selectedRow][selectedIndex].ContentType = "Movie" Then
+                        ShowMoviesDetailPage(m.rowContent[selectedRow][selectedIndex].Id)
+
+                    Else If m.rowContent[selectedRow][selectedIndex].ContentType = "TVLibrary" Then
+                        ShowTVShowListPage()
+
+                    Else If m.rowContent[selectedRow][selectedIndex].ContentType = "Episode" Then
+                        ShowTVDetailPage(m.rowContent[selectedRow][selectedIndex].Id)
+
+                    Else If m.rowContent[selectedRow][selectedIndex].ContentType = "MusicLibrary" Then
+                        ShowAltMusicListPage()
+
+                    End If
+
                 End If
+
+
+
 
 
                 If selectedRow = 0 And selectedIndex = 0 Then
                     mainBodyArea = BuildMoviesArea()
 
+                    ' ReDraw Main Area
+                    canvas.SetLayer(4, mainBodyArea)
+
                 Else If selectedRow = 0 And selectedIndex = 1 Then
                     mainBodyArea = BuildTVArea()
+
+                    ' ReDraw Main Area
+                    canvas.SetLayer(4, mainBodyArea)
 
                 Else If selectedRow = 0 And selectedIndex = 2 Then
                     mainBodyArea = BuildMusicArea()
 
+                    ' ReDraw Main Area
+                    canvas.SetLayer(4, mainBodyArea)
+
                 Else If selectedRow = 0 And selectedIndex = 3 Then
                     mainBodyArea = BuildMediaCollectionsArea()
+
+                    ' ReDraw Main Area
+                    canvas.SetLayer(4, mainBodyArea)
 
                 End If
 
@@ -141,7 +185,7 @@ Function ShowExpEHS() As Integer
                     mainMenuArea = BuildMainMenuArea(canvas, selectedIndex, true)
                     canvas.SetLayer(3, mainMenuArea)
                 Else
-                    Print "row: "; selectedRow; " column: "; selectedIndex
+                    'Print "row: "; selectedRow; " column: "; selectedIndex
 
                     ' Handle Selection
 
@@ -199,11 +243,6 @@ Function ShowExpEHS() As Integer
                     canvas.SetLayer(5, selectedItem)
 
                 End If
-
-
-                ' ReDraw Main Area
-                canvas.SetLayer(4, mainBodyArea)
-
 
             else if msg.isScreenClosed() Then
                 print "Closed"
@@ -329,22 +368,37 @@ Function BuildMoviesArea() As Object
     tileCoords = GetTileCoordinates()
 
     moviesList = []
+    m.rowContent[1] = []
+    m.rowContent[2] = []
+    m.rowContent[3] = []
 
     fontsize = m.FontRegistry.Get("Default", 16, false, false)
 
     moviesList.Push({
-        Text:  "What's New >"
+        Text:  "What's New"
         TextAttrs: { font: fontsize, color: "#ffffff", halign: "left" }
         TargetRect: {x: 126, y: 165, w: 120, h: 50}
     })
 
+
     ' Large Tile
     moviesList.Append( BuildImageBox("pkg:/images/ehs/largeTest.jpg", 126, 210, 509, 289, "Harry Potter And the Deathly Hallows: Part 2") ) ' Row 1-2, Col 1-2
+
+    m.rowContent[1].Push({name: "All Movies", id: "Movies", ContentType: "MovieLibrary", largeTile: true})
+    m.rowContent[1].Push({name: "All Movies", id: "Movies", ContentType: "MovieLibrary", largeTile: true})
+    m.rowContent[2].Push({name: "All Movies", id: "Movies", ContentType: "MovieLibrary", largeTile: true})
+    m.rowContent[2].Push({name: "All Movies", id: "Movies", ContentType: "MovieLibrary", largeTile: true})
+
 
     ' Loop through movies
     movieCount = 0
     For Each movie In recentMovies
 
+        ' Row content of current screen
+        currentRow = Int(tileCoords[movieCount].row)
+        m.rowContent[currentRow].Push({name: movie.Title, Id: movie.Id, ContentType: movie.ContentType})
+
+        ' Build Tile Boxes
         moviesList.Append( BuildImageBox(movie.HDPosterUrl, tileCoords[movieCount].x, tileCoords[movieCount].y, tileCoords[movieCount].w, tileCoords[movieCount].h, Truncate(movie.Title, 25, true)) )
 
         movieCount = movieCount + 1
@@ -369,20 +423,54 @@ End Function
 
 Function BuildTVArea() As Object
 
-    moviesList = []
+    ' Get Latest Unwatched TV Episodes
+    recentItems = GetTVRecentAdded()
+    If recentItems=invalid
+        Return []
+    End If
 
-    moviesList.Push({
-        url: "pkg:/images/items/collection.png"
-        TargetRect: {x: 374, y: 210, w: 533, h: 300}
+    ' Get Tile Coordinates
+    tileCoords = GetTileCoordinates()
+
+    itemsList = []
+    m.rowContent[1] = []
+    m.rowContent[2] = []
+    m.rowContent[3] = []
+    pages = []
+
+    fontsize = m.FontRegistry.Get("Default", 16, false, false)
+
+    itemsList.Push({
+        Text:  "What's New"
+        TextAttrs: { font: fontsize, color: "#ffffff", halign: "left" }
+        TargetRect: {x: 126, y: 165, w: 120, h: 50}
     })
 
-    moviesList.Push({
-        Text:  "TV"
-        TextAttrs: { font: "medium", color: "#ffffff", halign: "center", valign: "top" }
-        TargetRect: {x: 590, y: 510, w: 100, h: 55}
-    })
 
-    Return moviesList
+    ' Large Tile
+    itemsList.Append( BuildImageBox("pkg:/images/ehs/largeTest.jpg", 126, 210, 509, 289, "Harry Potter And the Deathly Hallows: Part 2") ) ' Row 1-2, Col 1-2
+
+    m.rowContent[1].Push({name: "All TV Shows", id: "TV Shows", ContentType: "TVLibrary", largeTile: true})
+    m.rowContent[1].Push({name: "All TV Shows", id: "TV Shows", ContentType: "TVLibrary", largeTile: true})
+    m.rowContent[2].Push({name: "All TV Shows", id: "TV Shows", ContentType: "TVLibrary", largeTile: true})
+    m.rowContent[2].Push({name: "All TV Shows", id: "TV Shows", ContentType: "TVLibrary", largeTile: true})
+
+
+    ' Loop through movies
+    movieCount = 0
+    For Each movie In recentItems
+
+        ' Row content of current screen
+        currentRow = Int(tileCoords[movieCount].row)
+        m.rowContent[currentRow].Push({name: movie.Title, Id: movie.Id, ContentType: movie.ContentType})
+
+        ' Build Tile Boxes
+        itemsList.Append( BuildImageBox(movie.HDPosterUrl, tileCoords[movieCount].x, tileCoords[movieCount].y, tileCoords[movieCount].w, tileCoords[movieCount].h, Truncate(movie.Title, 25, true)) )
+
+        movieCount = movieCount + 1
+    End For
+
+    Return itemsList
 End Function
 
 
@@ -482,23 +570,74 @@ End Function
 Function GetTileCoordinates() As Object
     coords = []
 
-    coords.Push({x: 640, y: 210, w: 252, h: 142}) ' Tile 1
-    coords.Push({x: 897, y: 210, w: 252, h: 142}) ' Tile 2
-    coords.Push({x: 640, y: 357, w: 252, h: 142}) ' Tile 3
-    coords.Push({x: 897, y: 357, w: 252, h: 142}) ' Tile 4
-    coords.Push({x: 126, y: 504, w: 252, h: 142}) ' Tile 5
-    coords.Push({x: 383, y: 504, w: 252, h: 142}) ' Tile 6
-    coords.Push({x: 640, y: 504, w: 252, h: 142}) ' Tile 7
-    coords.Push({x: 897, y: 504, w: 252, h: 142}) ' Tile 8
+    coords.Push({row: 1, x: 640, y: 210, w: 252, h: 142}) ' Tile 1
+    coords.Push({row: 1, x: 897, y: 210, w: 252, h: 142}) ' Tile 2
+    coords.Push({row: 2, x: 640, y: 357, w: 252, h: 142}) ' Tile 3
+    coords.Push({row: 2, x: 897, y: 357, w: 252, h: 142}) ' Tile 4
+    coords.Push({row: 3, x: 126, y: 504, w: 252, h: 142}) ' Tile 5
+    coords.Push({row: 3, x: 383, y: 504, w: 252, h: 142}) ' Tile 6
+    coords.Push({row: 3, x: 640, y: 504, w: 252, h: 142}) ' Tile 7
+    coords.Push({row: 3, x: 897, y: 504, w: 252, h: 142}) ' Tile 8
 
     return coords
 End Function
 
-Function CheckBounds(selectedRow, selectedIndex) As Integer
+Function CheckBounds(selectedRow, selectedIndex, direction) As Integer
 
-    If m.rowContent[selectedRow]<>invalid Then
-        Print "Row "; selectedRow; " has "; m.rowContent[selectedRow].Count(); " items"
+    If direction = "LEFT" Then
+
+        ' Only change if Row has content
+        If m.rowContent[selectedRow]<>invalid Then
+
+            boundIndex = selectedIndex-1
+
+            If boundIndex < 0
+                boundIndex = 0
+            End If
+
+        End If
+
+    Else If direction = "RIGHT" Then
+
+        ' Only change if Row has content
+        If m.rowContent[selectedRow]<>invalid Then
+
+            boundIndex = selectedIndex+1
+
+            If boundIndex > m.rowContent[selectedRow].Count() - 1
+
+                boundIndex = m.rowContent[selectedRow].Count() - 1
+
+            End If
+
+        End If
+
+    Else If direction = "UP" Then
+
+        boundIndex = selectedRow-1
+
+        If boundIndex < 0
+            boundIndex = 0
+        End If
+
+        ' If Row has no content, do not change rows
+        If m.rowContent[boundIndex]=invalid Then
+            boundIndex = selectedRow
+        End If
+
+    Else If direction = "DOWN" Then
+
+        boundIndex = selectedRow+1
+
+        If boundIndex > m.rowContent.Count() - 1 Then
+            boundIndex = m.rowContent.Count() - 1
+        End If
+
+        If m.rowContent[boundIndex][selectedIndex]=invalid Or m.rowContent[boundIndex].Count() = 0 Then
+            boundIndex = selectedRow
+        End If
+
     End If
 
-    Return selectedIndex
+    Return boundIndex
 End Function
