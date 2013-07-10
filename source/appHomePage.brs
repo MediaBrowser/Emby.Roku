@@ -438,7 +438,7 @@ End Function
 '**********************************************************
 
 Function GetTVRecentAdded() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=5&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2CUserData&SortBy=DateCreated&SortOrder=Descending&Filters=IsUnplayed", true)
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=8&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2CUserData&SortBy=DateCreated&SortOrder=Descending&Filters=IsUnplayed", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -453,7 +453,7 @@ Function GetTVRecentAdded() As Object
                     for each itemData in jsonData.Items
                         tvData = {
                             Id: itemData.Id
-                            Title: "Recently Added"
+                            Title: itemData.SeriesName + ": Sn. " + itostr(itemData.ParentIndexNumber) + ", Ep. " + itostr(itemData.IndexNumber)
                             ContentType: "Episode"
                             ShortDescriptionLine1: itemData.SeriesName
                             ShortDescriptionLine2: itostr(itemData.ParentIndexNumber) + "x"  + ZeroPad(itostr(itemData.IndexNumber)) + " - " + itemData.Name
