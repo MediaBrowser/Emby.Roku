@@ -638,12 +638,12 @@ Function GetOptionsButtons() As Object
             ShortDescriptionLine2: "Version " + GetAppVersion()
             HDPosterUrl: "pkg://images/items/PreferencesTile_HD.png"
             SDPosterUrl: "pkg://images/items/PreferencesTile_SD.png"
-        },
-        {
-            Title: "Experimental EHS"
-            ContentType: "ExpEHS"
-            ShortDescriptionLine1: "Experimental EHS"
         }
+        '{
+        '    Title: "Experimental EHS"
+        '    ContentType: "ExpEHS"
+        '    ShortDescriptionLine1: "Experimental EHS"
+        '}
     ]
 
     Return buttons
