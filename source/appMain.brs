@@ -2,6 +2,8 @@
 '**  Media Browser Roku Client - Main
 '********************************************************************
 
+'Library "v30/bslDefender.brs"
+
 Sub Main()
 
     'Initialize theme
