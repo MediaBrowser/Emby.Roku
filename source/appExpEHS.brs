@@ -9,6 +9,8 @@
 
 Function ShowExpEHS() As Integer
 
+    ShowExpEHS2()
+    Return 0
 
     ' Setup Screen
     port = CreateObject("roMessagePort")
@@ -641,3 +643,495 @@ Function CheckBounds(selectedRow, selectedIndex, direction) As Integer
 
     Return boundIndex
 End Function
+
+
+
+Function ShowExpEHS2() As Integer
+
+
+    white = &hFFFFFFFF	'RGBA
+    grey  = &h504B4BFF	'RGBA
+    black = &h000000FF	'RGBA
+    transparent = &h00	'RGBA
+
+    screen = CreateEhsScreen()
+
+    ' Setup Background, Draw Right Away
+    SetupBackground(screen)
+    screen.RenderScreen()
+    SetupBackground(screen)
+
+    ' Setup Clock
+    clockRegion = SetupClock(screen)
+
+    ' Setup Menu
+    menuRegion = SetupMenu(screen)
+
+    ' Get Menu Items
+    menuItems = []
+    menuItems.Push({name: "movies", id: "movies"})
+    menuItems.Push({name: "television", id: "tv"})
+    menuItems.Push({name: "music", id: "music"})
+    menuItems.Push({name: "media collections", id: "collections"})
+
+    ' Setup Rows
+    row1Region = SetupRow(screen)
+    row2Region = row1Region.Copy()
+    row3Region = row1Region.Copy()
+
+    ' Get Body Items
+    bodyItems = []
+
+    ' Remote key id's for navigation
+    remoteKeyBack   = 0
+    remoteKeyUp     = 2
+    remoteKeyDown   = 3
+    remoteKeyLeft   = 4
+    remoteKeyRight  = 5
+    remoteKeyOK     = 6
+
+    menuChange = false
+    menuItemSelected = 0
+    itemChange = false
+    itemSelected = 0
+    bodyRowSelected = 0
+    bodyColSelected = 0
+
+    ' Draw Default Clock
+    DrawClock(screen, clockRegion)
+    screen.RenderScreen()
+    DrawClock(screen, clockRegion)
+
+    ' Draw Default Menu
+    DrawMenu(screen, menuRegion, menuItems, menuItemSelected)
+    screen.RenderScreen()
+    DrawMenu(screen, menuRegion, menuItems, menuItemSelected)
+
+    ' Draw Rows
+    DrawRow(screen, row1Region, 1, bodyItems, itemSelected)
+    screen.RenderScreen()
+    DrawRow(screen, row1Region, 1, bodyItems, itemSelected)
+
+    DrawRow(screen, row2Region, 2, bodyItems, itemSelected)
+    screen.RenderScreen()
+    DrawRow(screen, row2Region, 2, bodyItems, itemSelected)
+
+    DrawRow(screen, row3Region, 3, bodyItems, itemSelected)
+    screen.RenderScreen()
+    DrawRow(screen, row3Region, 3, bodyItems, itemSelected)
+
+    ' Draw Default Body
+    'DrawBody(screen, bodyRegion, bodyItems, itemSelected)
+    'screen.RenderScreen()
+    'DrawBody(screen, bodyRegion, bodyItems, itemSelected)
+
+    ' Setup Select Box
+    'test = SetupSelectItem(screen)
+    'compositor = test[0]
+    'sprite     = test[1]
+    'dblbuffer  = test[2]
+
+    While true
+        msg = screen.Port.getMessage()
+
+        ' Draw Sprite
+        'compositor.Draw()
+
+        'screen.DrawObject(0, 0, dblbuffer)
+
+        ' Render Screen
+        screen.RenderScreen()
+
+        ' Draw Clock
+        'DrawClock(screen, clockRegion)
+
+        ' Draw Menu
+        'DrawMenu(screen, menuRegion, menuItems, menuItemSelected)
+
+        ' Draw Body
+        'DrawBody(screen, bodyRegion, bodyItems, itemSelected)
+
+        ' Event
+        If msg = invalid Then
+
+        Else
+
+            If type(msg) = "roUniversalControlEvent" Then
+                keyPressed = msg.GetInt()
+
+                If keyPressed = remoteKeyBack Then
+                    exit while
+
+                Else If keyPressed = remoteKeyLeft Then
+                    Print "left"
+                    menuItemSelected = menuItemSelected - 1
+                    If menuItemSelected < 0 Then
+                        menuItemSelected = 0
+                    End If
+                    menuChange = true
+
+                Else If keyPressed = remoteKeyRight Then
+                    Print "right"
+                    menuItemSelected = menuItemSelected + 1
+                    If menuItemSelected > menuItems.Count()-1 Then
+                        menuItemSelected = menuItems.Count()-1
+                    End If
+                    menuChange = true
+
+                Else If keyPressed = remoteKeyDown Then
+                    Print "down"
+                    ' Draw Box
+                    If bodyRowSelected = 0
+                        Print "moving From menu"
+                        'sprite.MoveTo(284, 25)
+                    End If
+
+                    ' ReDraw Previous Row
+                    If bodyRowSelected = 1
+                        DrawRow(screen, row1Region, bodyRowSelected, bodyItems, 0)
+                        screen.RenderScreen()
+                        DrawRow(screen, row1Region, bodyRowSelected, bodyItems, 0)
+
+                    Else If bodyRowSelected = 2
+                        DrawRow(screen, row2Region, bodyRowSelected, bodyItems, 0)
+                        screen.RenderScreen()
+                        DrawRow(screen, row2Region, bodyRowSelected, bodyItems, 0)
+
+                    Else If bodyRowSelected = 3
+                        DrawRow(screen, row3Region, bodyRowSelected, bodyItems, 0)
+                        screen.RenderScreen()
+                        DrawRow(screen, row3Region, bodyRowSelected, bodyItems, 0)
+
+                    End If
+
+                    
+                    bodyRowSelected = bodyRowSelected + 1
+                    'itemSelected = bodyRowSelected
+                    itemChange = true
+
+                Else If keyPressed = remoteKeyUp Then
+                    Print "up"
+
+
+                    ' ReDraw Previous Row
+                    If bodyRowSelected = 1
+                        DrawRow(screen, row1Region, bodyRowSelected, bodyItems, 0)
+                        screen.RenderScreen()
+                        DrawRow(screen, row1Region, bodyRowSelected, bodyItems, 0)
+
+                    Else If bodyRowSelected = 2
+                        DrawRow(screen, row2Region, bodyRowSelected, bodyItems, 0)
+                        screen.RenderScreen()
+                        DrawRow(screen, row2Region, bodyRowSelected, bodyItems, 0)
+
+                    Else If bodyRowSelected = 3
+                        DrawRow(screen, row3Region, bodyRowSelected, bodyItems, 0)
+                        screen.RenderScreen()
+                        DrawRow(screen, row3Region, bodyRowSelected, bodyItems, 0)
+
+                    End If
+
+                    bodyRowSelected = bodyRowSelected - 1
+                    'itemSelected = bodyRowSelected
+                    itemChange = true
+                    If bodyRowSelected = 0
+                        Print "back To menu"
+                        'sprite.MoveTo(500, 500)
+                    End If
+
+                End If    
+
+            End If
+
+        End If
+
+        ' Menu Changed, ReDraw
+        If menuChange Then
+            DrawMenu(screen, menuRegion, menuItems, menuItemSelected)
+            screen.RenderScreen()
+            DrawMenu(screen, menuRegion, menuItems, menuItemSelected)
+            menuChange = false
+        End If
+
+        ' Body Item Changed, ReDraw
+        If itemChange Then
+
+            If bodyRowSelected = 1
+                redrawRegion = row1Region
+            Else If bodyRowSelected = 2
+                redrawRegion = row1Region
+            Else If bodyRowSelected = 3
+                redrawRegion = row1Region
+            End If
+
+            DrawRow(screen, redrawRegion, bodyRowSelected, bodyItems, 1)
+            screen.RenderScreen()
+            DrawRow(screen, redrawRegion, bodyRowSelected, bodyItems, 1)
+
+            'sprite.MoveTo(284, 25)
+            'compositor.Draw()
+
+            'DrawBody(screen, bodyRegion, bodyItems, itemSelected)
+            'screen.RenderScreen()
+            'DrawBody(screen, bodyRegion, bodyItems, itemSelected)
+            itemChange = false
+        End If
+
+
+
+    End While
+
+End Function
+
+
+
+
+
+Function SetupBackground(screen)
+
+    ' Colors
+    grey = &h504B4BFF	'RGBA
+
+    ' Clear Screen
+    screen.ClearScreen(grey)
+
+    ' Set Alpha Blending
+    screen.Screen.SetAlphaEnable(true)
+
+    ' Render Background and Static Header
+    logoImage = CreateObject("roBitmap", "pkg:/images/mblogowhite.png")
+
+    ' Draw Object
+    screen.DrawObject(35, 35, logoImage)
+
+End Function
+
+
+Function SetupClock(screen) As Object
+
+    ' Colors
+    transparent = &h00	'RGBA
+
+    ' Setup Clock Region
+    area = CreateObject("roBitmap", {width: 150, height: 30, AlphaEnable: false})
+    area.Clear(transparent)
+
+    region = CreateObject("roRegion", area, 0, 0, 150, 30)
+
+    Return region
+End Function
+
+
+Function DrawClock(screen, region)
+
+    ' Colors
+    white = &hFFFFFFFF  'RGBA
+    grey  = &h504B4BFF  'RGBA
+
+    ' Clear Region
+    region.Clear(grey)
+
+    ' Get Date Time
+    dateTime = CreateObject("roDateTime")
+
+    ' Localize Time
+    dateTime.ToLocalTime()
+
+    hours = dateTime.GetHours()
+    period = "am"
+    If hours > 11 Then period = "pm"
+    If hours > 12 Then hours = hours-12
+    If hours = 0 Then hours = 12
+
+    currentTime = itostr(hours) + ":" + ZeroPad(itostr(dateTime.GetMinutes())) + " " + period
+
+    font = screen.FontRegistry.getDefaultFont(20, false, false)
+
+    ' Draw Text And Object
+    region.DrawText(currentTime, 0, 0, white, font)
+    screen.DrawObject(1080, 35, region)
+
+End Function
+
+
+Function SetupMenu(screen) As Object
+
+    ' Colors
+    transparent = &h00	'RGBA
+
+    ' Setup Menu Region
+    area = CreateObject("roBitmap", {width: 800, height: 35, AlphaEnable: false})
+    area.Clear(transparent)
+
+    region = CreateObject("roRegion", area, 0, 0, 800, 35)
+
+    Return region
+End Function
+
+
+Function DrawMenu(screen, region, menuItems, menuItemSelected)
+
+    ' Colors
+    white     = &hFFFFFFFF  'RGBA
+    grey      = &h504B4BFF  'RGBA
+    lightgrey = &hC9C9C9FF  'RGBA
+    transparent = &h00	'RGBA
+
+    ' Clear Region
+    region.Clear(grey)
+
+    font = screen.FontRegistry.getDefaultFont(22, false, false)
+
+    xOffset = Int((screen.GetWidth() - region.GetWidth()) / 2)
+    categoryOffset = 0
+    categoryIndex  = 0
+
+    ' Draw Menu Item Text
+    For each category in menuItems
+        If categoryIndex = menuItemSelected Then
+            region.DrawText(category.name, categoryOffset, 5, white, font)
+
+            ' Draw Underline
+            textWidth  = font.GetOneLineWidth(category.name, screen.GetWidth())
+            textHeight = font.GetOneLineHeight() + 2
+            region.DrawLine(categoryOffset, textHeight, categoryOffset+textWidth, textHeight, white)
+        Else
+            region.DrawText(category.name, categoryOffset, 5, lightgrey, font)
+        End If
+
+        categoryOffset = categoryOffset + 200
+        categoryIndex  = categoryIndex + 1
+    End For
+
+    ' Draw Object
+    screen.DrawObject(xOffset, 125, region)
+
+End Function
+
+
+Function SetupRow(screen) As Object
+
+    ' Colors
+    transparent = &h00	'RGBA
+
+    ' Setup Menu Region
+    area = CreateObject("roBitmap", {width: 1280, height: 150, AlphaEnable: false})
+    area.Clear(transparent)
+
+    region = CreateObject("roRegion", area, 0, 0, 1280, 150)
+
+    Return region
+End Function
+
+Function DrawRow(screen, region, row, items, itemSelected)
+
+    ' Colors
+    white     = &hFFFFFFFF  'RGBA
+    grey      = &h504B4BFF  'RGBA
+    lightgrey = &hC9C9C9FF  'RGBA
+    transparent = &h00	'RGBA
+
+    ' Clear Region
+    region.Clear(grey)
+
+    ' Set Alpha Blending
+    region.SetAlphaEnable(true)
+
+
+    If row = 1 Then
+
+        screen.DrawTile(region, "pkg:/images/ehs/test1.jpg", 50, 0, "A Good Day To Die Hard")
+        screen.DrawTile(region, "pkg:/images/ehs/test2.jpg", 321, 0, "Silver Linings Playbook")
+        screen.DrawTile(region, "pkg:/images/ehs/test3.jpg", 592, 0, "Superman: Unbound")
+
+        If itemSelected = 1 Then
+            dfDrawImage(region, "pkg:/images/ehs/SelectBoxSm.png", 50, 0)
+        End If
+
+        screen.DrawObject(0, 170, region)
+    Else If row = 2 Then
+
+        screen.DrawTile(region, "pkg:/images/ehs/test3.jpg", 50, 0, "Superman: Unbound")
+        screen.DrawTile(region, "pkg:/images/ehs/test1.jpg", 321, 0, "A Good Day To Die Hard")
+        screen.DrawTile(region, "pkg:/images/ehs/test2.jpg", 592, 0, "Silver Linings Playbook")
+
+        If itemSelected = 1 Then
+            dfDrawImage(region, "pkg:/images/ehs/SelectBoxSm.png", 50, 0)
+        End If
+
+        screen.DrawObject(0, 325, region)
+    Else If row = 3 Then
+
+        screen.DrawTile(region, "pkg:/images/ehs/test2.jpg", 50, 0, "Silver Linings Playbook")
+        screen.DrawTile(region, "pkg:/images/ehs/test3.jpg", 321, 0, "Superman: Unbound")
+        screen.DrawTile(region, "pkg:/images/ehs/test1.jpg", 592, 0, "A Good Day To Die Hard")
+
+        If itemSelected = 1 Then
+            dfDrawImage(region, "pkg:/images/ehs/SelectBoxSm.png", 50, 0)
+        End If
+
+        screen.DrawObject(0, 480, region)
+    End If
+
+End Function
+
+
+
+
+
+
+
+Function DrawBody(screen, region, bodyItems, itemSelected)
+
+    ' Colors
+    white     = &hFFFFFFFF  'RGBA
+    grey      = &h504B4BFF  'RGBA
+    lightgrey = &hC9C9C9FF  'RGBA
+    transparent = &h00	'RGBA
+
+    ' Clear Region
+    region.Clear(white)
+
+    ' Set Alpha Blending
+    region.SetAlphaEnable(true)
+
+    screen.DrawTile(region, "pkg:/images/ehs/test1.jpg", 284, 25, "A Good Day To Die Hard")
+    screen.DrawTile(region, "pkg:/images/ehs/test2.jpg", 555, 25, "Silver Linings Playbook")
+    screen.DrawTile(region, "pkg:/images/ehs/test3.jpg", 284, 180, "Superman: Unbound")
+    screen.DrawTile(region, "pkg:/images/ehs/test1.jpg", 555, 180, "Movie 4")
+    screen.DrawTile(region, "pkg:/images/ehs/test2.jpg", 284, 335, "Movie 5")
+    screen.DrawTile(region, "pkg:/images/ehs/test3.jpg", 555, 335, "Movie 6")
+
+    If itemSelected = 1 Then
+        dfDrawImage(region, "pkg:/images/ehs/SelectBoxSm.png", 284, 25)
+    End If
+
+    'dfDrawImage(region, "pkg:/images/ehs/test1.jpg", 25, 25)
+    'dfDrawImage(region, "pkg:/images/ehs/OverlayBG2.png", 25, 25)
+
+    screen.DrawObject(90, 170, region)
+
+End Function
+
+Function SetupSelectItem(screen)
+
+    ' create bitmap for use with doublebuffering
+    dblbuffer = CreateObject("roBitmap", {width:1280, height:250,alphaenable:false})
+    dblbuffer.clear(&h00)
+
+    compositor = CreateObject("roCompositor")
+    'compositor.SetDrawTo(screen.Screen, 0)
+    compositor.SetDrawTo(dblbuffer, 0)
+
+    selectBoxImage = CreateObject("roBitmap", "pkg:/images/ehs/SelectBoxSm.png")
+
+    region = CreateObject("roRegion", selectBoxImage, 0, 0, 262, 152)
+
+    ' Create New Sprite that is Hidden
+    sprite = compositor.NewSprite(100, 100, region)
+
+    Return [compositor, sprite, dblbuffer]
+
+End Function
+
+
