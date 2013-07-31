@@ -44,6 +44,8 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
 
         ' Start Playing
         player.Play(0)
+    Else
+        player = invalid
     End If
 
     while true
