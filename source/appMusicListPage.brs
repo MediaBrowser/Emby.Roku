@@ -108,8 +108,8 @@ Function GetMusicAlbums() As Object
 
                         ' Check If Item has Image, otherwise use default
                         If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                            musicData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=300&width=300&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                            musicData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=145&width=285&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                            musicData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=300&width=300&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                            musicData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=145&width=285&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
                         Else 
                             musicData.HDPosterUrl = "pkg://images/items/collection.png"
                             musicData.SDPosterUrl = "pkg://images/items/collection.png"
@@ -178,8 +178,8 @@ Function GetMusicArtists() As Object
 
                         ' Check If Item has Image, otherwise use Default
                         If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                            musicData.HDPosterUrl = GetServerBaseUrl() + "/Artists/" + artistName + "/Images/Primary/0?height=300&width=300&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                            musicData.SDPosterUrl = GetServerBaseUrl() + "/Artists/" + artistName + "/Images/Primary/0?height=145&width=285&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                            musicData.HDPosterUrl = GetServerBaseUrl() + "/Artists/" + artistName + "/Images/Primary/0?quality=90&height=300&width=300&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                            musicData.SDPosterUrl = GetServerBaseUrl() + "/Artists/" + artistName + "/Images/Primary/0?quality=90&height=145&width=285&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
                         Else 
                             musicData.HDPosterUrl = "pkg://images/items/collection.png"
                             musicData.SDPosterUrl = "pkg://images/items/collection.png"
@@ -230,11 +230,11 @@ Function GetMusicGenres() As Object
 
                         ' Check If Item has Image, otherwise use default
                         If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                            musicData.HDPosterUrl = GetServerBaseUrl() + "/MusicGenres/" + genreName + "/Images/Primary/0?height=150&width=&tag=" + itemData.ImageTags.Primary
-                            musicData.SDPosterUrl = GetServerBaseUrl() + "/MusicGenres/" + genreName + "/Images/Primary/0?height=94&width=&tag=" + itemData.ImageTags.Primary
+                            musicData.HDPosterUrl = GetServerBaseUrl() + "/MusicGenres/" + genreName + "/Images/Primary/0?quality=90&height=150&width=&tag=" + itemData.ImageTags.Primary
+                            musicData.SDPosterUrl = GetServerBaseUrl() + "/MusicGenres/" + genreName + "/Images/Primary/0?quality=90&height=94&width=&tag=" + itemData.ImageTags.Primary
                         Else If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            musicData.HDPosterUrl = GetServerBaseUrl() + "/MusicGenres/" + genreName + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                            musicData.SDPosterUrl = GetServerBaseUrl() + "/MusicGenres/" + genreName + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                            musicData.HDPosterUrl = GetServerBaseUrl() + "/MusicGenres/" + genreName + "/Images/Backdrop/0?quality=90&height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                            musicData.SDPosterUrl = GetServerBaseUrl() + "/MusicGenres/" + genreName + "/Images/Backdrop/0?quality=90&height=94&width=&tag=" + itemData.BackdropImageTags[0]
                         Else 
                             musicData.HDPosterUrl = "pkg://images/items/collection.png"
                             musicData.SDPosterUrl = "pkg://images/items/collection.png"

@@ -277,8 +277,8 @@ Function GetMoviesRecentAdded() As Object
 
                         ' Check If Item has Image, otherwise use default
                         If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                            movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                            movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                            movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=94&width=&tag=" + itemData.BackdropImageTags[0]
                         Else 
                             movieData.HDPosterUrl = "pkg://images/items/collection.png"
                             movieData.SDPosterUrl = "pkg://images/items/collection.png"
@@ -326,8 +326,8 @@ Function GetMoviesResumable() As Object
 
                         ' Check If Item has Image, otherwise use default
                         If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                            movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                            movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                            movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=94&width=&tag=" + itemData.BackdropImageTags[0]
                         Else 
                             movieData.HDPosterUrl = "pkg://images/items/collection.png"
                             movieData.SDPosterUrl = "pkg://images/items/collection.png"
@@ -461,11 +461,11 @@ Function GetTVRecentAdded() As Object
 
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
                         If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=94&width=&tag=" + itemData.BackdropImageTags[0]
                         Else If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=150&width=&tag=" + itemData.ImageTags.Primary
-                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=94&width=&tag=" + itemData.ImageTags.Primary
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=150&width=&tag=" + itemData.ImageTags.Primary
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=94&width=&tag=" + itemData.ImageTags.Primary
                         Else 
                             tvData.HDPosterUrl = "pkg://images/items/collection.png"
                             tvData.SDPosterUrl = "pkg://images/items/collection.png"
@@ -513,11 +513,11 @@ Function GetTVRecentPlayed() As Object
 
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
                         If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=94&width=&tag=" + itemData.BackdropImageTags[0]
                         Else If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=150&width=&tag=" + itemData.ImageTags.Primary
-                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=94&width=&tag=" + itemData.ImageTags.Primary
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=150&width=&tag=" + itemData.ImageTags.Primary
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=94&width=&tag=" + itemData.ImageTags.Primary
                         Else 
                             tvData.HDPosterUrl = "pkg://images/items/collection.png"
                             tvData.SDPosterUrl = "pkg://images/items/collection.png"
@@ -565,11 +565,11 @@ Function GetTVResumable() As Object
 
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
                         If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?height=94&width=&tag=" + itemData.BackdropImageTags[0]
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=150&width=&tag=" + itemData.BackdropImageTags[0]
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=94&width=&tag=" + itemData.BackdropImageTags[0]
                         Else If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=150&width=&tag=" + itemData.ImageTags.Primary
-                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=94&width=&tag=" + itemData.ImageTags.Primary
+                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=150&width=&tag=" + itemData.ImageTags.Primary
+                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=94&width=&tag=" + itemData.ImageTags.Primary
                         Else 
                             tvData.HDPosterUrl = "pkg://images/items/collection.png"
                             tvData.SDPosterUrl = "pkg://images/items/collection.png"
