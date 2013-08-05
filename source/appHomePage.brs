@@ -108,7 +108,7 @@ Function ShowHomePage()
                     ShowTVDetailPage(screen.rowContent[row][selection].Id)
 
                 Else If screen.rowContent[row][selection].ContentType = "MusicLibrary" Then
-                    ShowAltMusicListPage()
+                    ShowMusicListPage()
 
                 Else If screen.rowContent[row][selection].ContentType = "SwitchUser" Then
                     RegDelete("userId")
