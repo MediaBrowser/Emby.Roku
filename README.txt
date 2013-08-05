@@ -2,6 +2,10 @@ MediaBrowser Roku
 
 Changelog
 
+1.13 - Added music genres;
+
+1.12 - Added theme music to TV browsing; Fixed bug with video playback on latest server;
+
 1.11 - Added music; Bug fixes; Added Next Episodes to watch for TV; Added display toggle on home screen to toggle between resume, latest and favorite items;
 
 1.10 - Fixed problem with server requesting multiple streams; Added new video quality preference; Added new jump to letter feature for movies and tv;
