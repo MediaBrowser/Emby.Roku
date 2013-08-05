@@ -68,7 +68,7 @@ Function ShowMusicListPage() As Integer
                 Else If screen.rowContent[row][selection].ContentType = "Artist" Then
 
                 Else If screen.rowContent[row][selection].ContentType = "Genre" Then
-                    'ShowMoviesGenrePage(screen.rowContent[row][selection].Id)
+                    ShowMusicGenrePage(screen.rowContent[row][selection].Id)
                 Else 
                     Print "Unknown Type found"
                 End If
@@ -148,6 +148,7 @@ Function ShowAltMusicListPage() As Integer
                     ShowMusicAlbumPage(musicData[selection])
 
                 Else If musicData[selection].ContentType = "Genre" Then
+                    ShowMusicGenrePage(musicData[selection].Id)
 
                 Else 
                     Print "Unknown Type found"
