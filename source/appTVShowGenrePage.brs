@@ -135,7 +135,7 @@ Function GetTVShowInGenre(genre As String) As Object
                         End If
 
                         ' Show / Hide Series Name
-                        If RegRead("prefTVTitle") = "show" Then
+                        If RegRead("prefTVTitle") = "show" Or RegRead("prefTVTitle") = invalid Then
                             seriesData.ShortDescriptionLine1 = itemData.Name
                         End If
 

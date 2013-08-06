@@ -163,8 +163,8 @@ Function GetMoviesAll() As Object
 
                         End If
 
-                        ' Show / Hide Series Name
-                        If RegRead("prefMovieTitle") = "show" Then
+                        ' Show / Hide Movie Name
+                        If RegRead("prefMovieTitle") = "show" Or RegRead("prefMovieTitle") = invalid Then
                             movieData.ShortDescriptionLine1 = itemData.Name
                         End If
 
