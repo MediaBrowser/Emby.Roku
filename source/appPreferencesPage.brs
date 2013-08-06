@@ -187,7 +187,14 @@ Function GetPreferenceList() as Object
             ShortTitle: "Play TV Theme Music",
             ID: "prefTVMusic",
             ShortDescriptionLine1: "Play TV theme music while browsing a TV Series."            
+        },
+        {
+            Title: "Repeat TV Theme Music: " + GetSelectedPreference(GetPreferenceTVThemeMusicRepeat(), RegRead("prefTVMusicLoop")),
+            ShortTitle: "Repeat TV Theme Music",
+            ID: "prefTVMusicLoop",
+            ShortDescriptionLine1: "Repeat TV theme music while browsing TV Series."            
         }
+
     ]
 
     return preferenceList
