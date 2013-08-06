@@ -28,22 +28,34 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     ' Show Screen
     screen.Show()
 
-    ' Fetch Theme Music
-    themeMusic = GetTVThemeMusic(seriesInfo.Id)
+    ' Only fetch theme music if turned on
+    If RegRead("prefTVMusic") = "yes" Then
+        ' Fetch Theme Music
+        themeMusic = GetTVThemeMusic(seriesInfo.Id)
 
-    If themeMusic<>invalid And themeMusic.Count() <> 0 Then
-        Print "playing theme music"
-        ' Create Audio Player
-        player = CreateAudioPlayer()
+        If themeMusic<>invalid And themeMusic.Count() <> 0 Then
+            Print "playing theme music"
+            ' Create Audio Player
+            player = CreateAudioPlayer()
 
-        ' Add Theme Music To Playlist
-        player.AddPlaylist(themeMusic)
+            ' Add Theme Music To Playlist
+            player.AddPlaylist(themeMusic)
 
-        ' Only Playthrough Once
-        player.Repeat(false)
+            ' Repeat Playlist if turned on
+            If RegRead("prefTVMusicLoop") = "yes" Then
+                ' Loop
+                player.Repeat(true)
+            Else
+                ' Only Playthrough Once
+                player.Repeat(false)
+            End If
 
-        ' Start Playing
-        player.Play(0)
+            ' Start Playing
+            player.Play(0)
+        Else
+            player = invalid
+        End If
+
     Else
         player = invalid
     End If
