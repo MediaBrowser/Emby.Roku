@@ -9,12 +9,8 @@
 
 Function ShowPreferencesPage()
 
-    ' Setup Screen
-    port   = CreateObject("roMessagePort")
-    screen = CreateObject("roListScreen")
-    screen.SetMessagePort(port)
-
-    screen.SetBreadcrumbText("", "Preferences")
+    ' Create List Screen
+    screen = CreateListScreen("", "Preferences")
 
     ' Get Preference Functions
     preferenceFunctions = [
@@ -22,34 +18,79 @@ Function ShowPreferencesPage()
         GetPreferenceMovieImageType,
         GetPreferenceMovieTitle,
         GetPreferenceTVImageType,
-        GetPreferenceTVTitle
+        GetPreferenceTVTitle,
+        GetPreferenceTVThemeMusic,
+        GetPreferenceTVThemeMusicRepeat
     ]
 
     ' Fetch / Refresh Preference Screen
     preferenceList = RefreshPreferencesPage(screen)
 
     while true
-        msg = wait(0, screen.GetMessagePort())
+        msg = wait(0, screen.Port)
 
         If type(msg) = "roListScreenEvent" Then
 
             If msg.isListItemFocused() Then
 
             Else If msg.isListItemSelected() Then
-                prefName = "pref" + preferenceList[msg.GetIndex()].Id
-                nextPreference = GetNextPreference( preferenceFunctions[msg.GetIndex()](), RegRead(prefName) )
+                prefName    = preferenceList[msg.GetIndex()].Id
+                shortTitle  = preferenceList[msg.GetIndex()].ShortTitle
+                itemOptions = preferenceFunctions[msg.GetIndex()]()
 
-                ' Save New Preference
-                RegWrite(prefName, nextPreference.Id)
+                ' Show Item Options Screen
+                ShowItemOptions(shortTitle, prefName, itemOptions)
 
                 ' Refresh Page
                 preferenceList = RefreshPreferencesPage(screen)
 
                 ' Refocus Item
-                screen.SetFocusedListItem(msg.GetIndex())
+                screen.SetFocusedItem(msg.GetIndex())
 
             Else If msg.isScreenClosed() Then
                 Print "Close prefs screen"
+                return false
+            End If
+        End If
+    end while
+
+    return false
+End Function
+
+
+'**********************************************************
+'** Show Item Options
+'**********************************************************
+
+Function ShowItemOptions(title As String, itemId As String, list As Object)
+
+    ' Create List Screen
+    screen = CreateListScreen("", "Preferences")
+
+    ' Set Content
+    screen.SetHeader(title)
+    screen.SetContent(list)
+
+    ' Show Screen
+    screen.Show()
+
+    while true
+        msg = wait(0, screen.Port)
+
+        If type(msg) = "roListScreenEvent" Then
+
+            If msg.isListItemFocused() Then
+
+            Else If msg.isListItemSelected() Then
+                prefSelected = list[msg.GetIndex()].Id
+
+                ' Save New Preference
+                RegWrite(itemId, prefSelected)
+
+                ' Close Screen
+                return false
+
+            Else If msg.isScreenClosed() Then
                 return false
             End If
         End If
@@ -65,50 +106,12 @@ End Function
 
 Function RefreshPreferencesPage(screen As Object) As Object
 
-    if validateParam(screen, "roListScreen", "RefreshPreferencesPage") = false return -1
-
     ' Get Data
     preferenceList = GetPreferenceList()
 
     ' Show Screen
     screen.SetContent(preferenceList)
     screen.Show()
-
-    return preferenceList
-End Function
-
-'**********************************************************
-'** Get Preferences List
-'**********************************************************
-
-Function GetPreferenceList() as Object
-    preferenceList = [
-        {
-            Title: "Video Quality: " + GetSelectedPreference(GetPreferenceVideoQuality(), RegRead("prefVideoQuality")),
-            ID: "VideoQuality",
-            ShortDescriptionLine1: "Select the quality of the video streams"
-        },
-        {
-            Title: "Movie Image Type: " + GetSelectedPreference(GetPreferenceMovieImageType(), RegRead("prefMovieImageType")),
-            ID: "MovieImageType",
-            ShortDescriptionLine1: "Select from backdrop, poster, or thumb image"
-        },
-        {
-            Title: "Movie Title: " + GetSelectedPreference(GetPreferenceMovieTitle(), RegRead("prefMovieTitle")),
-            ID: "MovieTitle",
-            ShortDescriptionLine1: "Show or hide the movie title below the movie image."            
-        },
-        {
-            Title: "TV Series Image Type: " + GetSelectedPreference(GetPreferenceTVImageType(), RegRead("prefTVImageType")),
-            ID: "TVImageType",
-            ShortDescriptionLine1: "Select from backdrop, poster, or thumb image"
-        },
-        {
-            Title: "TV Series Title: " + GetSelectedPreference(GetPreferenceTVTitle(), RegRead("prefTVTitle")),
-            ID: "TVTitle",
-            ShortDescriptionLine1: "Show or hide the tv series title below the tv series image."            
-        }
-    ]
 
     return preferenceList
 End Function
@@ -144,42 +147,52 @@ End Function
 
 
 '**********************************************************
-'** Get Next Preference
+'** Get Main Preferences List
 '**********************************************************
 
-Function GetNextPreference(list As Object, selected) as Object
+Function GetPreferenceList() as Object
+    preferenceList = [
+        {
+            Title: "Video Quality: " + GetSelectedPreference(GetPreferenceVideoQuality(), RegRead("prefVideoQuality")),
+            ShortTitle: "Video Quality",
+            ID: "prefVideoQuality",
+            ShortDescriptionLine1: "Select the quality of the video streams"
+        },
+        {
+            Title: "Movie Image Type: " + GetSelectedPreference(GetPreferenceMovieImageType(), RegRead("prefMovieImageType")),
+            ShortTitle: "Movie Image Type",
+            ID: "prefMovieImageType",
+            ShortDescriptionLine1: "Select from backdrop, poster, or thumb image"
+        },
+        {
+            Title: "Movie Title: " + GetSelectedPreference(GetPreferenceMovieTitle(), RegRead("prefMovieTitle")),
+            ShortTitle: "Movie Title",
+            ID: "prefMovieTitle",
+            ShortDescriptionLine1: "Show or hide the movie title below the movie image."            
+        },
+        {
+            Title: "TV Series Image Type: " + GetSelectedPreference(GetPreferenceTVImageType(), RegRead("prefTVImageType")),
+            ShortTitle: "TV Series Image Type",
+            ID: "prefTVImageType",
+            ShortDescriptionLine1: "Select from backdrop, poster, or thumb image"
+        },
+        {
+            Title: "TV Series Title: " + GetSelectedPreference(GetPreferenceTVTitle(), RegRead("prefTVTitle")),
+            ShortTitle: "TV Series Title",
+            ID: "prefTVTitle",
+            ShortDescriptionLine1: "Show or hide the tv series title below the tv series image."            
+        },
+        {
+            Title: "Play TV Theme Music: " + GetSelectedPreference(GetPreferenceTVThemeMusic(), RegRead("prefTVMusic")),
+            ShortTitle: "Play TV Theme Music",
+            ID: "prefTVMusic",
+            ShortDescriptionLine1: "Play TV theme music while browsing a TV Series."            
+        }
+    ]
 
-    if validateParam(list, "roArray", "GetNextPreference") = false return -1
-
-    index = 0
-    currentIndex = 0
-    defaultIndex = 0
-
-    For each itemData in list
-        ' Find Default Index
-        If itemData.IsDefault Then
-            defaultIndex = index
-        End If
-
-        If itemData.Id = selected Then
-            currentIndex = index
-            Exit For
-        End If
-        index = index + 1
-    End For
-
-    ' Handle Default
-    If selected = invalid Then
-        currentIndex = defaultIndex
-    End If
-
-    nextIndex = currentIndex + 1
-    if nextIndex >= list.Count() then
-       nextIndex = 0 
-    end if
-
-    return list[nextIndex]
+    return preferenceList
 End Function
+
 
 '**********************************************************
 '** Get Preference Options
@@ -288,6 +301,40 @@ Function GetPreferenceTVTitle() as Object
         {
             Title: "Hide",
             Id: "hide",
+            IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceTVThemeMusic() as Object
+    prefOptions = [
+        {
+            Title: "No [default]",
+            Id: "no",
+            IsDefault: true
+        },
+        {
+            Title: "Yes",
+            Id: "yes",
+            IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceTVThemeMusicRepeat() as Object
+    prefOptions = [
+        {
+            Title: "No [default]",
+            Id: "no",
+            IsDefault: true
+        },
+        {
+            Title: "Yes",
+            Id: "yes",
             IsDefault: false
         }
     ]
