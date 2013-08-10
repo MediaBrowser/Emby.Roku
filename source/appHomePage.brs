@@ -320,8 +320,7 @@ Function GetMoviesResumable() As Object
                             Id: itemData.Id
                             Title: "Resume"
                             ContentType: "Movie"
-                            ShortDescriptionLine1: "Resume"
-                            ShortDescriptionLine2: itemData.Name
+                            ShortDescriptionLine1: itemData.Name
                         }
 
                         ' Check If Item has Image, otherwise use default
