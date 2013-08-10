@@ -136,14 +136,8 @@ Function GetTVDetails(episodeId As String) As Object
 
                 if (code = 200)
                     ' Fixes bug within BRS Json Parser
-                    regex = CreateObject("roRegex", Chr(34) + "RunTimeTicks" + Chr(34) + ":([0-9]+),", "i")
-                    fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "RunTimeTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
-
-                    regex = CreateObject("roRegex", Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":([0-9]+),", "i")
-                    fixedString = regex.ReplaceAll(fixedString, Chr(34) + "PlaybackPositionTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
-
-                    regex = CreateObject("roRegex", Chr(34) + "StartPositionTicks" + Chr(34) + ":([0-9]+),", "i")
-                    fixedString = regex.ReplaceAll(fixedString, Chr(34) + "StartPositionTicks" + Chr(34) + ":" + Chr(34) + "\1" + Chr(34) + ",")
+                    regex = CreateObject("roRegex", Chr(34) + "(RunTimeTicks|PlaybackPositionTicks|StartPositionTicks)" + Chr(34) + ":([0-9]+),", "i")
+                    fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
 
                     itemData = ParseJSON(fixedString)
 
