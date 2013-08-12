@@ -109,6 +109,9 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
     if validateParam(videoType, "roString", "SetupVideoStreams") = false return -1
     if validateParam(videoPath, "roString", "SetupVideoStreams") = false return -1
 
+    ' Lowercase the video type string
+    videoType = LCase(videoType)
+
     ' Setup array    
     streamData = {}
 
@@ -127,13 +130,13 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
     urlBitrates.AddReplace("2600", "&VideoBitRate=2600000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
     urlBitrates.AddReplace("3200", "&VideoBitRate=3200000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0")
 
-    If videoType="VideoFile"
+    If videoType="videofile"
         ' Determine Direct Play / Transcode By Extension
         extension = GetExtension(videoPath)
 
         print "file type: "; extension
 
-        If (extension = "asf" Or extension = "avi" Or extension = "mkv" Or extension = "mpeg" Or extension = "m2ts" Or extension = "ogv" Or extension = "ts" Or extension = "webm" Or extension = "wmv"  )
+        If (extension = "asf" Or extension = "avi" Or extension = "mkv" Or extension = "mpeg" Or extension = "m2ts" Or extension = "ogv" Or extension = "ts" Or extension = "webm" Or extension = "wmv" Or extension = "wtv")
             ' Transcode Play
             stream = {}
             stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(videoBitrate) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
@@ -185,7 +188,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
         End If
 
-    Else If videoType="Dvd" Or videoType="BluRay" Or videoType="Iso" Or videoType="HdDvd"
+    Else If videoType="dvd" Or videoType="bluray" Or videoType="iso" Or videoType="hddvd"
 
         Print "DVD/BluRay/HDDVD/Iso file"
         ' Transcode Play
@@ -241,5 +244,5 @@ End Function
 
 Function GetExtension(filename as String) as String
     list = filename.tokenize(".")
-    if list.count()>0 then return list.GetTail() else return ""
+    if list.count()>0 then return LCase(list.GetTail()) else return ""
 End Function
