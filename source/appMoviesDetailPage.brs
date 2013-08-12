@@ -156,8 +156,8 @@ Function GetMoviesDetails(movieId As String) As Object
 
                     ' Check If Item has Image, otherwise use default
                     If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                        movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=212&width=&tag=" + itemData.ImageTags.Primary
-                        movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?height=142&width=&tag=" + itemData.ImageTags.Primary
+                        movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=212&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
+                        movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=142&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
                     Else 
                         movieData.HDPosterUrl = "pkg://images/items/collection.png"
                         movieData.SDPosterUrl = "pkg://images/items/collection.png"
@@ -229,8 +229,8 @@ Function GetMoviesDetails(movieId As String) As Object
 
                             ' Check If Chapter has Image, otherwise use default
                             If chapterData.ImageTag<>"" And chapterData.ImageTag<>invalid
-                                chapterList.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?height=141&width=&tag=" + chapterData.ImageTag
-                                chapterList.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?height=94&width=&tag=" + chapterData.ImageTag
+                                chapterList.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?quality=90&height=141&width=&EnableImageEnhancers=false&tag=" + chapterData.ImageTag
+                                chapterList.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?quality=90&height=94&width=&EnableImageEnhancers=false&tag=" + chapterData.ImageTag
                             Else 
                                 chapterList.HDPosterUrl = "pkg://images/items/collection.png"
                                 chapterList.SDPosterUrl = "pkg://images/items/collection.png"
@@ -242,10 +242,12 @@ Function GetMoviesDetails(movieId As String) As Object
                     End If
 
                     return movieData
-                endif
-            else if (event = invalid)
+                Else
+                    Return invalid
+                End If
+            Else If (event = invalid)
                 request.AsyncCancel()
-            endif
+            End If
         end while
     endif
 
