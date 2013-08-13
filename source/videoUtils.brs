@@ -136,7 +136,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
         print "file type: "; extension
 
-        If (extension = "asf" Or extension = "avi" Or extension = "mkv" Or extension = "mpeg" Or extension = "m2ts" Or extension = "ogv" Or extension = "ts" Or extension = "webm" Or extension = "wmv" Or extension = "wtv")
+        If (extension = "asf" Or extension = "avi" Or extension = "mpeg" Or extension = "m2ts" Or extension = "ogv" Or extension = "ts" Or extension = "webm" Or extension = "wmv" Or extension = "wtv")
             ' Transcode Play
             stream = {}
             stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(videoBitrate) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
@@ -154,6 +154,41 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
                 StreamFormat: "hls"
                 Streams: [stream]
             }
+
+        Else If (extension = "mkv")
+            directPlay = false
+
+            If directPlay Then
+                ' Direct Play
+                stream = {}
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.mkv?static=true"
+                stream.bitrate = 0
+                stream.quality = true
+                stream.contentid = "x-direct"
+
+                streamData = {
+                    StreamFormat: "mkv"
+                    Stream: stream
+                }
+            Else
+                ' Transcode Play
+                stream = {}
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(videoBitrate) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.bitrate = videoBitrate.ToInt()
+
+                If videoBitrate.ToInt() > 700 Then
+                    stream.quality = true
+                Else
+                    stream.quality = false
+                End If
+
+                stream.contentid = "x-" + videoBitrate
+
+                streamData = {
+                    StreamFormat: "hls"
+                    Streams: [stream]
+                }
+            End If
 
         Else If (extension = "mp4") 
             ' Direct Play
