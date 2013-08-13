@@ -10,7 +10,7 @@ Sub Main()
     initTheme()
 
     'Create facade screen
-    facade = CreateObject("roParagraphScreen")
+    facade = CreateObject("roPosterScreen")
     facade.Show()
 
     ' Goto Marker
