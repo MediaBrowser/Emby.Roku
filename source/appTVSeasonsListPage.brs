@@ -187,7 +187,15 @@ Function GetTVEpisodes(seasonId As String) As Object
                         streamInfo = GetStreamInfo(itemData.MediaStreams)
 
                         ' Build Extra Information Line
-                        episodeExtraInfo = "Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
+                        episodeExtraInfo = ""
+
+                        If itemData.ParentIndexNumber<>invalid
+                            episodeExtraInfo = episodeExtraInfo + "Sn " + Stri(itemData.ParentIndexNumber)
+                        End If
+
+                        If itemData.IndexNumber<>invalid
+                            episodeExtraInfo = episodeExtraInfo + " / Ep " + Stri(itemData.IndexNumber)
+                        End If
 
                         If itemData.OfficialRating<>"" And itemData.OfficialRating<>invalid
                             episodeExtraInfo = episodeExtraInfo + "  |  " + itemData.OfficialRating

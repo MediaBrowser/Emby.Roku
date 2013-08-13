@@ -153,8 +153,18 @@ Function GetTVDetails(episodeId As String) As Object
                         Watched: itemData.UserData.Played
                     }
 
+                    episodeExtraInfo = itemData.SeriesName
+
+                    If itemData.ParentIndexNumber<>invalid
+                        episodeExtraInfo = episodeExtraInfo + " / Season " + Stri(itemData.ParentIndexNumber)
+                    End If
+
+                    If itemData.IndexNumber<>invalid
+                        episodeExtraInfo = episodeExtraInfo + " / Episode " + Stri(itemData.IndexNumber)
+                    End If
+
                     ' Use Actor Area For Series / Season / Episode
-                    episodeData.Actors = itemData.SeriesName + " / Season " + Stri(itemData.ParentIndexNumber) + " / Episode "  + Stri(itemData.IndexNumber)
+                    episodeData.Actors = episodeExtraInfo
 
                     ' Check For Production Year
                     If Type(itemData.ProductionYear) = "Integer" Then
