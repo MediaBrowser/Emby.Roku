@@ -455,8 +455,23 @@ Function GetTVRecentAdded() As Object
                             Title: itemData.SeriesName + ": Sn. " + itostr(itemData.ParentIndexNumber) + ", Ep. " + itostr(itemData.IndexNumber)
                             ContentType: "Episode"
                             ShortDescriptionLine1: itemData.SeriesName
-                            ShortDescriptionLine2: itostr(itemData.ParentIndexNumber) + "x"  + ZeroPad(itostr(itemData.IndexNumber)) + " - " + itemData.Name
                         }
+
+                        ' Check For Season/Episode Numbers
+                        episodeExtraInfo = ""
+
+                        If itemData.ParentIndexNumber<>invalid
+                            episodeExtraInfo = itostr(itemData.ParentIndexNumber)
+                        End If
+
+                        If itemData.IndexNumber<>invalid
+                            episodeExtraInfo = episodeExtraInfo + "x" + ZeroPad(itostr(itemData.IndexNumber))
+                        End If
+
+                        episodeExtraInfo = episodeExtraInfo + " - " + itemData.Name
+
+                        ' Show Season/Episode Numbers and Title
+                        tvData.ShortDescriptionLine2 = episodeExtraInfo
 
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
                         If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
@@ -507,8 +522,23 @@ Function GetTVRecentPlayed() As Object
                             Title: itemData.SeriesName
                             ContentType: "Episode"
                             ShortDescriptionLine1: "Recently Played"
-                            ShortDescriptionLine2: itemData.SeriesName + " - Sn " + Stri(itemData.ParentIndexNumber) + " / Ep "  + Stri(itemData.IndexNumber)
                         }
+
+                        ' Check For Season/Episode Numbers
+                        episodeExtraInfo = ""
+
+                        If itemData.ParentIndexNumber<>invalid
+                            episodeExtraInfo = itostr(itemData.ParentIndexNumber)
+                        End If
+
+                        If itemData.IndexNumber<>invalid
+                            episodeExtraInfo = episodeExtraInfo + "x" + ZeroPad(itostr(itemData.IndexNumber))
+                        End If
+
+                        episodeExtraInfo = episodeExtraInfo + " - " + itemData.Name
+
+                        ' Show Season/Episode Numbers and Title
+                        tvData.ShortDescriptionLine2 = episodeExtraInfo
 
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
                         If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
@@ -559,8 +589,23 @@ Function GetTVResumable() As Object
                             Title: itemData.SeriesName
                             ContentType: "Episode"
                             ShortDescriptionLine1: itemData.SeriesName
-                            ShortDescriptionLine2: itostr(itemData.ParentIndexNumber) + "x"  + ZeroPad(itostr(itemData.IndexNumber)) + " - " + itemData.Name
                         }
+
+                        ' Check For Season/Episode Numbers
+                        episodeExtraInfo = ""
+
+                        If itemData.ParentIndexNumber<>invalid
+                            episodeExtraInfo = itostr(itemData.ParentIndexNumber)
+                        End If
+
+                        If itemData.IndexNumber<>invalid
+                            episodeExtraInfo = episodeExtraInfo + "x" + ZeroPad(itostr(itemData.IndexNumber))
+                        End If
+
+                        episodeExtraInfo = episodeExtraInfo + " - " + itemData.Name
+
+                        ' Show Season/Episode Numbers and Title
+                        tvData.ShortDescriptionLine2 = episodeExtraInfo
 
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
                         If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
