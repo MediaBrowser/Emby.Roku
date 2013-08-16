@@ -2,6 +2,8 @@ MediaBrowser Roku
 
 Changelog
 
+1.14 - Bug fixes; Speed improvements;
+
 1.13 - Added music genres; Bug fixes; Added theme music preferences;
 
 1.12 - Added theme music to TV browsing; Fixed bug with video playback on latest server;
