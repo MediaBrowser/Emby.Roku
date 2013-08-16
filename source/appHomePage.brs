@@ -452,10 +452,21 @@ Function GetTVRecentAdded() As Object
                     for each itemData in jsonData.Items
                         tvData = {
                             Id: itemData.Id
-                            Title: itemData.SeriesName + ": Sn. " + itostr(itemData.ParentIndexNumber) + ", Ep. " + itostr(itemData.IndexNumber)
                             ContentType: "Episode"
                             ShortDescriptionLine1: itemData.SeriesName
                         }
+
+                        ' Title Information
+                        titleInfo = itemData.SeriesName
+                        If itemData.ParentIndexNumber<>invalid
+                            titleInfo = titleInfo + ": Sn. " + itostr(itemData.ParentIndexNumber)
+                        End If
+
+                        If itemData.IndexNumber<>invalid
+                            titleInfo = titleInfo + ", Ep. " + itostr(itemData.IndexNumber)
+                        End If
+
+                        tvData.Title = titleInfo
 
                         ' Check For Season/Episode Numbers
                         episodeExtraInfo = ""
