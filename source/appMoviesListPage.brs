@@ -108,6 +108,8 @@ End Function
 Function GetMoviesAll() As Object
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&Fields=UserData%2CMediaStreams%2CSortName&SortBy=SortName&SortOrder=Ascending", true)
 
+    Print "Movie List URL: " + request.GetUrl()
+
     if (request.AsyncGetToString())
         while (true)
             msg = wait(0, request.GetPort())
@@ -198,6 +200,8 @@ End Function
 Function GetMoviesGenres() As Object
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Genres?UserId=" + m.curUserProfile.Id + "&Recursive=true&IncludeItemTypes=Movie&Fields=ItemCounts&SortBy=SortName&SortOrder=Ascending", true)
 
+    Print "Movie Genre List URL: " + request.GetUrl()
+
     if (request.AsyncGetToString())
         while (true)
             msg = wait(0, request.GetPort())
@@ -270,6 +274,8 @@ End Function
 Function GetMoviesBoxsets() As Object
 
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=BoxSet&Fields=UserData%2CItemCounts&SortBy=SortName&SortOrder=Ascending", true)
+
+    Print "Movie Boxset List URL: " + request.GetUrl()
 
     if (request.AsyncGetToString())
         while (true)

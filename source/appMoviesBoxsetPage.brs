@@ -73,6 +73,8 @@ Function GetMoviesInBoxset(boxsetId As String) As Object
 
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&ParentId=" + boxsetId + "&Fields=UserData&SortBy=ProductionYear%2CSortName&SortOrder=Ascending", true)
 
+    Print "BoxSet URL: " + request.GetUrl()
+
     if (request.AsyncGetToString())
         while (true)
             msg = wait(0, request.GetPort())

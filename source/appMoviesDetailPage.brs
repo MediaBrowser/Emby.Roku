@@ -111,6 +111,8 @@ Function GetMoviesDetails(movieId As String) As Object
 
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items/" + movieId, true)
 
+    Print "Movie URL: " + request.GetUrl()
+
     if (request.AsyncGetToString())
         while (true)
             msg = wait(0, request.GetPort())

@@ -81,6 +81,8 @@ Function GetMoviesInGenre(genre As String) As Object
 
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&Genres=" + genre + "&Fields=UserData%2CGenres&SortBy=SortName&SortOrder=Ascending", true)
 
+    Print "Movie Genre URL: " + request.GetUrl()
+
     if (request.AsyncGetToString())
         while (true)
             msg = wait(0, request.GetPort())
