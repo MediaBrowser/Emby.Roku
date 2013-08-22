@@ -53,7 +53,7 @@ Function ShowMoviesListPage() As Integer
     dialogBox.Close()
 
     ' Hide Description Popup
-    screen.Screen.SetDescriptionVisible(false)
+    'screen.Screen.SetDescriptionVisible(false)
 
     ' Remote key id's for navigation
     remoteKeyStar = 10
@@ -106,9 +106,13 @@ End Function
 '**********************************************************
 
 Function GetMoviesAll() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&Fields=UserData%2CMediaStreams%2CSortName&SortBy=SortName&SortOrder=Ascending", true)
 
-    Print "Movie List URL: " + request.GetUrl()
+    ' Clean Fields
+    fields = HttpEncode("Overview,UserData,MediaStreams,SortName")
+
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&Fields=" + fields + "&SortBy=SortName&SortOrder=Ascending", true)
+
+    'Print "Movie List URL: " + request.GetUrl()
 
     if (request.AsyncGetToString())
         while (true)
@@ -118,9 +122,14 @@ Function GetMoviesAll() As Object
                 code = msg.GetResponseCode()
 
                 if (code = 200)
+                    ' Fixes bug within BRS Json Parser
+                    regex = CreateObject("roRegex", Chr(34) + "(RunTimeTicks)" + Chr(34) + ":([0-9]+),", "i")
+                    fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
+
                     index    = 0
                     list     = CreateObject("roArray", 2, true)
-                    jsonData = ParseJSON(msg.GetString())
+                    jsonData = ParseJSON(fixedString)
+
                     for each itemData in jsonData.Items
                         movieData = {
                             Id: itemData.Id
@@ -164,6 +173,30 @@ Function GetMoviesAll() As Object
                             End If
 
                         End If
+
+                        ' Check For Run Time
+                        itemRunTime = itemData.RunTimeTicks
+                        If itemRunTime<>"" And itemRunTime<>invalid
+                            movieData.Length = Int(((itemRunTime).ToFloat() / 10000) / 1000)
+                        End If
+
+                        If itemData.Overview<>invalid
+                            movieData.Description = itemData.Overview
+                        End If
+
+                        If itemData.OfficialRating<>invalid
+                            movieData.Rating = itemData.OfficialRating
+                        End If
+
+                        If Type(itemData.ProductionYear) = "Integer" Then
+                            movieData.ReleaseDate = itostr(itemData.ProductionYear)
+                        End If
+
+                        If itemData.CriticRating<>invalid
+                            movieData.StarRating = itemData.CriticRating
+                        End If
+
+                        movieData.HDBranded = true
 
                         ' Show / Hide Movie Name
                         If RegRead("prefMovieTitle") = "show" Or RegRead("prefMovieTitle") = invalid Then
