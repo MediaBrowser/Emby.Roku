@@ -2,12 +2,13 @@
 '**  Media Browser Roku Client - Main
 '********************************************************************
 
-'Library "v30/bslDefender.brs"
-
 Sub Main()
 
     'Initialize theme
     initTheme()
+
+    'Initialize globals
+    initGlobals()
 
     'Create facade screen
     facade = CreateObject("roPosterScreen")
@@ -76,6 +77,93 @@ Sub Main()
 
     ' Exit Application
     Return
+
+End Sub
+
+
+'*************************************************************
+'** Setup Global variables for the application
+'*************************************************************
+
+Sub initGlobals()
+    device = CreateObject("roDeviceInfo")
+
+    ' Get device software version
+    version = device.GetVersion()
+    major = Mid(version, 3, 1).toInt()
+    minor = Mid(version, 5, 2).toInt()
+    build = Mid(version, 8, 5).toInt()
+    versionStr = major.toStr() + "." + minor.toStr() + " build " + build.toStr()
+
+    GetGlobalAA().AddReplace("rokuVersion", [major, minor, build])
+
+    ' Get channel version
+    manifest = ReadAsciiFile("pkg:/manifest")
+    lines = manifest.Tokenize(chr(10))
+
+    For each line In lines
+        entry = line.Tokenize("=")
+
+        If entry[0]="version" Then
+            GetGlobalAA().AddReplace("channelVersion", entry[1])
+            Exit For
+        End If
+    End For
+
+    GetGlobalAA().AddReplace("rokuUniqueId", device.GetDeviceUniqueId())
+
+    ' Get model name
+    If major > 4 Or (major = 4 And minor >= 8) Then
+        modelName   = device.GetModelDisplayName()
+        modelNumber = device.GetModel()
+    Else
+        modelNumber = device.GetModel()
+
+        models = {}
+        models["N1050"] = "Roku SD"
+        models["N1000"] = "Roku HD Classic"
+        models["N1100"] = "Roku HD Classic"
+        models["2050X"] = "Roku XD"
+        models["2050N"] = "Roku XD"
+        models["N1101"] = "Roku XD|S Classic"
+        models["2100X"] = "Roku XD|S"
+        models["2100N"] = "Roku XD|S"
+        models["2000C"] = "Roku HD"
+        models["2500X"] = "Roku HD"
+        models["2400X"] = "Roku LT"
+        models["2450X"] = "Roku LT"
+        models["3000X"] = "Roku 2 HD"
+        models["3050X"] = "Roku 2 XD"
+        models["3100X"] = "Roku 2 XS"
+        models["3400X"] = "Roku Streaming Stick"
+        models["3420X"] = "Roku Streaming Stick"
+        models["4200X"] = "Roku 3"
+
+        If models.DoesExist(modelNumber) Then
+            modelName = models[modelNumber]
+        Else
+            modelName = modelNumber
+        End If
+    End If
+
+    GetGlobalAA().AddReplace("rokuModelNumber", modelNumber)
+    GetGlobalAA().AddReplace("rokuModelName", modelName)
+
+    ' Check if HDTV screen
+    If device.GetDisplayType() = "HDTV" Then
+        GetGlobalAA().AddReplace("isHD", true)
+    Else
+        GetGlobalAA().AddReplace("isHD", false)
+    End If
+
+    ' Check to see if the box can support surround sound
+    surroundSound = device.HasFeature("5.1_surround_sound")
+    GetGlobalAA().AddReplace("surroundSound", surroundSound)
+
+    ' Get display information
+    GetGlobalAA().AddReplace("displaySize", device.GetDisplaySize())
+    GetGlobalAA().AddReplace("displayMode", device.GetDisplayMode())
+    GetGlobalAA().AddReplace("displayType", device.GetDisplayType())
 
 End Sub
 
