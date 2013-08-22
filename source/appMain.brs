@@ -93,6 +93,9 @@ Sub initTheme()
     backgroundColor             = "#504B4B"
     breadcrumbText              = "#eeeeee"
 
+    textColorWhite = "#ffffff"
+    textColorBlack = "#000000"
+
     theme = {
         BackgroundColor: backgroundColor
 
@@ -123,8 +126,8 @@ Sub initTheme()
 
         GridScreenBackgroundColor: backgroundColor
         GridScreenListNameColor: brandingWhite
-        GridScreenDescriptionTitleColor: brandingWhite
-        GridScreenDescriptionDateColor: brandingWhite
+        GridScreenDescriptionTitleColor: "#1E1E1E"
+        GridScreenDescriptionDateColor: "#1E1E1E"
         GridScreenLogoHD: "pkg:/images/mblogowhite.png"
         GridScreenLogoSD: "pkg:/images/mblogowhite.png"
         GridScreenOverhangHeightHD: "124"
@@ -143,7 +146,7 @@ Sub initTheme()
 
         'GridScreenDescriptionImageSD: "pkg:/images/grid/Grid_Description_Background_Portrait_SD43.png"
         'GridScreenDescriptionOffsetSD:"(125,170)"
-        'GridScreenDescriptionImageHD: "pkg:/images/grid/Grid_Description_Background_Portrait_HD.png"
+        GridScreenDescriptionImageHD: "pkg:/images/grid/Grid_Description_Background_16x9_HD.png"
         'GridScreenDescriptionOffsetHD:"(150,205)"
 
         SpringboardActorColor: "#ffffff"
