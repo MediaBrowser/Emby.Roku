@@ -118,9 +118,6 @@ Function ShowHomePage()
                 Else If screen.rowContent[row][selection].ContentType = "Preferences" Then
                     ShowPreferencesPage()
 
-                Else If screen.rowContent[row][selection].ContentType = "ExpEHS" Then
-                    ShowExpEHS()
-
                 Else 
                     Print "Unknown Type found"
                 End If
@@ -694,11 +691,6 @@ Function GetOptionsButtons() As Object
             HDPosterUrl: "pkg://images/items/PreferencesTile_HD.png"
             SDPosterUrl: "pkg://images/items/PreferencesTile_SD.png"
         }
-        '{
-        '    Title: "Experimental EHS"
-        '    ContentType: "ExpEHS"
-        '    ShortDescriptionLine1: "Experimental EHS"
-        '}
     ]
 
     Return buttons
