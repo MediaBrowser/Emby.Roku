@@ -169,6 +169,15 @@ End Sub
 
 
 '*************************************************************
+'** Get a variable from the Global Array
+'*************************************************************
+
+Function getGlobalVar(name, default)
+    Return firstOf(GetGlobalAA().Lookup(name), default)
+End Function
+
+
+'*************************************************************
 '** Setup the theme for the application
 '*************************************************************
 
