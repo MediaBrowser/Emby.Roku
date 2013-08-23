@@ -135,7 +135,11 @@ End Function
 '**********************************************************
 
 Function GetTVEpisodes(seasonId As String) As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + seasonId + "&Recursive=true&IncludeItemTypes=Episode&Fields=SeriesInfo%2COverview%2CMediaStreams%2CUserData&SortBy=SortName&SortOrder=Ascending", true)
+
+    ' Clean Fields
+    fields = HttpEncode("SeriesInfo,Overview,MediaStreams,UserData")
+
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?ParentId=" + seasonId + "&Recursive=true&IncludeItemTypes=Episode&Fields=" + fields + "&SortBy=SortName&SortOrder=Ascending", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -159,6 +163,7 @@ Function GetTVEpisodes(seasonId As String) As Object
                             ContentType: "Episode"
                             ShortDescriptionLine1: itemData.Name
                             Description: itemData.Overview
+                            Watched: itemData.UserData.Played
                         }
 
                         ' Check If Item has Image, otherwise use default

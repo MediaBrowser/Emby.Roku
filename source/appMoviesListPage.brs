@@ -62,8 +62,8 @@ Function ShowMoviesListPage() As Integer
         msg = wait(0, screen.Screen.GetMessagePort())
 
         if type(msg) = "roGridScreenEvent" Then
-            if msg.isListItemFocused() then
-                'print "list focused | index = "; msg.GetIndex(); " | category = "; 'm.curCategory
+            if msg.isListItemFocused() Then
+                screen.Screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()
@@ -233,7 +233,7 @@ End Function
 Function GetMoviesGenres() As Object
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Genres?UserId=" + m.curUserProfile.Id + "&Recursive=true&IncludeItemTypes=Movie&Fields=ItemCounts&SortBy=SortName&SortOrder=Ascending", true)
 
-    Print "Movie Genre List URL: " + request.GetUrl()
+    'Print "Movie Genre List URL: " + request.GetUrl()
 
     if (request.AsyncGetToString())
         while (true)
@@ -306,9 +306,12 @@ End Function
 
 Function GetMoviesBoxsets() As Object
 
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=BoxSet&Fields=UserData%2CItemCounts&SortBy=SortName&SortOrder=Ascending", true)
+    ' Clean Fields
+    fields = HttpEncode("Overview,UserData,ItemCounts")
 
-    Print "Movie Boxset List URL: " + request.GetUrl()
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=BoxSet&Fields=" + fields + "&SortBy=SortName&SortOrder=Ascending", true)
+
+    'Print "Movie Boxset List URL: " + request.GetUrl()
 
     if (request.AsyncGetToString())
         while (true)
@@ -363,6 +366,22 @@ Function GetMoviesBoxsets() As Object
                                 movieData.SDPosterUrl = "pkg://images/items/collection.png"
                             End If
 
+                        End If
+
+                        ' Movie Count
+                        If itemData.ChildCount<>invalid
+                            'movieData.Description = itostr(itemData.ChildCount) + " movies"
+                            movieData.ShortDescriptionLine2 = itostr(itemData.ChildCount) + " movies"
+                        End If
+
+                        ' Overview
+                        If itemData.Overview<>invalid
+                            movieData.Description = itemData.Overview
+                        End If
+
+                        ' Movie Rating
+                        If itemData.OfficialRating<>invalid
+                            movieData.Rating = itemData.OfficialRating
                         End If
 
                         list.push( movieData )
