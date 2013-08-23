@@ -52,8 +52,10 @@ Function ShowTVShowListPage() As Integer
     ' Close Loading Dialog
     dialogBox.Close()
 
-    ' Hide Description Popup
-    'screen.Screen.SetDescriptionVisible(false)
+    ' Show/Hide Description Popup
+    If RegRead("prefTVDisplayPopup") = "no" Or RegRead("prefTVDisplayPopup") = invalid Then
+        screen.Screen.SetDescriptionVisible(false)
+    End If
 
     ' Remote key id's for navigation
     remoteKeyStar = 10
@@ -63,7 +65,10 @@ Function ShowTVShowListPage() As Integer
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListItemFocused() Then
-                screen.Screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                ' Show/Hide Description Popup
+                If RegRead("prefTVDisplayPopup") = "yes" Then
+                    screen.Screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                End If
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()
@@ -265,10 +270,8 @@ Function GetTVShowNextUp() As Object
                         ' Show Season/Episode Numbers and Title
                         tvData.ShortDescriptionLine2 = episodeExtraInfo
 
-                        ' Get Image Type From Preference
-                        If RegRead("prefTVImageType") = "poster" Then
-                            tvData.Title = itemData.SeriesName + ": " + episodeExtraInfo
-                        End If
+                        ' Title
+                        tvData.Title = itemData.SeriesName + ": " + episodeExtraInfo
 
                         If Type(itemData.ProductionYear) = "Integer" Then
                             tvData.ReleaseDate = itostr(itemData.ProductionYear)

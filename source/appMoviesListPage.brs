@@ -52,8 +52,10 @@ Function ShowMoviesListPage() As Integer
     ' Close Loading Dialog
     dialogBox.Close()
 
-    ' Hide Description Popup
-    'screen.Screen.SetDescriptionVisible(false)
+    ' Show/Hide Description Popup
+    If RegRead("prefMovieDisplayPopup") = "no" Or RegRead("prefMovieDisplayPopup") = invalid Then
+        screen.Screen.SetDescriptionVisible(false)
+    End If
 
     ' Remote key id's for navigation
     remoteKeyStar = 10
@@ -63,7 +65,10 @@ Function ShowMoviesListPage() As Integer
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListItemFocused() Then
-                screen.Screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                ' Show/Hide Description Popup
+                If RegRead("prefMovieDisplayPopup") = "yes" Then
+                    screen.Screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                End If
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()
