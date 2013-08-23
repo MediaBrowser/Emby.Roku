@@ -54,6 +54,20 @@ End Function
 
 
 '******************************************************
+' Source: Plex Roku Client
+'         https://github.com/plexinc/roku-client-public
+' Return the first valid argument
+'******************************************************
+
+Function firstOf(first, second, third=invalid, fourth=invalid)
+    if first <> invalid then return first
+    if second <> invalid then return second
+    if third <> invalid then return third
+    return fourth
+End Function
+
+
+'******************************************************
 ' Get Roku Model Name from Model Number
 '******************************************************
 
