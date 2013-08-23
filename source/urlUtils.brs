@@ -23,8 +23,7 @@ Function CreateURLTransferObject(url As String, authorized=invalid) as Object
 
     ' If authorized, add checkin header
     If authorized<>invalid Then
-        device = CreateObject("roDeviceInfo")
-        authString = "MediaBrowser UserId=" + Quote() + m.curUserProfile.Id + Quote() + ", Client=" + Quote() + "Roku" + Quote() + ", Device=" + Quote() + GetModelName(device.GetModel()) + Quote() + ", DeviceId=" + Quote() + device.GetDeviceUniqueId() + Quote() + ", Version=" + Quote() + GetAppVersion() + Quote()
+        authString = "MediaBrowser UserId=" + Quote() + m.curUserProfile.Id + Quote() + ", Client=" + Quote() + "Roku" + Quote() + ", Device=" + Quote() + getGlobalVar("rokuModelName", "Unknown") + Quote() + ", DeviceId=" + Quote() + getGlobalVar("rokuUniqueId", "Unknown") + Quote() + ", Version=" + Quote() + getGlobalVar("channelVersion", "Unknown") + Quote()
         obj.AddHeader("Authorization", authString)
     End If
 
@@ -46,8 +45,7 @@ Function CreateURLTransferObjectJson(url As String, authorized=invalid) as Objec
 
     ' If authorized, add checkin header
     If authorized<>invalid Then
-        device = CreateObject("roDeviceInfo")
-        authString = "MediaBrowser UserId=" + Quote() + m.curUserProfile.Id + Quote() + ", Client=" + Quote() + "Roku" + Quote() + ", Device=" + Quote() + GetModelName(device.GetModel()) + Quote() + ", DeviceId=" + Quote() + device.GetDeviceUniqueId() + Quote() + ", Version=" + Quote() + GetAppVersion() + Quote()
+        authString = "MediaBrowser UserId=" + Quote() + m.curUserProfile.Id + Quote() + ", Client=" + Quote() + "Roku" + Quote() + ", Device=" + Quote() + getGlobalVar("rokuModelName", "Unknown") + Quote() + ", DeviceId=" + Quote() + getGlobalVar("rokuUniqueId", "Unknown") + Quote() + ", Version=" + Quote() + getGlobalVar("channelVersion", "Unknown") + Quote()
         obj.AddHeader("Authorization", authString)
     End If
 

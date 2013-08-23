@@ -687,7 +687,7 @@ Function GetOptionsButtons() As Object
             Title: "Preferences"
             ContentType: "Preferences"
             ShortDescriptionLine1: "Preferences"
-            ShortDescriptionLine2: "Version " + GetAppVersion()
+            ShortDescriptionLine2: "Version " + getGlobalVar("channelVersion", "Unknown")
             HDPosterUrl: "pkg://images/items/PreferencesTile_HD.png"
             SDPosterUrl: "pkg://images/items/PreferencesTile_SD.png"
         }

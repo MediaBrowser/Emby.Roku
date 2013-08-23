@@ -271,30 +271,3 @@ Sub initTheme()
 
     app.SetTheme( theme )
 End Sub
-
-
-'**********************************************************
-'** Get Application Version
-'**********************************************************
-
-Function GetAppVersion()
-
-    ' Fetch app version from manifest
-    If m.appVersion="" Or m.appVersion=invalid Then
-
-        manifestFile = ReadAsciiFile("pkg:/manifest")
-        lines = manifestFile.Tokenize(chr(10))
-
-        For each line In lines
-            entry = line.Tokenize("=")
-
-            If entry[0]="version" Then
-                m.appVersion = entry[1]
-                Exit For
-            End If
-        End For
-
-    End If
-
-    Return m.appVersion
-End Function

@@ -68,40 +68,6 @@ End Function
 
 
 '******************************************************
-' Get Roku Model Name from Model Number
-'******************************************************
-
-Function GetModelName(modelNumber As String) as String
-
-    models = {}
-    models["N1050"] = "Roku SD"
-    models["N1000"] = "Roku HD Classsic"
-    models["N1100"] = "Roku HD Classsic"
-    models["2050X"] = "Roku XD"
-    models["2050N"] = "Roku XD"
-    models["N1101"] = "Roku XD|S Classic"
-    models["2100X"] = "Roku XD|S"
-    models["2100N"] = "Roku XD|S"
-    models["2000C"] = "Roku HD"
-    models["2500X"] = "Roku HD"
-    models["2400X"] = "Roku LT"
-    models["2450X"] = "Roku LT"
-    models["3000X"] = "Roku 2 HD"
-    models["3050X"] = "Roku 2 XD"
-    models["3100X"] = "Roku 2 XS"
-    models["3400X"] = "Roku Streaming Stick"
-    models["3420X"] = "Roku Streaming Stick"
-    models["4200X"] = "Roku 3"
-
-    If models.DoesExist(modelNumber) Then
-        Return models[modelNumber]
-    End If
-
-    Return modelNumber
-End Function
-
-
-'******************************************************
 ' Format a Date Stamp
 '******************************************************
 
