@@ -201,7 +201,7 @@ Function GetMoviesAll() As Object
                             movieData.StarRating = itemData.CriticRating
                         End If
 
-                        movieData.HDBranded = true
+                        'movieData.HDBranded = true ' Hide For now
 
                         ' Show / Hide Movie Name
                         If RegRead("prefMovieTitle") = "show" Or RegRead("prefMovieTitle") = invalid Then
