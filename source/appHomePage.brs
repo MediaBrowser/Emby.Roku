@@ -150,6 +150,7 @@ Function GetItemCounts() As Object
                     jsonData = ParseJSON(msg.GetString())
                     return jsonData
                 else
+                    Debug("Failed to Get Item Counts")
                     return invalid
                 end if
             else if (event = invalid)
@@ -284,12 +285,15 @@ Function GetMoviesRecentAdded() As Object
                         list.push( movieData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Recently Added Movies")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -332,12 +336,15 @@ Function GetMoviesResumable() As Object
                         list.push( movieData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Resumable Movies")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -496,12 +503,15 @@ Function GetTVRecentAdded() As Object
                         list.push( tvData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Recently Added TV Shows")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -563,12 +573,15 @@ Function GetTVRecentPlayed() As Object
                         list.push( tvData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Recently Played TV Shows")
+                    Return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -630,12 +643,15 @@ Function GetTVResumable() As Object
                         list.push( tvData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Resumable TV Shows")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function

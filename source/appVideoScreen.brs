@@ -291,15 +291,18 @@ Function PostPlayback(videoId As String, action As String, position=invalid) As 
             if (type(msg) = "roUrlEvent")
                 code = msg.GetResponseCode()
 
-                If (code = 200)
-                    Return true
-                End if
+                if (code = 200)
+                    return true
+                else
+                    Debug("Failed to Post Playback Progress")
+                    return false
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
                 exit while
-            endif
+            end if
         end while
-    endif
+    end if
 
     return false
 End Function
