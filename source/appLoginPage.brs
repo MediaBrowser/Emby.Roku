@@ -101,12 +101,15 @@ Function GetUserProfiles() As Object
                         userList.push( userData )
                     end for
                     return userList
-                endif
+                else
+                    Debug("Failed to Get All User Profiles")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     return invalid
 End Function
@@ -148,12 +151,15 @@ Function GetUserProfile(userId As String) As Object
                         userData.SDPosterUrl = "pkg://images/UserDefaultBlack.png"
                     End If
                     return userData
-                endif
+                else
+                    Debug("Failed to Get User Profile")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     return invalid
 End Function

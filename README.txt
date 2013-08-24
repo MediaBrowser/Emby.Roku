@@ -2,6 +2,8 @@ MediaBrowser Roku
 
 Changelog
 
+1.15 - Added popup bubble;
+
 1.14 - Bug fixes; Speed improvements;
 
 1.13 - Added music genres; Bug fixes; Added theme music preferences;

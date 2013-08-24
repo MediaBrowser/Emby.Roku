@@ -159,7 +159,14 @@ Function ZeroPad(text As String, length = invalid) As String
 End Function
 
 
+'**********************************************************
+'** Debug (eventually Write to Log file)
+'**********************************************************
 
+Sub Debug(message As String)
+    print message
+
+End Sub
 
 
 

@@ -52,8 +52,10 @@ Function ShowTVShowListPage() As Integer
     ' Close Loading Dialog
     dialogBox.Close()
 
-    ' Hide Description Popup
-    screen.Screen.SetDescriptionVisible(false)
+    ' Show/Hide Description Popup
+    If RegRead("prefTVDisplayPopup") = "no" Or RegRead("prefTVDisplayPopup") = invalid Then
+        screen.Screen.SetDescriptionVisible(false)
+    End If
 
     ' Remote key id's for navigation
     remoteKeyStar = 10
@@ -62,8 +64,11 @@ Function ShowTVShowListPage() As Integer
         msg = wait(0, screen.Screen.GetMessagePort())
 
         if type(msg) = "roGridScreenEvent" Then
-            if msg.isListItemFocused() then
-                'print "list focused | index = "; msg.GetIndex(); " | category = "; 'm.curCategory
+            if msg.isListItemFocused() Then
+                ' Show/Hide Description Popup
+                If RegRead("prefTVDisplayPopup") = "yes" Then
+                    screen.Screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                End If
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()
@@ -109,7 +114,11 @@ End Function
 '**********************************************************
 
 Function GetTVShowAll() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Series&Fields=ItemCounts%2CSortName&SortBy=SortName&SortOrder=Ascending", true)
+
+    ' Clean Fields
+    fields = HttpEncode("ItemCounts,SortName,Overview")
+
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Series&Fields=" + fields + "&SortBy=SortName&SortOrder=Ascending", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -171,6 +180,25 @@ Function GetTVShowAll() As Object
                             seriesData.ShortDescriptionLine1 = itemData.Name
                         End If
 
+                        ' Episode Count
+                        If itemData.RecursiveItemCount<>invalid
+                            seriesData.NumEpisodes = itemData.RecursiveItemCount
+                        End If
+
+                        If itemData.Overview<>invalid
+                            seriesData.Description = itemData.Overview
+                        End If
+
+                        ' Series Rating
+                        If itemData.OfficialRating<>invalid
+                            seriesData.Rating = itemData.OfficialRating
+                        End If
+
+                        ' Star Rating
+                        If itemData.CommunityRating<>invalid
+                            seriesData.UserStarRating = Int(itemData.CommunityRating) * 10
+                        End If
+
                         ' Build Jump List
                         firstChar = Left(itemData.SortName, 1)
                         If Not m.jumpList.DoesExist(firstChar) Then
@@ -183,12 +211,15 @@ Function GetTVShowAll() As Object
                         list.push( seriesData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get TV Shows")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -199,7 +230,11 @@ End Function
 '**********************************************************
 
 Function GetTVShowNextUp() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Shows/NextUp?UserId=" + m.curUserProfile.Id + "&Limit=10&Fields=SeriesInfo%2CDateCreated", true)
+
+    ' Clean Fields
+    fields = HttpEncode("SeriesInfo,DateCreated,Overview")
+
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Shows/NextUp?UserId=" + m.curUserProfile.Id + "&Limit=10&Fields=" + fields, true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -209,12 +244,15 @@ Function GetTVShowNextUp() As Object
                 code = msg.GetResponseCode()
 
                 if (code = 200)
+                    ' Fixes bug within BRS Json Parser
+                    regex = CreateObject("roRegex", Chr(34) + "(RunTimeTicks)" + Chr(34) + ":([0-9]+),", "i")
+                    fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
+
                     list     = CreateObject("roArray", 2, true)
-                    jsonData = ParseJSON(msg.GetString())
+                    jsonData = ParseJSON(fixedString)
                     for each itemData in jsonData.Items
                         tvData = {
                             Id: itemData.Id
-                            Title: itemData.SeriesName
                             ContentType: "Episode"
                             ShortDescriptionLine1: itemData.SeriesName
                         }
@@ -235,6 +273,24 @@ Function GetTVShowNextUp() As Object
                         ' Show Season/Episode Numbers and Title
                         tvData.ShortDescriptionLine2 = episodeExtraInfo
 
+                        ' Title
+                        tvData.Title = itemData.SeriesName + ": " + episodeExtraInfo
+
+                        If Type(itemData.ProductionYear) = "Integer" Then
+                            tvData.ReleaseDate = itostr(itemData.ProductionYear)
+                        End If
+
+                        ' Check For Run Time
+                        itemRunTime = itemData.RunTimeTicks
+                        If itemRunTime<>"" And itemRunTime<>invalid
+                            tvData.Length = Int(((itemRunTime).ToFloat() / 10000) / 1000)
+                        End If
+
+                        ' Overview of Episode
+                        If itemData.Overview<>invalid
+                            tvData.Description = itemData.Overview
+                        End If
+
                         ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
                         If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
                             tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=150&width=&tag=" + itemData.BackdropImageTags[0]
@@ -250,12 +306,15 @@ Function GetTVShowNextUp() As Object
                         list.push( tvData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Next Episodes to Watch for TV Shows")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -321,12 +380,15 @@ Function GetTVShowGenres() As Object
                         list.push( seriesData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Genres for TV Shows")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function

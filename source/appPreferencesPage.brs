@@ -17,8 +17,10 @@ Function ShowPreferencesPage()
         GetPreferenceVideoQuality,
         GetPreferenceMovieImageType,
         GetPreferenceMovieTitle,
+        GetPreferenceMovieDisplayPopup,
         GetPreferenceTVImageType,
         GetPreferenceTVTitle,
+        GetPreferenceTVDisplayPopup,
         GetPreferenceTVThemeMusic,
         GetPreferenceTVThemeMusicRepeat
     ]
@@ -171,6 +173,12 @@ Function GetPreferenceList() as Object
             ShortDescriptionLine1: "Show or hide the movie title below the movie image."            
         },
         {
+            Title: "Movies PopUp Bubble: " + GetSelectedPreference(GetPreferenceMovieDisplayPopup(), RegRead("prefMovieDisplayPopup")),
+            ShortTitle: "Display PopUp Bubble for Movies",
+            ID: "prefMovieDisplayPopup",
+            ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information."            
+        },
+        {
             Title: "TV Series Image Type: " + GetSelectedPreference(GetPreferenceTVImageType(), RegRead("prefTVImageType")),
             ShortTitle: "TV Series Image Type",
             ID: "prefTVImageType",
@@ -181,6 +189,12 @@ Function GetPreferenceList() as Object
             ShortTitle: "TV Series Title",
             ID: "prefTVTitle",
             ShortDescriptionLine1: "Show or hide the tv series title below the tv series image."            
+        },
+        {
+            Title: "TV PopUp Bubble: " + GetSelectedPreference(GetPreferenceTVDisplayPopup(), RegRead("prefTVDisplayPopup")),
+            ShortTitle: "Display PopUp Bubble For TV",
+            ID: "prefTVDisplayPopup",
+            ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information."            
         },
         {
             Title: "Play TV Theme Music: " + GetSelectedPreference(GetPreferenceTVThemeMusic(), RegRead("prefTVMusic")),
@@ -194,7 +208,6 @@ Function GetPreferenceList() as Object
             ID: "prefTVMusicLoop",
             ShortDescriptionLine1: "Repeat TV theme music while browsing TV Series."            
         }
-
     ]
 
     return preferenceList
@@ -276,6 +289,23 @@ Function GetPreferenceMovieTitle() as Object
     return prefOptions
 End Function
 
+Function GetPreferenceMovieDisplayPopup() as Object
+    prefOptions = [
+        {
+            Title: "No [default]",
+            Id: "no",
+            IsDefault: true
+        },
+        {
+            Title: "Yes",
+            Id: "yes",
+            IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
 Function GetPreferenceTVImageType() as Object
     prefOptions = [
         {
@@ -308,6 +338,23 @@ Function GetPreferenceTVTitle() as Object
         {
             Title: "Hide",
             Id: "hide",
+            IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceTVDisplayPopup() as Object
+    prefOptions = [
+        {
+            Title: "No [default]",
+            Id: "no",
+            IsDefault: true
+        },
+        {
+            Title: "Yes",
+            Id: "yes",
             IsDefault: false
         }
     ]

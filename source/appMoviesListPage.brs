@@ -52,8 +52,10 @@ Function ShowMoviesListPage() As Integer
     ' Close Loading Dialog
     dialogBox.Close()
 
-    ' Hide Description Popup
-    'screen.Screen.SetDescriptionVisible(false)
+    ' Show/Hide Description Popup
+    If RegRead("prefMovieDisplayPopup") = "no" Or RegRead("prefMovieDisplayPopup") = invalid Then
+        screen.Screen.SetDescriptionVisible(false)
+    End If
 
     ' Remote key id's for navigation
     remoteKeyStar = 10
@@ -62,8 +64,11 @@ Function ShowMoviesListPage() As Integer
         msg = wait(0, screen.Screen.GetMessagePort())
 
         if type(msg) = "roGridScreenEvent" Then
-            if msg.isListItemFocused() then
-                'print "list focused | index = "; msg.GetIndex(); " | category = "; 'm.curCategory
+            if msg.isListItemFocused() Then
+                ' Show/Hide Description Popup
+                If RegRead("prefMovieDisplayPopup") = "yes" Then
+                    screen.Screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                End If
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()
@@ -196,7 +201,7 @@ Function GetMoviesAll() As Object
                             movieData.StarRating = itemData.CriticRating
                         End If
 
-                        movieData.HDBranded = true
+                        'movieData.HDBranded = true ' Hide For now
 
                         ' Show / Hide Movie Name
                         If RegRead("prefMovieTitle") = "show" Or RegRead("prefMovieTitle") = invalid Then
@@ -215,12 +220,15 @@ Function GetMoviesAll() As Object
                         list.push( movieData )
                     end for
                     return list
+                else
+                    Debug("Failed to Get Movies")
+                    return invalid
                 end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -233,7 +241,7 @@ End Function
 Function GetMoviesGenres() As Object
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Genres?UserId=" + m.curUserProfile.Id + "&Recursive=true&IncludeItemTypes=Movie&Fields=ItemCounts&SortBy=SortName&SortOrder=Ascending", true)
 
-    Print "Movie Genre List URL: " + request.GetUrl()
+    'Print "Movie Genre List URL: " + request.GetUrl()
 
     if (request.AsyncGetToString())
         while (true)
@@ -289,12 +297,15 @@ Function GetMoviesGenres() As Object
                         list.push( movieData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Genres for Movies")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -306,9 +317,12 @@ End Function
 
 Function GetMoviesBoxsets() As Object
 
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=BoxSet&Fields=UserData%2CItemCounts&SortBy=SortName&SortOrder=Ascending", true)
+    ' Clean Fields
+    fields = HttpEncode("Overview,UserData,ItemCounts")
 
-    Print "Movie Boxset List URL: " + request.GetUrl()
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=BoxSet&Fields=" + fields + "&SortBy=SortName&SortOrder=Ascending", true)
+
+    'Print "Movie Boxset List URL: " + request.GetUrl()
 
     if (request.AsyncGetToString())
         while (true)
@@ -365,16 +379,34 @@ Function GetMoviesBoxsets() As Object
 
                         End If
 
+                        ' Movie Count
+                        If itemData.ChildCount<>invalid
+                            'movieData.Description = itostr(itemData.ChildCount) + " movies"
+                            movieData.ShortDescriptionLine2 = itostr(itemData.ChildCount) + " movies"
+                        End If
+
+                        ' Overview
+                        If itemData.Overview<>invalid
+                            movieData.Description = itemData.Overview
+                        End If
+
+                        ' Movie Rating
+                        If itemData.OfficialRating<>invalid
+                            movieData.Rating = itemData.OfficialRating
+                        End If
+
                         list.push( movieData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Boxsets for Movies")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
-
