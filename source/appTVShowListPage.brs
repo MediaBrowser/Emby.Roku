@@ -211,12 +211,15 @@ Function GetTVShowAll() As Object
                         list.push( seriesData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get TV Shows")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -303,12 +306,15 @@ Function GetTVShowNextUp() As Object
                         list.push( tvData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Next Episodes to Watch for TV Shows")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -374,12 +380,15 @@ Function GetTVShowGenres() As Object
                         list.push( seriesData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Genres for TV Shows")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function

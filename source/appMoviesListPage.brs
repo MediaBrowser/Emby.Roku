@@ -220,12 +220,15 @@ Function GetMoviesAll() As Object
                         list.push( movieData )
                     end for
                     return list
+                else
+                    Debug("Failed to Get Movies")
+                    return invalid
                 end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -294,12 +297,15 @@ Function GetMoviesGenres() As Object
                         list.push( movieData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Genres for Movies")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
@@ -392,13 +398,15 @@ Function GetMoviesBoxsets() As Object
                         list.push( movieData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get Boxsets for Movies")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
-            endif
+            end if
         end while
-    endif
+    end if
 
     Return invalid
 End Function
-
