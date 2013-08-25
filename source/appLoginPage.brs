@@ -52,7 +52,7 @@ Function ShowLoginPage()
                     exit while
                 End if
             else if msg.isScreenClosed() Then
-                Print "Close login screen"
+                Debug("Close login screen")
                 result = false
                 exit while
             end if

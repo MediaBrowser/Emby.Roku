@@ -254,6 +254,7 @@ Function GetTVDetails(episodeId As String) As Object
 
                     return episodeData
                 Else
+					Debug("Failed to Get User Profile")
                     Return invalid
                 End If
             Else If (event = invalid)

@@ -83,7 +83,7 @@ Function ShowTVShowListPage() As Integer
                 Else If screen.rowContent[row][selection].ContentType = "Genre" Then
                     ShowTVShowGenrePage(screen.rowContent[row][selection].Id)
                 Else 
-                    Print "Unknown Type found"
+                    Debug("Unknown Type found")
                 End If
 
             else if msg.isRemoteKeyPressed() then
@@ -99,7 +99,7 @@ Function ShowTVShowListPage() As Integer
                 End If
 
             else if msg.isScreenClosed() Then
-                Print "Close tv screen"
+                Debug("Close tv screen")
                 return -1
             end if
         end if

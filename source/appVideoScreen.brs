@@ -52,7 +52,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
 
     ' Direct Play Offset
     If episode.IsDirectPlay And PlayStartSeconds<>0 Then
-        Print "seek: "; PlayStartSeconds * 1000
+        Debug("seek: " + PlayStartSeconds * 1000)
         m.player.Seek(PlayStartSeconds * 1000)
     End If
 
@@ -75,31 +75,31 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
         If type(msg) = "roVideoPlayerEvent" Then
 
             If msg.isFullResult() Then
-                Print "full result"
+                Debug("full result")
                 PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
                 exit while
 
             Else If msg.isPartialResult() Then
-                Print "partial result"
+                Debug("partial result")
                 PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
                 exit while
 
             Else If msg.isRequestFailed() Then
-                print "Video request failure: "; msg.GetIndex(); " " msg.GetData()
+                Debug("Video request failure: " + msg.GetIndex() + " " msg.GetData())
                 exit While
                 
             Else If msg.isScreenClosed() Then
-                print "Screen closed"
+                Debug("Screen closed")
                 exit while
 
             Else If msg.isStreamStarted() Then
-                Print "--- started stream ---"
+                Debug("--- started stream ---")
                 PostPlayback(episode.Id, "start")
 
             Else If msg.isStatusMessage() and msg.GetMessage() = "startup progress"
                 ' Extra Check to Prevent Playback Loop
                 If streamStarted Then
-                    Print "--- 2nd attempt at stream started, exit loop ---"
+                    Debug("--- 2nd attempt at stream started, exit loop ---")
                     'PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
                     'exit while
                 End If
@@ -138,11 +138,11 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 ' Playback restart, so no longer seeking
                 currentSeeking = false
 
-                'Print "Time: "; FormatTime(nowPositionSec) + " / " + FormatTime(episode.Length)
-                'Print "Seconds: "; nowPositionSec
-                'Print "MS: "; nowPositionMs#
-                'Print "Ticks: "; nowPositionTicks#
-                'Print "Position:"; nowPosition
+                'Debug("Time: " + FormatTime(nowPositionSec) + " / " + FormatTime(episode.Length))
+                'Debug("Seconds: " + nowPositionSec)
+                'Debug("MS: " + nowPositionMs#)
+                'Debug("Ticks: " + nowPositionTicks#)
+                'Debug("Position:" + nowPosition)
 
                 ' Only Post Playback every 10 seconds
                 If msg.GetIndex() Mod 10 = 0
@@ -150,7 +150,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 End If
 
             Else If msg.isPaused() Then
-                Print "Paused Position: "; nowPositionSec
+                Debug("Paused Position: " + nowPositionSec)
 
                 m.paused = true
                 m.moreinfo = false ' Hide more info on pause
@@ -158,14 +158,14 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 PaintFullscreenCanvas()
 
             Else If msg.isResumed() Then
-                Print "Resume Position: "; nowPositionSec
+                Debug("Resume Position: " + nowPositionSec)
 
                 m.paused = false
                 PaintFullscreenCanvas()
 
             'Else If msg.isStatusMessage() Then
-            '    print "Video status: "; msg.GetIndex(); " " msg.GetData()
-            '    print "Video message: "; msg.GetMessage();
+            '    Debug("Video status: " + msg.GetIndex() + " " msg.GetData())
+            '    Debug("Video message: " + msg.GetMessage())
 
             End If
 
@@ -257,8 +257,8 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
         End If
         
         'Output events for debug
-        'print msg.GetType(); ","; msg.GetIndex(); ": "; msg.GetMessage()
-        'if msg.GetInfo() <> invalid print msg.GetInfo();
+        'Debug(msg.GetType() + "," + msg.GetIndex() + ": " + msg.GetMessage())
+        'if msg.GetInfo() <> invalid Debug(msg.GetInfo())
 
     end while
 

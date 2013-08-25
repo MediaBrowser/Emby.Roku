@@ -34,7 +34,7 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
         themeMusic = GetTVThemeMusic(seriesInfo.Id)
 
         If themeMusic<>invalid And themeMusic.Count() <> 0 Then
-            Print "playing theme music"
+            Debug("playing theme music")
             ' Create Audio Player
             player = CreateAudioPlayer()
 
@@ -119,7 +119,10 @@ Function GetTVSeasons(seriesId As String) As Object
                         seasonNames: names
                         seasonIds: list
                     }
-                endif
+                else
+				    Debug("Failed to Get TV Seasons")
+                    return invalid
+				end if
             else if (event = invalid)
                 request.AsyncCancel()
             endif
@@ -219,7 +222,10 @@ Function GetTVEpisodes(seasonId As String) As Object
                         list.push( episodeData )
                     end for
                     return list
-                endif
+                else
+					Debug("Failed to Get TV episodes")
+                    Return invalid
+				end if
             else if (event = invalid)
                 request.AsyncCancel()
             endif
@@ -254,7 +260,10 @@ Function GetTVThemeMusic(seriesId As String) As Object
                         list.push( streamData )
                     end for
                     return list
-                endif
+                else
+					Debug("Failed to Get TV theme music")
+                    Return invalid
+				end if
             else if (event = invalid)
                 request.AsyncCancel()
             endif

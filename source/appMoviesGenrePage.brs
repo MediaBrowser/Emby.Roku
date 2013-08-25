@@ -57,7 +57,7 @@ Function ShowMoviesGenrePage(genre As String) As Integer
                     movieIndex = ShowMoviesDetailPage(rowData[row][selection].Id, moviesAll, selection)
                     screen.SetFocusedListItem(row, movieIndex)
                 Else 
-                    Print "Unknown Type found"
+                    Debug("Unknown Type found")
                 End If
                 
             else if msg.isScreenClosed() then
@@ -81,7 +81,7 @@ Function GetMoviesInGenre(genre As String) As Object
 
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&Genres=" + genre + "&Fields=UserData%2CGenres&SortBy=SortName&SortOrder=Ascending", true)
 
-    Print "Movie Genre URL: " + request.GetUrl()
+    Debug("Movie Genre URL: " + request.GetUrl())
 
     if (request.AsyncGetToString())
         while (true)
@@ -145,7 +145,10 @@ Function GetMoviesInGenre(genre As String) As Object
                         list.push( movieData )
                     end for
                     return list
-                endif
+                else
+					Debug("Failed to Get movies in the genre")
+                    return invalid
+				end if
             else if (event = invalid)
                 request.AsyncCancel()
             endif

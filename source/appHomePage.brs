@@ -76,12 +76,12 @@ Function ShowHomePage()
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListFocused() then
-                print "list focused | index = "; msg.GetIndex(); " | category = "; 'm.curCategory
+                Debug("list focused | index = " + msg.GetIndex() + " | category = ")
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                Print "Content type: "; screen.rowContent[row][selection].ContentType
+                Debug("Content type: " + screen.rowContent[row][selection].ContentType)
 
                 If screen.rowContent[row][selection].ContentType = "MovieLibrary" Then
                     ShowMoviesListPage()
@@ -112,17 +112,17 @@ Function ShowHomePage()
 
                 Else If screen.rowContent[row][selection].ContentType = "SwitchUser" Then
                     RegDelete("userId")
-                    Print "Switch User"
+                    Debug("Switch User")
                     return true
 
                 Else If screen.rowContent[row][selection].ContentType = "Preferences" Then
                     ShowPreferencesPage()
 
                 Else 
-                    Print "Unknown Type found"
+                    Debug("Unknown Type found")
                 End If
             Else If msg.isScreenClosed() Then
-                Print "Close home screen"
+                Debug("Close home screen")
                 return false
             End If
         end if

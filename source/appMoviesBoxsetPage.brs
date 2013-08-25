@@ -52,7 +52,7 @@ Function ShowMoviesBoxsetPage(boxsetId As String, boxsetName As String) As Integ
                     movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesAll, selection)
                     screen.Screen.SetFocusedListItem(row, movieIndex)
                 Else 
-                    Print "Unknown Type found"
+                    Debug("Unknown Type found")
                 End If
                 
             else if msg.isScreenClosed() then
@@ -73,7 +73,7 @@ Function GetMoviesInBoxset(boxsetId As String) As Object
 
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&ParentId=" + boxsetId + "&Fields=UserData&SortBy=ProductionYear%2CSortName&SortOrder=Ascending", true)
 
-    Print "BoxSet URL: " + request.GetUrl()
+    Debug("BoxSet URL: " + request.GetUrl())
 
     if (request.AsyncGetToString())
         while (true)
@@ -137,7 +137,10 @@ Function GetMoviesInBoxset(boxsetId As String) As Object
                         list.push( movieData )
                     end for
                     return list
-                endif
+                else
+                    Debug("Failed to Get movies for the box set")
+                    return invalid
+                end if
             else if (event = invalid)
                 request.AsyncCancel()
             endif
