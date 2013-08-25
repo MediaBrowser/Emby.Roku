@@ -62,6 +62,7 @@ Sub Main()
     ' Show home page if so, otherwise show login page.
     If RegRead("userId")<>invalid And RegRead("userId")<>""
         m.curUserProfile = GetUserProfile(RegRead("userId"))
+        GetGlobalAA().AddReplace("user", m.curUserProfile) ' Will replace curUserProfile
         homeResult = ShowHomePage()
         If homeResult = true Then
             ' Retry Login Check
@@ -172,7 +173,7 @@ End Sub
 '** Get a variable from the Global Array
 '*************************************************************
 
-Function getGlobalVar(name, default)
+Function getGlobalVar(name, default=invalid)
     Return firstOf(GetGlobalAA().Lookup(name), default)
 End Function
 
