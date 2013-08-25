@@ -62,7 +62,7 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
                 If msg.GetIndex() = 1
                     ' Stop Audio before playing video
                     If audioPlayer<>invalid And audioPlayer.IsPlaying Then
-                        Print "stop theme music"
+                        Debug("stop theme music")
                         audioPlayer.Stop()
                         sleep(300) ' Give enough time to stop music
                     End If
@@ -86,7 +86,7 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
                 If msg.GetIndex() = 2
                     ' Stop Audio before playing video
                     If audioPlayer<>invalid And audioPlayer.IsPlaying Then
-                        Print "stop theme music"
+                        Debug("stop theme music")
                         audioPlayer.Stop()
                         sleep(300) ' Give enough time to stop music
                     End If
@@ -105,11 +105,11 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
                     tvDetails = RefreshTVDetailPage(screen, episodeId)
                 End If
             Else If msg.isScreenClosed()
-                print "tv detail screen closed"
+                Debug("tv detail screen closed")
                 Exit While
             End If
         Else
-            print "Unexpected message class: "; type(msg)
+            Debug("Unexpected message class: " + type(msg))
         End If
     end while
 
@@ -254,6 +254,7 @@ Function GetTVDetails(episodeId As String) As Object
 
                     return episodeData
                 Else
+					Debug("Failed to Get User Profile")
                     Return invalid
                 End If
             Else If (event = invalid)

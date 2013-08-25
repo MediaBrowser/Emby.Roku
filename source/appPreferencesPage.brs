@@ -50,7 +50,7 @@ Function ShowPreferencesPage()
                 screen.SetFocusedItem(msg.GetIndex())
 
             Else If msg.isScreenClosed() Then
-                Print "Close prefs screen"
+                Debug("Close prefs screen")
                 return false
             End If
         End If

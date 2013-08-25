@@ -81,7 +81,7 @@ Function ShowMoviesListPage() As Integer
                 Else If screen.rowContent[row][selection].ContentType = "BoxSet" Then
                     ShowMoviesBoxsetPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title)
                 Else 
-                    Print "Unknown Type found"
+                    Debug("Unknown Type found")
                 End If
 
             else if msg.isRemoteKeyPressed() then
@@ -117,7 +117,7 @@ Function GetMoviesAll() As Object
 
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&Fields=" + fields + "&SortBy=SortName&SortOrder=Ascending", true)
 
-    'Print "Movie List URL: " + request.GetUrl()
+    'Debug("Movie List URL: " + request.GetUrl())
 
     if (request.AsyncGetToString())
         while (true)
@@ -241,7 +241,7 @@ End Function
 Function GetMoviesGenres() As Object
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Genres?UserId=" + m.curUserProfile.Id + "&Recursive=true&IncludeItemTypes=Movie&Fields=ItemCounts&SortBy=SortName&SortOrder=Ascending", true)
 
-    'Print "Movie Genre List URL: " + request.GetUrl()
+    'Debug("Movie Genre List URL: " + request.GetUrl())
 
     if (request.AsyncGetToString())
         while (true)
@@ -322,7 +322,7 @@ Function GetMoviesBoxsets() As Object
 
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=BoxSet&Fields=" + fields + "&SortBy=SortName&SortOrder=Ascending", true)
 
-    'Print "Movie Boxset List URL: " + request.GetUrl()
+    'Debug("Movie Boxset List URL: " + request.GetUrl())
 
     if (request.AsyncGetToString())
         while (true)

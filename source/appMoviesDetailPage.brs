@@ -56,7 +56,7 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
                     End If
                 End If
             Else If msg.isButtonPressed()
-                print "ButtonPressed"
+                Debug("ButtonPressed")
                 If msg.GetIndex() = 1
                     ' Set Saved Play Status
                     If moviesDetails.PlaybackPosition<>"" And moviesDetails.PlaybackPosition<>"0" Then
@@ -89,11 +89,11 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
                     moviesDetails = RefreshMoviesDetailPage(screen, movieId)
                 End If
             Else If msg.isScreenClosed()
-                print "Screen closed"
+                Debug("Screen closed")
                 Exit While
             End If
         Else
-            print "Unexpected message class: "; type(msg)
+            Debug("Unexpected message class: " + type(msg))
         End If
     end while
 
@@ -111,7 +111,7 @@ Function GetMoviesDetails(movieId As String) As Object
 
     request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items/" + movieId, true)
 
-    Print "Movie URL: " + request.GetUrl()
+    Debug("Movie URL: " + request.GetUrl())
 
     if (request.AsyncGetToString())
         while (true)
@@ -245,6 +245,7 @@ Function GetMoviesDetails(movieId As String) As Object
 
                     return movieData
                 Else
+					debug("Failed to get movie details")
                     Return invalid
                 End If
             Else If (event = invalid)

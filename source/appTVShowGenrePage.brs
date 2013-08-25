@@ -55,7 +55,7 @@ Function ShowTVShowGenrePage(genre As String) As Integer
                 If rowData[row][selection].ContentType = "Series" Then
                     ShowTVSeasonsListPage(rowData[row][selection])
                 Else 
-                    Print "Unknown Type found"
+                    Debug("Unknown Type found")
                 End If
 
             else if msg.isScreenClosed() then
@@ -142,7 +142,10 @@ Function GetTVShowInGenre(genre As String) As Object
                         list.push( seriesData )
                     end for
                     return list
-                endif
+                else
+					Debug("Failed to Get TV shows in genre")
+                    Return invalid
+				end if
             else if (event = invalid)
                 request.AsyncCancel()
             endif
