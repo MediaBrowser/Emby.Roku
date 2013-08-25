@@ -169,7 +169,86 @@ Sub Debug(message As String)
 End Sub
 
 
+'**********************************************************
+'** Get Image Sizes Based Off Screen Type
+'**********************************************************
 
+Function GetImageSizes(screenType)
+
+    '*** Grid ***
+    if screenType = "two-row-flat-landscape-custom"
+        hdWidth  = 266
+        hdHeight = 150
+        sdWidth  = 140
+        sdHeight = 94
+
+    else if screenType = "flat-movie"
+        hdWidth  = 210
+        hdHeight = 270
+        sdWidth  = 110
+        sdHeight = 150
+
+    else if screenType = "mixed-aspect-ratio-portrait"
+        hdWidth  = 192
+        hdHeight = 274
+        sdWidth  = 140
+        sdHeight = 180
+
+    else if screenType = "mixed-aspect-ratio-landscape"
+        hdWidth  = 192
+        hdHeight = 144
+        sdWidth  = 140
+        sdHeight = 94
+
+    '*** Poster ****
+    else if screenType = "flat-episodic-16x9"
+        hdWidth  = 250
+        hdHeight = 141
+        sdWidth  = 185
+        sdHeight = 94
+
+    else if screenType = "arced-square"
+        hdWidth  = 300
+        hdHeight = 300
+        sdWidth  = 223
+        sdHeight = 200
+
+    else if screenType = "flat-category"
+        hdWidth  = 304
+        hdHeight = 237
+        sdWidth  = 224
+        sdHeight = 158
+
+    '*** Springboard ***
+    else if screenType = "movie"
+        hdWidth  = 148
+        hdHeight = 212
+        sdWidth  = 112
+        sdHeight = 142
+
+    else if screenType = "rounded-rect-16x9-generic"
+        hdWidth  = 269
+        hdHeight = 152
+        sdWidth  = 177
+        sdHeight = 90
+
+    else
+        ' default flat movie
+        hdWidth  = 210
+        hdHeight = 270
+        sdWidth  = 110
+        sdHeight = 150
+
+    end if
+
+    sizes = CreateObject("roAssociativeArray")
+    sizes.hdWidth  = hdWidth
+    sizes.hdHeight = hdHeight
+    sizes.sdWidth  = sdWidth
+    sizes.sdHeight = sdHeight
+
+    return sizes
+End Function
 
 
 '**********************************************************
