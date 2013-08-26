@@ -673,4 +673,12 @@ Sub DumpString(str As String)
     print "---------------------------"
 End Sub
 
-
+'******************************************************
+'Dump the bytes of a string
+'******************************************************
+Function IsNumeric(any As Dynamic) as  boolean
+	if isfloat(any) return true
+	if isint(any) return true
+	
+	return false
+End Function
