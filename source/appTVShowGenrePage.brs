@@ -47,7 +47,10 @@ Function ShowTVShowGenrePage(genre As String) As Integer
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListItemFocused() then
-
+                ' Show/Hide Description Popup
+                If RegRead("prefTVDisplayPopup") = "yes" Then
+                    screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                End If
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()
@@ -77,8 +80,9 @@ Function GetTVShowInGenre(genre As String) As Object
     ' Clean Genre Name
     obj = CreateObject("roUrlTransfer")
     genre = obj.Escape(genre)
-
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Series&Genres=" + genre + "&Fields=ItemCounts%2CGenres&SortBy=SortName&SortOrder=Ascending", true)
+    fields = HttpEncode("ItemCounts,SortName,Overview")
+	
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Series&Genres=" + genre + "&Fields=" + fields + "&SortBy=SortName&SortOrder=Ascending", true)
 
     if (request.AsyncGetToString())
         while (true)
@@ -134,9 +138,28 @@ Function GetTVShowInGenre(genre As String) As Object
 
                         End If
 
-                        ' Show / Hide Series Name
+						' Show / Hide Series Name
                         If RegRead("prefTVTitle") = "show" Or RegRead("prefTVTitle") = invalid Then
                             seriesData.ShortDescriptionLine1 = itemData.Name
+                        End If
+
+                        ' Episode Count
+                        If itemData.RecursiveItemCount<>invalid
+                            seriesData.NumEpisodes = itemData.RecursiveItemCount
+                        End If
+
+                        If itemData.Overview<>invalid
+                            seriesData.Description = itemData.Overview
+                        End If
+
+                        ' Series Rating
+                        If itemData.OfficialRating<>invalid
+                            seriesData.Rating = itemData.OfficialRating
+                        End If
+
+                        ' Star Rating
+                        If itemData.CommunityRating<>invalid
+                            seriesData.UserStarRating = Int(itemData.CommunityRating) * 10
                         End If
 
                         list.push( seriesData )

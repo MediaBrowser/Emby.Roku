@@ -35,15 +35,20 @@ Function ShowMoviesBoxsetPage(boxsetId As String, boxsetName As String) As Integ
     ' Show Screen
     screen.Screen.Show()
 
-    ' Hide Description Popup
-    screen.Screen.SetDescriptionVisible(false)
+    ' Show/Hide Description Popup
+    If RegRead("prefMovieDisplayPopup") = "no" Or RegRead("prefMovieDisplayPopup") = invalid Then
+        screen.Screen.SetDescriptionVisible(false)
+    End If
 
     while true
         msg = wait(0, screen.Screen.GetMessagePort())
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListItemFocused() then
-
+                ' Show/Hide Description Popup
+                If RegRead("prefMovieDisplayPopup") = "yes" Then
+                    screen.Screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                End If
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()
@@ -71,7 +76,10 @@ End Function
 
 Function GetMoviesInBoxset(boxsetId As String) As Object
 
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&ParentId=" + boxsetId + "&Fields=UserData&SortBy=ProductionYear%2CSortName&SortOrder=Ascending", true)
+    ' Clean Fields
+    fields = HttpEncode("Overview,UserData,MediaStreams,SortName")
+
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&ParentId=" + boxsetId + "&Fields=" + fields + "&SortBy=ProductionYear%2CSortName&SortOrder=Ascending", true)
 
     Debug("BoxSet URL: " + request.GetUrl())
 
@@ -83,8 +91,12 @@ Function GetMoviesInBoxset(boxsetId As String) As Object
                 code = msg.GetResponseCode()
 
                 if (code = 200)
+                    ' Fixes bug within BRS Json Parser
+                    regex = CreateObject("roRegex", Chr(34) + "(RunTimeTicks)" + Chr(34) + ":([0-9]+),", "i")
+                    fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
+					
                     list     = CreateObject("roArray", 2, true)
-                    jsonData = ParseJSON(msg.GetString())
+                    jsonData = ParseJSON(fixedString)
                     for each itemData in jsonData.Items
                         movieData = {
                             Id: itemData.Id
@@ -128,9 +140,31 @@ Function GetMoviesInBoxset(boxsetId As String) As Object
                             End If
 
                         End If
+						
+                        ' Check For Run Time
+                        itemRunTime = itemData.RunTimeTicks
+                        If itemRunTime<>"" And itemRunTime<>invalid
+                            movieData.Length = Int(((itemRunTime).ToFloat() / 10000) / 1000)
+                        End If
 
-                        ' Show / Hide Series Name
-                        If RegRead("prefMovieTitle") = "show" Then
+                        If itemData.Overview<>invalid
+                            movieData.Description = itemData.Overview
+                        End If
+
+                        If itemData.OfficialRating<>invalid
+                            movieData.Rating = itemData.OfficialRating
+                        End If
+
+                        If Type(itemData.ProductionYear) = "Integer" Then
+                            movieData.ReleaseDate = itostr(itemData.ProductionYear)
+                        End If
+
+                        If itemData.CriticRating<>invalid
+                            movieData.StarRating = itemData.CriticRating
+                        End If
+						
+                        ' Show / Hide Movie Name
+                        If RegRead("prefMovieTitle") = "show" Or RegRead("prefMovieTitle") = invalid Then
                             movieData.ShortDescriptionLine1 = itemData.Name
                         End If
 

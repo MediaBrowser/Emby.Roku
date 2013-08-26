@@ -274,7 +274,11 @@ Function CreateJumpListDialog()
                     If selectedRow > 1
                         selectedRow = 1
                     End if
-
+				'handle if the user can actually type in a letter
+				Else if index > 64 and index < 91 then
+					return LCase(chr(index))
+				Else If index > 97 and index < 123 then
+					return chr(index)
                 End If
 
                 ' Rebuild Dialog Screen

@@ -48,7 +48,10 @@ Function ShowMoviesGenrePage(genre As String) As Integer
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListItemFocused() then
-
+                ' Show/Hide Description Popup
+                If RegRead("prefMovieDisplayPopup") = "yes" Then
+                    screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                End If
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()
@@ -78,8 +81,10 @@ Function GetMoviesInGenre(genre As String) As Object
 
     ' Clean Genre Name
     genre = HttpEncode(genre)
-
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&Genres=" + genre + "&Fields=UserData%2CGenres&SortBy=SortName&SortOrder=Ascending", true)
+    ' Clean Fields
+    fields = HttpEncode("Overview,UserData,MediaStreams,SortName")
+	
+    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Movie&Genres=" + genre + "&Fields=" + fields + "&SortBy=SortName&SortOrder=Ascending", true)
 
     Debug("Movie Genre URL: " + request.GetUrl())
 
@@ -91,8 +96,12 @@ Function GetMoviesInGenre(genre As String) As Object
                 code = msg.GetResponseCode()
 
                 if (code = 200)
+				    ' Fixes bug within BRS Json Parser
+                    regex = CreateObject("roRegex", Chr(34) + "(RunTimeTicks)" + Chr(34) + ":([0-9]+),", "i")
+                    fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
+					
                     list     = CreateObject("roArray", 2, true)
-                    jsonData = ParseJSON(msg.GetString())
+                    jsonData = ParseJSON(fixedString)
                     for each itemData in jsonData.Items
                         movieData = {
                             Id: itemData.Id
@@ -135,6 +144,28 @@ Function GetMoviesInGenre(genre As String) As Object
                                 movieData.SDPosterUrl = "pkg://images/items/collection.png"
                             End If
 
+                        End If
+
+                        ' Check For Run Time
+                        itemRunTime = itemData.RunTimeTicks
+                        If itemRunTime<>"" And itemRunTime<>invalid
+                            movieData.Length = Int(((itemRunTime).ToFloat() / 10000) / 1000)
+                        End If
+
+                        If itemData.Overview<>invalid
+                            movieData.Description = itemData.Overview
+                        End If
+
+                        If itemData.OfficialRating<>invalid
+                            movieData.Rating = itemData.OfficialRating
+                        End If
+
+                        If Type(itemData.ProductionYear) = "Integer" Then
+                            movieData.ReleaseDate = itostr(itemData.ProductionYear)
+                        End If
+
+                        If itemData.CriticRating<>invalid
+                            movieData.StarRating = itemData.CriticRating
                         End If
 
                         ' Show / Hide Movie Name
