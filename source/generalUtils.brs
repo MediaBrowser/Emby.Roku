@@ -251,6 +251,53 @@ Function GetImageSizes(screenType)
 End Function
 
 
+'******************************************************
+'** Is a number
+'******************************************************
+
+Function isNumeric(obj As Dynamic) As Boolean
+    if obj = invalid return false
+    if isInt(obj)    return true
+    if isFloat(obj)  return true
+    if isDouble(obj) return true
+
+    return false
+End Function
+
+
+'******************************************************
+'** Is object an Integer
+'******************************************************
+
+Function isInt(obj as dynamic) As Boolean
+    if obj = invalid return false
+    if GetInterface(obj, "ifInt") = invalid return false
+    return true
+End Function
+
+
+'******************************************************
+'** Is object a Float
+'******************************************************
+
+Function isFloat(obj as dynamic) As Boolean
+    if obj = invalid return false
+    if GetInterface(obj, "ifFloat") = invalid return false
+    return true
+End Function
+
+
+'******************************************************
+'** Is object a Double
+'******************************************************
+
+Function isDouble(obj as dynamic) As Boolean
+    if obj = invalid return false
+    if GetInterface(obj, "ifDouble") = invalid return false
+    return true
+End Function
+
+
 '**********************************************************
 '**  Video Player Example Application - General Utilities 
 '**  November 2009
@@ -323,16 +370,6 @@ Function islist(obj as dynamic) As Boolean
 End Function
 
 
-'******************************************************
-'isint
-'
-'Determine if the given object supports the ifInt interface
-'******************************************************
-Function isint(obj as dynamic) As Boolean
-    if obj = invalid return false
-    if GetInterface(obj, "ifInt") = invalid return false
-    return true
-End Function
 
 '******************************************************
 ' validstr
@@ -392,18 +429,6 @@ End Function
 Function isbool(obj as dynamic) As Boolean
     if obj = invalid return false
     if GetInterface(obj, "ifBoolean") = invalid return false
-    return true
-End Function
-
-
-'******************************************************
-'isfloat
-'
-'Determine if the given object supports the ifFloat interface
-'******************************************************
-Function isfloat(obj as dynamic) As Boolean
-    if obj = invalid return false
-    if GetInterface(obj, "ifFloat") = invalid return false
     return true
 End Function
 
@@ -644,12 +669,12 @@ End Sub
 Function AnyToString(any As Dynamic) As dynamic
     if any = invalid return "invalid"
     if isstr(any) return any
-    if isint(any) return itostr(any)
+    if isInt(any) return itostr(any)
     if isbool(any)
         if any = true return "true"
         return "false"
     endif
-    if isfloat(any) return Str(any)
+    if isFloat(any) return Str(any)
     if type(any) = "roTimespan" return itostr(any.TotalMilliseconds()) + "ms"
     return invalid
 End Function
@@ -672,13 +697,3 @@ Sub DumpString(str As String)
     next
     print "---------------------------"
 End Sub
-
-'******************************************************
-'Dump the bytes of a string
-'******************************************************
-Function IsNumeric(any As Dynamic) as  boolean
-	if isfloat(any) return true
-	if isint(any) return true
-	
-	return false
-End Function
