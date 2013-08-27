@@ -252,6 +252,20 @@ End Function
 
 
 '******************************************************
+'** Build an Image URL
+'******************************************************
+
+Function BuildImage(url, w, h, tag)
+    ' Clean Variables
+    w   = HttpEncode(w)
+    h   = HttpEncode(h)
+    tag = HttpEncode(tag)
+
+    return url + "?quality=90&EnableImageEnhancers=false&height=" + h + "&width=" + w + "&tag=" + tag
+End Function
+
+
+'******************************************************
 '** Is a number
 '******************************************************
 
