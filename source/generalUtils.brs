@@ -256,12 +256,10 @@ End Function
 '******************************************************
 
 Function BuildImage(url, w, h, tag)
-    ' Clean Variables
-    w   = HttpEncode(w)
-    h   = HttpEncode(h)
+    ' Clean Tag
     tag = HttpEncode(tag)
 
-    return url + "?quality=90&EnableImageEnhancers=false&height=" + h + "&width=" + w + "&tag=" + tag
+    return url + "?quality=90&EnableImageEnhancers=false&height=" + itostr(h) + "&width=" + itostr(w) + "&tag=" + tag
 End Function
 
 
