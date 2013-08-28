@@ -76,12 +76,12 @@ Function ShowHomePage()
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListFocused() then
-                Debug("list focused | index = " + msg.GetIndex() + " | category = ")
+                Debug("list focused | index = "; msg.GetIndex(); " | category = ")
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                Debug("Content type: " + screen.rowContent[row][selection].ContentType)
+                Debug("Content type: "; screen.rowContent[row][selection].ContentType)
 
                 If screen.rowContent[row][selection].ContentType = "MovieLibrary" Then
                     ShowMoviesListPage()
