@@ -93,7 +93,7 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
                 Exit While
             End If
         Else
-            Debug("Unexpected message class: "; type(msg))
+            Debug("Unexpected message class: " + type(msg))
         End If
     end while
 
