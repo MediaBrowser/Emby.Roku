@@ -37,8 +37,11 @@ Function ShowTVShowListPage() As Integer
     ' Show Loading Dialog
     dialogBox = ShowPleaseWait("Loading...","")
 
+    ' Initialize TV Metadata
+    TvMetadata = InitTvMetadata()
+
     ' Get Data
-    tvShowAll    = GetTVShowAll()
+    tvShowAll    = TvMetadata.GetShowList()
     tvShowNextUp = GetTVShowNextUp()
     tvShowGenres = GetTVShowGenres()
 
@@ -106,122 +109,6 @@ Function ShowTVShowListPage() As Integer
     end while
 
     return 0
-End Function
-
-
-'**********************************************************
-'** Get All TV Shows From Server
-'**********************************************************
-
-Function GetTVShowAll() As Object
-
-    ' Clean Fields
-    fields = HttpEncode("ItemCounts,SortName,Overview")
-
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Recursive=true&IncludeItemTypes=Series&Fields=" + fields + "&SortBy=SortName&SortOrder=Ascending", true)
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    index    = 0
-                    list     = CreateObject("roArray", 2, true)
-                    jsonData = ParseJSON(msg.GetString())
-                    for each itemData in jsonData.Items
-                        seriesData = {
-                            Id: itemData.Id
-                            Title: itemData.Name
-                            ContentType: "Series"
-                            ShortDescriptionLine2: Pluralize(itemData.ChildCount, "season")
-                        }
-
-                        ' Get Image Type From Preference
-                        If RegRead("prefTVImageType") = "poster" Then
-
-                            ' Check If Item has Image, otherwise use default
-                            If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=192&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=140&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                            Else 
-                                seriesData.HDPosterUrl = "pkg://images/items/collection.png"
-                                seriesData.SDPosterUrl = "pkg://images/items/collection.png"
-                            End If
-
-                        Else If RegRead("prefTVImageType") = "thumb" Then
-
-                            ' Check If Item has Image, otherwise use default
-                            If itemData.ImageTags.Thumb<>"" And itemData.ImageTags.Thumb<>invalid
-                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?quality=90&height=150&width=266&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
-                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Thumb/0?quality=90&height=94&width=140&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Thumb
-                            Else 
-                                seriesData.HDPosterUrl = "pkg://images/items/collection.png"
-                                seriesData.SDPosterUrl = "pkg://images/items/collection.png"
-                            End If
-
-                        Else
-
-                            ' Check If Item has Image, otherwise use default
-                            If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=150&width=266&tag=" + itemData.BackdropImageTags[0]
-                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=94&width=140&tag=" + itemData.BackdropImageTags[0]
-                            Else 
-                                seriesData.HDPosterUrl = "pkg://images/items/collection.png"
-                                seriesData.SDPosterUrl = "pkg://images/items/collection.png"
-                            End If
-
-                        End If
-
-                        ' Show / Hide Series Name
-                        If RegRead("prefTVTitle") = "show" Or RegRead("prefTVTitle") = invalid Then
-                            seriesData.ShortDescriptionLine1 = itemData.Name
-                        End If
-
-                        ' Episode Count
-                        If itemData.RecursiveItemCount<>invalid
-                            seriesData.NumEpisodes = itemData.RecursiveItemCount
-                        End If
-
-                        If itemData.Overview<>invalid
-                            seriesData.Description = itemData.Overview
-                        End If
-
-                        ' Series Rating
-                        If itemData.OfficialRating<>invalid
-                            seriesData.Rating = itemData.OfficialRating
-                        End If
-
-                        ' Star Rating
-                        If itemData.CommunityRating<>invalid
-                            seriesData.UserStarRating = Int(itemData.CommunityRating) * 10
-                        End If
-
-                        ' Build Jump List
-                        firstChar = Left(itemData.SortName, 1)
-                        If Not m.jumpList.DoesExist(firstChar) Then
-                            m.jumpList.AddReplace(firstChar, index)
-                        End If
-
-                        ' Increment Count
-                        index = index + 1
-
-                        list.push( seriesData )
-                    end for
-                    return list
-                else
-                    Debug("Failed to Get TV Shows")
-                    return invalid
-                end if
-            else if (event = invalid)
-                request.AsyncCancel()
-            end if
-        end while
-    end if
-
-    Return invalid
 End Function
 
 
