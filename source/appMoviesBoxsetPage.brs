@@ -13,7 +13,7 @@ Function ShowMoviesBoxsetPage(boxsetId As String, boxsetName As String) As Integ
 
     ' Create Grid Screen
     If RegRead("prefMovieImageType") = "poster" Then
-        screen = CreateGridScreen(boxsetName, "Movies", "flat-movie")
+        screen = CreateGridScreen(boxsetName, "Movies", "mixed-aspect-ratio")
     Else
         screen = CreateGridScreen(boxsetName, "Movies", "two-row-flat-landscape-custom")
     End If
