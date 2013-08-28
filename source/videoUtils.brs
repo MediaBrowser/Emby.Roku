@@ -8,12 +8,12 @@
 '**********************************************************
 
 Function FormatChapterTime(positionTicks As Object) As String
-	'catch possible numeric values
-	if IsNumeric(positionTicks) then		
-		seconds = int(positionTicks / 10000 / 1000)
-	else
-		seconds = Int(((positionTicks).ToFloat() / 10000) / 1000)		
-	end if
+    ' Catch possible numeric values
+    if isNumeric(positionTicks) then
+        seconds = Int(positionTicks / 10000 / 1000)
+    else
+        seconds = Int(((positionTicks).ToFloat() / 10000) / 1000)		
+    end if
 	
     chapterTime = FormatTime(seconds)
     return chapterTime

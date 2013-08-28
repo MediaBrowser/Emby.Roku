@@ -34,11 +34,11 @@ Function ShowMoviesChaptersPage(movieInfo As Object) As Integer
 
                 ' Set Play Status
 				positionTicksType = type(movieInfo.Chapters[selection].StartPositionTicks)
-				if positionTicksType = "Integer" or positionTicksType = "Float"  or positionTicksType = "roInt"  or positionTicksType = "roInteger" then
-					PlayStart = movieInfo.Chapters[selection].StartPositionTicks
+                if positionTicksType = "Integer" or positionTicksType = "Float"  or positionTicksType = "roInt"  or positionTicksType = "roInteger" then
+                    PlayStart = movieInfo.Chapters[selection].StartPositionTicks
 				else
-					PlayStart = (movieInfo.Chapters[selection].StartPositionTicks).ToFloat()
-				end if
+                    PlayStart = (movieInfo.Chapters[selection].StartPositionTicks).ToFloat()
+                end if
 
                 ' Original Stream URLs
                 'originalUrls = movieInfo.StreamUrls

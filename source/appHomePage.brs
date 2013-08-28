@@ -374,12 +374,15 @@ Function GetTVButtons() As Object
         }
     ]
 
+    ' Initialize TV Metadata
+    TvMetadata = InitTvMetadata()
+
     If m.tvToggle = "latest" Then
         switchButton[0].HDPosterUrl = "pkg://images/items/Toggle_Latest_HD.png"
         switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Latest_SD.png"
 
         ' Get Latest Unwatched TV
-        recentTV = GetTVRecentAdded()
+        recentTV = TvMetadata.GetLatest()
         If recentTV<>invalid
             buttons.Append( switchButton )
             buttons.Append( recentTV )
@@ -397,7 +400,7 @@ Function GetTVButtons() As Object
         switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Resume_SD.png"
 
         ' Check For Resumable TV, otherwise default to latest
-        resumeTV = GetTVResumable()
+        resumeTV = TvMetadata.GetResumable()
         If resumeTV<>invalid And resumeTV.Count() > 0
             buttons.Append( switchButton )
             buttons.Append( resumeTV )
@@ -409,7 +412,7 @@ Function GetTVButtons() As Object
             switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Latest_SD.png"
 
             ' Get Latest Unwatched TV
-            recentTV = GetTVRecentAdded()
+            recentTV = TvMetadata.GetLatest()
             If recentTV<>invalid
                 buttons.Append( switchButton )
                 buttons.Append( recentTV )
