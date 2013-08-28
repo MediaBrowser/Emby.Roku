@@ -85,7 +85,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 exit while
 
             Else If msg.isRequestFailed() Then
-                Debug("Video request failure: " + msg.GetIndex() + " " + msg.GetData())
+                Debug("Video request failure: " + itostr(msg.GetIndex()) + " " + msg.GetData())
                 exit While
                 
             Else If msg.isScreenClosed() Then
@@ -139,10 +139,10 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 currentSeeking = false
 
                 'Debug("Time: " + FormatTime(nowPositionSec) + " / " + FormatTime(episode.Length))
-                'Debug("Seconds: " + nowPositionSec)
-                'Debug("MS: " + nowPositionMs#)
-                'Debug("Ticks: " + nowPositionTicks#)
-                'Debug("Position:" + nowPosition)
+                'Debug("Seconds: " + DoubleToString(nowPositionSec))
+                'Debug("MS: " + DoubleToString(nowPositionMs#))
+                'Debug("Ticks: " + DoubleToString(nowPositionTicks#))
+                'Debug("Position:" + DoubleToString(nowPosition))
 
                 ' Only Post Playback every 10 seconds
                 If msg.GetIndex() Mod 10 = 0
@@ -150,7 +150,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 End If
 
             Else If msg.isPaused() Then
-                Debug("Paused Position: " + nowPositionSec)
+                Debug("Paused Position: " + DoubleToString(nowPositionSec))
 
                 m.paused = true
                 m.moreinfo = false ' Hide more info on pause
@@ -158,14 +158,14 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 PaintFullscreenCanvas()
 
             Else If msg.isResumed() Then
-                Debug("Resume Position: " + nowPositionSec)
+                Debug("Resume Position: " + DoubleToString(nowPositionSec))
 
                 m.paused = false
                 PaintFullscreenCanvas()
 
             'Else If msg.isStatusMessage() Then
-            '    Debug("Video status: " + msg.GetIndex() + " " msg.GetData())
-            '    Debug("Video message: " + msg.GetMessage())
+            '    Debug("Video status: " + itostr(msg.GetIndex()) + " " + msg.GetData())
+            '    Debug("Video message: " + itostr(msg.GetMessage()))
 
             End If
 
@@ -257,7 +257,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
         End If
         
         'Output events for debug
-        'Debug(msg.GetType() + "," + msg.GetIndex() + ": " + msg.GetMessage())
+        'Debug(msg.GetType() + "," + itostr(msg.GetIndex()) + ": " + msg.GetMessage())
         'if msg.GetInfo() <> invalid Debug(msg.GetInfo())
 
     end while
