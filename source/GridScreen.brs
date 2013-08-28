@@ -113,11 +113,11 @@ End Function
 '** Find Closest Letter with Data
 '**********************************************************
 
-Function FindClosestLetter(letter As String) As String
+Function FindClosestLetter(letter As String, metadata As Object) As String
     letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
 
     ' If Data exists, just return the letter
-    If m.jumpList.DoesExist(letter) Then
+    If metadata.jumpList.DoesExist(letter) Then
         return letter
     End If
 
@@ -135,14 +135,14 @@ Function FindClosestLetter(letter As String) As String
 
     ' Find closest letter with data incrementing
     For i=letterIndex To 25
-        If m.jumpList.DoesExist(letters[i]) Then
+        If metadata.jumpList.DoesExist(letters[i]) Then
             return letters[i]
         End If
     End For
 
     ' Find closest letter with data decreasing
     For i=letterIndex To 0 Step -1
-        If m.jumpList.DoesExist(letters[i]) Then
+        If metadata.jumpList.DoesExist(letters[i]) Then
             return letters[i]
         End If
     End For

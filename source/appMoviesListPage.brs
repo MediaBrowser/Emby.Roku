@@ -88,12 +88,12 @@ Function ShowMoviesListPage() As Integer
                 index = msg.GetIndex()
 
                 If index = remoteKeyStar Then
-                    letterSelected = CreateJumpListDialog()
+                    'letterSelected = CreateJumpListDialog()
 
-                    If letterSelected <> invalid Then
-                        letter = FindClosestLetter(letterSelected)
-                        screen.Screen.SetFocusedListItem(0, m.jumpList.Lookup(letter))
-                    End If
+                    'If letterSelected <> invalid Then
+                    '    letter = FindClosestLetter(letterSelected)
+                    '    screen.Screen.SetFocusedListItem(0, m.jumpList.Lookup(letter))
+                    'End If
                 End If
 
             else if msg.isScreenClosed() then

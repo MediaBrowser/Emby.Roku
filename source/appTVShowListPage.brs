@@ -16,9 +16,6 @@ Function ShowTVShowListPage() As Integer
         screen = CreateGridScreen("", "TV", "two-row-flat-landscape-custom")
     End If
 
-    ' Setup Jump List
-    m.jumpList = {}
-
     ' Setup Row Data
     screen.rowNames   = CreateObject("roArray", 2, true)
     screen.rowStyles  = CreateObject("roArray", 2, true)
@@ -96,8 +93,8 @@ Function ShowTVShowListPage() As Integer
                     letterSelected = CreateJumpListDialog()
 
                     If letterSelected <> invalid Then
-                        letter = FindClosestLetter(letterSelected)
-                        screen.Screen.SetFocusedListItem(0, m.jumpList.Lookup(letter))
+                        letter = FindClosestLetter(letterSelected, TvMetadata)
+                        screen.Screen.SetFocusedListItem(0, TvMetadata.jumpList.Lookup(letter))
                     End If
                 End If
 

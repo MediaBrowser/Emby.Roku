@@ -9,8 +9,12 @@ Function ClassTvMetadata()
 
     if this = invalid
         this = CreateObject("roAssociativeArray")
+
         ' constants
         this.class        = "TvMetadata"
+
+        'variables
+        this.jumpList     = {}
 
         ' functions
         this.GetResumable = tvmetadata_resumable
@@ -239,7 +243,6 @@ Function tvmetadata_show_list() As Object
 
     ' Query
     query = {
-        limit: "10"
         recursive: "true"
         includeitemtypes: "Series"
         fields: "ItemCounts,SortName,Overview"
@@ -276,8 +279,8 @@ Function tvmetadata_show_list() As Object
             end if
             
             ' Set the Season count
-            if itemData.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = Pluralize(itemData.ChildCount, "season")
+            if i.ChildCount <> invalid
+                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "season")
             end if
 
             '** PopUp Metadata **
