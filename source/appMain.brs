@@ -206,6 +206,11 @@ Sub initTheme()
         OverhangOffsetHD_X: "35"
         OverhangOffsetHD_Y: "35"
 
+        ' Secondary Logo works On All screens except grid
+        'OverhangSecondaryLogoHD: "pkg:/images/mblogowhite.png"
+        'OverhangSecondaryLogoOffsetHD_X: "500"
+        'OverhangSecondaryLogoOffsetHD_Y: "35"
+
         BreadcrumbTextLeft: breadcrumbText
         BreadcrumbTextRight: breadcrumbText
         BreadcrumbDelimiter: breadcrumbText

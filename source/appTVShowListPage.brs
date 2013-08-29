@@ -39,7 +39,7 @@ Function ShowTVShowListPage() As Integer
 
     ' Get Data
     tvShowAll    = TvMetadata.GetShowList()
-    tvShowNextUp = GetTVShowNextUp()
+    tvShowNextUp = TvMetadata.GetNextUp()
     tvShowGenres = GetTVShowGenres()
 
     AddGridRowContent(screen, tvShowAll)
@@ -78,7 +78,7 @@ Function ShowTVShowListPage() As Integer
                 Else If screen.rowContent[row][selection].ContentType = "Episode" Then
                     ShowTVDetailPage(screen.rowContent[row][selection].Id)
                     ' Refresh Next Up Data
-                    tvShowNextUp = GetTVShowNextUp()
+                    tvShowNextUp = TvMetadata.GetNextUp()
                     UpdateGridRowContent(screen, row, tvShowNextUp)
                 Else If screen.rowContent[row][selection].ContentType = "Genre" Then
                     ShowTVShowGenrePage(screen.rowContent[row][selection].Id)
@@ -106,101 +106,6 @@ Function ShowTVShowListPage() As Integer
     end while
 
     return 0
-End Function
-
-
-'**********************************************************
-'** Get Next Up TV Episodes From Server
-'**********************************************************
-
-Function GetTVShowNextUp() As Object
-
-    ' Clean Fields
-    fields = HttpEncode("SeriesInfo,DateCreated,Overview")
-
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Shows/NextUp?UserId=" + m.curUserProfile.Id + "&Limit=10&Fields=" + fields, true)
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    ' Fixes bug within BRS Json Parser
-                    regex = CreateObject("roRegex", Chr(34) + "(RunTimeTicks)" + Chr(34) + ":([0-9]+),", "i")
-                    fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
-
-                    list     = CreateObject("roArray", 2, true)
-                    jsonData = ParseJSON(fixedString)
-                    for each itemData in jsonData.Items
-                        tvData = {
-                            Id: itemData.Id
-                            ContentType: "Episode"
-                            ShortDescriptionLine1: itemData.SeriesName
-                        }
-
-                        ' Check For Season/Episode Numbers
-                        episodeExtraInfo = ""
-
-                        If itemData.ParentIndexNumber<>invalid
-                            episodeExtraInfo = itostr(itemData.ParentIndexNumber)
-                        End If
-
-                        If itemData.IndexNumber<>invalid
-                            episodeExtraInfo = episodeExtraInfo + "x" + ZeroPad(itostr(itemData.IndexNumber))
-                        End If
-
-                        episodeExtraInfo = episodeExtraInfo + " - " + itemData.Name
-
-                        ' Show Season/Episode Numbers and Title
-                        tvData.ShortDescriptionLine2 = episodeExtraInfo
-
-                        ' Title
-                        tvData.Title = itemData.SeriesName + ": " + episodeExtraInfo
-
-                        If Type(itemData.ProductionYear) = "Integer" Then
-                            tvData.ReleaseDate = itostr(itemData.ProductionYear)
-                        End If
-
-                        ' Check For Run Time
-                        itemRunTime = itemData.RunTimeTicks
-                        If itemRunTime<>"" And itemRunTime<>invalid
-                            tvData.Length = Int(((itemRunTime).ToFloat() / 10000) / 1000)
-                        End If
-
-                        ' Overview of Episode
-                        If itemData.Overview<>invalid
-                            tvData.Description = itemData.Overview
-                        End If
-
-                        ' Check If Item has Image, Check If Parent Item has Image, otherwise use default
-                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=94&width=&tag=" + itemData.BackdropImageTags[0]
-                        Else If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                            tvData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=150&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                            tvData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=94&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                        Else 
-                            tvData.HDPosterUrl = "pkg://images/items/collection.png"
-                            tvData.SDPosterUrl = "pkg://images/items/collection.png"
-                        End If
-
-                        list.push( tvData )
-                    end for
-                    return list
-                else
-                    Debug("Failed to Get Next Episodes to Watch for TV Shows")
-                    return invalid
-                end if
-            else if (event = invalid)
-                request.AsyncCancel()
-            end if
-        end while
-    end if
-
-    Return invalid
 End Function
 
 
