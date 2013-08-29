@@ -21,6 +21,7 @@ Function ClassTvMetadata()
         this.GetResumable = tvmetadata_resumable
         this.GetLatest    = tvmetadata_latest
         this.GetNextUp    = tvmetadata_nextup
+        this.GetGenres    = tvmetadata_genres
 
         ' singleton
         m.ClassTvMetadata = this
@@ -400,7 +401,6 @@ End Function
 '** Get Next Unwatched TV Episodes From Server
 '**********************************************************
 
-
 Function tvmetadata_nextup() As Object
     ' URL
     url = GetServerBaseUrl() + "/Shows/NextUp"
@@ -525,3 +525,109 @@ Function tvmetadata_nextup() As Object
     return invalid
 End Function
 
+
+'**********************************************************
+'** Get TV Genres From Server
+'**********************************************************
+
+Function tvmetadata_genres() As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Genres"
+
+    ' Query
+    query = {
+        userid: HttpEncode(getGlobalVar("user").Id)
+        recursive: "true"
+        includeitemtypes: "Series"
+        fields: "ItemCounts"
+        sortby: "SortName"
+        sortorder: "Ascending"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        contentList = CreateObject("roArray", 10, true)
+        items       = ParseJSON(response).Items
+
+        for each i in items
+            metaData = {}
+
+            ' Set the Content Type
+            metaData.ContentType = "Genre"
+
+            ' Set the Id
+            ' Genres Use Name as Id
+            metaData.Id = firstOf(i.Name, "Unknown")
+
+            ' Set the display title
+            metaData.Title = firstOf(i.Name, "Unknown")
+            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
+
+            ' Set Series Count
+            if i.ChildCount <> invalid
+                metaData.ShortDescriptionLine2 = itostr(i.ChildCount) + " shows"
+            end if
+
+            ' Get Image Type From Preference
+            if RegRead("prefTVImageType") = "poster"
+                ' Get Image Sizes
+                sizes = GetImageSizes("mixed-aspect-ratio-landscape")
+
+                ' Check If Item has Image, otherwise use default
+                if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Primary/0"
+
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+
+                else 
+                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+                end if
+
+            else
+                ' Get Image Sizes
+                sizes = GetImageSizes("two-row-flat-landscape-custom")
+
+
+                ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
+                if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Primary/0"
+
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+
+                else if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Backdrop/0"
+
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+
+                else 
+                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+                end if
+
+            end if
+
+
+            contentList.push( metaData )
+        end for
+        
+        return contentList
+    else
+        Debug("Failed to Get Genres for TV Shows")
+    end if
+
+    return invalid
+End Function
