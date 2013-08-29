@@ -85,7 +85,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 exit while
 
             Else If msg.isRequestFailed() Then
-                Debug("Video request failure: " + itostr(msg.GetIndex()) + " " + msg.GetData())
+                Debug("Video request failure: " + itostr(msg.GetIndex()) + " " + itostr(msg.GetData) + " " + msg.GetMessage())
                 exit While
                 
             Else If msg.isScreenClosed() Then
@@ -164,7 +164,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 PaintFullscreenCanvas()
 
             'Else If msg.isStatusMessage() Then
-            '    Debug("Video status: " + itostr(msg.GetIndex()) + " " + msg.GetData())
+            '    Debug("Video status: " + itostr(msg.GetIndex()) + " " + itostr(msg.GetData()))
             '    Debug("Video message: " + itostr(msg.GetMessage()))
 
             End If
