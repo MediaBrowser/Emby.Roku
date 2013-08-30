@@ -85,7 +85,7 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
                 exit while
 
             Else If msg.isRequestFailed() Then
-                Debug("Video request failure: " + itostr(msg.GetIndex()) + " " + itostr(msg.GetData) + " " + msg.GetMessage())
+                Debug("Video request failure: " + itostr(msg.GetIndex()) + " " + itostr(msg.GetData()) + " " + msg.GetMessage())
                 exit While
                 
             Else If msg.isScreenClosed() Then
