@@ -40,12 +40,7 @@ Function ShowTVChaptersPage(episodeInfo As Object, audioPlayer=invalid) As Integ
                 End If
 
                 ' Set Play Status
-				if IsNumeric(episodeInfo.Chapters[selection].StartPositionTicks) then
-					PlayStart = episodeInfo.Chapters[selection].StartPositionTicks
-				else
-					PlayStart = (episodeInfo.Chapters[selection].StartPositionTicks).ToFloat()
-				end if				
-                
+                PlayStart = (episodeInfo.Chapters[selection].StartPositionTicks).ToFloat()
 
                 ' Original Stream URLs
                 'originalUrls = episodeInfo.StreamUrls

@@ -40,7 +40,7 @@ Function ShowTVShowListPage() As Integer
     ' Get Data
     tvShowAll    = TvMetadata.GetShowList()
     tvShowNextUp = TvMetadata.GetNextUp()
-    tvShowGenres = GetTVShowGenres()
+    tvShowGenres = TvMetadata.GetGenres()
 
     AddGridRowContent(screen, tvShowAll)
     AddGridRowContent(screen, tvShowNextUp)
@@ -106,78 +106,4 @@ Function ShowTVShowListPage() As Integer
     end while
 
     return 0
-End Function
-
-
-'**********************************************************
-'** Get TV Shows Genres From Server
-'**********************************************************
-
-Function GetTVShowGenres() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Genres?UserId=" + m.curUserProfile.Id + "&Recursive=true&IncludeItemTypes=Series&Fields=ItemCounts&SortBy=SortName&SortOrder=Ascending", true)
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    list     = CreateObject("roArray", 2, true)
-                    jsonData = ParseJSON(msg.GetString())
-                    for each itemData in jsonData.Items
-                        seriesData = {
-                            Id: itemData.Name
-                            Title: itemData.Name
-                            ContentType: "Genre"
-                            ShortDescriptionLine1: itemData.Name
-                            ShortDescriptionLine2: Stri(itemData.ChildCount) + " shows"
-                        }
-
-                        ' Clean Genre Name
-                        genreName = HttpEncode(itemData.Name)
-
-                        ' Get Image Type From Preference
-                        If RegRead("prefTVImageType") = "poster" Then
-
-                            ' Check If Item has Image, otherwise use default
-                            If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?quality=90&height=192&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?quality=90&height=94&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                            Else 
-                                seriesData.HDPosterUrl = "pkg://images/items/collection.png"
-                                seriesData.SDPosterUrl = "pkg://images/items/collection.png"
-                            End If
-
-                        Else
-
-                            ' Check If Item has Image, otherwise use default
-                            If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?quality=90&height=150&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?quality=90&height=94&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                            Else If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                                seriesData.HDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Backdrop/0?quality=90&height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                                seriesData.SDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Backdrop/0?quality=90&height=94&width=&tag=" + itemData.BackdropImageTags[0]
-                            Else 
-                                seriesData.HDPosterUrl = "pkg://images/items/collection.png"
-                                seriesData.SDPosterUrl = "pkg://images/items/collection.png"
-                            End If
-
-                        End If
-
-                        list.push( seriesData )
-                    end for
-                    return list
-                else
-                    Debug("Failed to Get Genres for TV Shows")
-                    return invalid
-                end if
-            else if (event = invalid)
-                request.AsyncCancel()
-            end if
-        end while
-    end if
-
-    Return invalid
 End Function
