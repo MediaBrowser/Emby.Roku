@@ -59,14 +59,18 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
                 Debug("ButtonPressed")
                 If msg.GetIndex() = 1
                     ' Set Saved Play Status
-                    If moviesDetails.PlaybackPosition<>"" And moviesDetails.PlaybackPosition<>"0" Then
-                        PlayStart = (moviesDetails.PlaybackPosition).ToFloat()
+                    If moviesDetails.PlaybackPosition<>"" And moviesDetails.PlaybackPosition<>"0"  Then
+                        if(moviesDetails.PlaybackPosition).ToFloat() > 0 then
+                            PlayStart = (moviesDetails.PlaybackPosition).ToFloat()
 
-                        ' Only update URLs if not direct play
-                        If Not moviesDetails.IsDirectPlay Then
-                            ' Update URLs for Resume
-                            moviesDetails.StreamData = AddResumeOffset(moviesDetails.StreamData, moviesDetails.PlaybackPosition)
-                        End If
+                            ' Only update URLs if not direct play
+                            If Not moviesDetails.IsDirectPlay Then
+                                ' Update URLs for Resume
+                                moviesDetails.StreamData = AddResumeOffset(moviesDetails.StreamData, moviesDetails.PlaybackPosition)
+                            End If
+                        else
+                            PlayStart = 0
+                        end if
                     Else
                         PlayStart = 0
                     End If
@@ -122,7 +126,7 @@ Function GetMoviesDetails(movieId As String) As Object
 
                 if (code = 200)
                     ' Fixes bug within BRS Json Parser
-                    regex = CreateObject("roRegex", Chr(34) + "(RunTimeTicks|PlaybackPositionTicks|StartPositionTicks)" + Chr(34) + ":([0-9]+),", "i")
+                    regex = CreateObject("roRegex", Chr(34) + + "(RunTimeTicks|PlaybackPositionTicks|StartPositionTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
                     fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
 
                     itemData = ParseJSON(fixedString)
@@ -222,6 +226,9 @@ Function GetMoviesDetails(movieId As String) As Object
                         movieData.Chapters = CreateObject("roArray", 3, true)
                         chapterCount = 0
                         For each chapterData in itemData.Chapters
+                            if chapterData.StartPositionTicks.ToFloat() < 0 then
+                                chapterData.StartPositionTicks = "0"
+                            end if
                             chapterList = {
                                 Title: chapterData.Name
                                 ShortDescriptionLine1: chapterData.Name
