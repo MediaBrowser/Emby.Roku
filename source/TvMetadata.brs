@@ -22,6 +22,8 @@ Function ClassTvMetadata()
         this.GetLatest    = tvmetadata_latest
         this.GetNextUp    = tvmetadata_nextup
         this.GetGenres    = tvmetadata_genres
+        this.GetSeasons   = tvmetadata_seasons
+        this.GetEpisodes  = tvmetadata_episodes
 
         ' singleton
         m.ClassTvMetadata = this
@@ -423,7 +425,7 @@ Function tvmetadata_nextup() As Object
     if response <> invalid
 
         ' Fixes bug within BRS Json Parser
-        regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks)" + Chr(34) + ":([0-9]+),", "i")
+        regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
         fixedResponse = regex.ReplaceAll(response, Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
 
         contentList = CreateObject("roArray", 10, true)
@@ -620,13 +622,200 @@ Function tvmetadata_genres() As Object
 
             end if
 
-
             contentList.push( metaData )
         end for
         
         return contentList
     else
         Debug("Failed to Get Genres for TV Shows")
+    end if
+
+    return invalid
+End Function
+
+
+'**********************************************************
+'** Get TV Seasons for Show From Server
+'**********************************************************
+
+Function tvmetadata_seasons(seriesId As String) As Object
+    ' Validate Parameter
+    if validateParam(seriesId, "roString", "tvmetadata_seasons") = false return invalid
+
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+
+    ' Query
+    query = {
+        parentid: seriesId
+        recursive: "true"
+        includeitemtypes: "Season"
+        sortby: "SortName"
+        sortorder: "Ascending"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        listIds   = CreateObject("roArray", 7, true)
+        listNames = CreateObject("roArray", 7, true)
+        items     = ParseJSON(response).Items
+
+        for each i in items
+            ' Set the Id
+            listIds.push( i.Id )
+
+            ' Set the Name
+            listNames.push( firstOf(i.Name, "Unknown") )
+        end for
+        
+        return [listIds, listNames]
+    else
+        Debug("Failed to Get TV Seasons List for Show")
+    end if
+
+    return invalid
+End Function
+
+
+'**********************************************************
+'** Get TV Episodes in a Season From Server
+'**********************************************************
+
+Function tvmetadata_episodes(seasonId As String) As Object
+    ' Validate Parameter
+    if validateParam(seasonId, "roString", "tvmetadata_episodes") = false return invalid
+
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+
+    ' Query
+    query = {
+        parentid: seasonId
+        recursive: "true"
+        includeitemtypes: "Episode"
+        fields: "SeriesInfo,Overview,MediaStreams,UserData"
+        sortby: "SortName"
+        sortorder: "Ascending"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        ' Fixes bug within BRS Json Parser
+        regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks|PlaybackPositionTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
+        fixedResponse = regex.ReplaceAll(response, Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
+
+        contentList = CreateObject("roArray", 10, true)
+        items       = ParseJSON(fixedResponse).Items
+
+        for each i in items
+            metaData = {}
+
+            ' Set the Content Type
+            metaData.ContentType = "Episode"
+
+            ' Set the Id
+            metaData.Id = i.Id
+
+            ' Set the display title
+            metaData.Title = firstOf(i.Name, "Unknown")
+            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
+
+            ' Set the Run Time
+            if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
+                metaData.Length = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
+            end if
+
+            ' Set the Playback Position
+            if i.UserData.PlaybackPositionTicks <> "" And i.UserData.PlaybackPositionTicks <> invalid
+                metaData.BookmarkPosition = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
+            end if
+
+            ' Set the Overview
+            if i.Overview <> invalid
+                metaData.Description = i.Overview
+            end if
+
+            ' Build Episode Information for Line 2 Display
+            episodeInfo = ""
+
+            ' Add Season Number
+            if i.ParentIndexNumber <> invalid
+                episodeInfo = "Sn " + itostr(i.ParentIndexNumber)
+            end if
+
+            ' Add Episode Number
+            if i.IndexNumber <> invalid
+                if episodeInfo <> ""
+                    episodeInfo = episodeInfo + " / "
+                end if
+                
+                episodeInfo = episodeInfo + "Ep " + ZeroPad(itostr(i.IndexNumber))
+            end if
+
+            ' Set the Episode rating
+            if i.OfficialRating <> "" And i.OfficialRating <> invalid
+                if episodeInfo <> ""
+                    episodeInfo = episodeInfo + " | "
+                end if
+
+                episodeInfo = episodeInfo + firstOf(i.OfficialRating, "")
+            end if
+
+            ' Check Media Streams For HD Video And Surround Sound Audio
+            ' Fix me
+            streamInfo = GetStreamInfo(i.MediaStreams)
+
+            ' Set HD Video Flag
+            if streamInfo.isHDVideo = true
+                episodeInfo = episodeInfo + " | HD" 
+            end if
+
+            ' Set Surround Sound Flag    
+            if streamInfo.isSSAudio = true
+                episodeInfo = episodeInfo + " | 5.1" 
+            end if
+
+            ' Set the Line 2 display
+            metaData.ShortDescriptionLine2 = episodeInfo
+
+            ' Get Image Sizes
+            sizes = GetImageSizes("flat-episodic-16x9")
+
+            ' Check if Item has Image, otherwise use default
+            if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+
+            else 
+                metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+            end if
+
+            contentList.push( metaData )
+        end for
+        
+        return contentList
+    else
+        Debug("Failed to Get TV Episodes List For Season")
     end if
 
     return invalid
