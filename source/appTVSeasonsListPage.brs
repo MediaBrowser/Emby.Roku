@@ -17,12 +17,21 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     screen.SetListStyle("flat-episodic-16x9")
     screen.SetListDisplayMode("scale-to-fill")
 
+    ' Initialize TV Metadata
+    TvMetadata = InitTvMetadata()
+
     ' Get Data
-    seasonData = GetTVSeasons(seriesInfo.Id)
-    screen.SetListNames(seasonData.seasonNames)
+    seasonData = TvMetadata.GetSeasons(seriesInfo.Id)
+
+    seasonIds   = seasonData[0]
+    seasonNames = seasonData[1]
+
+    ' Set Season Names
+    screen.SetListNames(seasonNames)
+
 
     ' Fetch Season 1
-    episodeData = GetTVEpisodes(seasonData.seasonIds[0])
+    episodeData = TvMetadata.GetEpisodes(seasonIds[0])
     screen.SetContentList(episodeData)
 
     ' Show Screen
@@ -73,7 +82,7 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
                 screen.ShowMessage("Retrieving")
 
                 ' Fetch New Season
-                episodeData = GetTVEpisodes(seasonData.seasonIds[Msg.GetIndex()])
+                episodeData = TvMetadata.GetEpisodes(seasonIds[Msg.GetIndex()])
                 screen.SetContentList(episodeData)
 
                 screen.ClearMessage()
