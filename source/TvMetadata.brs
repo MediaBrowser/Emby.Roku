@@ -17,13 +17,14 @@ Function ClassTvMetadata()
         this.jumpList     = {}
 
         ' functions
-        this.GetShowList  = tvmetadata_show_list
-        this.GetResumable = tvmetadata_resumable
-        this.GetLatest    = tvmetadata_latest
-        this.GetNextUp    = tvmetadata_nextup
-        this.GetGenres    = tvmetadata_genres
-        this.GetSeasons   = tvmetadata_seasons
-        this.GetEpisodes  = tvmetadata_episodes
+        this.GetShowList      = tvmetadata_show_list
+        this.GetResumable     = tvmetadata_resumable
+        this.GetLatest        = tvmetadata_latest
+        this.GetNextUp        = tvmetadata_nextup
+        this.GetGenres        = tvmetadata_genres
+        this.GetSeasons       = tvmetadata_seasons
+        this.GetEpisodes      = tvmetadata_episodes
+        this.GetGenreShowList = tvmetadata_genre_show_list
 
         ' singleton
         m.ClassTvMetadata = this
@@ -40,7 +41,7 @@ End Function
 
 
 '**********************************************************
-'** Get All TV Shows From Server
+'** Get All TV Shows
 '**********************************************************
 
 Function tvmetadata_show_list() As Object
@@ -196,7 +197,7 @@ End Function
 
 
 '**********************************************************
-'** Get Resumable TV From Server
+'** Get Resumable TV
 '**********************************************************
 
 Function tvmetadata_resumable() As Object
@@ -298,7 +299,7 @@ End Function
 
 
 '**********************************************************
-'** Get Latest Unwatched TV Episodes From Server
+'** Get Latest Unwatched TV Episodes
 '**********************************************************
 
 Function tvmetadata_latest() As Object
@@ -400,7 +401,7 @@ End Function
 
 
 '**********************************************************
-'** Get Next Unwatched TV Episodes From Server
+'** Get Next Unwatched TV Episodes
 '**********************************************************
 
 Function tvmetadata_nextup() As Object
@@ -529,7 +530,7 @@ End Function
 
 
 '**********************************************************
-'** Get TV Genres From Server
+'** Get TV Genres
 '**********************************************************
 
 Function tvmetadata_genres() As Object
@@ -635,7 +636,7 @@ End Function
 
 
 '**********************************************************
-'** Get TV Seasons for Show From Server
+'** Get TV Seasons for Show
 '**********************************************************
 
 Function tvmetadata_seasons(seriesId As String) As Object
@@ -686,7 +687,7 @@ End Function
 
 
 '**********************************************************
-'** Get TV Episodes in a Season From Server
+'** Get TV Episodes in a Season
 '**********************************************************
 
 Function tvmetadata_episodes(seasonId As String) As Object
@@ -816,6 +817,153 @@ Function tvmetadata_episodes(seasonId As String) As Object
         return contentList
     else
         Debug("Failed to Get TV Episodes List For Season")
+    end if
+
+    return invalid
+End Function
+
+
+'**********************************************************
+'** Get TV Shows in a Genre
+'**********************************************************
+
+Function tvmetadata_genre_show_list(genreName As String) As Object
+    ' Validate Parameter
+    if validateParam(genreName, "roString", "tvmetadata_genre_show_list") = false return invalid
+
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+
+    ' Query
+    query = {
+        genres: genreName
+        recursive: "true"
+        includeitemtypes: "Series"
+        fields: "ItemCounts,SortName,Overview"
+        sortby: "SortName"
+        sortorder: "Ascending"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        contentList = CreateObject("roArray", 25, true)
+        items       = ParseJSON(response).Items
+
+        for each i in items
+            metaData = {}
+
+            ' Set the Content Type
+            metaData.ContentType = "Series"
+
+            ' Set the Id
+            metaData.Id = i.Id
+
+            ' Show / Hide display title
+            if RegRead("prefTVTitle") = "show" Or RegRead("prefTVTitle") = invalid
+                metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
+            end if
+            
+            ' Set the Season count
+            if i.ChildCount <> invalid
+                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "season")
+            end if
+
+            '** PopUp Metadata **
+
+            ' Set the display title
+            metaData.Title = firstOf(i.Name, "Unknown")
+
+            ' Set the Episode count
+            if i.RecursiveItemCount <> invalid
+                metaData.NumEpisodes = i.RecursiveItemCount
+            end if
+
+            ' Set the Series overview
+            if i.Overview <> invalid
+                metaData.Description = i.Overview
+            end if
+
+            ' Set the Series rating
+            if i.OfficialRating <> invalid
+                metaData.Rating = i.OfficialRating
+            end if
+
+            ' Set the Series star rating
+            if i.CommunityRating <> invalid
+                metaData.UserStarRating = Int(i.CommunityRating) * 10
+            end if
+
+            ' Get Image Type From Preference
+            if RegRead("prefTVImageType") = "poster"
+
+                ' Get Image Sizes
+                sizes = GetImageSizes("mixed-aspect-ratio-portrait")
+
+                ' Check if Item has Image, otherwise use default
+                if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
+
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+
+                else 
+                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+                end if
+
+            else if RegRead("prefTVImageType") = "thumb"
+
+                ' Get Image Sizes
+                sizes = GetImageSizes("two-row-flat-landscape-custom")
+
+                ' Check if Item has Image, otherwise use default
+                if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
+
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb)
+
+                else 
+                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+                end if
+
+            else
+
+                ' Get Image Sizes
+                sizes = GetImageSizes("two-row-flat-landscape-custom")
+
+                ' Check if Item has Image, otherwise use default
+                if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
+
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+
+                else 
+                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+                end if
+
+            end if
+
+            contentList.push( metaData )
+        end for
+        
+        return contentList
+    else
+        Debug("Failed to Get TV Shows List In Genre")
     end if
 
     return invalid
