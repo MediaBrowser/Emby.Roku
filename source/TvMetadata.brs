@@ -26,6 +26,7 @@ Function ClassTvMetadata()
         this.GetEpisodeDetails = tvmetadata_episode_details
         this.GetResumable      = tvmetadata_resumable
         this.GetLatest         = tvmetadata_latest
+        this.GetThemeMusic     = tvmetadata_theme_music
 
         ' singleton
         m.ClassTvMetadata = this
@@ -1166,6 +1167,55 @@ Function tvmetadata_episode_details(episodeId As String) As Object
         return metaData
     else
         Debug("Failed to Get TV Episode Details")
+    end if
+
+    return invalid
+End Function
+
+
+'**********************************************************
+'** Get TV Show Theme Music
+'**********************************************************
+
+Function tvmetadata_theme_music(seriesId As String) As Object
+    ' Validate Parameter
+    if validateParam(seriesId, "roString", "tvmetadata_theme_music") = false return invalid
+
+    ' URL
+    url = GetServerBaseUrl() + "/Items/" + HttpEncode(seriesId) + "/ThemeSongs"
+
+    ' Query
+    query = {
+        userid: HttpEncode(getGlobalVar("user").Id)
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        contentList = CreateObject("roArray", 2, true)
+        items       = ParseJSON(response).Items
+
+        for each i in items
+            metaData = {}
+
+            ' Set Theme Songs
+            if i.Id <> invalid And i.Path <> invalid
+                metaData = SetupAudioStream(i.Id, i.Path)
+            end if
+
+            contentList.push( metaData )
+        end for
+        
+        return contentList
+    else
+        Debug("Failed to Get TV Show Theme Music")
     end if
 
     return invalid

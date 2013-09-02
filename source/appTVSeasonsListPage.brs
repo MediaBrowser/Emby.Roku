@@ -40,7 +40,7 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     ' Only fetch theme music if turned on
     If RegRead("prefTVMusic") = "yes" Then
         ' Fetch Theme Music
-        themeMusic = GetTVThemeMusic(seriesInfo.Id)
+        themeMusic = TvMetadata.GetThemeMusic(seriesInfo.Id)
 
         If themeMusic<>invalid And themeMusic.Count() <> 0 Then
             Debug("playing theme music")
@@ -99,42 +99,4 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     end while
 
     return 0
-End Function
-
-
-'**********************************************************
-'** Get TV Theme Music From Server
-'**********************************************************
-
-Function GetTVThemeMusic(seriesId As String) As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Items/" + seriesId + "/ThemeSongs?UserId=" + m.curUserProfile.Id, true)
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    list     = CreateObject("roArray", 10, true)
-                    jsonData = ParseJSON(msg.GetString())
-                    for each itemData in jsonData.Items
-                        ' Setup Song
-                        streamData = SetupAudioStream(itemData.Id, itemData.Path)
-
-                        list.push( streamData )
-                    end for
-                    return list
-                else
-					Debug("Failed to Get TV theme music")
-                    Return invalid
-				end if
-            else if (event = invalid)
-                request.AsyncCancel()
-            endif
-        end while
-    endif
-
-    Return invalid
 End Function
