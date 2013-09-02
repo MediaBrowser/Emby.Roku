@@ -117,156 +117,6 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
 End Function
 
 
-'**********************************************************
-'** Get TV Details From Server
-'**********************************************************
-
-Function GetTVDetails(episodeId As String) As Object
-
-    if validateParam(episodeId, "roString", "GetTVDetails") = false return -1
-
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items/" + episodeId, true)
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    ' Fixes bug within BRS Json Parser
-                    regex = CreateObject("roRegex", Chr(34) + "(RunTimeTicks|PlaybackPositionTicks|StartPositionTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
-                    fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
-
-                    itemData = ParseJSON(fixedString)
-
-                    ' Convert Data For Page
-                    episodeData = {
-                        Id: itemData.Id
-                        ContentId: itemData.Id
-                        ContentType: "episode"
-                        Title: itemData.Name
-                        SeriesTitle: itemData.SeriesName
-                        Description: itemData.Overview 
-                        Rating: itemData.OfficialRating
-                        Watched: itemData.UserData.Played
-                    }
-
-                    episodeExtraInfo = itemData.SeriesName
-
-                    If itemData.ParentIndexNumber<>invalid
-                        episodeExtraInfo = episodeExtraInfo + " / Season " + Stri(itemData.ParentIndexNumber)
-                    End If
-
-                    If itemData.IndexNumber<>invalid
-                        episodeExtraInfo = episodeExtraInfo + " / Episode " + Stri(itemData.IndexNumber)
-                    End If
-
-                    ' Use Actor Area For Series / Season / Episode
-                    episodeData.Actors = episodeExtraInfo
-
-                    ' Check For Production Year
-                    If Type(itemData.ProductionYear) = "Integer" Then
-                        episodeData.ReleaseDate = Stri(itemData.ProductionYear)
-                    End if
-
-                    ' Check For Run Time
-                    itemRunTime = itemData.RunTimeTicks
-                    If itemRunTime<>"" And itemRunTime<>invalid
-                        episodeData.Length = Int(((itemRunTime).ToFloat() / 10000) / 1000)
-                    End If
-
-                    ' Check For Playback Position Time
-                    itemPlaybackPositionTime = itemData.UserData.PlaybackPositionTicks
-                    If itemPlaybackPositionTime<>"" And itemPlaybackPositionTime<>invalid
-                        episodeData.PlaybackPosition = (itemPlaybackPositionTime) 'Int(((itemPlaybackPositionTime).ToFloat() / 10000) / 1000)
-                    End If
-
-                    ' Check If Item has Image, otherwise use default
-                    If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                        episodeData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=152&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                        episodeData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=90&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                    Else 
-                        episodeData.HDPosterUrl = "pkg://images/items/collection.png"
-                        episodeData.SDPosterUrl = "pkg://images/items/collection.png"
-                    End If
-
-                    ' Check Media Streams For HD Video And Surround Sound Audio
-                    streamInfo = GetStreamInfo(itemData.MediaStreams)
-
-                    episodeData.HDBranded = streamInfo.isHDVideo
-                    episodeData.IsHD = streamInfo.isHDVideo
-
-                    If streamInfo.isSSAudio=true
-                        episodeData.AudioFormat = "dolby-digital"
-                    End If
-
-                    ' Setup Video Player
-                    streamData = SetupVideoStreams(episodeId, itemData.VideoType, itemData.Path)
-
-                    If streamData<>invalid
-                        episodeData.StreamData = streamData
-
-                        ' Determine Direct Play
-                        If StreamData.Stream<>invalid Then
-                            episodeData.IsDirectPlay = true
-                        Else
-                            episodeData.IsDirectPlay = false
-                        End If
-
-                    End If
-
-                    ' Setup Watched
-                    If itemData.UserData.Played<>invalid And itemData.UserData.Played=true
-                        If itemData.UserData.LastPlayedDate<>invalid
-                            episodeData.Categories = "Watched on " + formatDateStamp(itemData.UserData.LastPlayedDate)
-                        Else
-                            episodeData.Categories = "Watched"
-                        End If
-                    End If
-
-                    ' Setup Chapters
-                    If itemData.Chapters<>invalid
-                        episodeData.Chapters = CreateObject("roArray", 3, true)
-                        chapterCount = 0
-                        For each chapterData in itemData.Chapters
-                            chapterList = {
-                                Title: chapterData.Name
-                                ShortDescriptionLine1: chapterData.Name
-                                ShortDescriptionLine2: FormatChapterTime(chapterData.StartPositionTicks)
-                                StartPositionTicks: chapterData.StartPositionTicks
-                            }
-
-                            ' Check If Chapter has Image, otherwise use default
-                            If chapterData.ImageTag<>"" And chapterData.ImageTag<>invalid
-                                chapterList.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?quality=90&height=141&width=&EnableImageEnhancers=false&tag=" + chapterData.ImageTag
-                                chapterList.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?quality=90&height=94&width=&EnableImageEnhancers=false&tag=" + chapterData.ImageTag
-                            Else 
-                                chapterList.HDPosterUrl = "pkg://images/items/collection.png"
-                                chapterList.SDPosterUrl = "pkg://images/items/collection.png"
-                            End If
-
-                            chapterCount = chapterCount + 1
-                            episodeData.Chapters.push(chapterList)
-                        End For
-                    End If
-
-                    return episodeData
-                Else
-					Debug("Failed to Get User Profile")
-                    Return invalid
-                End If
-            Else If (event = invalid)
-                request.AsyncCancel()
-            End If
-        end while
-    endif
-
-    Return invalid
-End Function
-
-
 '**************************************************************
 '** Refresh the Contents of the TV Detail Page
 '**************************************************************
@@ -276,8 +126,11 @@ Function RefreshTVDetailPage(screen As Object, episodeId As String) As Object
     if validateParam(screen, "roSpringboardScreen", "RefreshTVDetailPage") = false return -1
     if validateParam(episodeId, "roString", "RefreshTVDetailPage") = false return -1
 
+    ' Initialize TV Metadata
+    TvMetadata = InitTvMetadata()
+
     ' Get Data
-    tvDetails = GetTVDetails(episodeId)
+    tvDetails = TvMetadata.GetEpisodeDetails(episodeId)
 
     ' Setup Buttons
     screen.ClearButtons()
