@@ -75,6 +75,7 @@ Function HttpRequest(url As String) as Object
     obj.AddAuthorization            = http_authorization
     obj.FirstParam                  = true
     obj.AddParam                    = http_add_param
+    obj.RemoveParam                 = http_remove_param
     obj.BuildQuery                  = http_build_query
     obj.AddRawQuery                 = http_add_raw_query
     obj.PrepareUrlForQuery          = http_prepare_url_for_query
@@ -158,6 +159,19 @@ Function http_add_param(name As String, val As String) as Void
     if Instr(1, url, q) > 0 return    'Parameter already present
     q = q + m.Http.Escape(val)
     m.AddRawQuery(q)
+End Function
+
+
+'**********************************************************
+'** Remove a query parameter
+'**********************************************************
+
+Function http_remove_param(name As String) as Void
+    param = m.Http.Escape(name)
+    url   = m.Http.GetUrl()
+    regex   = CreateObject("roRegex", "&" + param + "(\=[^&]*)?(?=&|$)|^" + param + "(\=[^&]*)?(&|$)", "i")
+    new_url = regex.Replace(url, "")
+    m.Http.SetUrl(new_url)
 End Function
 
 
