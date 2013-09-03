@@ -412,7 +412,7 @@ Function tvmetadata_nextup() As Object
 
     ' Query
     query = {
-        userid: HttpEncode(getGlobalVar("user").Id)
+        userid: getGlobalVar("user").Id
         limit: "10"
         fields: "SeriesInfo,DateCreated,Overview"
     }
@@ -541,7 +541,7 @@ Function tvmetadata_genres() As Object
 
     ' Query
     query = {
-        userid: HttpEncode(getGlobalVar("user").Id)
+        userid: getGlobalVar("user").Id
         recursive: "true"
         includeitemtypes: "Series"
         fields: "ItemCounts"
@@ -1186,7 +1186,7 @@ Function tvmetadata_theme_music(seriesId As String) As Object
 
     ' Query
     query = {
-        userid: HttpEncode(getGlobalVar("user").Id)
+        userid: getGlobalVar("user").Id
     }
 
     ' Prepare Request
