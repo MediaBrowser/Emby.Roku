@@ -40,7 +40,7 @@ Function ShowMoviesListPage() As Integer
     ' Get Data
     moviesAll     = MovieMetadata.GetMovieList()
     moviesBoxsets = GetMoviesBoxsets()
-    moviesGenres  = GetMoviesGenres()
+    moviesGenres  = MovieMetadata.GetGenres()
 
     AddGridRowContent(screen, moviesAll)
     AddGridRowContent(screen, moviesBoxsets)
@@ -103,83 +103,6 @@ Function ShowMoviesListPage() As Integer
     end while
 
     return 0
-End Function
-
-
-'**********************************************************
-'** Get Movie Genres From Server
-'**********************************************************
-
-Function GetMoviesGenres() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Genres?UserId=" + m.curUserProfile.Id + "&Recursive=true&IncludeItemTypes=Movie&Fields=ItemCounts&SortBy=SortName&SortOrder=Ascending", true)
-
-    'Debug("Movie Genre List URL: " + request.GetUrl())
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    list     = CreateObject("roArray", 2, true)
-                    jsonData = ParseJSON(msg.GetString())
-                    for each itemData in jsonData.Items
-                        movieData = {
-                            Id: itemData.Name
-                            Title: itemData.Name
-                            ContentType: "Genre"
-                            ShortDescriptionLine1: itemData.Name
-                            ShortDescriptionLine2: Stri(itemData.ChildCount) + " movies"
-                        }
-
-                        ' Clean Genre Name
-                        genreName = HttpEncode(itemData.Name)
-
-                        ' Get Image Type From Preference
-                        If RegRead("prefMovieImageType") = "poster" Then
-
-                            ' Check If Item has Image, otherwise use default
-                            If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?quality=90&height=192&width=192&tag=" + itemData.ImageTags.Primary
-                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?quality=90&height=126&width=140&tag=" + itemData.ImageTags.Primary
-                            Else 
-                                movieData.HDPosterUrl = "pkg://images/items/collection.png"
-                                movieData.SDPosterUrl = "pkg://images/items/collection.png"
-                            End If
-
-                        Else
-
-                            ' Check If Item has Image, otherwise use default
-                            If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?quality=90&height=150&width=&tag=" + itemData.ImageTags.Primary
-                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Primary/0?quality=90&height=94&width=&tag=" + itemData.ImageTags.Primary
-                            Else If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                                movieData.HDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Backdrop/0?quality=90&height=150&width=&tag=" + itemData.BackdropImageTags[0]
-                                movieData.SDPosterUrl = GetServerBaseUrl() + "/Genres/" + genreName + "/Images/Backdrop/0?quality=90&height=94&width=&tag=" + itemData.BackdropImageTags[0]
-                            Else 
-                                movieData.HDPosterUrl = "pkg://images/items/collection.png"
-                                movieData.SDPosterUrl = "pkg://images/items/collection.png"
-                            End If
-
-                        End If
-
-
-                        list.push( movieData )
-                    end for
-                    return list
-                else
-                    Debug("Failed to Get Genres for Movies")
-                    return invalid
-                end if
-            else if (event = invalid)
-                request.AsyncCancel()
-            end if
-        end while
-    end if
-
-    Return invalid
 End Function
 
 
