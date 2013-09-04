@@ -18,8 +18,8 @@ Function ClassMovieMetadata()
 
         ' functions
         this.GetMovieList = moviemetadata_movie_list
-        'this.GetResumable = moviemetadata_resumable
-        'this.GetLatest    = moviemetadata_latest
+        this.GetResumable = moviemetadata_resumable
+        this.GetLatest    = moviemetadata_latest
 
         ' singleton
         m.ClassMovieMetadata = this
@@ -36,7 +36,7 @@ End Function
 
 
 '**********************************************************
-'** Get All Movies From Server
+'** Get All Movies
 '**********************************************************
 
 Function moviemetadata_movie_list() As Object
@@ -196,6 +196,162 @@ Function moviemetadata_movie_list() As Object
         return contentList
     else
         Debug("Failed to Get Movies List")
+    end if
+
+    return invalid
+End Function
+
+
+'**********************************************************
+'** Get Resumable Movies
+'**********************************************************
+
+Function moviemetadata_resumable() As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+
+    ' Query
+    query = {
+        limit: "10"
+        recursive: "true"
+        includeitemtypes: "Movie"
+        sortby: "DatePlayed"
+        sortorder: "Descending"
+        filters: "IsResumable"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        contentList = CreateObject("roArray", 10, true)
+        items       = ParseJSON(response).Items
+
+        for each i in items
+            metaData = {}
+
+            ' Set the Content Type
+            metaData.ContentType = "Movie"
+
+            ' Set the Id
+            metaData.Id = i.Id
+
+            ' Set the display title
+            metaData.Title = firstOf(i.Name, "Unknown") ' Not even used
+            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
+
+            ' Get Image Sizes
+            sizes = GetImageSizes("two-row-flat-landscape-custom")
+
+            ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
+            if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+
+            else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+
+            else 
+                metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+            end if
+
+            contentList.push( metaData )
+        end for
+        
+        return contentList
+    else
+        Debug("Failed to Get Resumable Movies")
+    end if
+
+    return invalid
+End Function
+
+
+'**********************************************************
+'** Get Latest Unwatched Movies
+'**********************************************************
+
+Function moviemetadata_latest() As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+
+    ' Query
+    query = {
+        limit: "10"
+        recursive: "true"
+        includeitemtypes: "Movie"
+        sortby: "DateCreated"
+        sortorder: "Descending"
+        filters: "IsUnplayed"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        contentList = CreateObject("roArray", 10, true)
+        items       = ParseJSON(response).Items
+
+        for each i in items
+            metaData = {}
+
+            ' Set the Content Type
+            metaData.ContentType = "Movie"
+
+            ' Set the Id
+            metaData.Id = i.Id
+
+            ' Set the display title
+            metaData.Title = firstOf(i.Name, "Unknown") ' Not even used
+            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
+
+            ' Get Image Sizes
+            sizes = GetImageSizes("two-row-flat-landscape-custom")
+
+            ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
+            if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+
+            else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+
+            else 
+                metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+            end if
+
+            contentList.push( metaData )
+        end for
+        
+        return contentList
+    else
+        Debug("Failed to Get Recently Added Movies")
     end if
 
     return invalid
