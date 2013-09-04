@@ -187,12 +187,15 @@ Function GetMoviesButtons() As Object
         }
     ]
 
+    ' Initialize Movie Metadata
+    MovieMetadata = InitMovieMetadata()
+
     If m.movieToggle = "latest" Then
         switchButton[0].HDPosterUrl = "pkg://images/items/Toggle_Latest_HD.png"
         switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Latest_SD.png"
 
         ' Get Latest Unwatched Movies
-        recentMovies = GetMoviesRecentAdded()
+        recentMovies = MovieMetadata.GetLatest()
         If recentMovies<>invalid
             buttons.Append( switchButton )
             buttons.Append( recentMovies )
@@ -209,7 +212,7 @@ Function GetMoviesButtons() As Object
         switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Resume_SD.png"
 
         ' Check For Resumable Movies, otherwise default to latest
-        resumeMovies = GetMoviesResumable()
+        resumeMovies = MovieMetadata.GetResumable()
         If resumeMovies<>invalid And resumeMovies.Count() > 0
             buttons.Append( switchButton )
             buttons.Append( resumeMovies )
@@ -221,7 +224,7 @@ Function GetMoviesButtons() As Object
             switchButton[0].SDPosterUrl = "pkg://images/items/Toggle_Latest_SD.png"
 
             ' Get Latest Unwatched Movies
-            recentMovies = GetMoviesRecentAdded()
+            recentMovies = MovieMetadata.GetLatest()
             If recentMovies<>invalid
                 buttons.Append( switchButton )
                 buttons.Append( recentMovies )
@@ -246,107 +249,6 @@ Function GetNextMovieToggle()
     Else
         m.movieToggle = "latest"
     End If
-End Function
-
-'**********************************************************
-'** Get Recently Added Movies From Server
-'**********************************************************
-
-Function GetMoviesRecentAdded() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=8&Recursive=true&IncludeItemTypes=Movie&SortBy=DateCreated&SortOrder=Descending&Filters=IsUnplayed", true)
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    list     = CreateObject("roArray", 2, true)
-                    jsonData = ParseJSON(msg.GetString())
-                    for each itemData in jsonData.Items
-                        movieData = {
-                            Id: itemData.Id
-                            Title: itemData.Name
-                            ContentType: "Movie"
-                            ShortDescriptionLine1: itemData.Name
-                        }
-
-                        ' Check If Item has Image, otherwise use default
-                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=150&width=&EnableImageEnhancers=false&tag=" + itemData.BackdropImageTags[0]
-                            movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=94&width=&EnableImageEnhancers=false&tag=" + itemData.BackdropImageTags[0]
-                        Else 
-                            movieData.HDPosterUrl = "pkg://images/items/collection.png"
-                            movieData.SDPosterUrl = "pkg://images/items/collection.png"
-                        End If
-
-                        list.push( movieData )
-                    end for
-                    return list
-                else
-                    Debug("Failed to Get Recently Added Movies")
-                    return invalid
-                end if
-            else if (event = invalid)
-                request.AsyncCancel()
-            end if
-        end while
-    end if
-
-    Return invalid
-End Function
-
-
-'**********************************************************
-'** Get Resumable Movies From Server
-'**********************************************************
-
-Function GetMoviesResumable() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items?Limit=7&Recursive=true&IncludeItemTypes=Movie&SortBy=DatePlayed&SortOrder=Descending&Filters=IsResumable", true)
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    list     = CreateObject("roArray", 2, true)
-                    jsonData = ParseJSON(msg.GetString())
-                    for each itemData in jsonData.Items
-                        movieData = {
-                            Id: itemData.Id
-                            Title: "Resume"
-                            ContentType: "Movie"
-                            ShortDescriptionLine1: itemData.Name
-                        }
-
-                        ' Check If Item has Image, otherwise use default
-                        If itemData.BackdropImageTags[0]<>"" And itemData.BackdropImageTags[0]<>invalid
-                            movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=150&width=&EnableImageEnhancers=false&tag=" + itemData.BackdropImageTags[0]
-                            movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Backdrop/0?quality=90&height=94&width=&EnableImageEnhancers=false&tag=" + itemData.BackdropImageTags[0]
-                        Else 
-                            movieData.HDPosterUrl = "pkg://images/items/collection.png"
-                            movieData.SDPosterUrl = "pkg://images/items/collection.png"
-                        End If
-
-                        list.push( movieData )
-                    end for
-                    return list
-                else
-                    Debug("Failed to Get Resumable Movies")
-                    return invalid
-                end if
-            else if (event = invalid)
-                request.AsyncCancel()
-            end if
-        end while
-    end if
-
-    Return invalid
 End Function
 
 
