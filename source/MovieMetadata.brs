@@ -70,9 +70,14 @@ Function moviemetadata_movie_list() As Object
 
         jumpListCount = 0
         contentList   = CreateObject("roArray", 25, true)
-        items         = ParseJSON(fixedResponse).Items
+        jsonObj       = ParseJSON(fixedResponse)
 
-        for each i in items
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response for Movies List")
+            return invalid
+        end if
+
+        for each i in jsonObj.Items
             metaData = {}
 
             ' Set the Content Type
@@ -233,9 +238,14 @@ Function moviemetadata_resumable() As Object
     if response <> invalid
 
         contentList = CreateObject("roArray", 10, true)
-        items       = ParseJSON(response).Items
+        jsonObj     = ParseJSON(response)
 
-        for each i in items
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response for Resumable Movies")
+            return invalid
+        end if
+
+        for each i in jsonObj.Items
             metaData = {}
 
             ' Set the Content Type
@@ -311,9 +321,14 @@ Function moviemetadata_latest() As Object
     if response <> invalid
 
         contentList = CreateObject("roArray", 10, true)
-        items       = ParseJSON(response).Items
+        jsonObj     = ParseJSON(response)
 
-        for each i in items
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response for Recently Added Movies")
+            return invalid
+        end if
+
+        for each i in jsonObj.Items
             metaData = {}
 
             ' Set the Content Type
@@ -389,9 +404,14 @@ Function moviemetadata_genres() As Object
     if response <> invalid
 
         contentList = CreateObject("roArray", 10, true)
-        items       = ParseJSON(response).Items
+        jsonObj     = ParseJSON(response)
 
-        for each i in items
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response for Genres for Movies")
+            return invalid
+        end if
+
+        for each i in jsonObj.Items
             metaData = {}
 
             ' Set the Content Type
@@ -502,9 +522,14 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
         fixedResponse = regex.ReplaceAll(response, Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
 
         contentList   = CreateObject("roArray", 25, true)
-        items         = ParseJSON(fixedResponse).Items
+        jsonObj       = ParseJSON(fixedResponse)
 
-        for each i in items
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response for Movies List In Genre")
+            return invalid
+        end if
+
+        for each i in jsonObj.Items
             metaData = {}
 
             ' Set the Content Type
