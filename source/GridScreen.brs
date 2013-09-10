@@ -6,29 +6,36 @@
 Function CreateGridScreen(lastLocation As String, currentLocation As String, style As String) As Object
 
     ' Setup Screen
-    screen = CreateObject("roAssociativeArray")
+    o = CreateObject("roAssociativeArray")
 
     port = CreateObject("roMessagePort")
     grid = CreateObject("roGridScreen")
     grid.SetMessagePort(port)
 
     ' Setup Common Items
-    screen.Screen           = grid
-    screen.Port             = Port
-    screen.AddRow           = AddGridRow
-    screen.ShowNames        = ShowGridNames
-    screen.AddRowContent    = AddGridRowContent
-    screen.UpdateRowContent = UpdateGridRowContent
-    screen.Show             = ShowGridScreen
+    o.Screen                = grid
+    o.Port                  = Port
+    o.AddRow                = AddGridRow
+    o.ShowNames             = ShowGridNames
+    o.AddRowContent         = AddGridRowContent
+    o.UpdateRowContent      = UpdateGridRowContent
+    o.SetDescriptionVisible = ShowGridDescriptionBox
+    o.SetListPosterStyles   = SetGridPosterStyles
+    o.SetFocusedListItem    = SetGridFocusedItem
+    o.Show                  = ShowGridScreen
+
+    o.rowNames              = []
+    o.rowStyles             = []
+    o.rowContent            = []
 
     ' Set Breadcrumbs
-    screen.Screen.SetBreadcrumbText(lastLocation, currentLocation)
+    o.Screen.SetBreadcrumbText(lastLocation, currentLocation)
 
     ' Setup Display Style
-    screen.Screen.SetGridStyle(style)
-    screen.Screen.SetDisplayMode("scale-to-fit")
+    o.Screen.SetGridStyle(style)
+    o.Screen.SetDisplayMode("scale-to-fit")
 
-    Return screen
+    Return o
 End Function
 
 
@@ -36,14 +43,14 @@ End Function
 '** Add Grid Row Titles
 '**********************************************************
 
-Function AddGridRow(screenContent As Object, title As String, rowStyle As String) As Boolean
+Function AddGridRow(title As String, rowStyle As String) As Boolean
 
-    screenContent.rowNames.push(title)
+    m.rowNames.push(title)
 
     If rowStyle = "portrait" Then
-        screenContent.rowStyles.push( "portrait" )
+        m.rowStyles.push( "portrait" )
     Else
-        screenContent.rowStyles.push( "landscape" )
+        m.rowStyles.push( "landscape" )
     End If
 
     Return true
@@ -54,9 +61,9 @@ End Function
 '** Show Grid Row Titles
 '**********************************************************
 
-Function ShowGridNames(screenContent As Object) As Boolean
-    screenContent.Screen.SetupLists(screenContent.rowNames.Count())
-    screenContent.Screen.SetListNames(screenContent.rowNames)
+Function ShowGridNames() As Boolean
+    m.screen.SetupLists(m.rowNames.Count())
+    m.screen.SetListNames(m.rowNames)
 
     Return true
 End Function
@@ -66,16 +73,16 @@ End Function
 '** Add Grid Row Content (Hide if no content)
 '**********************************************************
 
-Function AddGridRowContent(screenContent As Object, rowData As Object) As Boolean
+Function AddGridRowContent(rowData As Object) As Boolean
 
-    screenContent.rowContent.push(rowData)
+    m.rowContent.push(rowData)
 
-    rowIndex = screenContent.rowContent.Count() - 1
+    rowIndex = m.rowContent.Count() - 1
 
-    screenContent.Screen.SetContentList(rowIndex, rowData)
+    m.screen.SetContentList(rowIndex, rowData)
 
     If rowData.Count() = 0 Then
-        screenContent.Screen.SetListVisible(rowIndex, false)
+        m.screen.SetListVisible(rowIndex, false)
     End If
 
     Return true
@@ -86,17 +93,44 @@ End Function
 '** Update Grid Row Content (Hide if no content)
 '**********************************************************
 
-Function UpdateGridRowContent(screenContent As Object, rowIndex As Integer, rowData As Object) As Boolean
+Function UpdateGridRowContent(rowIndex As Integer, rowData As Object) As Boolean
 
-    screenContent.rowContent[rowIndex] = rowData
+    m.rowContent[rowIndex] = rowData
 
-    screenContent.Screen.SetContentList(rowIndex, rowData)
+    m.screen.SetContentList(rowIndex, rowData)
 
     If rowData.Count() = 0 Then
-        screenContent.Screen.SetListVisible(rowIndex, false)
+        m.screen.SetListVisible(rowIndex, false)
     End If
 
     Return true
+End Function
+
+
+'**********************************************************
+'** Show Grid Description Box
+'**********************************************************
+
+Function ShowGridDescriptionBox(visible)
+    m.screen.SetDescriptionVisible(visible)
+End Function
+
+
+'**********************************************************
+'** Set Grid Poster Styles
+'**********************************************************
+
+Function SetGridPosterStyles(styles As Object)
+    m.screen.SetListPosterStyles(styles)
+End Function
+
+
+'**********************************************************
+'** Set Grid Focused List Item
+'**********************************************************
+
+Function SetGridFocusedItem(listIndex As Integer, itemIndex As Integer)
+    m.screen.SetFocusedListItem(listIndex, itemIndex)
 End Function
 
 
