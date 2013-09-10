@@ -169,8 +169,8 @@ Function GetMoviesButtons() As Object
             Title: "Movie Library"
             ContentType: "MovieLibrary"
             ShortDescriptionLine1: "Movie Library"
-            HDPosterUrl: "pkg://images/items/MovieTile_HD.png"
-            SDPosterUrl: "pkg://images/items/MovieTile_SD.png"
+            HDPosterUrl: "pkg://images/tiles/hd-movies.jpg"
+            SDPosterUrl: "pkg://images/tiles/sd-movies.jpg"
         }
     ]
 
@@ -258,8 +258,8 @@ Function GetTVButtons() As Object
             Title: "TV Library"
             ContentType: "TVLibrary"
             ShortDescriptionLine1: "TV Library"
-            HDPosterUrl: "pkg://images/tiles/hd-tv.png"
-            SDPosterUrl: "pkg://images/tiles/sd-tv.png"
+            HDPosterUrl: "pkg://images/tiles/hd-tv.jpg"
+            SDPosterUrl: "pkg://images/tiles/sd-tv.jpg"
         }
     ]
 
@@ -348,8 +348,8 @@ Function GetMusicButtons() As Object
             Title: "Music Library"
             ContentType: "MusicLibrary"
             ShortDescriptionLine1: "Music Library"
-            HDPosterUrl: "pkg://images/items/MusicTile_HD.png"
-            SDPosterUrl: "pkg://images/items/MusicTile_SD.png"
+            HDPosterUrl: "pkg://images/tiles/hd-music.jpg"
+            SDPosterUrl: "pkg://images/tiles/sd-music.jpg"
         }
     ]
 
@@ -376,16 +376,16 @@ Function GetOptionsButtons() As Object
             Title: "Switch User"
             ContentType: "SwitchUser"
             ShortDescriptionLine1: "Switch User"
-            HDPosterUrl: "pkg://images/items/SwitchUsersTile_HD.png"
-            SDPosterUrl: "pkg://images/items/SwitchUsersTile_SD.png"
+            HDPosterUrl: "pkg://images/tiles/hd-switch-user.jpg"
+            SDPosterUrl: "pkg://images/tiles/sd-switch-user.jpg"
         },
         {
             Title: "Preferences"
             ContentType: "Preferences"
             ShortDescriptionLine1: "Preferences"
             ShortDescriptionLine2: "Version " + getGlobalVar("channelVersion", "Unknown")
-            HDPosterUrl: "pkg://images/items/PreferencesTile_HD.png"
-            SDPosterUrl: "pkg://images/items/PreferencesTile_SD.png"
+            HDPosterUrl: "pkg://images/tiles/hd-preferences.jpg"
+            SDPosterUrl: "pkg://images/tiles/sd-preferences.jpg"
         }
     ]
 
