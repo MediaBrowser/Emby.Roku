@@ -158,55 +158,73 @@ Function GetPreferenceList() as Object
             Title: "Video Quality: " + GetSelectedPreference(GetPreferenceVideoQuality(), RegRead("prefVideoQuality")),
             ShortTitle: "Video Quality",
             ID: "prefVideoQuality",
-            ShortDescriptionLine1: "Select the quality of the video streams"
+            ShortDescriptionLine1: "Select the quality of the video streams",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
             Title: "Movie Image Type: " + GetSelectedPreference(GetPreferenceMovieImageType(), RegRead("prefMovieImageType")),
             ShortTitle: "Movie Image Type",
             ID: "prefMovieImageType",
-            ShortDescriptionLine1: "Select from backdrop, poster, or thumb image"
+            ShortDescriptionLine1: "Select from backdrop, poster, or thumb image",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
             Title: "Movie Title: " + GetSelectedPreference(GetPreferenceMovieTitle(), RegRead("prefMovieTitle")),
             ShortTitle: "Movie Title",
             ID: "prefMovieTitle",
-            ShortDescriptionLine1: "Show or hide the movie title below the movie image."            
+            ShortDescriptionLine1: "Show or hide the movie title below the movie image.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
             Title: "Movies PopUp Bubble: " + GetSelectedPreference(GetPreferenceMovieDisplayPopup(), RegRead("prefMovieDisplayPopup")),
             ShortTitle: "Display PopUp Bubble for Movies",
             ID: "prefMovieDisplayPopup",
-            ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information."            
+            ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
             Title: "TV Series Image Type: " + GetSelectedPreference(GetPreferenceTVImageType(), RegRead("prefTVImageType")),
             ShortTitle: "TV Series Image Type",
             ID: "prefTVImageType",
-            ShortDescriptionLine1: "Select from backdrop, poster, or thumb image"
+            ShortDescriptionLine1: "Select from backdrop, poster, or thumb image",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
             Title: "TV Series Title: " + GetSelectedPreference(GetPreferenceTVTitle(), RegRead("prefTVTitle")),
             ShortTitle: "TV Series Title",
             ID: "prefTVTitle",
-            ShortDescriptionLine1: "Show or hide the tv series title below the tv series image."            
+            ShortDescriptionLine1: "Show or hide the tv series title below the tv series image.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
             Title: "TV PopUp Bubble: " + GetSelectedPreference(GetPreferenceTVDisplayPopup(), RegRead("prefTVDisplayPopup")),
             ShortTitle: "Display PopUp Bubble For TV",
             ID: "prefTVDisplayPopup",
-            ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information."            
+            ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
             Title: "Play TV Theme Music: " + GetSelectedPreference(GetPreferenceTVThemeMusic(), RegRead("prefTVMusic")),
             ShortTitle: "Play TV Theme Music",
             ID: "prefTVMusic",
-            ShortDescriptionLine1: "Play TV theme music while browsing a TV Series."            
+            ShortDescriptionLine1: "Play TV theme music while browsing a TV Series.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
             Title: "Repeat TV Theme Music: " + GetSelectedPreference(GetPreferenceTVThemeMusicRepeat(), RegRead("prefTVMusicLoop")),
             ShortTitle: "Repeat TV Theme Music",
             ID: "prefTVMusicLoop",
-            ShortDescriptionLine1: "Repeat TV theme music while browsing TV Series."            
+            ShortDescriptionLine1: "Repeat TV theme music while browsing TV Series.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         }
     ]
 
