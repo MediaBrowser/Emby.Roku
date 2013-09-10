@@ -209,8 +209,8 @@ Sub initTheme()
         GridScreenLogoOffsetHD_X: "80"
         GridScreenLogoOffsetHD_Y: "30"
         GridScreenOverhangHeightHD: "124"
-        GridScreenFocusBorderHD: "pkg:/images/grid/hd-flat-landscape.png"
-        GridScreenBorderOffsetHD: "(-34,-19)" ' (hd-flat-landscape) Landscape 2 Row custom: -34,-19; (hd-portrait) mixed portrait: -25,-35;
+        GridScreenFocusBorderHD: "pkg:/images/grid/hd-border-flat-landscape.png"
+        GridScreenBorderOffsetHD: "(-34,-19)"
         GridScreenDescriptionImageHD: "pkg:/images/grid/Grid_Description_Background_16x9_HD.png"
         'GridScreenDescriptionOffsetHD:"(150,205)"
 
@@ -228,8 +228,8 @@ Sub initTheme()
         GridScreenLogoOffsetSD_X: "20"
         GridScreenLogoOffsetSD_Y: "20"
         GridScreenOverhangHeightSD: "83"
-        'GridScreenFocusBorderSD: "pkg:/images/grid/GridCenter_Border_Movies_SD43.png"
-        'GridScreenBorderOffsetSD: "(-26,-25)"
+        GridScreenFocusBorderSD: "pkg:/images/grid/sd-border-flat-landscape.png"
+        GridScreenBorderOffsetSD: "(-34,-19)"
         'GridScreenDescriptionImageSD: "pkg:/images/grid/Grid_Description_Background_Portrait_SD43.png"
         'GridScreenDescriptionOffsetSD:"(125,170)"
 
