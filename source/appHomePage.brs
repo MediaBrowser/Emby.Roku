@@ -25,54 +25,49 @@ Function ShowHomePage()
     m.tvToggle    = ""
     m.musicToggle = ""
 
-    ' Setup Row Data
-    screen.rowNames   = CreateObject("roArray", 3, true)
-    screen.rowStyles  = CreateObject("roArray", 3, true)
-    screen.rowContent = CreateObject("roArray", 3, true)
-
     If itemCounts.MovieCount > 0 Then
-        AddGridRow(screen, "Movies", "landscape")
+        screen.AddRow("Movies", "landscape")
     End If
 
     If itemCounts.SeriesCount > 0 Then
-        AddGridRow(screen, "TV", "landscape")
+        screen.AddRow("TV", "landscape")
     End If
 
     If itemCounts.SongCount > 0 Then
-        AddGridRow(screen, "Music", "landscape")
+        screen.AddRow("Music", "landscape")
     End If
 
-    AddGridRow(screen, "Options", "landscape")
+    screen.AddRow("Options", "landscape")
 
-    ShowGridNames(screen)
+    screen.ShowNames()
 
     ' Get Data
     If itemCounts.MovieCount > 0 Then
         moviesButtons = GetMoviesButtons()
-        AddGridRowContent(screen, moviesButtons)
+        screen.AddRowContent(moviesButtons)
     End If
 
     If itemCounts.SeriesCount > 0 Then
         tvButtons = GetTVButtons()
-        AddGridRowContent(screen, tvButtons)
+        screen.AddRowContent(tvButtons)
     End If
 
     If itemCounts.SongCount > 0 Then
         musicButtons = GetMusicButtons()
-        AddGridRowContent(screen, musicButtons)
+        screen.AddRowContent(musicButtons)
     End If
 
     optionButtons = GetOptionsButtons()
-    AddGridRowContent(screen, optionButtons)
+    screen.AddRowContent(optionButtons)
 
     ' Show Screen
-    screen.Screen.Show()
+    screen.Show()
 
     ' Hide Description Popup
-    screen.Screen.SetDescriptionVisible(false)
+    screen.SetDescriptionVisible(false)
 
     while true
-        msg = wait(0, screen.Screen.GetMessagePort())
+        msg = wait(0, screen.Port)
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListFocused() then
@@ -90,7 +85,7 @@ Function ShowHomePage()
                     ' Toggle Movie Display
                     GetNextMovieToggle()
                     moviesButtons = GetMoviesButtons()
-                    UpdateGridRowContent(screen, row, moviesButtons)
+                    screen.UpdateRowContent(row, moviesButtons)
 
                 Else If screen.rowContent[row][selection].ContentType = "Movie" Then
                     ShowMoviesDetailPage(screen.rowContent[row][selection].Id)
@@ -102,7 +97,7 @@ Function ShowHomePage()
                     ' Toggle TV Display
                     GetNextTVToggle()
                     tvButtons = GetTVButtons()
-                    UpdateGridRowContent(screen, row, tvButtons)
+                    screen.UpdateRowContent(row, tvButtons)
 
                 Else If screen.rowContent[row][selection].ContentType = "Episode" Then
                     ShowTVDetailPage(screen.rowContent[row][selection].Id)
@@ -263,8 +258,8 @@ Function GetTVButtons() As Object
             Title: "TV Library"
             ContentType: "TVLibrary"
             ShortDescriptionLine1: "TV Library"
-            HDPosterUrl: "pkg://images/items/TVTile_HD.png"
-            SDPosterUrl: "pkg://images/items/TVTile_SD.png"
+            HDPosterUrl: "pkg://images/tiles/hd-tv.png"
+            SDPosterUrl: "pkg://images/tiles/sd-tv.png"
         }
     ]
 

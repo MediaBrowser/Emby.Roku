@@ -18,36 +18,31 @@ Function ShowMoviesBoxsetPage(boxsetId As String, boxsetName As String) As Integ
         screen = CreateGridScreen(boxsetName, "Movies", "two-row-flat-landscape-custom")
     End If
 
-    ' Setup Row Data
-    screen.rowNames   = CreateObject("roArray", 1, true)
-    screen.rowStyles  = CreateObject("roArray", 1, true)
-    screen.rowContent = CreateObject("roArray", 1, true)
+    screen.AddRow("Movies", "portrait")
 
-    AddGridRow(screen, "Movies", "portrait")
-
-    ShowGridNames(screen)
+    screen.ShowNames()
 
     ' Get Data
     moviesAll = GetMoviesInBoxset(boxsetId)
 
-    AddGridRowContent(screen, moviesAll)
+    screen.AddRowContent(moviesAll)
 
     ' Show Screen
-    screen.Screen.Show()
+    screen.Show()
 
     ' Show/Hide Description Popup
     If RegRead("prefMovieDisplayPopup") = "no" Or RegRead("prefMovieDisplayPopup") = invalid Then
-        screen.Screen.SetDescriptionVisible(false)
+        screen.SetDescriptionVisible(false)
     End If
 
     while true
-        msg = wait(0, screen.Screen.GetMessagePort())
+        msg = wait(0, screen.Port)
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListItemFocused() then
                 ' Show/Hide Description Popup
                 If RegRead("prefMovieDisplayPopup") = "yes" Then
-                    screen.Screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                    screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
                 End If
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
@@ -55,7 +50,7 @@ Function ShowMoviesBoxsetPage(boxsetId As String, boxsetName As String) As Integ
 
                 If screen.rowContent[row][selection].ContentType = "Movie" Then
                     movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesAll, selection)
-                    screen.Screen.SetFocusedListItem(row, movieIndex)
+                    screen.SetFocusedListItem(row, movieIndex)
                 Else 
                     Debug("Unknown Type found")
                 End If

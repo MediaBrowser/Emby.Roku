@@ -16,19 +16,14 @@ Function ShowMoviesListPage() As Integer
         screen = CreateGridScreen("", "Movies", "two-row-flat-landscape-custom")
     End If
 
-    ' Setup Row Data
-    screen.rowNames   = CreateObject("roArray", 3, true)
-    screen.rowStyles  = CreateObject("roArray", 3, true)
-    screen.rowContent = CreateObject("roArray", 3, true)
+    screen.AddRow("Movies", "portrait")
+    screen.AddRow("Box Sets", "portrait")
+    screen.AddRow("Genres", "portrait")
 
-    AddGridRow(screen, "Movies", "portrait")
-    AddGridRow(screen, "Box Sets", "portrait")
-    AddGridRow(screen, "Genres", "landscape")
-
-    ShowGridNames(screen)
+    screen.ShowNames()
 
     If RegRead("prefMovieImageType") = "poster" Then
-        screen.Screen.SetListPosterStyles(screen.rowStyles)
+        screen.SetListPosterStyles(screen.rowStyles)
     End If
 
     ' Show Loading Dialog
@@ -42,32 +37,32 @@ Function ShowMoviesListPage() As Integer
     moviesBoxsets = GetMoviesBoxsets()
     moviesGenres  = MovieMetadata.GetGenres()
 
-    AddGridRowContent(screen, moviesAll)
-    AddGridRowContent(screen, moviesBoxsets)
-    AddGridRowContent(screen, moviesGenres)
+    screen.AddRowContent(moviesAll)
+    screen.AddRowContent(moviesBoxsets)
+    screen.AddRowContent(moviesGenres)
 
     ' Show Screen
-    screen.Screen.Show()
+    screen.Show()
 
     ' Close Loading Dialog
     dialogBox.Close()
 
     ' Show/Hide Description Popup
     If RegRead("prefMovieDisplayPopup") = "no" Or RegRead("prefMovieDisplayPopup") = invalid Then
-        screen.Screen.SetDescriptionVisible(false)
+        screen.SetDescriptionVisible(false)
     End If
 
     ' Remote key id's for navigation
     remoteKeyStar = 10
 
     while true
-        msg = wait(0, screen.Screen.GetMessagePort())
+        msg = wait(0, screen.Port)
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListItemFocused() Then
                 ' Show/Hide Description Popup
                 If RegRead("prefMovieDisplayPopup") = "yes" Then
-                    screen.Screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                    screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
                 End If
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
@@ -75,7 +70,7 @@ Function ShowMoviesListPage() As Integer
 
                 If screen.rowContent[row][selection].ContentType = "Movie" Then
                     movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesAll, selection)
-                    screen.Screen.SetFocusedListItem(row, movieIndex)
+                    screen.SetFocusedListItem(row, movieIndex)
                 Else If screen.rowContent[row][selection].ContentType = "Genre" Then
                     ShowMoviesGenrePage(screen.rowContent[row][selection].Id)
                 Else If screen.rowContent[row][selection].ContentType = "BoxSet" Then
@@ -92,7 +87,7 @@ Function ShowMoviesListPage() As Integer
 
                     If letterSelected <> invalid Then
                         letter = FindClosestLetter(letterSelected, MovieMetadata)
-                        screen.Screen.SetFocusedListItem(0, MovieMetadata.jumpList.Lookup(letter))
+                        screen.SetFocusedListItem(0, MovieMetadata.jumpList.Lookup(letter))
                     End If
                 End If
 
