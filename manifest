@@ -1,10 +1,10 @@
 title=Media Browser
-mm_icon_focus_hd=pkg:/images/HomeChannel_Tile_Focus_HD.jpg
-mm_icon_side_hd=pkg:/images/HomeChannel_Tile_Side_HD.jpg
-mm_icon_focus_sd=pkg:/images/HomeChannel_Tile_Focus_SD.jpg
-mm_icon_side_sd=pkg:/images/HomeChannel_Tile_Side_SD.jpg
-splash_screen_hd=pkg:/images/Splash_HD.jpg
-splash_screen_sd=pkg:/images/Splash_SD43.jpg
+mm_icon_focus_hd=pkg:/images/channel/hd-home-tile.jpg
+mm_icon_side_hd=pkg:/images/channel/hd-side-tile.jpg
+mm_icon_focus_sd=pkg:/images/channel/sd-home-tile.jpg
+mm_icon_side_sd=pkg:/images/channel/sd-side-tile.jpg
+splash_screen_hd=pkg:/images/channel/hd-splash.jpg
+splash_screen_sd=pkg:/images/channel/sd-splash.jpg
 version=1.15
 major_version=1
 minor_version=15

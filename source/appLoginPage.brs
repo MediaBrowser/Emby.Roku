@@ -94,8 +94,8 @@ Function GetUserProfiles() As Object
                             userData.HDPosterUrl = GetServerBaseUrl() + "/Users/" + userProfile.Id + "/Images/Primary/0?height=200&width=&tag=" + userProfile.PrimaryImageTag
                             userData.SDPosterUrl = GetServerBaseUrl() + "/Users/" + userProfile.Id + "/Images/Primary/0?height=200&width=&tag=" + userProfile.PrimaryImageTag
                         Else 
-                            userData.HDPosterUrl = "pkg://images/UserDefaultBlack.png"
-                            userData.SDPosterUrl = "pkg://images/UserDefaultBlack.png"
+                            userData.HDPosterUrl = "pkg://images/hd-default-user.png"
+                            userData.SDPosterUrl = "pkg://images/sd-default-user.png"
                         End If
                         
                         userList.push( userData )
@@ -147,8 +147,8 @@ Function GetUserProfile(userId As String) As Object
                         userData.HDPosterUrl = GetServerBaseUrl() + "/Users/" + userProfile.Id + "/Images/Primary/0?height=200&width=&tag=" + userProfile.PrimaryImageTag
                         userData.SDPosterUrl = GetServerBaseUrl() + "/Users/" + userProfile.Id + "/Images/Primary/0?height=200&width=&tag=" + userProfile.PrimaryImageTag
                     Else 
-                        userData.HDPosterUrl = "pkg://images/UserDefaultBlack.png"
-                        userData.SDPosterUrl = "pkg://images/UserDefaultBlack.png"
+                        userData.HDPosterUrl = "pkg://images/hd-default-user.png"
+                        userData.SDPosterUrl = "pkg://images/sd-default-user.png"
                     End If
                     return userData
                 else
