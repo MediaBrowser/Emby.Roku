@@ -13,9 +13,9 @@ Function ShowMoviesBoxsetPage(boxsetId As String, boxsetName As String) As Integ
 
     ' Create Grid Screen
     If RegRead("prefMovieImageType") = "poster" Then
-        screen = CreateGridScreen(boxsetName, "Movies", "mixed-aspect-ratio")
+        screen = CreateGridScreen("Movies", boxsetName, "mixed-aspect-ratio")
     Else
-        screen = CreateGridScreen(boxsetName, "Movies", "two-row-flat-landscape-custom")
+        screen = CreateGridScreen("Movies", boxsetName, "two-row-flat-landscape-custom")
     End If
 
     screen.AddRow("Movies", "portrait")
