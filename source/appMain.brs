@@ -195,21 +195,50 @@ Sub initTheme()
     textColorBlack = "#000000"
 
     theme = {
+
+        '*** HD Styles ****
+        OverhangSliceHD: "pkg:/images/overhang/hd-header-slice.png"
+        OverhangLogoHD: "pkg:/images/overhang/hd-logo.png"
+        OverhangOffsetHD_X: "80"
+        OverhangOffsetHD_Y: "30"
+
+        'FilterBannerSliceHD: "pkg:/images/overhang/hd-logo.png"
+
+        GridScreenLogoHD: "pkg:/images/overhang/hd-logo.png"
+        GridScreenOverhangSliceHD: "pkg:/images/overhang/hd-header-slice.png"
+        GridScreenLogoOffsetHD_X: "80"
+        GridScreenLogoOffsetHD_Y: "30"
+        GridScreenOverhangHeightHD: "124"
+        GridScreenFocusBorderHD: "pkg:/images/grid/hd-flat-landscape.png"
+        GridScreenBorderOffsetHD: "(-34,-19)" ' (hd-flat-landscape) Landscape 2 Row custom: -34,-19; (hd-portrait) mixed portrait: -25,-35;
+        GridScreenDescriptionImageHD: "pkg:/images/grid/Grid_Description_Background_16x9_HD.png"
+        'GridScreenDescriptionOffsetHD:"(150,205)"
+
+        ListItemHighlightHD: "pkg:/images/select_bkgnd.png"
+
+        '*** SD Styles ****
+
+        OverhangSliceSD: "pkg:/images/overhang/sd-header-slice.png"
+        OverhangLogoSD: "pkg:/images/overhang/sd-logo.png"
+        OverhangOffsetSD_X: "20"
+        OverhangOffsetSD_Y: "20"
+
+        GridScreenLogoSD: "pkg:/images/overhang/sd-logo.png"
+        GridScreenOverhangSliceSD: "pkg:/images/overhang/sd-header-slice.png"
+        GridScreenLogoOffsetSD_X: "20"
+        GridScreenLogoOffsetSD_Y: "20"
+        GridScreenOverhangHeightSD: "83"
+        'GridScreenFocusBorderSD: "pkg:/images/grid/GridCenter_Border_Movies_SD43.png"
+        'GridScreenBorderOffsetSD: "(-26,-25)"
+        'GridScreenDescriptionImageSD: "pkg:/images/grid/Grid_Description_Background_Portrait_SD43.png"
+        'GridScreenDescriptionOffsetSD:"(125,170)"
+
+        ListItemHighlightSD: "pkg:/images/select_bkgnd.png"
+
+
+        '*** Common Styles ****
+
         BackgroundColor: backgroundColor
-
-        OverhangSliceHD: "pkg:/images/Overhang_Background_HD.png"
-        OverhangSliceSD: "pkg:/images/Overhang_Background_SD.png"
-        OverhangLogoHD: "pkg:/images/mblogowhite.png"
-        OverhangLogoSD: "pkg:/images/mblogowhite.png"
-        OverhangOffsetSD_X: "35"
-        OverhangOffsetSD_Y: "35"
-        OverhangOffsetHD_X: "35"
-        OverhangOffsetHD_Y: "35"
-
-        ' Secondary Logo works On All screens except grid
-        'OverhangSecondaryLogoHD: "pkg:/images/mblogowhite.png"
-        'OverhangSecondaryLogoOffsetHD_X: "500"
-        'OverhangSecondaryLogoOffsetHD_Y: "35"
 
         BreadcrumbTextLeft: breadcrumbText
         BreadcrumbTextRight: breadcrumbText
@@ -220,8 +249,6 @@ Sub initTheme()
         ListItemText: listItemText
         ListItemHighlightText: listItemHighlight
         ListScreenDescriptionText: listItemText
-        ListItemHighlightHD: "pkg:/images/select_bkgnd.png"
-        ListItemHighlightSD: "pkg:/images/select_bkgnd.png"
 
         CounterTextLeft: brandingWhite
         CounterTextRight: brandingWhite
@@ -231,26 +258,6 @@ Sub initTheme()
         GridScreenListNameColor: brandingWhite
         GridScreenDescriptionTitleColor: "#1E1E1E"
         GridScreenDescriptionDateColor: "#1E1E1E"
-        GridScreenLogoHD: "pkg:/images/mblogowhite.png"
-        GridScreenLogoSD: "pkg:/images/mblogowhite.png"
-        GridScreenOverhangHeightHD: "124"
-        GridScreenOverhangHeightSD: "83"
-        GridScreenOverhangSliceHD: "pkg:/images/Overhang_Background_HD.png"
-        GridScreenOverhangSliceSD: "pkg:/images/Overhang_Background_SD.png"
-        GridScreenLogoOffsetHD_X: "35"
-        GridScreenLogoOffsetHD_Y: "35"
-        GridScreenLogoOffsetSD_X: "35"
-        GridScreenLogoOffsetSD_Y: "35"
-
-        'GridScreenFocusBorderSD: "pkg:/images/grid/GridCenter_Border_Movies_SD43.png"
-        'GridScreenBorderOffsetSD: "(-26,-25)"
-        'GridScreenFocusBorderHD: "pkg:/images/grid/GridCenter_Border_Movies_HD2.png"
-        'GridScreenBorderOffsetHD: "(-15,-15)"
-
-        'GridScreenDescriptionImageSD: "pkg:/images/grid/Grid_Description_Background_Portrait_SD43.png"
-        'GridScreenDescriptionOffsetSD:"(125,170)"
-        GridScreenDescriptionImageHD: "pkg:/images/grid/Grid_Description_Background_16x9_HD.png"
-        'GridScreenDescriptionOffsetHD:"(150,205)"
 
         SpringboardActorColor: "#ffffff"
 
