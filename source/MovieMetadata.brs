@@ -287,7 +287,7 @@ Function moviemetadata_boxsets() As Object
 
             ' Set the Movie Count
             if i.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = itostr(i.ChildCount) + " movies"
+                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "movie")
             end if
 
             isHd = false ' Hide For now
@@ -746,8 +746,8 @@ Function moviemetadata_genres() As Object
             metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
 
             ' Set Movie Count
-            if i.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = itostr(i.ChildCount) + " movies"
+            if i.MovieCount <> invalid
+                metaData.ShortDescriptionLine2 = Pluralize(i.MovieCount, "movie")
             end if
 
             ' Get Image Type From Preference
