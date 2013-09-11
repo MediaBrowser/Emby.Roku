@@ -32,7 +32,13 @@ Function ShowTVShowListPage() As Integer
     ' Initialize TV Metadata
     TvMetadata = InitTvMetadata()
 
+    ' Filter (example)
+    'filters = {
+    '    sortby: "PremiereDate"
+    '}
+
     ' Get Data
+    'tvShowAll    = TvMetadata.GetShowList(filters)
     tvShowAll    = TvMetadata.GetShowList()
     tvShowNextUp = TvMetadata.GetNextUp()
     tvShowGenres = TvMetadata.GetGenres()
