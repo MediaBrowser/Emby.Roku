@@ -98,8 +98,8 @@ Function tvmetadata_show_list(filters = invalid As Object) As Object
             end if
             
             ' Set the Season count
-            if i.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "season")
+            if i.SeasonCount <> invalid
+                metaData.ShortDescriptionLine2 = Pluralize(i.SeasonCount, "season")
             end if
 
             '** PopUp Metadata **
@@ -607,8 +607,8 @@ Function tvmetadata_genres() As Object
             metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
 
             ' Set Series Count
-            if i.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = itostr(i.ChildCount) + " shows"
+            if i.SeriesCount <> invalid
+                metaData.ShortDescriptionLine2 = Pluralize(i.SeriesCount, "show")
             end if
 
             ' Get Image Type From Preference
@@ -919,8 +919,8 @@ Function tvmetadata_genre_show_list(genreName As String) As Object
             end if
             
             ' Set the Season count
-            if i.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "season")
+            if i.SeasonCount <> invalid
+                metaData.ShortDescriptionLine2 = Pluralize(i.SeasonCount, "season")
             end if
 
             '** PopUp Metadata **
