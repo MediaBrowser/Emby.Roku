@@ -218,4 +218,4 @@ pip-log.txt
 images/Corel Auto-Preserve
 
 # Zip file for roku upload
-mb-roku.zip
+*.zip
