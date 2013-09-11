@@ -46,7 +46,7 @@ End Function
 '** Get All TV Shows
 '**********************************************************
 
-Function tvmetadata_show_list() As Object
+Function tvmetadata_show_list(filters = invalid As Object) As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -58,6 +58,11 @@ Function tvmetadata_show_list() As Object
         sortby: "SortName"
         sortorder: "Ascending"
     }
+
+    ' Filter/Sort Query
+    if filters <> invalid
+        query = FilterQuery(query, filters)
+    end if
 
     ' Prepare Request
     request = HttpRequest(url)
