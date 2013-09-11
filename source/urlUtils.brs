@@ -54,6 +54,21 @@ End Function
 
 
 '**********************************************************
+'** Filter Query Array
+'**********************************************************
+
+Function FilterQuery(query As Object, filters As Object) As Object
+    for each key in filters
+        if LCase(key) <> "recursive" And LCase(key) <> "includeitemtypes" And LCase(key) <> "fields"
+            query.AddReplace(key, filters[key])
+        end if
+    end for
+    
+    return query
+End Function
+
+
+'**********************************************************
 '** HTTP Encode a String
 '**********************************************************
 
