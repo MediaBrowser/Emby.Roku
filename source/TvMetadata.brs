@@ -614,7 +614,7 @@ Function tvmetadata_genres() As Object
             ' Get Image Type From Preference
             if RegRead("prefTVImageType") = "poster"
                 ' Get Image Sizes
-                sizes = GetImageSizes("mixed-aspect-ratio-landscape")
+                sizes = GetImageSizes("mixed-aspect-ratio-portrait")
 
                 ' Check If Item has Image, otherwise use default
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
@@ -634,18 +634,18 @@ Function tvmetadata_genres() As Object
                 sizes = GetImageSizes("two-row-flat-landscape-custom")
 
 
-                ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
-                if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Primary/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
-
-                else if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                ' Use Backdrop Image Or Primary
+                if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Backdrop/0"
 
                     metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+
+                else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Primary/0"
+
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
