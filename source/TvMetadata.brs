@@ -609,6 +609,7 @@ Function tvmetadata_genres() As Object
             ' Set Series Count
             if i.SeriesCount <> invalid
                 metaData.ShortDescriptionLine2 = Pluralize(i.SeriesCount, "show")
+                metaData.Description = Pluralize(i.SeriesCount, "show")
             end if
 
             ' Get Image Type From Preference

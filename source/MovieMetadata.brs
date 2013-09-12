@@ -748,6 +748,7 @@ Function moviemetadata_genres() As Object
             ' Set Movie Count
             if i.MovieCount <> invalid
                 metaData.ShortDescriptionLine2 = Pluralize(i.MovieCount, "movie")
+                metaData.Description = Pluralize(i.MovieCount, "movie")
             end if
 
             ' Get Image Type From Preference
