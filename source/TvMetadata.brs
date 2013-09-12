@@ -808,7 +808,12 @@ Function tvmetadata_episodes(seasonId As String) As Object
                     episodeInfo = episodeInfo + " / "
                 end if
                 
-                episodeInfo = episodeInfo + "Ep " + ZeroPad(itostr(i.IndexNumber))
+                episodeInfo = episodeInfo + "Ep " + itostr(i.IndexNumber)
+
+                ' Add Double Episode Number
+                if i.IndexNumberEnd <> invalid
+                    episodeInfo = episodeInfo + "-" + itostr(i.IndexNumberEnd)
+                end if
             end if
 
             ' Set the Episode rating
@@ -1115,6 +1120,11 @@ Function tvmetadata_episode_details(episodeId As String) As Object
             end if
             
             episodeInfo = episodeInfo + "Episode " + itostr(i.IndexNumber)
+
+            ' Add Double Episode Number
+            if i.IndexNumberEnd <> invalid
+                episodeInfo = episodeInfo + "-" + itostr(i.IndexNumberEnd)
+            end if
         end if
 
         ' Use Actors Area for Series / Season / Episode
