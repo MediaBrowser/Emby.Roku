@@ -219,6 +219,13 @@ Function GetImageSizes(screenType)
         sdWidth  = 224
         sdHeight = 158
 
+    '*** List ***
+    else if screenType = "list"
+        hdWidth  = 250
+        hdHeight = 250
+        sdWidth  = 136
+        sdHeight = 124
+
     '*** Springboard ***
     else if screenType = "movie"
         hdWidth  = 148
