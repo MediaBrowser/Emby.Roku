@@ -13,9 +13,6 @@ Function ShowMusicListPage() As Integer
     ' Create Poster Screen
     screen = CreatePosterScreen("", "Music", "arced-square")
 
-    ' Setup Jump List
-    m.jumpList = {}
-
     ' Initialize Music Metadata
     MusicMetadata = InitMusicMetadata()
 
