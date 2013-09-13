@@ -133,6 +133,7 @@ Sub initGlobals()
         models["2500X"] = "Roku HD"
         models["2400X"] = "Roku LT"
         models["2450X"] = "Roku LT"
+        models["2400SK"] = "Now TV"
         models["3000X"] = "Roku 2 HD"
         models["3050X"] = "Roku 2 XD"
         models["3100X"] = "Roku 2 XS"
