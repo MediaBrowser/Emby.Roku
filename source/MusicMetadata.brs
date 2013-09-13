@@ -546,7 +546,7 @@ Function musicmetadata_album_songs(artistId As String) As Object
             end if
 
             ' Build Song Information for Title Display
-            songInfo = itostr(index) + "."
+            songInfo = itostr(songListCount) + "."
 
             ' Add Song Name
             if i.Name <> invalid
