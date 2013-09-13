@@ -6,26 +6,30 @@
 Function CreatePosterScreen(lastLocation As String, currentLocation As String, style As String) As Object
 
     ' Setup Screen
-    screen = CreateObject("roAssociativeArray")
+    o = CreateObject("roAssociativeArray")
 
     port   = CreateObject("roMessagePort")
     poster = CreateObject("roPosterScreen")
     poster.SetMessagePort(port)
 
     ' Setup Common Items
-    screen.Screen     = poster
-    screen.Port       = port
-    screen.Categories = SetPosterCategories
-    screen.Show       = ShowPosterScreen
+    o.Screen         = poster
+    o.Port           = port
+    o.Categories     = SetPosterCategories
+    o.SetContent     = SetPosterContent
+    o.SetFocusedItem = SetPosterFocusedItem
+    o.ShowMessage    = ShowPosterMessage
+    o.ClearMessage   = ClearPosterMessage
+    o.Show           = ShowPosterScreen
 
     ' Set Breadcrumbs
-    screen.Screen.SetBreadcrumbText(lastLocation, currentLocation)
+    o.Screen.SetBreadcrumbText(lastLocation, currentLocation)
 
     ' Setup Display Style
-    screen.Screen.SetListStyle(style)
-    screen.Screen.SetDisplayMode("scale-to-fit")
+    o.Screen.SetListStyle(style)
+    o.Screen.SetDisplayMode("scale-to-fit")
 
-    Return screen
+    Return o
 End Function
 
 
@@ -33,10 +37,44 @@ End Function
 '** Set Categories for Poster Screen
 '**********************************************************
 
-Function SetPosterCategories(categories As Object) As Integer
+Function SetPosterCategories(categories As Object)
     m.screen.SetListNames(categories)
+End Function
 
-    Return 0
+
+'**********************************************************
+'** Set Content for Poster Screen
+'**********************************************************
+
+Function SetPosterContent(contentList As Object)
+    m.screen.SetContentList(contentList)
+End Function
+
+
+'**********************************************************
+'** Set Focused Item for Poster Screen
+'**********************************************************
+
+Function SetPosterFocusedItem(index as Integer)
+    m.screen.SetFocusedListItem(index)
+End Function
+
+
+'**********************************************************
+'** Show Message for Poster Screen
+'**********************************************************
+
+Function ShowPosterMessage(message as String)
+    m.screen.ShowMessage(message)
+End Function
+
+
+'**********************************************************
+'** Clear Message for Poster Screen
+'**********************************************************
+
+Function ClearPosterMessage(clear as Boolean)
+    m.screen.ClearMessage(clear)
 End Function
 
 
@@ -44,8 +82,6 @@ End Function
 '** Show Poster Screen
 '**********************************************************
 
-Function ShowPosterScreen() As Integer
+Function ShowPosterScreen()
     m.screen.Show()
-
-    Return 0
 End Function
