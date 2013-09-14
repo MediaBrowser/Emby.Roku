@@ -105,166 +105,6 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
 End Function
 
 
-'**********************************************************
-'** Get Movie Details From Server
-'**********************************************************
-
-Function GetMoviesDetails(movieId As String) As Object
-
-    if validateParam(movieId, "roString", "GetMoviesDetails") = false return -1
-
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/Items/" + movieId, true)
-
-    Debug("Movie URL: " + request.GetUrl())
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    ' Fixes bug within BRS Json Parser
-                    regex = CreateObject("roRegex", Chr(34) + + "(RunTimeTicks|PlaybackPositionTicks|StartPositionTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
-                    fixedString = regex.ReplaceAll(msg.GetString(), Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
-
-                    itemData = ParseJSON(fixedString)
-
-                    ' Convert Data For Page
-                    movieData = {
-                        Id: itemData.Id
-                        ContentId: itemData.Id
-                        ContentType: "Movie"
-                        Title: itemData.Name
-                        Description: itemData.Overview
-                        Rating: itemData.OfficialRating
-                        StarRating: itemData.CriticRating
-                        Watched: itemData.UserData.Played
-                    }
-
-                    ' Check For Production Year
-                    If Type(itemData.ProductionYear) = "Integer" Then
-                        movieData.ReleaseDate = Stri(itemData.ProductionYear)
-                    End if
-
-                    ' Check For Run Time
-                    itemRunTime = itemData.RunTimeTicks
-                    If itemRunTime<>"" And itemRunTime<>invalid
-                        movieData.Length = Int(((itemRunTime).ToFloat() / 10000) / 1000)
-                    End If
-
-                    ' Check For Playback Position Time
-                    itemPlaybackPositionTime = itemData.UserData.PlaybackPositionTicks
-                    If itemPlaybackPositionTime<>"" And itemPlaybackPositionTime<>invalid
-                        movieData.PlaybackPosition = itemPlaybackPositionTime
-                    End If
-
-                    ' Check If Item has Image, otherwise use default
-                    If itemData.ImageTags.Primary<>"" And itemData.ImageTags.Primary<>invalid
-                        movieData.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=212&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                        movieData.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Primary/0?quality=90&height=142&width=&EnableImageEnhancers=false&tag=" + itemData.ImageTags.Primary
-                    Else 
-                        movieData.HDPosterUrl = "pkg://images/items/collection.png"
-                        movieData.SDPosterUrl = "pkg://images/items/collection.png"
-                    End If
-
-                    ' Check For People, Grab First 3 If Exists
-                    If itemData.People<>invalid And itemData.People.Count() > 0
-                        movieData.Actors = CreateObject("roArray", 10, true)
-
-                        maxPeople = itemData.People.Count()-1
-
-                        ' Check To Max sure there are 3 people
-                        If maxPeople > 3
-                            maxPeople = 2
-                        End If
-
-                        For i = 0 to maxPeople
-                            If itemData.People[i].Name<>"" And itemData.People[i].Name<>invalid
-                                movieData.Actors.Push(itemData.People[i].Name)
-                            End If
-                        End For
-                    End If
-
-                    ' Check Media Streams For HD Video And Surround Sound Audio
-                    streamInfo = GetStreamInfo(itemData.MediaStreams)
-
-                    movieData.HDBranded = streamInfo.isHDVideo
-                    movieData.IsHD = streamInfo.isHDVideo
-
-                    If streamInfo.isSSAudio=true
-                        movieData.AudioFormat = "dolby-digital"
-                    End If
-
-                    ' Setup Video Player
-                    streamData = SetupVideoStreams(movieId, itemData.VideoType, itemData.Path)
-
-                    If streamData<>invalid
-                        movieData.StreamData = streamData
-
-                        ' Determine Direct Play
-                        If StreamData.Stream<>invalid Then
-                            movieData.IsDirectPlay = true
-                        Else
-                            movieData.IsDirectPlay = false
-                        End If
-
-                    End If
-
-                    ' Setup Watched
-                    If itemData.UserData.Played<>invalid And itemData.UserData.Played=true
-                        If itemData.UserData.LastPlayedDate<>invalid
-                            movieData.Categories = "Watched on " + formatDateStamp(itemData.UserData.LastPlayedDate)
-                        Else
-                            movieData.Categories = "Watched"
-                        End If
-                    End If
-
-                    ' Setup Chapters
-                    If itemData.Chapters<>invalid
-                        movieData.Chapters = CreateObject("roArray", 3, true)
-                        chapterCount = 0
-                        For each chapterData in itemData.Chapters
-                            if chapterData.StartPositionTicks.ToFloat() < 0 then
-                                chapterData.StartPositionTicks = "0"
-                            end if
-                            chapterList = {
-                                Title: chapterData.Name
-                                ShortDescriptionLine1: chapterData.Name
-                                ShortDescriptionLine2: FormatChapterTime(chapterData.StartPositionTicks)
-                                StartPositionTicks: chapterData.StartPositionTicks
-                            }
-
-                            ' Check If Chapter has Image, otherwise use default
-                            If chapterData.ImageTag<>"" And chapterData.ImageTag<>invalid
-                                chapterList.HDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?quality=90&height=141&width=&EnableImageEnhancers=false&tag=" + chapterData.ImageTag
-                                chapterList.SDPosterUrl = GetServerBaseUrl() + "/Items/" + itemData.Id + "/Images/Chapter/" + itostr(chapterCount) + "?quality=90&height=94&width=&EnableImageEnhancers=false&tag=" + chapterData.ImageTag
-                            Else 
-                                chapterList.HDPosterUrl = "pkg://images/items/collection.png"
-                                chapterList.SDPosterUrl = "pkg://images/items/collection.png"
-                            End If
-
-                            chapterCount = chapterCount + 1
-                            movieData.Chapters.push(chapterList)
-                        End For
-                    End If
-
-                    return movieData
-                Else
-					debug("Failed to get movie details")
-                    Return invalid
-                End If
-            Else If (event = invalid)
-                request.AsyncCancel()
-            End If
-        end while
-    endif
-
-    Return invalid
-End Function
-
-
 '**************************************************************
 '** Refresh the Contents of the Movies Detail Page
 '**************************************************************
@@ -274,8 +114,11 @@ Function RefreshMoviesDetailPage(screen As Object, movieId As String) As Object
     if validateParam(screen, "roSpringboardScreen", "RefreshMoviesDetailPage") = false return -1
     if validateParam(movieId, "roString", "RefreshMoviesDetailPage") = false return -1
 
+    ' Initialize Movie Metadata
+    MovieMetadata = InitMovieMetadata()
+
     ' Get Data
-    moviesDetails = GetMoviesDetails(movieId)
+    moviesDetails = MovieMetadata.GetMovieDetails(movieId)
 
     ' Setup Buttons
     screen.ClearButtons()
