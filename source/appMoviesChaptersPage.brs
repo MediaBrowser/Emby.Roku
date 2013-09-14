@@ -13,7 +13,7 @@ Function ShowMoviesChaptersPage(movieInfo As Object) As Integer
     screen = CreateObject("roPosterScreen")
     screen.SetMessagePort(port)
 
-    screen.SetBreadcrumbText("Movies", movieInfo.Title)
+    screen.SetBreadcrumbText(movieInfo.Title, "Chapters")
     screen.SetListStyle("flat-episodic-16x9")
     screen.SetListDisplayMode("scale-to-fill")
 
