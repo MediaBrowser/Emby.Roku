@@ -21,12 +21,18 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
     screen = CreateObject("roSpringboardScreen")
     screen.SetMessagePort(port)
 
-    screen.SetBreadcrumbText("", "TV")
     screen.SetDescriptionStyle("movie")
     screen.SetPosterStyle("rounded-rect-16x9-generic")
 
     ' Fetch / Refresh Screen Details
     tvDetails = RefreshTVDetailPage(screen, episodeId)
+
+    ' Set Breadcrumbs
+    if tvDetails.SeriesTitle <> invalid
+        screen.SetBreadcrumbText("TV", tvDetails.SeriesTitle)
+    else
+        screen.SetBreadcrumbText("TV", tvDetails.Title)
+    end if
 
     ' Hide Star Rating
     screen.SetStaticRatingEnabled(false)

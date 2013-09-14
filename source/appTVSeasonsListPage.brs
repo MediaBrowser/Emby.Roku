@@ -13,7 +13,7 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     screen = CreateObject("roPosterScreen")
     screen.SetMessagePort(port)
 
-    screen.SetBreadcrumbText(seriesInfo.Title, "TV")
+    screen.SetBreadcrumbText("TV", seriesInfo.Title)
     screen.SetListStyle("flat-episodic-16x9")
     screen.SetListDisplayMode("scale-to-fill")
 

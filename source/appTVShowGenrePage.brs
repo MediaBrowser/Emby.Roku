@@ -16,7 +16,7 @@ Function ShowTVShowGenrePage(genre As String) As Integer
     screen = CreateObject("roGridScreen")
     screen.SetMessagePort(port)
 
-    screen.SetBreadcrumbText(genre, "TV")
+    screen.SetBreadcrumbText("TV", genre)
 
     ' Determine Display Type
     If RegRead("prefTVImageType") = "poster" Then

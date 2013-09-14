@@ -13,7 +13,7 @@ Function ShowTVChaptersPage(episodeInfo As Object, audioPlayer=invalid) As Integ
     screen = CreateObject("roPosterScreen")
     screen.SetMessagePort(port)
 
-    screen.SetBreadcrumbText(episodeInfo.Title, "TV")
+    screen.SetBreadcrumbText(episodeInfo.Title, "Chapters")
     screen.SetListStyle("flat-episodic-16x9")
     screen.SetListDisplayMode("scale-to-fill")
 
