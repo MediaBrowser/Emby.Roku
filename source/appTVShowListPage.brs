@@ -9,6 +9,10 @@
 
 Function ShowTVShowListPage() As Integer
 
+    ' Create Facade Screen
+    facade = CreateObject("roGridScreen")
+    facade.Show()
+
     ' Create Grid Screen
     If RegRead("prefTVImageType") = "poster" Then
         screen = CreateGridScreen("", "TV", "mixed-aspect-ratio")
@@ -26,9 +30,6 @@ Function ShowTVShowListPage() As Integer
         screen.SetListPosterStyles(screen.rowStyles)
     End If
 
-    ' Show Loading Dialog
-    dialogBox = ShowPleaseWait("Loading...","")
-
     ' Initialize TV Metadata
     TvMetadata = InitTvMetadata()
 
@@ -43,15 +44,15 @@ Function ShowTVShowListPage() As Integer
     tvShowNextUp = TvMetadata.GetNextUp()
     tvShowGenres = TvMetadata.GetGenres()
 
-    screen.AddRowContent(tvShowAll)
-    screen.AddRowContent(tvShowNextUp)
-    screen.AddRowContent(tvShowGenres)
+    screen.AddRowContent(tvShowAll.Items)
+    screen.AddRowContent(tvShowNextUp.Items)
+    screen.AddRowContent(tvShowGenres.Items)
 
     ' Show Screen
     screen.Show()
 
-    ' Close Loading Dialog
-    dialogBox.Close()
+    ' Close Facade Screen
+    facade.Close()
 
     ' Show/Hide Description Popup
     If RegRead("prefTVDisplayPopup") = "no" Or RegRead("prefTVDisplayPopup") = invalid Then
