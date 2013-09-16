@@ -17,7 +17,7 @@ Function ShowTVShowListPage() As Integer
     End If
 
     screen.AddRow("Shows", "portrait")
-    screen.AddRow("Next Episodes to Watch", "landscape")
+    screen.AddRow("Next Episodes to Watch", "portrait")
     screen.AddRow("Genres", "portrait")
 
     screen.ShowNames()

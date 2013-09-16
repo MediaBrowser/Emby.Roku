@@ -517,30 +517,35 @@ Function tvmetadata_nextup() As Object
             ' Get Image Type From Preference
             if RegRead("prefTVImageType") = "poster"
                 ' Get Image Sizes
-                sizes = GetImageSizes("mixed-aspect-ratio-landscape")
+                sizes = GetImageSizes("mixed-aspect-ratio-portrait")
+
+                if i.ParentArtItemId <> "" And i.ParentArtItemId <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.ParentArtItemId) + "/Images/Primary/0"
+
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ParentArtItemId)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ParentArtItemId)
+
+                else 
+                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+                end if
 
             else
                 ' Get Image Sizes
                 sizes = GetImageSizes("two-row-flat-landscape-custom")
 
-            end if
+                if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-            ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
-            if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
 
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+                else 
+                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
 
-            else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
-
-            else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                end if
 
             end if
 
