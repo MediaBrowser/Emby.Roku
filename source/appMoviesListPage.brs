@@ -9,6 +9,10 @@
 
 Function ShowMoviesListPage() As Integer
 
+    ' Create Facade Screen
+    facade = CreateObject("roGridScreen")
+    facade.Show()
+
     ' Create Grid Screen
     if RegRead("prefMovieImageType") = "poster" then
         screen = CreateGridScreen("", "Movies", "mixed-aspect-ratio")
@@ -27,25 +31,25 @@ Function ShowMoviesListPage() As Integer
     end if
 
     ' Show Loading Dialog
-    dialogBox = ShowPleaseWait("Loading...","")
+    'dialogBox = ShowPleaseWait("Loading...","")
 
     ' Initialize Movie Metadata
     MovieMetadata = InitMovieMetadata()
 
     ' Get Data
-    moviesAll     = MovieMetadata.GetMovieList()
+    moviesList    = MovieMetadata.GetMovieList()
     moviesBoxsets = MovieMetadata.GetBoxsets()
     moviesGenres  = MovieMetadata.GetGenres()
 
-    screen.AddRowContent(moviesAll)
+    screen.AddRowContent(moviesList)
     screen.AddRowContent(moviesBoxsets)
     screen.AddRowContent(moviesGenres)
 
     ' Show Screen
     screen.Show()
 
-    ' Close Loading Dialog
-    dialogBox.Close()
+    ' Close Facade Screen
+    facade.Close()
 
     ' Show/Hide Description Popup
     if RegRead("prefMovieDisplayPopup") = "no" Or RegRead("prefMovieDisplayPopup") = invalid then
@@ -60,6 +64,9 @@ Function ShowMoviesListPage() As Integer
 
         if type(msg) = "roGridScreenEvent" then
             if msg.isListItemFocused() then
+                ' Load More Content
+
+
                 ' Show/Hide Description Popup
                 if RegRead("prefMovieDisplayPopup") = "yes" then
                     screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
@@ -69,7 +76,7 @@ Function ShowMoviesListPage() As Integer
                 selection = msg.getData()
 
                 if screen.rowContent[row][selection].ContentType = "Movie" then
-                    movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesAll, selection)
+                    movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesList, selection)
                     screen.SetFocusedListItem(row, movieIndex)
                 Else if screen.rowContent[row][selection].ContentType = "Genre" then
                     ShowMoviesGenrePage(screen.rowContent[row][selection].Id)
