@@ -34,6 +34,7 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
     o.ShowNames             = ShowGridNames
     o.AddRowContent         = AddGridRowContent
     o.UpdateRowContent      = UpdateGridRowContent
+    o.LoadRowContent        = LoadGridRowContent
     o.SetDescriptionVisible = ShowGridDescriptionBox
     o.SetListPosterStyles   = SetGridPosterStyles
     o.SetFocusedListItem    = SetGridFocusedItem
@@ -42,6 +43,10 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
     o.rowNames              = []
     o.rowStyles             = []
     o.rowContent            = []
+    o.rowLoadedCount        = []
+    o.rowFinishedLoading    = []
+    o.rowPageSize           = 40
+    o.rowPageEdge           = 20
 
     ' Set Breadcrumbs
     o.Screen.SetBreadcrumbText(lastLocation, currentLocation)
@@ -88,7 +93,8 @@ End Function
 '** Add Grid Row Content (Hide if no content)
 '**********************************************************
 
-Function AddGridRowContent(rowData As Object) As Boolean
+Function AddGridRowContent(rowData) As Boolean
+    if rowData = invalid then rowData = []
 
     m.rowContent.push(rowData)
 
@@ -118,6 +124,56 @@ Function UpdateGridRowContent(rowIndex As Integer, rowData As Object) As Boolean
         m.screen.SetListVisible(rowIndex, false)
     End If
 
+    Return true
+End Function
+
+
+'**********************************************************
+'** Load Grid Row Content (Hide if no content)
+'**********************************************************
+
+Function LoadGridRowContent(rowIndex, rowData, offset, limit) As Boolean
+    if rowData = invalid then rowData = []
+
+    ' Fill In Missing Items If Not 0
+    if offset <> 0 then
+        for i = 0 to rowData.Items.Count() - 1
+            m.rowContent[rowIndex][offset + i] = rowData.Items[i]
+        end for
+    else
+        m.rowContent.push(rowData.Items)
+    end if
+
+    ' Setup Row Loaded count
+    if m.rowLoadedCount[rowIndex] = invalid then m.rowLoadedCount[rowIndex] = 0
+
+    Debug("Loading On Row " + itostr(rowIndex) + ": " + itostr(offset+1) + " - " + itostr(offset+limit) + " of " + itostr(rowData.TotalCount) + "; Currently Loaded: " + itostr(m.rowLoadedCount[rowIndex]))
+
+    ' Add Current Row Size
+    m.rowLoadedCount[rowIndex] = m.rowLoadedCount[rowIndex] + rowData.Items.Count()
+
+    ' Hide Row if No Data
+    if m.rowContent[rowIndex].Count() = 0
+        m.screen.SetListVisible(rowIndex, false)
+        return true
+    end if
+
+    ' Handle Size of Row Counter
+    if m.rowContent[rowIndex].Count() < rowData.TotalCount And offset = 0
+        lastIndex = rowData.TotalCount - 1
+        m.rowContent[rowIndex][lastIndex] = {title: "Loading..."}
+    end if
+
+    if m.rowLoadedCount[rowIndex] >= rowData.TotalCount
+        m.screen.SetContentList(rowIndex, m.rowContent[rowIndex])
+        m.rowFinishedLoading[rowIndex] = true
+
+    else
+        m.screen.SetContentListSubset(rowIndex, m.rowContent[rowIndex], offset, limit)
+        m.rowFinishedLoading[rowIndex] = false
+
+    end if
+    
     Return true
 End Function
 
