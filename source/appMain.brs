@@ -190,7 +190,6 @@ Sub initTheme()
     listItemText                = "#707070"
     brandingWhite               = "#eeeeee"
     backgroundColor             = "#504B4B"
-    breadcrumbText              = "#eeeeee"
 
     textColorWhite = "#ffffff"
     textColorBlack = "#000000"
@@ -203,7 +202,9 @@ Sub initTheme()
         OverhangOffsetHD_X: "80"
         OverhangOffsetHD_Y: "30"
 
-        'FilterBannerSliceHD: "pkg:/images/overhang/hd-logo.png"
+        FilterBannerSliceHD: "pkg:/images/overhang/hd-filter-banner.png"
+        FilterBannerActiveHD: "pkg:/images/overhang/hd-filter-active.png"
+        FilterBannerInactiveHD: "pkg:/images/overhang/hd-filter-inactive.png"
 
         GridScreenLogoHD: "pkg:/images/overhang/hd-logo.png"
         GridScreenOverhangSliceHD: "pkg:/images/overhang/hd-header-slice.png"
@@ -212,10 +213,11 @@ Sub initTheme()
         GridScreenOverhangHeightHD: "124"
         GridScreenFocusBorderHD: "pkg:/images/grid/hd-border-flat-landscape.png"
         GridScreenBorderOffsetHD: "(-34,-19)"
-        GridScreenDescriptionImageHD: "pkg:/images/grid/Grid_Description_Background_16x9_HD.png"
+        GridScreenDescriptionImageHD: "pkg:/images/grid/hd-description-background.png"
         'GridScreenDescriptionOffsetHD:"(150,205)"
 
-        ListItemHighlightHD: "pkg:/images/select_bkgnd.png"
+        ListItemHighlightHD: "pkg:/images/hd-list-item.png"
+
 
         '*** SD Styles ****
 
@@ -224,6 +226,10 @@ Sub initTheme()
         OverhangOffsetSD_X: "20"
         OverhangOffsetSD_Y: "20"
 
+        FilterBannerSliceSD: "pkg:/images/overhang/sd-filter-banner.png"
+        FilterBannerActiveSD: "pkg:/images/overhang/sd-filter-active.png"
+        FilterBannerInactiveSD: "pkg:/images/overhang/sd-filter-inactive.png"
+
         GridScreenLogoSD: "pkg:/images/overhang/sd-logo.png"
         GridScreenOverhangSliceSD: "pkg:/images/overhang/sd-header-slice.png"
         GridScreenLogoOffsetSD_X: "20"
@@ -231,19 +237,19 @@ Sub initTheme()
         GridScreenOverhangHeightSD: "83"
         GridScreenFocusBorderSD: "pkg:/images/grid/sd-border-flat-landscape.png"
         GridScreenBorderOffsetSD: "(-34,-19)"
-        'GridScreenDescriptionImageSD: "pkg:/images/grid/Grid_Description_Background_Portrait_SD43.png"
+        GridScreenDescriptionImageSD: "pkg:/images/grid/sd-description-background.png"
         'GridScreenDescriptionOffsetSD:"(125,170)"
 
-        ListItemHighlightSD: "pkg:/images/select_bkgnd.png"
+        ListItemHighlightSD: "pkg:/images/sd-list-item.png"
 
 
         '*** Common Styles ****
 
         BackgroundColor: backgroundColor
 
-        BreadcrumbTextLeft: breadcrumbText
-        BreadcrumbTextRight: breadcrumbText
-        BreadcrumbDelimiter: breadcrumbText
+        BreadcrumbTextLeft: "#dfdfdf"
+        BreadcrumbTextRight: "#eeeeee"
+        BreadcrumbDelimiter: "#eeeeee"
         
         PosterScreenLine1Text: "#ffffff"
 
@@ -255,12 +261,16 @@ Sub initTheme()
         CounterTextRight: brandingWhite
         CounterSeparator: brandingWhite
 
+        FilterBannerActiveColor: "#ffffff"
+        FilterBannerInactiveColor: "#cccccc"
+        FilterBannerSideColor: "#cccccc"
+
         GridScreenBackgroundColor: backgroundColor
         GridScreenListNameColor: brandingWhite
         GridScreenDescriptionTitleColor: "#1E1E1E"
         GridScreenDescriptionDateColor: "#1E1E1E"
 
-        SpringboardActorColor: "#ffffff"
+        SpringboardActorColor: "#9a9a9a"
 
         SpringboardAlbumColor: "#ffffff"
         SpringboardAlbumLabel: "#ffffff"
@@ -279,7 +289,7 @@ Sub initTheme()
 
         SpringboardGenreColor: "#ffffff"
         SpringboardRuntimeColor: "#ffffff"
-        SpringboardSynopsisColor: "#ffffff"
+        SpringboardSynopsisColor: "#dfdfdf"
         SpringboardTitleText: "#ffffff"
     }
 
