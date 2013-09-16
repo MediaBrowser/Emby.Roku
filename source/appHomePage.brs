@@ -193,7 +193,7 @@ Function GetMoviesButtons() As Object
         recentMovies = MovieMetadata.GetLatest()
         If recentMovies<>invalid
             buttons.Append( switchButton )
-            buttons.Append( recentMovies )
+            buttons.Append( recentMovies.Items )
         End if
 
     Else If m.movieToggle = "favorite" Then
@@ -208,9 +208,9 @@ Function GetMoviesButtons() As Object
 
         ' Check For Resumable Movies, otherwise default to latest
         resumeMovies = MovieMetadata.GetResumable()
-        If resumeMovies<>invalid And resumeMovies.Count() > 0
+        If resumeMovies<>invalid And resumeMovies.Items.Count() > 0
             buttons.Append( switchButton )
-            buttons.Append( resumeMovies )
+            buttons.Append( resumeMovies.Items )
         Else
             m.movieToggle = "latest"
 
@@ -222,7 +222,7 @@ Function GetMoviesButtons() As Object
             recentMovies = MovieMetadata.GetLatest()
             If recentMovies<>invalid
                 buttons.Append( switchButton )
-                buttons.Append( recentMovies )
+                buttons.Append( recentMovies.Items )
             End if
         End if
 
@@ -282,7 +282,7 @@ Function GetTVButtons() As Object
         recentTV = TvMetadata.GetLatest()
         If recentTV<>invalid
             buttons.Append( switchButton )
-            buttons.Append( recentTV )
+            buttons.Append( recentTV.Items )
         End if
 
     Else If m.tvToggle = "favorite" Then
@@ -298,9 +298,9 @@ Function GetTVButtons() As Object
 
         ' Check For Resumable TV, otherwise default to latest
         resumeTV = TvMetadata.GetResumable()
-        If resumeTV<>invalid And resumeTV.Count() > 0
+        If resumeTV<>invalid And resumeTV.Items.Count() > 0
             buttons.Append( switchButton )
-            buttons.Append( resumeTV )
+            buttons.Append( resumeTV.Items )
         Else
             m.tvToggle = "latest"
 
@@ -312,7 +312,7 @@ Function GetTVButtons() As Object
             recentTV = TvMetadata.GetLatest()
             If recentTV<>invalid
                 buttons.Append( switchButton )
-                buttons.Append( recentTV )
+                buttons.Append( recentTV.Items )
             End if
         End if
 
