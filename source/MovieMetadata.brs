@@ -44,7 +44,7 @@ End Function
 '** Get All Movies
 '**********************************************************
 
-Function moviemetadata_movie_list(filters = invalid As Object, limit = invalid As Dynamic, offset = invalid As Dynamic) As Object
+Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid As Dynamic, filters = invalid As Object) As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -64,8 +64,8 @@ Function moviemetadata_movie_list(filters = invalid As Object, limit = invalid A
 
     ' Paging
     if limit <> invalid And offset <> invalid
-        query.AddReplace("limit", limit)
-        query.AddReplace("startindex", offset)
+        query.AddReplace("startindex", itostr(offset))
+        query.AddReplace("limit", itostr(limit))
     end if    
 
     ' Prepare Request
@@ -232,7 +232,7 @@ End Function
 '** Get Movie Boxsets
 '**********************************************************
 
-Function moviemetadata_boxsets() As Object
+Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As Dynamic) As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -244,6 +244,12 @@ Function moviemetadata_boxsets() As Object
         sortby: "SortName"
         sortorder: "Ascending"
     }
+
+    ' Paging
+    if limit <> invalid And offset <> invalid
+        query.AddReplace("startindex", itostr(offset))
+        query.AddReplace("limit", itostr(limit))
+    end if    
 
     ' Prepare Request
     request = HttpRequest(url)
@@ -736,7 +742,7 @@ End Function
 '** Get Movie Genres
 '**********************************************************
 
-Function moviemetadata_genres() As Object
+Function moviemetadata_genres(offset = invalid As Dynamic, limit = invalid As Dynamic) As Object
     ' URL
     url = GetServerBaseUrl() + "/Genres"
 
@@ -749,6 +755,12 @@ Function moviemetadata_genres() As Object
         sortby: "SortName"
         sortorder: "Ascending"
     }
+
+    ' Paging
+    if limit <> invalid And offset <> invalid
+        query.AddReplace("startindex", itostr(offset))
+        query.AddReplace("limit", itostr(limit))
+    end if    
 
     ' Prepare Request
     request = HttpRequest(url)
