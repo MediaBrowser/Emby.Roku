@@ -44,7 +44,7 @@ End Function
 '** Get All Movies
 '**********************************************************
 
-Function moviemetadata_movie_list() As Object
+Function moviemetadata_movie_list(filters = invalid As Object, limit = invalid As Dynamic, offset = invalid As Dynamic) As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -56,6 +56,17 @@ Function moviemetadata_movie_list() As Object
         sortby: "SortName"
         sortorder: "Ascending"
     }
+
+    ' Filter/Sort Query
+    if filters <> invalid
+        query = FilterQuery(query, filters)
+    end if
+
+    ' Paging
+    if limit <> invalid And offset <> invalid
+        query.AddReplace("limit", limit)
+        query.AddReplace("startindex", offset)
+    end if    
 
     ' Prepare Request
     request = HttpRequest(url)
@@ -79,6 +90,8 @@ Function moviemetadata_movie_list() As Object
             Debug("Error while parsing JSON response for Movies List")
             return invalid
         end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
 
         for each i in jsonObj.Items
             metaData = {}
@@ -202,8 +215,11 @@ Function moviemetadata_movie_list() As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get Movies List")
     end if
@@ -246,6 +262,8 @@ Function moviemetadata_boxsets() As Object
             Debug("Error while parsing JSON response for Movie Boxsets")
             return invalid
         end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
 
         for each i in jsonObj.Items
             metaData = {}
@@ -357,8 +375,11 @@ Function moviemetadata_boxsets() As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get Movie Boxsets")
     end if
@@ -409,6 +430,8 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
             Debug("Error while parsing JSON response for Movies in a Boxset")
             return invalid
         end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
 
         for each i in jsonObj.Items
             metaData = {}
@@ -520,8 +543,11 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get Movies in a Boxset")
     end if
@@ -566,6 +592,8 @@ Function moviemetadata_resumable() As Object
             return invalid
         end if
 
+        totalRecordCount = jsonObj.TotalRecordCount
+
         for each i in jsonObj.Items
             metaData = {}
 
@@ -603,8 +631,11 @@ Function moviemetadata_resumable() As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get Resumable Movies")
     end if
@@ -649,6 +680,8 @@ Function moviemetadata_latest() As Object
             return invalid
         end if
 
+        totalRecordCount = jsonObj.TotalRecordCount
+
         for each i in jsonObj.Items
             metaData = {}
 
@@ -686,8 +719,11 @@ Function moviemetadata_latest() As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get Recently Added Movies")
     end if
@@ -731,6 +767,8 @@ Function moviemetadata_genres() As Object
             Debug("Error while parsing JSON response for Genres for Movies")
             return invalid
         end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
 
         for each i in jsonObj.Items
             metaData = {}
@@ -798,8 +836,11 @@ Function moviemetadata_genres() As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get Genres for Movies")
     end if
@@ -850,6 +891,8 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
             Debug("Error while parsing JSON response for Movies List In Genre")
             return invalid
         end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
 
         for each i in jsonObj.Items
             metaData = {}
@@ -961,8 +1004,11 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get Movies List In Genre")
     end if

@@ -83,6 +83,8 @@ Function tvmetadata_show_list(filters = invalid As Object) As Object
             return invalid
         end if
 
+        totalRecordCount = jsonObj.TotalRecordCount
+
         for each i in jsonObj.Items
             metaData = {}
 
@@ -198,8 +200,11 @@ Function tvmetadata_show_list(filters = invalid As Object) As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get TV Shows List")
     end if
@@ -245,6 +250,8 @@ Function tvmetadata_resumable() As Object
             return invalid
         end if
 
+        totalRecordCount = jsonObj.TotalRecordCount
+
         for each i in jsonObj.Items
             metaData = {}
 
@@ -305,8 +312,11 @@ Function tvmetadata_resumable() As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get Resumable TV Shows")
     end if
@@ -352,6 +362,8 @@ Function tvmetadata_latest() As Object
             return invalid
         end if
 
+        totalRecordCount = jsonObj.TotalRecordCount
+
         for each i in jsonObj.Items
             metaData = {}
 
@@ -412,8 +424,11 @@ Function tvmetadata_latest() As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get Recently Added TV Shows")
     end if
@@ -458,6 +473,8 @@ Function tvmetadata_nextup() As Object
             Debug("Error while parsing JSON response for Next Episodes to Watch for TV Shows")
             return invalid
         end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
 
         for each i in jsonObj.Items
             metaData = {}
@@ -551,8 +568,11 @@ Function tvmetadata_nextup() As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get Next Episodes to Watch for TV Shows")
     end if
@@ -596,6 +616,8 @@ Function tvmetadata_genres() As Object
             Debug("Error while parsing JSON response for Genres for TV Shows")
             return invalid
         end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
 
         for each i in jsonObj.Items
             metaData = {}
@@ -663,8 +685,11 @@ Function tvmetadata_genres() As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get Genres for TV Shows")
     end if
@@ -772,6 +797,8 @@ Function tvmetadata_episodes(seasonId As String) As Object
             return invalid
         end if
 
+        totalRecordCount = jsonObj.TotalRecordCount
+
         for each i in jsonObj.Items
             metaData = {}
 
@@ -866,8 +893,11 @@ Function tvmetadata_episodes(seasonId As String) As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get TV Episodes List For Season")
     end if
@@ -914,6 +944,8 @@ Function tvmetadata_genre_show_list(genreName As String) As Object
             Debug("Error while parsing JSON response for TV Shows List In Genre")
             return invalid
         end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
 
         for each i in jsonObj.Items
             metaData = {}
@@ -1018,8 +1050,11 @@ Function tvmetadata_genre_show_list(genreName As String) As Object
 
             contentList.push( metaData )
         end for
-        
-        return contentList
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
     else
         Debug("Failed to Get TV Shows List In Genre")
     end if
