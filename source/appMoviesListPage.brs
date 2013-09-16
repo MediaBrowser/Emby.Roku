@@ -30,9 +30,6 @@ Function ShowMoviesListPage() As Integer
         screen.SetListPosterStyles(screen.rowStyles)
     end if
 
-    ' Show Loading Dialog
-    'dialogBox = ShowPleaseWait("Loading...","")
-
     ' Initialize Movie Metadata
     MovieMetadata = InitMovieMetadata()
 
