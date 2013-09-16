@@ -69,7 +69,6 @@ Function ShowMoviesListPage() As Integer
                 selection = msg.getData()
 
                 if selection > screen.rowLoadedCount[row] - screen.rowPageEdge And Not screen.rowFinishedLoading[row]
-                    Print "Row finished loading: "; screen.rowFinishedLoading[row]
                     if row = 0
                         moviesList = MovieMetadata.GetMovieList(screen.rowLoadedCount[row], screen.rowPageSize)
                         screen.LoadRowContent(row, moviesList, screen.rowLoadedCount[row], screen.rowPageSize)
@@ -108,12 +107,12 @@ Function ShowMoviesListPage() As Integer
                 index = msg.GetIndex()
 
                 if index = remoteKeyStar then
-                    letterSelected = CreateJumpListDialog()
+                    'letterSelected = CreateJumpListDialog()
 
-                    if letterSelected <> invalid then
-                        letter = FindClosestLetter(letterSelected, MovieMetadata)
-                        screen.SetFocusedListItem(0, MovieMetadata.jumpList.Lookup(letter))
-                    end if
+                    'if letterSelected <> invalid then
+                    '    letter = FindClosestLetter(letterSelected, MovieMetadata)
+                    '    screen.SetFocusedListItem(0, MovieMetadata.jumpList.Lookup(letter))
+                    'end if
                 end if
 
             else if msg.isScreenClosed() then
