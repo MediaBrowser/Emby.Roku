@@ -32,7 +32,9 @@ Function ShowMoviesGenrePage(genre As String) As Integer
     ' Get Data
     moviesAll = MovieMetadata.GetGenreMovieList(genre)
 
-    screen.AddRowContent(moviesAll)
+    if moviesAll <> invalid
+        screen.AddRowContent(moviesAll.Items)
+    end if
 
     ' Show Screen
     screen.Show()

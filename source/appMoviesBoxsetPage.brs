@@ -32,8 +32,10 @@ Function ShowMoviesBoxsetPage(boxsetId As String, boxsetName As String) As Integ
     ' Get Data
     moviesAll = MovieMetadata.GetBoxsetMovieList(boxsetId)
 
-    screen.AddRowContent(moviesAll)
-
+    if moviesAll <> invalid
+        screen.AddRowContent(moviesAll.Items)
+    end if
+    
     ' Show Screen
     screen.Show()
 
