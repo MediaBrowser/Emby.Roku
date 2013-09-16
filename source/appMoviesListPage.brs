@@ -37,13 +37,13 @@ Function ShowMoviesListPage() As Integer
     MovieMetadata = InitMovieMetadata()
 
     ' Get Data
-    moviesList    = MovieMetadata.GetMovieList()
-    moviesBoxsets = MovieMetadata.GetBoxsets()
-    moviesGenres  = MovieMetadata.GetGenres()
+    moviesList    = MovieMetadata.GetMovieList(0, screen.rowPageSize)
+    moviesBoxsets = MovieMetadata.GetBoxsets(0, screen.rowPageSize)
+    moviesGenres  = MovieMetadata.GetGenres(0, screen.rowPageSize)
 
-    screen.AddRowContent(moviesList)
-    screen.AddRowContent(moviesBoxsets)
-    screen.AddRowContent(moviesGenres)
+    screen.LoadRowContent(0, moviesList, 0, screen.rowPageSize)
+    screen.LoadRowContent(1, moviesBoxsets, 0, screen.rowPageSize)
+    screen.LoadRowContent(2, moviesGenres, 0, screen.rowPageSize)
 
     ' Show Screen
     screen.Show()
@@ -65,7 +65,25 @@ Function ShowMoviesListPage() As Integer
         if type(msg) = "roGridScreenEvent" then
             if msg.isListItemFocused() then
                 ' Load More Content
+                row = msg.GetIndex()
+                selection = msg.getData()
 
+                if selection > screen.rowLoadedCount[row] - screen.rowPageEdge And Not screen.rowFinishedLoading[row]
+                    Print "Row finished loading: "; screen.rowFinishedLoading[row]
+                    if row = 0
+                        moviesList = MovieMetadata.GetMovieList(screen.rowLoadedCount[row], screen.rowPageSize)
+                        screen.LoadRowContent(row, moviesList, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                    else if row = 1
+                        moviesBoxsets = MovieMetadata.GetBoxsets(screen.rowLoadedCount[row], screen.rowPageSize)
+                        screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                    else if row = 2
+                        moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                        screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                    end if
+                end if
 
                 ' Show/Hide Description Popup
                 if RegRead("prefMovieDisplayPopup") = "yes" then
