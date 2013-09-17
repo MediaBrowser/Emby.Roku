@@ -92,11 +92,14 @@ Function ShowMoviesListPage() As Integer
                 if screen.rowContent[row][selection].ContentType = "Movie" then
                     movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesList, selection)
                     screen.SetFocusedListItem(row, movieIndex)
-                Else if screen.rowContent[row][selection].ContentType = "Genre" then
+
+                else if screen.rowContent[row][selection].ContentType = "Genre" then
                     ShowMoviesGenrePage(screen.rowContent[row][selection].Id)
-                Else if screen.rowContent[row][selection].ContentType = "BoxSet" then
+
+                else if screen.rowContent[row][selection].ContentType = "BoxSet" then
                     ShowMoviesBoxsetPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title)
-                Else 
+
+                else 
                     Debug("Unknown Type found")
                 end if
 
