@@ -40,13 +40,13 @@ Function ShowTVShowListPage() As Integer
 
     ' Get Data
     'tvShowAll    = TvMetadata.GetShowList(filters)
-    tvShowAll    = TvMetadata.GetShowList()
-    tvShowNextUp = TvMetadata.GetNextUp()
-    tvShowGenres = TvMetadata.GetGenres()
+    tvShowList   = TvMetadata.GetShowList(0, screen.rowPageSize)
+    tvShowNextUp = TvMetadata.GetNextUp(0, screen.rowPageSize)
+    tvShowGenres = TvMetadata.GetGenres(0, screen.rowPageSize)
 
-    screen.AddRowContent(tvShowAll.Items)
-    screen.AddRowContent(tvShowNextUp.Items)
-    screen.AddRowContent(tvShowGenres.Items)
+    screen.LoadRowContent(0, tvShowList, 0, screen.rowPageSize)
+    screen.LoadRowContent(1, tvShowNextUp, 0, screen.rowPageSize)
+    screen.LoadRowContent(2, tvShowGenres, 0, screen.rowPageSize)
 
     ' Show Screen
     screen.Show()
@@ -67,6 +67,26 @@ Function ShowTVShowListPage() As Integer
 
         if type(msg) = "roGridScreenEvent" Then
             if msg.isListItemFocused() Then
+                ' Load More Content
+                row = msg.GetIndex()
+                selection = msg.getData()
+
+                if selection > screen.rowLoadedCount[row] - screen.rowPageEdge And Not screen.rowFinishedLoading[row]
+                    if row = 0
+                        tvShowList = TvMetadata.GetShowList(screen.rowLoadedCount[row], screen.rowPageSize)
+                        screen.LoadRowContent(row, tvShowList, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                    else if row = 1
+                        tvShowNextUp = TvMetadata.GetNextUp(screen.rowLoadedCount[row], screen.rowPageSize)
+                        screen.LoadRowContent(row, tvShowNextUp, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                    else if row = 2
+                        tvShowGenres = TvMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                        screen.LoadRowContent(row, tvShowGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                    end if
+                end if
+
                 ' Show/Hide Description Popup
                 If RegRead("prefTVDisplayPopup") = "yes" Then
                     screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
@@ -75,30 +95,34 @@ Function ShowTVShowListPage() As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                If screen.rowContent[row][selection].ContentType = "Series" Then
+                if screen.rowContent[row][selection].ContentType = "Series" then
                     ShowTVSeasonsListPage(screen.rowContent[row][selection])
-                Else If screen.rowContent[row][selection].ContentType = "Episode" Then
+
+                else if screen.rowContent[row][selection].ContentType = "Episode" then
                     ShowTVDetailPage(screen.rowContent[row][selection].Id)
                     ' Refresh Next Up Data
                     tvShowNextUp = TvMetadata.GetNextUp()
                     screen.UpdateRowContent(row, tvShowNextUp)
-                Else If screen.rowContent[row][selection].ContentType = "Genre" Then
+
+                else if screen.rowContent[row][selection].ContentType = "Genre" then
                     ShowTVShowGenrePage(screen.rowContent[row][selection].Id)
-                Else 
+
+                else 
                     Debug("Unknown Type found")
-                End If
+
+                end if
 
             else if msg.isRemoteKeyPressed() then
                 index = msg.GetIndex()
 
-                If index = remoteKeyStar Then
-                    letterSelected = CreateJumpListDialog()
+                'If index = remoteKeyStar Then
+                '    letterSelected = CreateJumpListDialog()
 
-                    If letterSelected <> invalid Then
-                        letter = FindClosestLetter(letterSelected, TvMetadata)
-                        screen.SetFocusedListItem(0, TvMetadata.jumpList.Lookup(letter))
-                    End If
-                End If
+                '    If letterSelected <> invalid Then
+                '        letter = FindClosestLetter(letterSelected, TvMetadata)
+                '        screen.SetFocusedListItem(0, TvMetadata.jumpList.Lookup(letter))
+                '    End If
+                'End If
 
             else if msg.isScreenClosed() Then
                 Debug("Close tv screen")
