@@ -2,7 +2,7 @@ MediaBrowser Roku
 
 Changelog
 
-1.15 - New Theme; Added popup bubble; Bug fixes;
+1.15 - New Theme; Added popup bubble; Added dynamic loading for speed improvment; Bug fixes;
 
 1.14 - Bug fixes; Speed improvements;
 
