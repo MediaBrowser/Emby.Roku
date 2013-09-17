@@ -46,7 +46,7 @@ End Function
 '** Get All TV Shows
 '**********************************************************
 
-Function tvmetadata_show_list(filters = invalid As Object) As Object
+Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dynamic, filters = invalid As Object) As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -63,6 +63,12 @@ Function tvmetadata_show_list(filters = invalid As Object) As Object
     if filters <> invalid
         query = FilterQuery(query, filters)
     end if
+
+    ' Paging
+    if limit <> invalid And offset <> invalid
+        query.AddReplace("startindex", itostr(offset))
+        query.AddReplace("limit", itostr(limit))
+    end if    
 
     ' Prepare Request
     request = HttpRequest(url)
@@ -441,16 +447,21 @@ End Function
 '** Get Next Unwatched TV Episodes
 '**********************************************************
 
-Function tvmetadata_nextup() As Object
+Function tvmetadata_nextup(offset = invalid As Dynamic, limit = invalid As Dynamic) As Object
     ' URL
     url = GetServerBaseUrl() + "/Shows/NextUp"
 
     ' Query
     query = {
         userid: getGlobalVar("user").Id
-        limit: "20"
         fields: "SeriesInfo,DateCreated,Overview"
     }
+
+    ' Paging
+    if limit <> invalid And offset <> invalid
+        query.AddReplace("startindex", itostr(offset))
+        query.AddReplace("limit", itostr(limit))
+    end if    
 
     ' Prepare Request
     request = HttpRequest(url)
@@ -585,7 +596,7 @@ End Function
 '** Get TV Genres
 '**********************************************************
 
-Function tvmetadata_genres() As Object
+Function tvmetadata_genres(offset = invalid As Dynamic, limit = invalid As Dynamic) As Object
     ' URL
     url = GetServerBaseUrl() + "/Genres"
 
@@ -598,6 +609,12 @@ Function tvmetadata_genres() As Object
         sortby: "SortName"
         sortorder: "Ascending"
     }
+
+    ' Paging
+    if limit <> invalid And offset <> invalid
+        query.AddReplace("startindex", itostr(offset))
+        query.AddReplace("limit", itostr(limit))
+    end if    
 
     ' Prepare Request
     request = HttpRequest(url)
