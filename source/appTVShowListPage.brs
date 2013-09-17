@@ -71,20 +71,49 @@ Function ShowTVShowListPage() As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                if selection > screen.rowLoadedCount[row] - screen.rowPageEdge And Not screen.rowFinishedLoading[row]                    
-                    if row = 0
-                        tvShowList = TvMetadata.GetShowList(screen.rowLoadedCount[row], screen.rowPageSize)
-                        screen.LoadRowContent(row, tvShowList, screen.rowLoadedCount[row], screen.rowPageSize)
+                if selection > screen.rowLoadedCount[row] - screen.rowPageEdge And Not screen.rowFinishedLoading[row]
+                    ' Queue multiple loads to Catch up to Current Selection
+                    if selection > screen.rowLoadedCount[row] + screen.rowPageSize
+                        queue = Int((selection - screen.rowLoadedCount[row]) / screen.rowPageSize) + 1
 
-                    else if row = 1
-                        tvShowNextUp = TvMetadata.GetNextUp(screen.rowLoadedCount[row], screen.rowPageSize)
-                        screen.LoadRowContent(row, tvShowNextUp, screen.rowLoadedCount[row], screen.rowPageSize)
+                        for i = 1 to queue
+                            Print "queue loading: "; i
 
-                    else if row = 2
-                        tvShowGenres = TvMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
-                        screen.LoadRowContent(row, tvShowGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+                            if row = 0
+                                tvShowList = TvMetadata.GetShowList(screen.rowLoadedCount[row], screen.rowPageSize)
+                                screen.LoadRowContent(row, tvShowList, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                            else if row = 1
+                                tvShowNextUp = TvMetadata.GetNextUp(screen.rowLoadedCount[row], screen.rowPageSize)
+                                screen.LoadRowContent(row, tvShowNextUp, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                            else if row = 2
+                                tvShowGenres = TvMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                                screen.LoadRowContent(row, tvShowGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                            end if
+
+                        end for
+
+                    ' Otherwise Load As Selection Reaches Edge
+                    else
+
+                        if row = 0
+                            tvShowList = TvMetadata.GetShowList(screen.rowLoadedCount[row], screen.rowPageSize)
+                            screen.LoadRowContent(row, tvShowList, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                        else if row = 1
+                            tvShowNextUp = TvMetadata.GetNextUp(screen.rowLoadedCount[row], screen.rowPageSize)
+                            screen.LoadRowContent(row, tvShowNextUp, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                        else if row = 2
+                            tvShowGenres = TvMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                            screen.LoadRowContent(row, tvShowGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                        end if
 
                     end if
+
                 end if
 
                 ' Show/Hide Description Popup

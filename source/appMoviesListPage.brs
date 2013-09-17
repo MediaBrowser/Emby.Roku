@@ -66,19 +66,48 @@ Function ShowMoviesListPage() As Integer
                 selection = msg.getData()
 
                 if selection > screen.rowLoadedCount[row] - screen.rowPageEdge And Not screen.rowFinishedLoading[row]
-                    if row = 0
-                        moviesList = MovieMetadata.GetMovieList(screen.rowLoadedCount[row], screen.rowPageSize)
-                        screen.LoadRowContent(row, moviesList, screen.rowLoadedCount[row], screen.rowPageSize)
+                    ' Queue multiple loads to Catch up to Current Selection
+                    if selection > screen.rowLoadedCount[row] + screen.rowPageSize
+                        queue = Int((selection - screen.rowLoadedCount[row]) / screen.rowPageSize) + 1
 
-                    else if row = 1
-                        moviesBoxsets = MovieMetadata.GetBoxsets(screen.rowLoadedCount[row], screen.rowPageSize)
-                        screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
+                        for i = 1 to queue
+                            Print "queue loading: "; i
 
-                    else if row = 2
-                        moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
-                        screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+                            if row = 0
+                                moviesList = MovieMetadata.GetMovieList(screen.rowLoadedCount[row], screen.rowPageSize)
+                                screen.LoadRowContent(row, moviesList, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                            else if row = 1
+                                moviesBoxsets = MovieMetadata.GetBoxsets(screen.rowLoadedCount[row], screen.rowPageSize)
+                                screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                            else if row = 2
+                                moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                                screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                            end if
+
+                        end for
+
+                    ' Otherwise Load As Selection Reaches Edge
+                    else
+
+                        if row = 0
+                            moviesList = MovieMetadata.GetMovieList(screen.rowLoadedCount[row], screen.rowPageSize)
+                            screen.LoadRowContent(row, moviesList, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                        else if row = 1
+                            moviesBoxsets = MovieMetadata.GetBoxsets(screen.rowLoadedCount[row], screen.rowPageSize)
+                            screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                        else if row = 2
+                            moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                            screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                        end if
 
                     end if
+
                 end if
 
                 ' Show/Hide Description Popup
