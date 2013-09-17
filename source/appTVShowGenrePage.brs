@@ -38,8 +38,8 @@ Function ShowTVShowGenrePage(genre As String) As Integer
 
     ' Get Data
     tvShowAll = TvMetadata.GetGenreShowList(genre)
-    rowData[0] = tvShowAll
-    screen.SetContentList(0, tvShowAll)
+    rowData[0] = tvShowAll.Items
+    screen.SetContentList(0, tvShowAll.Items)
 
     screen.Show()
 

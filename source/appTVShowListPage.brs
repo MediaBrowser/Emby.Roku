@@ -71,7 +71,7 @@ Function ShowTVShowListPage() As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                if selection > screen.rowLoadedCount[row] - screen.rowPageEdge And Not screen.rowFinishedLoading[row]
+                if selection > screen.rowLoadedCount[row] - screen.rowPageEdge And Not screen.rowFinishedLoading[row]                    
                     if row = 0
                         tvShowList = TvMetadata.GetShowList(screen.rowLoadedCount[row], screen.rowPageSize)
                         screen.LoadRowContent(row, tvShowList, screen.rowLoadedCount[row], screen.rowPageSize)
@@ -100,9 +100,10 @@ Function ShowTVShowListPage() As Integer
 
                 else if screen.rowContent[row][selection].ContentType = "Episode" then
                     ShowTVDetailPage(screen.rowContent[row][selection].Id)
+
                     ' Refresh Next Up Data
-                    tvShowNextUp = TvMetadata.GetNextUp()
-                    screen.UpdateRowContent(row, tvShowNextUp)
+                    tvShowNextUp = TvMetadata.GetNextUp(0, screen.rowPageSize)
+                    screen.UpdateRowContent(row, tvShowNextUp.Items)
 
                 else if screen.rowContent[row][selection].ContentType = "Genre" then
                     ShowTVShowGenrePage(screen.rowContent[row][selection].Id)
