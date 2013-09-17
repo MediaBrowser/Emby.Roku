@@ -71,7 +71,6 @@ Function ShowMoviesListPage() As Integer
                         queue = Int((selection - screen.rowLoadedCount[row]) / screen.rowPageSize) + 1
 
                         for i = 1 to queue
-                            Print "queue loading: "; i
 
                             if row = 0
                                 moviesList = MovieMetadata.GetMovieList(screen.rowLoadedCount[row], screen.rowPageSize)
