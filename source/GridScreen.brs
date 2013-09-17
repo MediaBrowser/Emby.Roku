@@ -45,8 +45,8 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
     o.rowContent            = []
     o.rowLoadedCount        = []
     o.rowFinishedLoading    = []
-    o.rowPageSize           = 40
-    o.rowPageEdge           = 20
+    o.rowPageSize           = 100
+    o.rowPageEdge           = 25
 
     ' Set Breadcrumbs
     o.Screen.SetBreadcrumbText(lastLocation, currentLocation)
