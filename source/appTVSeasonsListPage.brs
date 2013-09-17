@@ -32,7 +32,7 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
 
     ' Fetch Season 1
     episodeData = TvMetadata.GetEpisodes(seasonIds[0])
-    screen.SetContentList(episodeData)
+    screen.SetContentList(episodeData.Items)
 
     ' Show Screen
     screen.Show()
@@ -83,13 +83,13 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
 
                 ' Fetch New Season
                 episodeData = TvMetadata.GetEpisodes(seasonIds[Msg.GetIndex()])
-                screen.SetContentList(episodeData)
+                screen.SetContentList(episodeData.Items)
 
                 screen.ClearMessage()
             Else If msg.isListItemSelected() Then
                 selection = msg.GetIndex()
 
-                episodeIndex = ShowTVDetailPage(episodeData[msg.GetIndex()].Id, episodeData, selection, player)
+                episodeIndex = ShowTVDetailPage(episodeData.Items[msg.GetIndex()].Id, episodeData.Items, selection, player)
                 screen.SetFocusedListItem(episodeIndex)
 
             Else If msg.isScreenClosed() then
