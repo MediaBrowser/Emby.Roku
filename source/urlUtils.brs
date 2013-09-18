@@ -59,7 +59,7 @@ End Function
 
 Function FilterQuery(query As Object, filters As Object) As Object
     for each key in filters
-        if LCase(key) <> "recursive" And LCase(key) <> "includeitemtypes" And LCase(key) <> "fields"
+        if LCase(key) <> "recursive" And LCase(key) <> "includeitemtypes" And LCase(key) <> "fields" And LCase(key) <> "startindex" And LCase(key) <> "limit"
             query.AddReplace(key, filters[key])
         end if
     end for
