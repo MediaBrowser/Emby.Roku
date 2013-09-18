@@ -121,7 +121,6 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
     ' Query
     query = {
         parentid: parentId
-        'includeitemtypes: "Movie,Boxset,Series,Episode,MusicArtist,Folder,Video"
         fields: "Overview,UserData,MediaStreams"
         sortby: "SortName"
         sortorder: "Ascending"
