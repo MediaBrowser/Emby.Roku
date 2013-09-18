@@ -44,7 +44,6 @@ Function collectionmetadata_collection_list() As Object
 
     ' Query
     query = {
-        includeitemtypes: "CollectionFolder" ' TrailerCollectionFolder
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -122,7 +121,7 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
     ' Query
     query = {
         parentid: parentId
-        includeitemtypes: "Movie,Boxset,Series,Episode,MusicArtist"
+        'includeitemtypes: "Movie,Boxset,Series,Episode,MusicArtist,Folder,Video"
         fields: "Overview,UserData,MediaStreams"
         sortby: "SortName"
         sortorder: "Ascending"
@@ -137,7 +136,7 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
     if limit <> invalid And offset <> invalid
         query.AddReplace("startindex", itostr(offset))
         query.AddReplace("limit", itostr(limit))
-    end if    
+    end if
 
     ' Prepare Request
     request = HttpRequest(url)
