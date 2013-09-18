@@ -186,10 +186,8 @@ End Function
 Sub initTheme()
     app = CreateObject("roAppManager")
     
-    listItemHighlight           = "#ffffff"
-    listItemText                = "#707070"
-    brandingWhite               = "#eeeeee"
-    backgroundColor             = "#504B4B"
+    brandingWhite   = "#eeeeee"
+    backgroundColor = "#504B4B"
 
     textColorWhite = "#ffffff"
     textColorBlack = "#000000"
@@ -253,9 +251,10 @@ Sub initTheme()
         
         PosterScreenLine1Text: "#ffffff"
 
-        ListItemText: listItemText
-        ListItemHighlightText: listItemHighlight
-        ListScreenDescriptionText: listItemText
+        ListItemText: "#dfdfdf"
+        ListItemHighlightText: "#ffffff"
+        ListScreenDescriptionText: "#9a9a9a"
+        ListScreenTitleColor: "#000000"
 
         CounterTextLeft: brandingWhite
         CounterTextRight: brandingWhite
