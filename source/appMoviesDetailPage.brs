@@ -39,21 +39,21 @@ Function ShowMoviesDetailPage(movieId As String, movieList=invalid, movieIndex=i
             If msg.isRemoteKeyPressed() 
                 ' Only allow left/right navigation if movieList provided
                 If movieList<>invalid Then
-                    If msg.GetIndex() = remoteKeyLeft Then
-                        movieIndex = getPreviousMovie(movieList, movieIndex)
+                    'If msg.GetIndex() = remoteKeyLeft Then
+                    '    movieIndex = getPreviousMovie(movieList.Items, movieIndex)
 
-                        If movieIndex <> -1
-                            movieId = movieList[movieIndex].Id
-                            moviesDetails = RefreshMoviesDetailPage(screen, movieId)
-                        End If
-                    Else If msg.GetIndex() = remoteKeyRight
-                        movieIndex = getNextMovie(movieList, movieIndex)
+                    '    If movieIndex <> -1
+                    '        movieId = movieList.Items[movieIndex].Id
+                    '        moviesDetails = RefreshMoviesDetailPage(screen, movieId)
+                    '    End If
+                    'Else If msg.GetIndex() = remoteKeyRight
+                    '    movieIndex = getNextMovie(movieList.Items, movieIndex)
 
-                        If movieIndex <> -1
-                            movieId = movieList[movieIndex].Id
-                            moviesDetails = RefreshMoviesDetailPage(screen, movieId)
-                        End If
-                    End If
+                    '    If movieIndex <> -1
+                    '        movieId = movieList.Items[movieIndex].Id
+                    '        moviesDetails = RefreshMoviesDetailPage(screen, movieId)
+                    '    End If
+                    'End If
                 End If
             Else If msg.isButtonPressed()
                 Debug("ButtonPressed")
@@ -156,6 +156,7 @@ Function getNextMovie(movieList As Object, movieIndex As Integer) As Integer
     movie = movieList[nextIndex]
 
     if validateParam(movie, "roAssociativeArray", "getNextMovie") = false return -1 
+    if movie.Id = invalid return -1
 
     return nextIndex
 
@@ -182,6 +183,7 @@ Function getPreviousMovie(movieList As Object, movieIndex As Integer) As Integer
     movie = movieList[prevIndex]
 
     if validateParam(movie, "roAssociativeArray", "getPreviousMovie") = false return -1 
+    if movie.Id = invalid return -1
 
     return prevIndex
 
