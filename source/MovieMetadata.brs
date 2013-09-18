@@ -52,7 +52,7 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
     query = {
         recursive: "true"
         includeitemtypes: "Movie"
-        fields: "Overview,UserData,MediaStreams,SortName"
+        fields: "Overview,UserData,MediaStreams"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -82,7 +82,6 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
         regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
         fixedResponse = regex.ReplaceAll(response, Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
 
-        jumpListCount = 0
         contentList   = CreateObject("roArray", 25, true)
         jsonObj       = ParseJSON(fixedResponse)
 
@@ -143,18 +142,6 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
             if isHD
                 metaData.HDBranded = true
             end if
-
-            ' Add Item to Jump List
-            if i.SortName <> invalid
-                firstChar = Left(i.SortName, 1)
-                if Not m.jumpList.DoesExist(firstChar)
-                    m.jumpList.AddReplace(firstChar, jumpListCount)
-                end if
-
-            end if
-
-            ' Increment Count
-            jumpListCount = jumpListCount + 1
 
             ' Get Image Type From Preference
             if RegRead("prefMovieImageType") = "poster"
