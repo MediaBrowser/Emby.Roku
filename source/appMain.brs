@@ -233,10 +233,6 @@ Sub initTheme()
         GridScreenLogoOffsetSD_X: "20"
         GridScreenLogoOffsetSD_Y: "20"
         GridScreenOverhangHeightSD: "83"
-        GridScreenFocusBorderSD: "pkg:/images/grid/sd-border-flat-landscape.png"
-        GridScreenBorderOffsetSD: "(-34,-19)"
-        GridScreenDescriptionImageSD: "pkg:/images/grid/sd-description-background.png"
-        'GridScreenDescriptionOffsetSD:"(125,170)"
 
         ListItemHighlightSD: "pkg:/images/sd-list-item.png"
 

@@ -10,14 +10,10 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
         app = CreateObject("roAppManager")
         app.SetThemeAttribute("GridScreenFocusBorderHD", "pkg:/images/grid/hd-border-flat-landscape.png")
         app.SetThemeAttribute("GridScreenBorderOffsetHD", "-34,-19")
-        app.SetThemeAttribute("GridScreenFocusBorderSD", "pkg:/images/grid/sd-border-flat-landscape.png")
-        app.SetThemeAttribute("GridScreenBorderOffsetSD", "-34,-19")
     else if style = "mixed-aspect-ratio" then
         app = CreateObject("roAppManager")
         app.SetThemeAttribute("GridScreenFocusBorderHD", "pkg:/images/grid/hd-border-portrait.png")
         app.SetThemeAttribute("GridScreenBorderOffsetHD", "-25,-35")
-        app.SetThemeAttribute("GridScreenFocusBorderSD", "pkg:/images/grid/sd-border-portrait.png")
-        app.SetThemeAttribute("GridScreenBorderOffsetSD", "-25,-35")
     end if
 
     ' Setup Screen
