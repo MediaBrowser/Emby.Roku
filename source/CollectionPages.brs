@@ -117,6 +117,11 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
                 else if screen.rowContent[row][selection].ContentType = "MusicArtist" then
                     ShowMusicAlbumPage(screen.rowContent[row][selection])
 
+                ' Folder Content Type
+
+                else if screen.rowContent[row][selection].ContentType = "Folder" then
+                    ShowCollectionPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title)
+
                 else 
                     Debug("Unknown Type found")
                 end if
