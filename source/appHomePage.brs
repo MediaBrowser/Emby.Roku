@@ -37,6 +37,7 @@ Function ShowHomePage()
         screen.AddRow("Music", "landscape")
     End If
 
+    screen.AddRow("Media Collections", "landscape")
     screen.AddRow("Options", "landscape")
 
     screen.ShowNames()
@@ -56,6 +57,9 @@ Function ShowHomePage()
         musicButtons = GetMusicButtons()
         screen.AddRowContent(musicButtons)
     End If
+
+    collectionButtons = GetCollectionButtons()
+    screen.AddRowContent(collectionButtons)
 
     optionButtons = GetOptionsButtons()
     screen.AddRowContent(optionButtons)
@@ -104,6 +108,9 @@ Function ShowHomePage()
 
                 Else If screen.rowContent[row][selection].ContentType = "MusicLibrary" Then
                     ShowMusicListPage()
+
+                Else If screen.rowContent[row][selection].ContentType = "Collection" Then
+                    ShowCollectionPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title)
 
                 Else If screen.rowContent[row][selection].ContentType = "SwitchUser" Then
                     RegDelete("userId")
@@ -360,6 +367,28 @@ Function GetMusicButtons() As Object
             ShortDescriptionLine1: "Toggle Display"
         }
     ]
+
+    Return buttons
+End Function
+
+
+'**********************************************************
+'** Get Collection Buttons Row
+'**********************************************************
+
+Function GetCollectionButtons() As Object
+
+    ' Set the collection library button
+    buttons = []
+
+    ' Initialize Collection Metadata
+    CollectionMetadata = InitCollectionMetadata()
+
+    ' Get Collection List
+    collectionList = CollectionMetadata.GetCollectionList()
+    If collectionList <> invalid
+        buttons.Append( collectionList )
+    End if
 
     Return buttons
 End Function
