@@ -121,7 +121,7 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
     ' Query
     query = {
         parentid: parentId
-        fields: "Overview,UserData,MediaStreams"
+        fields: "Overview,UserData,ItemCounts"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -205,11 +205,14 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
                 metaData.ReleaseDate = itostr(i.ProductionYear)
             end if
 
-            isHd = false ' Hide For now
+            ' Set the Episode count
+            if i.RecursiveItemCount <> invalid
+                metaData.NumEpisodes = i.RecursiveItemCount
+            end if
 
             ' Set the HD Branding
-            if isHD
-                metaData.HDBranded = true
+            if i.IsHD <> invalid
+                metaData.HDBranded = i.IsHD
             end if
 
             ' Get Image Type From Preference
