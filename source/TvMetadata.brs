@@ -27,6 +27,7 @@ Function ClassTvMetadata()
         this.GetResumable      = tvmetadata_resumable
         this.GetLatest         = tvmetadata_latest
         this.GetThemeMusic     = tvmetadata_theme_music
+        this.GetNextEpisode    = tvmetadata_episodes_next_unplayed
 
         ' singleton
         m.ClassTvMetadata = this
@@ -1346,6 +1347,72 @@ Function tvmetadata_theme_music(seriesId As String) As Object
         return contentList
     else
         Debug("Failed to Get TV Show Theme Music")
+    end if
+
+    return invalid
+End Function
+
+
+'**********************************************************
+'** Get TV Show Next Unplayed Episode
+'**********************************************************
+
+Function tvmetadata_episodes_next_unplayed(seriesId As String) As Object
+    ' Validate Parameter
+    if validateParam(seriesId, "roString", "tvmetadata_episodes_next_unplayed") = false return invalid
+
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+
+    ' Query
+    query = {
+        parentid: seriesId
+        recursive: "true"
+        includeitemtypes: "Episode"
+        sortby: "SortName"
+        sortorder: "Ascending"
+        filters: "IsUnplayed"
+        limit: "1"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        jsonObj = ParseJSON(response)
+
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response for TV Show Next Unplayed Episode")
+            return invalid
+        end if
+
+        if jsonObj.TotalRecordCount = 0
+            return invalid
+        end if
+        
+        i = jsonObj.Items[0]
+
+        metaData = {}
+
+        ' Set Season Number
+        if i.ParentIndexNumber <> invalid
+            metaData.Season = i.ParentIndexNumber
+        end if
+
+        ' Set Episode Number
+        if i.IndexNumber <> invalid
+            metaData.Episode = i.IndexNumber
+        end if
+
+        return metaData
+    else
+        Debug("Failed to Get TV Show Next Unplayed Episode")
     end if
 
     return invalid
