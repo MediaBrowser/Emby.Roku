@@ -54,7 +54,7 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
     query = {
         recursive: "true"
         includeitemtypes: "Series"
-        fields: "ItemCounts,SortName,Overview"
+        fields: "ItemCounts,Overview,UserData"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -80,7 +80,6 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        jumpListCount = 0
         contentList   = CreateObject("roArray", 25, true)
         jsonObj       = ParseJSON(response)
 
@@ -134,18 +133,6 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
             if i.CommunityRating <> invalid
                 metaData.UserStarRating = Int(i.CommunityRating) * 10
             end if
-
-            ' Add Item to Jump List
-            if i.SortName <> invalid
-                firstChar = Left(i.SortName, 1)
-                if Not m.jumpList.DoesExist(firstChar)
-                    m.jumpList.AddReplace(firstChar, jumpListCount)
-                end if
-
-            end if
-
-            ' Increment Count
-            jumpListCount = jumpListCount + 1
 
             ' Get Image Type From Preference
             if RegRead("prefTVImageType") = "poster"
