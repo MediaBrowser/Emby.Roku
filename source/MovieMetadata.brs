@@ -52,7 +52,7 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
     query = {
         recursive: "true"
         includeitemtypes: "Movie"
-        fields: "Overview,UserData,MediaStreams"
+        fields: "Overview,UserData"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -136,11 +136,9 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                 metaData.ReleaseDate = itostr(i.ProductionYear)
             end if
 
-            isHd = false ' Hide For now
-
             ' Set the HD Branding
-            if isHD
-                metaData.HDBranded = true
+            if i.IsHD <> invalid
+                metaData.HDBranded = i.IsHD
             end if
 
             ' Get Image Type From Preference
@@ -153,8 +151,13 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+                    if i.UserData.Played <> invalid
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played)
+                    else
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+                    end if
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -171,8 +174,13 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                 if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb)
+                    if i.UserData.Played <> invalid
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played)
+                    else
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb)
+                    end if
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -189,8 +197,13 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                 if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+                    if i.UserData.Played <> invalid
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played)
+                    else
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+                    end if
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -302,13 +315,6 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "movie")
             end if
 
-            isHd = false ' Hide For now
-
-            ' Set the HD Branding
-            if isHD
-                metaData.HDBranded = true
-            end if
-
             ' Get Image Type From Preference
             if RegRead("prefMovieImageType") = "poster"
 
@@ -319,8 +325,13 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+                    if i.UserData.Played <> invalid
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played)
+                    else
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+                    end if
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -337,8 +348,13 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb)
+                    if i.UserData.Played <> invalid
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played)
+                    else
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb)
+                    end if
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -355,8 +371,13 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+                    if i.UserData.Played <> invalid
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played)
+                    else
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+                    end if
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
