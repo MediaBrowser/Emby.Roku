@@ -262,10 +262,14 @@ End Function
 '** Build an Image URL
 '******************************************************
 
-Function BuildImage(url, w, h, tag)
+Function BuildImage(url, w, h, tag, watched = false As Boolean)
     ' Clean Tag
     tag = HttpEncode(tag)
 
+    if watched
+        return url + "?quality=90&EnableImageEnhancers=false&height=" + itostr(h) + "&width=" + itostr(w) + "&tag=" + tag + "&Indicator=Watched"
+    end if
+    
     return url + "?quality=90&EnableImageEnhancers=false&height=" + itostr(h) + "&width=" + itostr(w) + "&tag=" + tag
 End Function
 
