@@ -262,15 +262,18 @@ End Function
 '** Build an Image URL
 '******************************************************
 
-Function BuildImage(url, w, h, tag, watched = false As Boolean)
+Function BuildImage(url, w, h, tag, watched = false As Boolean, percentage = 0 As Integer)
     ' Clean Tag
-    tag = HttpEncode(tag)
+    tag   = HttpEncode(tag)
+    query = ""
 
     if watched
-        return url + "?quality=90&EnableImageEnhancers=false&height=" + itostr(h) + "&width=" + itostr(w) + "&tag=" + tag + "&Indicator=Watched"
+        query = "&Indicator=Played"
+    else if percentage <> 0
+        query = "&Indicator=PercentPlayed&PercentPlayed=" + itostr(percentage)
     end if
     
-    return url + "?quality=90&EnableImageEnhancers=false&height=" + itostr(h) + "&width=" + itostr(w) + "&tag=" + tag
+    return url + "?quality=90&EnableImageEnhancers=false&height=" + itostr(h) + "&width=" + itostr(w) + "&tag=" + tag + query
 End Function
 
 
