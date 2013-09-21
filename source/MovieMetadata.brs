@@ -127,8 +127,8 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
             end if
 
             ' Set the Star rating
-            if i.CriticRating <> invalid
-                metaData.UserStarRating = i.CriticRating
+            if i.CommunityRating <> invalid
+                metaData.UserStarRating = Int(i.CommunityRating) * 10
             end if
 
             ' Set the Release Date
@@ -325,8 +325,8 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
             end if
 
             ' Set the Star rating
-            if i.CriticRating <> invalid
-                metaData.UserStarRating = i.CriticRating
+            if i.CommunityRating <> invalid
+                metaData.UserStarRating = Int(i.CommunityRating) * 10
             end if
 
             ' Set the Release Date
@@ -515,8 +515,8 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
             end if
 
             ' Set the Star rating
-            if i.CriticRating <> invalid
-                metaData.UserStarRating = i.CriticRating
+            if i.CommunityRating <> invalid
+                metaData.UserStarRating = Int(i.CommunityRating) * 10
             end if
 
             ' Set the Release Date
@@ -989,9 +989,9 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
                 metaData.Rating = i.OfficialRating
             end if
 
-            ' Set the Movie star rating
-            if i.CriticRating <> invalid
-                metaData.StarRating = i.CriticRating
+            ' Set the Star rating
+            if i.CommunityRating <> invalid
+                metaData.UserStarRating = Int(i.CommunityRating) * 10
             end if
 
             ' Set the Run Time
@@ -1155,9 +1155,9 @@ Function moviemetadata_movie_details(movieId As String) As Object
             metaData.ReleaseDate = itostr(i.ProductionYear)
         end if
 
-        ' Set the Movie star rating
-        if i.CriticRating <> invalid
-            metaData.StarRating = i.CriticRating
+        ' Set the Star rating
+        if i.CommunityRating <> invalid
+            metaData.UserStarRating = Int(i.CommunityRating) * 10
         end if
 
         ' Set the Run Time

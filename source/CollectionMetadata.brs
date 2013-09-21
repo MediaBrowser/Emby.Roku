@@ -196,8 +196,8 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
             end if
 
             ' Set the Star rating
-            if i.CriticRating <> invalid
-                metaData.UserStarRating = i.CriticRating
+            if i.CommunityRating <> invalid
+                metaData.UserStarRating = Int(i.CommunityRating) * 10
             end if
 
             ' Set the Release Date
