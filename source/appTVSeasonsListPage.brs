@@ -29,10 +29,36 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     ' Set Season Names
     screen.SetListNames(seasonNames)
 
-
-    ' Fetch Season 1
+    ' Fetch Season 1/Specials
     episodeData = TvMetadata.GetEpisodes(seasonIds[0])
     screen.SetContentList(episodeData.Items)
+    screen.SetFocusedList(0)
+
+    ' Fetch Next Unplayed Episode
+    nextEpisode = TvMetadata.GetNextEpisode(seriesInfo.Id)
+
+    if nextEpisode <> invalid And nextEpisode.Season <> invalid
+        if nextEpisode.Season = 0
+            screen.SetFocusedList(nextEpisode.Season)
+        else
+            screen.SetFocusedList(nextEpisode.Season - 1)
+        end if
+    end if
+
+    if nextEpisode <> invalid And nextEpisode.Episode <> invalid
+        screen.SetFocusedListItem(nextEpisode.Episode - 1)
+    else
+        screen.SetFocusedListItem(0)
+    end if
+
+    ' Set First Load
+    firstLoad = true
+
+    ' Set Focus To Episodes
+    screen.SetFocusToFilterBanner(false)
+
+    ' Set Loading Message
+    loadingMsg = "Loading " + seriesInfo.Title
 
     ' Show Screen
     screen.Show()
@@ -72,29 +98,32 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     while true
         msg = wait(0, screen.GetMessagePort())
 
-        if type(msg) = "roPosterScreenEvent" Then
-            If msg.isListFocused() Then
-                m.curSeason = msg.GetIndex()
-                m.curShow   = 0
-
+        if type(msg) = "roPosterScreenEvent" then
+            if msg.isListFocused() then
+                ' Set Loading Screen
                 screen.SetContentList([])
-                screen.SetFocusedListItem(m.curShow)
-                screen.ShowMessage("Retrieving")
+                if Not firstLoad then screen.SetFocusedListItem(0)
+                screen.ShowMessage(loadingMsg + " " + seasonNames[msg.GetIndex()] + "...")
 
                 ' Fetch New Season
-                episodeData = TvMetadata.GetEpisodes(seasonIds[Msg.GetIndex()])
+                episodeData = TvMetadata.GetEpisodes(seasonIds[msg.GetIndex()])
                 screen.SetContentList(episodeData.Items)
 
                 screen.ClearMessage()
-            Else If msg.isListItemSelected() Then
+
+            else if msg.isListItemFocused() then
+                ' Set First Load
+                firstLoad = false
+
+            else if msg.isListItemSelected() then
                 selection = msg.GetIndex()
 
                 episodeIndex = ShowTVDetailPage(episodeData.Items[msg.GetIndex()].Id, episodeData.Items, selection, player)
                 screen.SetFocusedListItem(episodeIndex)
 
-            Else If msg.isScreenClosed() then
+            else if msg.isScreenClosed() then
                 return -1
-            End If
+            end if
         end if
     end while
 
