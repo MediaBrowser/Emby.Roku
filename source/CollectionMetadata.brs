@@ -215,6 +215,21 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
                 metaData.HDBranded = i.IsHD
             end if
 
+            ' Set Played Percentage
+            if i.PlayedPercentage <> invalid
+                PlayedPercentage = i.PlayedPercentage
+            else if i.UserData.PlaybackPositionTicks <> "" And i.UserData.PlaybackPositionTicks <> invalid
+                if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
+                    currentPosition = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
+                    totalLength     = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
+                    PlayedPercentage = Int((currentPosition / totalLength) * 100)
+                else
+                    PlayedPercentage = 0
+                end If
+            else
+                PlayedPercentage = 0
+            end if
+
             ' Get Image Type From Preference
             if RegRead("prefMovieImageType") = "poster"
 
@@ -225,9 +240,12 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                    if i.UserData.Played <> invalid
+                    if i.UserData.Played = true
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played)
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played)
+                    else if i.UserData.Played = false And PlayedPercentage <> 100 
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
                     else
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
@@ -248,9 +266,12 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
                 if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
 
-                    if i.UserData.Played <> invalid
+                    if i.UserData.Played = true
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played)
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played)
+                    else if i.UserData.Played = false And PlayedPercentage <> 100 
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
                     else
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb)
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb)
@@ -271,9 +292,12 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
                 if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                    if i.UserData.Played <> invalid
+                    if i.UserData.Played = true
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played)
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played)
+                    else if i.UserData.Played = false And PlayedPercentage <> 100 
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
                     else
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
