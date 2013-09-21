@@ -17,17 +17,12 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
     End If
 
     ' Setup Screen
-    port   = CreateObject("roMessagePort")
-    screen = CreateObject("roSpringboardScreen")
-    screen.SetMessagePort(port)
-
-    screen.SetDescriptionStyle("movie")
-    screen.SetPosterStyle("rounded-rect-16x9-generic")
+    screen = CreateSpringboardScreen("TV", "", "movie", "rounded-rect-16x9-generic")
 
     ' Fetch / Refresh Screen Details
     tvDetails = RefreshTVDetailPage(screen, episodeId)
 
-    ' Set Breadcrumbs
+    ' Update Breadcrumbs
     if tvDetails.SeriesTitle <> invalid
         screen.SetBreadcrumbText("TV", tvDetails.SeriesTitle)
     else
@@ -42,7 +37,7 @@ Function ShowTVDetailPage(episodeId As String, episodeList=invalid, episodeIndex
     remoteKeyRight = 5
  
     while true
-        msg = wait(0, screen.GetMessagePort())
+        msg = wait(0, screen.Port)
 
         if type(msg) = "roSpringboardScreenEvent" then
             If msg.isRemoteKeyPressed() 
@@ -129,7 +124,7 @@ End Function
 
 Function RefreshTVDetailPage(screen As Object, episodeId As String) As Object
 
-    if validateParam(screen, "roSpringboardScreen", "RefreshTVDetailPage") = false return -1
+    if validateParam(screen, "roAssociativeArray", "RefreshTVDetailPage") = false return -1
     if validateParam(episodeId, "roString", "RefreshTVDetailPage") = false return -1
 
     ' Initialize TV Metadata
