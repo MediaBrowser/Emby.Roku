@@ -9,6 +9,9 @@
 
 Function ShowMoviesListPage() As Integer
 
+    pageTimer = CreateObject("roTimespan")
+    pageTimer.Mark()
+
     ' Create Facade Screen
     facade = CreateObject("roGridScreen")
     facade.Show()
@@ -16,7 +19,7 @@ Function ShowMoviesListPage() As Integer
     ' Create Grid Screen
     if RegRead("prefMovieImageType") = "poster" then
         screen = CreateGridScreen("", "Movies", "mixed-aspect-ratio")
-    Else
+    else
         screen = CreateGridScreen("", "Movies", "two-row-flat-landscape-custom")
     end if
 
@@ -56,6 +59,8 @@ Function ShowMoviesListPage() As Integer
     ' Remote key id's for navigation
     remoteKeyStar = 10
 
+    Print "Loaded Page (ms): " + itostr(pageTimer.TotalMilliseconds()) 
+
     while true
         msg = wait(0, screen.Port)
 
@@ -65,12 +70,17 @@ Function ShowMoviesListPage() As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
+                Print "Item focused Row: "; row; "; Selection: "; Selection
+
                 if Not screen.rowFinishedLoading[row]
 
                     if selection > screen.rowLoadedCount[row] - screen.rowPageEdge
                         ' Queue multiple loads to Catch up to Current Selection
                         if selection > screen.rowLoadedCount[row] + screen.rowPageSize
                             queue = Int((selection - screen.rowLoadedCount[row]) / screen.rowPageSize) + 1
+
+                            queueTimer = CreateObject("roTimespan")
+                            queueTimer.Mark()
 
                             for i = 1 to queue
 
@@ -90,8 +100,13 @@ Function ShowMoviesListPage() As Integer
 
                             end for
 
+                            Print "Loaded Queued Items (ms): " + itostr(queueTimer.TotalMilliseconds()) 
+
                         ' Otherwise Load As Selection Reaches Edge
                         else
+
+                            nextPageTimer = CreateObject("roTimespan")
+                            nextPageTimer.Mark()
 
                             if row = 0
                                 moviesList = MovieMetadata.GetMovieList(screen.rowLoadedCount[row], screen.rowPageSize)
@@ -106,6 +121,8 @@ Function ShowMoviesListPage() As Integer
                                 screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
 
                             end if
+
+                            Print "Loaded Next Page (ms): " + itostr(nextPageTimer.TotalMilliseconds()) 
 
                         end if
 
