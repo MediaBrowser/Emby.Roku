@@ -25,7 +25,7 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
 
     ' Setup Common Items
     o.Screen                = grid
-    o.Port                  = Port
+    o.Port                  = port
     o.AddRow                = AddGridRow
     o.ShowNames             = ShowGridNames
     o.AddRowContent         = AddGridRowContent
@@ -98,11 +98,11 @@ Function AddGridRowContent(rowData) As Boolean
 
     m.screen.SetContentList(rowIndex, rowData)
 
-    If rowData.Count() = 0 Then
+    if rowData.Count() = 0 then
         m.screen.SetListVisible(rowIndex, false)
-    End If
+    end if
 
-    Return true
+    return true
 End Function
 
 
@@ -130,7 +130,7 @@ End Function
 
 Function LoadGridRowContent(rowIndex, rowData, offset, limit) As Boolean
     if rowData = invalid then rowData = []
-
+    
     ' Fill In Missing Items If Not 0
     if offset <> 0 then
         for i = 0 to rowData.Items.Count() - 1
@@ -149,8 +149,10 @@ Function LoadGridRowContent(rowIndex, rowData, offset, limit) As Boolean
     m.rowLoadedCount[rowIndex] = m.rowLoadedCount[rowIndex] + rowData.Items.Count()
 
     ' Hide Row if No Data
-    if m.rowContent[rowIndex].Count() = 0
+    if m.rowLoadedCount[rowIndex] = 0
+        Print "No Data For Row: "; rowIndex
         m.screen.SetListVisible(rowIndex, false)
+        m.rowFinishedLoading[rowIndex] = true
         return true
     end if
 
@@ -163,10 +165,12 @@ Function LoadGridRowContent(rowIndex, rowData, offset, limit) As Boolean
     if m.rowLoadedCount[rowIndex] >= rowData.TotalCount
         m.screen.SetContentList(rowIndex, m.rowContent[rowIndex])
         m.rowFinishedLoading[rowIndex] = true
+        Print "Loading All Data For Row: "; rowIndex
 
     else
         m.screen.SetContentListSubset(rowIndex, m.rowContent[rowIndex], offset, limit)
         m.rowFinishedLoading[rowIndex] = false
+        Print "Loading Partial Data For Row: "; rowIndex
 
     end if
     
@@ -188,7 +192,7 @@ End Function
 '**********************************************************
 
 Function SetGridPosterStyles(styles As Object)
-    m.screen.SetListPosterStyles(styles)
+    'm.screen.SetListPosterStyles(styles)
 End Function
 
 
