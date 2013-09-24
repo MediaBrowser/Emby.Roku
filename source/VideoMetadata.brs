@@ -3,41 +3,11 @@
 '*****************************************************************
 
 
-Function ClassVideoMetadata()
-    ' initializes static members once
-    this = m.ClassVideoMetadata
-
-    if this = invalid
-        this = CreateObject("roAssociativeArray")
-
-        ' constants
-        this.class = "VideoMetadata"
-
-        'variables
-
-
-        ' functions
-        this.GetDetails = videometadata_details
-
-        ' singleton
-        m.ClassVideoMetadata = this
-    end if
-    
-    return this
-End Function
-
-
-Function InitVideoMetadata()
-    this = ClassVideoMetadata()
-    return this
-End Function
-
-
 '**********************************************************
 '** Get Video Details
 '**********************************************************
 
-Function videometadata_details(videoId As String) As Object
+Function getVideoMetadata(videoId As String) As Object
     ' Validate Parameter
     if validateParam(videoId, "roString", "videometadata_details") = false return invalid
 
@@ -60,7 +30,7 @@ Function videometadata_details(videoId As String) As Object
         i = ParseJSON(fixedResponse)
 
         if i = invalid
-            Debug("Error while parsing JSON response for Video Details")
+            Debug("Error Parsing Video Metadata")
             return invalid
         end if
 
@@ -100,9 +70,9 @@ Function videometadata_details(videoId As String) As Object
             metaData.ReleaseDate = itostr(i.ProductionYear)
         end if
 
-        ' Set the Movie star rating
-        if i.CriticRating <> invalid
-            metaData.StarRating = i.CriticRating
+        ' Set the Star Rating
+        if i.CommunityRating <> invalid
+            metaData.UserStarRating = Int(i.CommunityRating) * 10
         end if
 
         ' Set the Run Time
@@ -239,7 +209,7 @@ Function videometadata_details(videoId As String) As Object
 
         ' Setup Video Player
         ' Improve this
-        streamData = SetupVideoStreams(movieId, i.VideoType, i.Path)
+        streamData = SetupVideoStreams(videoId, i.VideoType, i.Path)
 
         if streamData <> invalid
             metaData.StreamData = streamData
@@ -274,7 +244,7 @@ Function videometadata_details(videoId As String) As Object
         
         return metaData
     else
-        Debug("Failed to Get Video Details")
+        Debug("Failed to Get Video Metadata")
     end if
 
     return invalid
