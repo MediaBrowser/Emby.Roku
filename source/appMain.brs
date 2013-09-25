@@ -113,12 +113,14 @@ Sub initGlobals()
 
     GetGlobalAA().AddReplace("rokuUniqueId", device.GetDeviceUniqueId())
 
-    ' Get model name
+    ' Get model name and audio output 
     If major > 4 Or (major = 4 And minor >= 8) Then
         modelName   = device.GetModelDisplayName()
         modelNumber = device.GetModel()
+        GetGlobalAA().AddReplace("audioOutput", device.GetAudioOutputChannel())
     Else
         modelNumber = device.GetModel()
+        GetGlobalAA().AddReplace("audioOutput", false)
 
         models = {}
         models["N1050"] = "Roku SD"
