@@ -99,7 +99,7 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
                 ' Movie Content Types
 
                 if screen.rowContent[row][selection].ContentType = "Movie" then
-                    ShowMoviesDetailPage(screen.rowContent[row][selection].Id)
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
 
                 else if screen.rowContent[row][selection].ContentType = "BoxSet" then
                     ShowMoviesBoxsetPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title)
@@ -110,7 +110,7 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
                     ShowTVSeasonsListPage(screen.rowContent[row][selection])
 
                 else if screen.rowContent[row][selection].ContentType = "Episode" then
-                    ShowTVDetailPage(screen.rowContent[row][selection].Id)
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
 
                 ' Music Content Types
 
@@ -121,6 +121,11 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
 
                 else if screen.rowContent[row][selection].ContentType = "Folder" then
                     ShowCollectionPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title)
+
+                ' Trailer Content Type
+
+                else if screen.rowContent[row][selection].ContentType = "Trailer" then
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
 
                 else 
                     Debug("Unknown Type found")
