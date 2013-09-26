@@ -92,7 +92,7 @@ Function ShowHomePage()
                     screen.UpdateRowContent(row, moviesButtons)
 
                 Else If screen.rowContent[row][selection].ContentType = "Movie" Then
-                    ShowMoviesDetailPage(screen.rowContent[row][selection].Id)
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
 
                 Else If screen.rowContent[row][selection].ContentType = "TVLibrary" Then
                     ShowTVShowListPage()
@@ -104,7 +104,7 @@ Function ShowHomePage()
                     screen.UpdateRowContent(row, tvButtons)
 
                 Else If screen.rowContent[row][selection].ContentType = "Episode" Then
-                    ShowTVDetailPage(screen.rowContent[row][selection].Id)
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
 
                 Else If screen.rowContent[row][selection].ContentType = "MusicLibrary" Then
                     ShowMusicListPage()
