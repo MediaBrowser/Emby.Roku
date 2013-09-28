@@ -7,7 +7,7 @@
 '** Show Video Details Page
 '**********************************************************
 
-Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = invalid) As Integer
+Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = invalid, audioPlayer = invalid) As Integer
     ' Validate Parameter
     if validateParam(videoId, "roString", "ShowVideoDetails") = false return -1
 
@@ -71,10 +71,27 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
 
                 ' Start Playinng From Beginning
                 else if msg.GetIndex() = 2
+                    ' Stop Audio before Playing Video
+                    if audioPlayer <> invalid And audioPlayer.IsPlaying
+                        Debug("Stop theme music")
+                        audioPlayer.Stop()
+                        sleep(300) ' Give enough time to stop music
+                    end if
 
+                    playStart = 0
+                    showVideoScreen2(video, playStart)
+
+                    ' Refresh Details
+                    video = RefreshVideoMetadata(videoId)
+                    RefreshVideoDetails(screen, video)
 
                 ' View Chapters
                 else if msg.GetIndex() = 3
+
+
+                ' Advanced Playback
+                else if msg.GetIndex() = 4
+
 
                 end if
 
