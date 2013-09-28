@@ -270,7 +270,7 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
             foundVideo = true
             streamBitrate = Int(stream.BitRate / 1000)
 
-            if (stream.Codec = "h264" Or stream.Codec = "AVC") And streamBitrate < 30000
+            if (stream.Codec = "h264" Or stream.Codec = "AVC") And streamBitrate < 20000
                 compatibleVideo = true
             end if
 
