@@ -1,5 +1,5 @@
 '**********************************************************
-'**  Media Browser Roku Client - MB Video Utils
+'**  Media Browser Roku Client - Video Utils
 '**********************************************************
 
 
@@ -7,7 +7,7 @@
 '** Format Chapter Time From Position Ticks
 '**********************************************************
 
-Function FormatChapterTime(positionTicks As Object) As String
+Function formatChapterTime(positionTicks As Object) As String
     ' Catch possible numeric values
     if isNumeric(positionTicks) then
         seconds = Int(positionTicks / 10000 / 1000)
@@ -15,7 +15,7 @@ Function FormatChapterTime(positionTicks As Object) As String
         seconds = Int(((positionTicks).ToFloat() / 10000) / 1000)		
     end if
 	
-    chapterTime = FormatTime(seconds)
+    chapterTime = formatTime(seconds)
     return chapterTime
 End Function
 
@@ -24,45 +24,111 @@ End Function
 '** Format Time From Seconds
 '**********************************************************
 
-Function FormatTime(seconds As Integer) As String
-
-    if validateParam(seconds, "roInt", "FormatTime") = false return -1
+Function formatTime(seconds As Integer) As String
+    if validateParam(seconds, "roInt", "formatTime") = false return -1
 
     textTime = ""
     hasHours = false
 
     ' Special Check For Zero
-    If seconds < 60
-        Return "0:" + ZeroPad(itostr(seconds))
-    End If
+    if seconds < 60
+        return "0:" + ZeroPad(itostr(seconds))
+    end if
     
     ' Hours
-    If seconds >= 3600
+    if seconds >= 3600
         textTime = textTime + itostr(seconds / 3600) + ":"
         hasHours = true
         seconds = seconds Mod 3600
-    End If
+    end if
     
     ' Minutes
-    If seconds >= 60
-        If hasHours
+    if seconds >= 60
+        if hasHours
             textTime = textTime + ZeroPad(itostr(seconds / 60)) + ":"
-        Else
+        else
             textTime = textTime + itostr(seconds / 60) + ":"
-        End If
+        end if
         
         seconds = seconds Mod 60
-    Else
-        If hasHours
+    else
+        if hasHours
             textTime = textTime + "00:"
-        End If
-    End If
+        end if
+    end if
 
     ' Seconds
     textTime = textTime + ZeroPad(itostr(seconds))
 
     return textTime
 End Function
+
+
+'**********************************************************
+'** Format Some Common Languages
+'**********************************************************
+
+Function formatLanguage(abbr As String) As String
+    languages = {}
+    languages["en"]  = "English"
+    languages["eng"] = "English"
+    languages["fr"]  = "French"
+    languages["fra"] = "French"
+    languages["de"]  = "German"
+    languages["deu"] = "German"
+    languages["it"]  = "Italian"
+    languages["ita"] = "Italian"
+    languages["ja"]  = "Japanese"
+    languages["jpn"] = "Japanese"
+    languages["pl"]  = "Polish"
+    languages["pol"] = "Polish"
+    languages["pt"]  = "Portuguese"
+    languages["por"] = "Portuguese"
+    languages["ru"]  = "Russian"
+    languages["rus"] = "Russian"
+    languages["es"]  = "Spanish"
+    languages["spa"] = "Spanish"
+    languages["sv"]  = "Swedish"
+    languages["swe"] = "Swedish"
+
+    if languages.DoesExist(abbr) then
+        languageName = languages[abbr]
+    else
+        languageName = abbr
+    end if
+
+    return languageName
+End Function
+
+
+'**********************************************************
+'** Get File Extension
+'**********************************************************
+
+Function getFileExtension(filename as String) as String
+    list = filename.tokenize(".")
+    if list.count() > 0 then return LCase(list.GetTail()) else return ""
+End Function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 '**********************************************************
@@ -73,6 +139,8 @@ End Function
 Function GetStreamInfo(streams As Object) As Object
 
     if validateParam(streams, "roArray", "GetStreamInfo") = false return -1
+
+    Print "stream info"
 
     videoFound = false
     isHD = false
@@ -114,6 +182,8 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
     if validateParam(videoType, "roString", "SetupVideoStreams") = false return -1
     if validateParam(videoPath, "roString", "SetupVideoStreams") = false return -1
 
+    Print "setup video streams old"
+
     ' Lowercase the video type string
     videoType = LCase(videoType)
 
@@ -144,7 +214,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
         If (extension = "asf" Or extension = "avi" Or extension = "mpeg" Or extension = "m2ts" Or extension = "ogv" Or extension = "ts" Or extension = "webm" Or extension = "wmv" Or extension = "wtv")
             ' Transcode Play
             stream = {}
-            stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(videoBitrate) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+            stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(videoBitrate) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100&TimeStampOffsetMs=0"
             stream.bitrate = videoBitrate.ToInt()
 
             If videoBitrate.ToInt() > 700 Then
@@ -178,7 +248,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
             Else
                 ' Transcode Play
                 stream = {}
-                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(videoBitrate) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+                stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(videoBitrate) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100&TimeStampOffsetMs=0"
                 stream.bitrate = videoBitrate.ToInt()
 
                 If videoBitrate.ToInt() > 700 Then
@@ -233,7 +303,7 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
         Print "DVD/BluRay/HDDVD/Iso file"
         ' Transcode Play
         stream = {}
-        stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(videoBitrate) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100"
+        stream.url = GetServerBaseUrl() + "/Videos/" + videoId + "/stream.m3u8?VideoCodec=h264" + urlBitrates.Lookup(videoBitrate) + "&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100&TimeStampOffsetMs=0"
         stream.bitrate = videoBitrate.ToInt()
 
         If videoBitrate.ToInt() > 700 Then
@@ -279,7 +349,7 @@ End Function
 
 
 '**********************************************************
-'** Get Filename Extension
+'** Get Filename Extension (remove me)
 '**********************************************************
 
 Function GetExtension(filename as String) as String
