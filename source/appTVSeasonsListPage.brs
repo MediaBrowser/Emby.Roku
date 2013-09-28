@@ -118,8 +118,9 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
             else if msg.isListItemSelected() then
                 selection = msg.GetIndex()
 
-                episodeIndex = ShowTVDetailPage(episodeData.Items[msg.GetIndex()].Id, episodeData.Items, selection, player)
-                screen.SetFocusedListItem(episodeIndex)
+                ShowVideoDetails(episodeData.Items[selection].Id, episodeData.Items, selection, player)
+                'episodeIndex = ShowTVDetailPage(episodeData.Items[msg.GetIndex()].Id, episodeData.Items, selection, player)
+                'screen.SetFocusedListItem(episodeIndex)
 
             else if msg.isScreenClosed() then
                 return -1

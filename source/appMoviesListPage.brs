@@ -139,8 +139,9 @@ Function ShowMoviesListPage() As Integer
                 selection = msg.getData()
 
                 if screen.rowContent[row][selection].ContentType = "Movie" then
-                    movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesList, selection)
-                    screen.SetFocusedListItem(row, movieIndex)
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
+                    'movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesList, selection)
+                    'screen.SetFocusedListItem(row, movieIndex)
 
                 else if screen.rowContent[row][selection].ContentType = "Genre" then
                     ShowMoviesGenrePage(screen.rowContent[row][selection].Id)
