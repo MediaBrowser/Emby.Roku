@@ -88,6 +88,7 @@ Function HttpRequest(url As String) as Object
     obj.Http                        = CreateURLTransferObject2(url)
     obj.ContentType                 = http_content_type
     obj.AddAuthorization            = http_authorization
+    obj.GetUrl                      = http_get_url
     obj.FirstParam                  = true
     obj.CountParams                 = 0
     obj.AddParam                    = http_add_param
@@ -145,6 +146,15 @@ End Function
 Function http_authorization() As Void
     authString = "MediaBrowser UserId=" + Quote() + HttpEncode(getGlobalVar("user").Id) + Quote() + ", Client=" + Quote() + "Roku" + Quote() + ", Device=" + Quote() + getGlobalVar("rokuModelName", "Unknown") + Quote() + ", DeviceId=" + Quote() + getGlobalVar("rokuUniqueId", "Unknown") + Quote() + ", Version=" + Quote() + getGlobalVar("channelVersion", "Unknown") + Quote()
     m.Http.AddHeader("Authorization", authString)
+End Function
+
+
+'**********************************************************
+'** Get Url
+'**********************************************************
+
+Function http_get_url() As String
+    return m.Http.GetUrl()
 End Function
 
 
