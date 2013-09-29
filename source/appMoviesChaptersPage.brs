@@ -4,7 +4,7 @@
 
 
 '**********************************************************
-'** Show Movies Chapters Page
+'** Show Movies Chapters Page (deprecated)
 '**********************************************************
 
 Function ShowMoviesChaptersPage(movieInfo As Object) As Integer

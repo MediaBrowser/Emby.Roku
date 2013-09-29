@@ -4,7 +4,7 @@
 
 
 '**********************************************************
-'** Show TV Chapters Page
+'** Show TV Chapters Page (deprecated)
 '**********************************************************
 
 Function ShowTVChaptersPage(episodeInfo As Object, audioPlayer=invalid) As Integer
