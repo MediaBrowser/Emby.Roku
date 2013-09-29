@@ -301,6 +301,8 @@ Sub initTheme()
         SpringboardRuntimeColor: "#ffffff"
         SpringboardSynopsisColor: "#dfdfdf"
         SpringboardTitleText: "#ffffff"
+
+        'ThemeType: "generic-dark"
     }
 
     app.SetTheme( theme )
