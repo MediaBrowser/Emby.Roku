@@ -4,17 +4,17 @@
 
 
 '**********************************************************
-'** Show Video Screen
+'** Create Video Screen
 '**********************************************************
 
-Function showVideoScreen2(video As Object, playStart As Dynamic)
+Function createVideoScreen(video As Object, options = invalid As Object)
     ' Validate Parameter
-    if validateParam(video, "roAssociativeArray", "showVideoScreen2") = false return -1
+    if validateParam(video, "roAssociativeArray", "createVideoScreen") = false return -1
 
     ' Setup Video Playback
-    video = setupVideoPlayback(video)
+    video = setupVideoPlayback(video, options)
 
-    'return true
+    return true
 
     ' Custom Video Player
 
