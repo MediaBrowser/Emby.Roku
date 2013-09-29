@@ -424,8 +424,6 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         else if locationType = "filesystem"
 
             if metadata.CompatVideo And ( (extension = "mp4" Or extension = "mpv") Or (extension = "mkv" And (rokuVersion[0] > 5 Or (rokuVersion[0] = 5 And rokuVersion[1] >= 1) ) ) )
-                Print "Compatible Video File And File is mp4, mpv Or mkv"
-
                 if Not audioOutput51 And metaData.DefaultAudioChannels > 2 Or (audioStream Or subtitleStream)
                     action = "streamcopy"
                 else
@@ -437,7 +435,6 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
                 end if
 
             else
-                Print "Not a mp4, mpv or mkv"
                 if metadata.CompatVideo
                     action = "streamcopy"
                 else
