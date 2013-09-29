@@ -67,7 +67,22 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
             else if msg.isButtonPressed()
                 ' Resume Playing
                 if msg.GetIndex() = 1
+                    ' Stop Audio before Playing Video
+                    if audioPlayer <> invalid And audioPlayer.IsPlaying
+                        Debug("Stop theme music")
+                        audioPlayer.Stop()
+                        sleep(300) ' Give enough time to stop music
+                    end if
 
+                    options = {}
+                    options.playstart = video.PlaybackPosition
+
+                    ' Create Video Screen
+                    createVideoScreen(video, options)
+
+                    ' Refresh Details
+                    video = RefreshVideoMetadata(videoId)
+                    RefreshVideoDetails(screen, video)
 
                 ' Start Playinng From Beginning
                 else if msg.GetIndex() = 2
@@ -78,8 +93,11 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                         sleep(300) ' Give enough time to stop music
                     end if
 
+                    options = {}
+                    options.playstart = video.PlaybackPosition
+
                     ' Create Video Screen
-                    createVideoScreen(video)
+                    createVideoScreen(video, options)
 
                     ' Refresh Details
                     video = RefreshVideoMetadata(videoId)
