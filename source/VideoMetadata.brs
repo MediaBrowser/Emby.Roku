@@ -270,7 +270,7 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
             foundVideo = true
             streamBitrate = Int(stream.BitRate / 1000)
 
-            if (stream.Codec = "h264" Or stream.Codec = "AVC") And streamBitrate < 20000
+            if (stream.Codec = "h264" Or stream.Codec = "AVC") And stream.Level <= 41 And streamBitrate < 20000
                 compatibleVideo = true
             end if
 
@@ -303,7 +303,7 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
                 firstAudioChannels = firstOf(stream.Channels, 2)
 
                 ' Determine Compatible Audio (Default audio will override)
-                if stream.Codec = "aac"
+                if stream.Codec = "aac" Or (stream.Codec = "ac3" And getGlobalVar("audioOutput51")) Or (stream.Codec = "dca" And getGlobalVar("audioOutput51") And getGlobalVar("audioDTS"))
                     compatibleAudio = true
                 end if
             end if
@@ -319,7 +319,7 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
                 end if
                 
                 ' Determine Compatible Audio
-                if stream.Codec = "aac"
+                if stream.Codec = "aac" Or (stream.Codec = "ac3" And getGlobalVar("audioOutput51")) Or (stream.Codec = "dca" And getGlobalVar("audioOutput51") And getGlobalVar("audioDTS"))
                     compatibleAudio = true
                 else
                     compatibleAudio = false
