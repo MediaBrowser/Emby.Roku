@@ -62,7 +62,7 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
 
     ' Filter/Sort Query
     if filters <> invalid
-        query = FilterQuery(query, filters)
+        query = AddToQuery(query, filters)
     end if
 
     ' Paging

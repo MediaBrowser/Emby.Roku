@@ -59,7 +59,7 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
 
     ' Filter/Sort Query
     if filters <> invalid
-        query = FilterQuery(query, filters)
+        query = AddToQuery(query, filters)
     end if
 
     ' Paging
@@ -352,7 +352,7 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                     if i.UserData.Played = true
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played)
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played)
-                    else if i.UserData.Played = false And i.PlayedPercentage <> 100 
+                    else if i.UserData.Played = false And i.PlayedPercentage <> invalid And i.PlayedPercentage <> 100 
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, i.PlayedPercentage)
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, i.PlayedPercentage)
                     else
@@ -378,7 +378,7 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                     if i.UserData.Played = true
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played)
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played)
-                    else if i.UserData.Played = false And i.PlayedPercentage <> 100 
+                    else if i.UserData.Played = false And i.PlayedPercentage <> invalid And i.PlayedPercentage <> 100 
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, i.PlayedPercentage)
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, i.PlayedPercentage)
                     else
@@ -404,7 +404,7 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                     if i.UserData.Played = true
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played)
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played)
-                    else if i.UserData.Played = false And i.PlayedPercentage <> 100 
+                    else if i.UserData.Played = false And i.PlayedPercentage <> invalid And i.PlayedPercentage <> 100
                         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, i.PlayedPercentage)
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, i.PlayedPercentage)
                     else

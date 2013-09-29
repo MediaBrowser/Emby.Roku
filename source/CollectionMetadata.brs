@@ -128,7 +128,7 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
 
     ' Filter/Sort Query
     if filters <> invalid
-        query = FilterQuery(query, filters)
+        query = AddToQuery(query, filters)
     end if
 
     ' Paging

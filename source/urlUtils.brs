@@ -54,14 +54,12 @@ End Function
 
 
 '**********************************************************
-'** Filter Query Array
+'** Add to Query Array
 '**********************************************************
 
-Function FilterQuery(query As Object, filters As Object) As Object
-    for each key in filters
-        if LCase(key) <> "recursive" And LCase(key) <> "includeitemtypes" And LCase(key) <> "fields" And LCase(key) <> "startindex" And LCase(key) <> "limit"
-            query.AddReplace(key, filters[key])
-        end if
+Function AddToQuery(query As Object, fields As Object) As Object
+    for each key in fields
+        query.AddReplace(key, fields[key])
     end for
     
     return query
