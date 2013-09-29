@@ -82,7 +82,10 @@ Function getVideoMetadata(videoId As String) As Object
 
         ' Set the Playback Position
         if i.UserData.PlaybackPositionTicks <> "" And i.UserData.PlaybackPositionTicks <> invalid
-            metaData.PlaybackPosition = i.UserData.PlaybackPositionTicks
+            positionSeconds = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
+            metaData.PlaybackPosition = positionSeconds
+        else
+            metaData.PlaybackPosition = 0
         end if
 
         if i.Type = "Movie"
@@ -168,9 +171,14 @@ Function getVideoMetadata(videoId As String) As Object
 
                 ' Set chapter time
                 if c.StartPositionTicks <> invalid
-                    chapterData.ShortDescriptionLine2 = FormatChapterTime(c.StartPositionTicks)
-                    chapterData.StartPositionTicks = c.StartPositionTicks
+                    chapterPositionSeconds = Int(((c.StartPositionTicks).ToFloat() / 10000) / 1000)
+
+                    chapterData.StartPosition = chapterPositionSeconds
+                    chapterData.ShortDescriptionLine2 = formatTime(chapterPositionSeconds)
                 end if
+
+                ' Set Advanced Play
+                'chapterData.Description = "* for advanced playback"
 
                 ' Get Image Sizes
                 sizes = GetImageSizes("flat-episodic-16x9")
@@ -418,6 +426,10 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         playStart      = false
     end if
 
+    Print "Play Start: "; playStart
+    Print "Audio Stream: "; audioStream
+    Print "Subtitle Stream: "; subtitleStream
+
     if videoType = "videofile"
         extension = getFileExtension(metaData.VideoPath)
 
@@ -496,6 +508,18 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         request = HttpRequest(url)
         request.BuildQuery(query)
 
+        ' Add Play Start
+        if playStart
+            playStartTicks = itostr(playStart) + "0000000"
+            request.AddParam("StartTimeTicks", playStartTicks)
+        end if
+
+        ' Add Audio Stream
+        if audioStream then request.AddParam("AudioStreamIndex", itostr(audioStream))
+
+        ' Add Subtitle Stream
+        if subtitleStream then request.AddParam("SubtitleStreamIndex", itostr(subtitleStream))
+
         ' Prepare Stream
         streamParams.url = request.GetUrl()
         streamParams.bitrate = 0
@@ -528,6 +552,18 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         request = HttpRequest(url)
         request.BuildQuery(query)
 
+        ' Add Play Start
+        if playStart
+            playStartTicks = itostr(playStart) + "0000000"
+            request.AddParam("StartTimeTicks", playStartTicks)
+        end if
+
+        ' Add Audio Stream
+        if audioStream then request.AddParam("AudioStreamIndex", itostr(audioStream))
+
+        ' Add Subtitle Stream
+        if subtitleStream then request.AddParam("SubtitleStreamIndex", itostr(subtitleStream))
+
         ' Prepare Stream
         streamParams.url = request.GetUrl()
         streamParams.bitrate = videoBitrate
@@ -544,6 +580,8 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         metaData.videoStream.Stream = streamParams
 
     end if
+
+    Print streamParams.url
 
     return metaData
 End Function
