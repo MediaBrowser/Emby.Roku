@@ -99,7 +99,8 @@ Function showVideoScreen(episode As Object, PlayStart As Dynamic)
             Else If msg.isStatusMessage() and msg.GetMessage() = "startup progress"
                 ' Extra Check to Prevent Playback Loop
                 If streamStarted Then
-                    Debug("--- 2nd attempt at stream started, exit loop ---")
+                    Debug("--- Stream buffering again ---")
+                    Print msg.GetIndex()
                     'PostPlayback(episode.Id, "stop", DoubleToString(nowPosition))
                     'exit while
                 End If
