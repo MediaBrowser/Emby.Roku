@@ -4,19 +4,11 @@
 
 
 '**********************************************************
-'** Format Chapter Time From Position Ticks
+'** Format Chapter Time from Seconds (deprecated)
 '**********************************************************
 
-Function formatChapterTime(positionTicks As Object) As String
-    ' Catch possible numeric values
-    if isNumeric(positionTicks) then
-        seconds = Int(positionTicks / 10000 / 1000)
-    else
-        seconds = Int(((positionTicks).ToFloat() / 10000) / 1000)		
-    end if
-	
-    chapterTime = formatTime(seconds)
-    return chapterTime
+Function formatChapterTime(seconds As Integer) As String
+    return formatTime(seconds)
 End Function
 
 
@@ -132,7 +124,7 @@ End Function
 
 
 '**********************************************************
-'** Get HD Video And SS Audio Information From 
+'** Get HD Video And SS Audio Information From  (deprecated)
 '** Media Streams
 '**********************************************************
 
@@ -173,7 +165,7 @@ End Function
 
 
 '**********************************************************
-'** Setup Video Streams
+'** Setup Video Streams (deprecated)
 '**********************************************************
 
 Function SetupVideoStreams(videoId As String, videoType As String, videoPath As String) As Object
@@ -326,7 +318,7 @@ End Function
 
 
 '**********************************************************
-'** Append Resume Time To Stream URLs
+'** Append Resume Time To Stream URLs (deprecated)
 '**********************************************************
 
 Function AddResumeOffset(StreamData As Object, offset As String) As Object
@@ -353,6 +345,7 @@ End Function
 '**********************************************************
 
 Function GetExtension(filename as String) as String
+    Print "old Get extension called"
     list = filename.tokenize(".")
     if list.count()>0 then return LCase(list.GetTail()) else return ""
 End Function
