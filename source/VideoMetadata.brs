@@ -247,6 +247,10 @@ Function getVideoMetadata(videoId As String) As Object
 End Function
 
 
+'**********************************************************
+'** Parse Media Information
+'**********************************************************
+
 Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
 
     ' Setup Video / Audio / Subtitle Streams
@@ -390,6 +394,9 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
 End Function
 
 
+'**********************************************************
+'** Setup Video Playback
+'**********************************************************
 
 Function setupVideoPlayback(metadata As Object, options = invalid As Object) As Object
 
@@ -404,16 +411,12 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
     if options <> invalid
         audioStream    = firstOf(options.audio, false)
         subtitleStream = firstOf(options.subtitle, false)
+        playStart      = firstOf(options.playstart, false)
     else
         audioStream    = false
         subtitleStream = false
+        playStart      = false
     end if
-
-    streamParams = {}
-
-    '''''''''''''''''''''''''''''''
-    videoBitrate = "3200"
-    '''''''''''''''''''''''''''''''
 
     if videoType = "videofile"
         extension = getFileExtension(metaData.VideoPath)
@@ -448,9 +451,13 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         action = "transcode"
     end if
 
+    Debug("Action: " + action)
 
+    ' Get Video Bitrate
+    videoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
+    videoBitrate = videoBitrate.ToInt()
 
-    Print "Action: " + action
+    streamParams = {}
 
     ' Direct Stream
     if action = "direct"
@@ -468,7 +475,29 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
 
     ' Stream Copy
     else if action = "streamcopy"
-        streamParams.url = GetServerBaseUrl() + "/Videos/" + metadata.Id + "/stream.m3u8?VideoCodec=copy&VideoBitRate=3200000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100&TimeStampOffsetMs=0"
+        ' Base URL
+        url = GetServerBaseUrl() + "/Videos/" + HttpEncode(metadata.Id) + "/stream.m3u8"
+
+        ' Default Settings
+        query = {
+            VideoCodec: "copy"
+            AudioCodec: "aac"
+            AudioBitRate: "128000"
+            AudioChannels: "2"
+            AudioSampleRate: "44100"
+            TimeStampOffsetMs: "0"
+        }
+
+        ' Get Video Settings
+        videoSettings = getVideoBitrateSettings(videoBitrate)
+        query = AddToQuery(query, videoSettings)
+
+        ' Prepare Url
+        request = HttpRequest(url)
+        request.BuildQuery(query)
+
+        ' Prepare Stream
+        streamParams.url = request.GetUrl()
         streamParams.bitrate = 0
         streamParams.quality = true
         streamParams.contentid = "x-streamcopy"
@@ -478,9 +507,37 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
 
     ' Transcode
     else
-        streamParams.url = GetServerBaseUrl() + "/Videos/" + metadata.Id + "/stream.m3u8?VideoCodec=h264&VideoBitRate=3200000&MaxWidth=1920&MaxHeight=1080&Profile=high&Level=4.0&AudioCodec=aac&AudioBitRate=128000&AudioChannels=2&AudioSampleRate=44100&TimeStampOffsetMs=0"
-        streamParams.bitrate = 3200
-        streamParams.quality = true
+        ' Base URL
+        url = GetServerBaseUrl() + "/Videos/" + HttpEncode(metadata.Id) + "/stream.m3u8"
+
+        ' Default Settings
+        query = {
+            VideoCodec: "h264"
+            AudioCodec: "aac"
+            AudioBitRate: "128000"
+            AudioChannels: "2"
+            AudioSampleRate: "44100"
+            TimeStampOffsetMs: "0"
+        }
+
+        ' Get Video Settings
+        videoSettings = getVideoBitrateSettings(videoBitrate)
+        query = AddToQuery(query, videoSettings)
+
+        ' Prepare Url
+        request = HttpRequest(url)
+        request.BuildQuery(query)
+
+        ' Prepare Stream
+        streamParams.url = request.GetUrl()
+        streamParams.bitrate = videoBitrate
+
+        if videoBitrate > 700
+            streamParams.quality = true
+        else
+            streamParams.quality = false
+        end if
+
         streamParams.contentid = "x-transcode"
 
         metaData.videoStream.StreamFormat = "hls"
@@ -492,9 +549,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
 End Function
 
 
-Function getVideoBitrateSettings(bitrate As Dynamic) As Object
-    if bitrate = invalid then bitrate = 3200
-
+Function getVideoBitrateSettings(bitrate As Integer) As Object
     ' Get Bitrate Settings
     if bitrate = 664
         settings = {
