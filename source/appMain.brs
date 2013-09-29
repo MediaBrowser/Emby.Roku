@@ -159,6 +159,13 @@ Sub initGlobals()
     GetGlobalAA().AddReplace("rokuModelNumber", modelNumber)
     GetGlobalAA().AddReplace("rokuModelName", modelName)
 
+    ' Check for DTS passthrough support
+    if modelName = "Roku 3"
+        GetGlobalAA().AddReplace("audioDTS", true)
+    else
+        GetGlobalAA().AddReplace("audioDTS", false)
+    end if
+
     ' Check if HDTV screen
     If device.GetDisplayType() = "HDTV" Then
         GetGlobalAA().AddReplace("isHD", true)
