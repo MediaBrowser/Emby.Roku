@@ -2,6 +2,8 @@ MediaBrowser Roku
 
 Changelog
 
+1.16 - Added collections; Improve audio/video direct play settings;
+
 1.15 - New Theme; Added popup bubble; Added dynamic loading for speed improvment; Bug fixes;
 
 1.14 - Bug fixes; Speed improvements;
