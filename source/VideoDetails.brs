@@ -78,8 +78,8 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                         sleep(300) ' Give enough time to stop music
                     end if
 
-                    playStart = 0
-                    showVideoScreen2(video, playStart)
+                    ' Create Video Screen
+                    createVideoScreen(video)
 
                     ' Refresh Details
                     video = RefreshVideoMetadata(videoId)
@@ -87,9 +87,13 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
 
                 ' View Chapters
                 else if msg.GetIndex() = 3
+                    createVideoChapters(video, audioPlayer)
 
+                    ' Refresh Details
+                    video = RefreshVideoMetadata(videoId)
+                    RefreshVideoDetails(screen, video)
 
-                ' Advanced Playback
+                ' Audio & Subtitles
                 else if msg.GetIndex() = 4
 
 
@@ -118,7 +122,7 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
 
     ' Only Setup Buttons For Types we recognize
     if video.ContentType = "Episode" Or video.ContentType = "Movie"
-        if video.PlaybackPosition <> "" And video.PlaybackPosition <> "0" then
+        if video.PlaybackPosition <> 0 then
             screen.AddButton(1, "Resume playing")
             screen.AddButton(2, "Play from beginning")
         else
@@ -126,6 +130,7 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
         end if
 
         screen.AddButton(3, "View Chapters")
+        screen.AddButton(4, "Audio & Subtitles")
 
     else if video.ContentType = "Trailer"
         screen.AddButton(2, "Play")
@@ -204,4 +209,52 @@ Function getPreviousVideo(videoList As Object, videoIndex As Integer) As Integer
     if video.Id = invalid return -1
 
     return prevIndex
+End Function
+
+
+'**********************************************************
+'** Create Video Chapters Screen
+'**********************************************************
+
+Function createVideoChapters(video As Object, audioPlayer = invalid) As Integer
+
+    ' Create Poster Screen
+    screen = CreatePosterScreen(video.Title, "Chapters", "flat-episodic-16x9")
+
+    ' Set Content
+    screen.SetContent(video.Chapters)
+
+    ' Show Screen
+    screen.Show()
+
+    while true
+        msg = wait(0, screen.Port)
+
+        if type(msg) = "roPosterScreenEvent" then
+            if msg.isListFocused() then
+                ' Focused Item
+            else if msg.isListItemSelected() then
+                selection = msg.GetIndex()
+
+                ' Stop Audio before Playing Video
+                if audioPlayer <> invalid And audioPlayer.IsPlaying
+                    Debug("Stop theme music")
+                    audioPlayer.Stop()
+                    sleep(300) ' Give enough time to stop music
+                end if
+
+                options = {}
+                options.playstart = video.Chapters[selection].StartPosition
+
+                ' Create Video Screen
+                createVideoScreen(video, options)
+
+                return 1
+            else if msg.isScreenClosed() then
+                return 1
+            end if
+        end if
+    end while
+
+    return 0
 End Function
