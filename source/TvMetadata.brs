@@ -887,19 +887,15 @@ Function tvmetadata_episodes(seasonId As String) As Object
                 episodeInfo = episodeInfo + firstOf(i.OfficialRating, "")
             end if
 
-            ' Check Media Streams For HD Video And Surround Sound Audio
-            ' Fix me
-            streamInfo = GetStreamInfo(i.MediaStreams)
-
             ' Set HD Video Flag
-            if streamInfo.isHDVideo = true
-                episodeInfo = episodeInfo + " | HD" 
+            if i.IsHd <> invalid
+                if i.IsHd then episodeInfo = episodeInfo + " | HD" 
             end if
 
             ' Set Surround Sound Flag    
-            if streamInfo.isSSAudio = true
-                episodeInfo = episodeInfo + " | 5.1" 
-            end if
+            'if streamInfo.isSSAudio = true
+            '    episodeInfo = episodeInfo + " | 5.1" 
+            'end if
 
             ' Set the Line 2 display
             metaData.ShortDescriptionLine2 = episodeInfo
@@ -1098,7 +1094,7 @@ End Function
 
 
 '**********************************************************
-'** Get TV Episode Details
+'** Get TV Episode Details (deprecated)
 '**********************************************************
 
 Function tvmetadata_episode_details(episodeId As String) As Object
