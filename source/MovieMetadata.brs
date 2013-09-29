@@ -1097,7 +1097,7 @@ End Function
 
 
 '**********************************************************
-'** Get Movie Details
+'** Get Movie Details (deprecated)
 '**********************************************************
 
 Function moviemetadata_movie_details(movieId As String) As Object
