@@ -94,7 +94,7 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                     end if
 
                     options = {}
-                    options.playstart = video.PlaybackPosition
+                    options.playstart = 0
 
                     ' Create Video Screen
                     createVideoScreen(video, options)
