@@ -4,15 +4,6 @@
 
 
 '**********************************************************
-'** Format Chapter Time from Seconds (deprecated)
-'**********************************************************
-
-Function formatChapterTime(seconds As Integer) As String
-    return formatTime(seconds)
-End Function
-
-
-'**********************************************************
 '** Format Time From Seconds
 '**********************************************************
 
