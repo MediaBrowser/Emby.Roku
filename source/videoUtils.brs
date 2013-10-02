@@ -85,6 +85,162 @@ End Function
 
 
 '**********************************************************
+'** Get Video Bitrate Settings
+'**********************************************************
+
+Function getVideoBitrateSettings(bitrate As Integer) As Object
+    ' Get Bitrate Settings
+    if bitrate = 664
+        settings = {
+            videobitrate: "664000"
+            maxwidth: "640"
+            maxheight: "360"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 996
+        settings = {
+            videobitrate: "996000"
+            maxwidth: "1280"
+            maxheight: "720"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 1320
+        settings = {
+            videobitrate: "1320000"
+            maxwidth: "1280"
+            maxheight: "720"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 2600
+        settings = {
+            videobitrate: "2600000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 3200
+        settings = {
+            videobitrate: "3200000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 4700
+        settings = {
+            videobitrate: "4700000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 6200
+        settings = {
+            videobitrate: "6200000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 7700
+        settings = {
+            videobitrate: "7700000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 9200
+        settings = {
+            videobitrate: "9200000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 10700
+        settings = {
+            videobitrate: "10700000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 12200
+        settings = {
+            videobitrate: "12200000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 13700
+        settings = {
+            videobitrate: "13700000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 15200
+        settings = {
+            videobitrate: "15200000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 16700
+        settings = {
+            videobitrate: "16700000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 18200
+        settings = {
+            videobitrate: "18200000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 20000
+        settings = {
+            videobitrate: "20000000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    end if
+    
+    return settings
+End Function
+
+
+'**********************************************************
 '** Get File Extension
 '**********************************************************
 
