@@ -22,7 +22,10 @@ Function ShowPreferencesPage()
         GetPreferenceTVTitle,
         GetPreferenceTVDisplayPopup,
         GetPreferenceTVThemeMusic,
-        GetPreferenceTVThemeMusicRepeat
+        GetPreferenceTVThemeMusicRepeat,
+        GetPreferenceCollectionView,
+        GetPreferenceCollectionTitle,
+        GetPreferenceCollectionPopup
     ]
 
     ' Fetch / Refresh Preference Screen
@@ -225,6 +228,30 @@ Function GetPreferenceList() as Object
             ShortDescriptionLine1: "Repeat TV theme music while browsing TV Series.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
+        },
+        {
+            Title: "Collection View: " + GetSelectedPreference(GetPreferenceCollectionView(), RegRead("prefCollectionView")),
+            ShortTitle: "Collection View",
+            ID: "prefCollectionView",
+            ShortDescriptionLine1: "Select from backdrop, poster, or thumb image",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
+        },
+        {
+            Title: "Collection Title: " + GetSelectedPreference(GetPreferenceCollectionTitle(), RegRead("prefCollectionTitle")),
+            ShortTitle: "Collection Title",
+            ID: "prefCollectionTitle",
+            ShortDescriptionLine1: "Show or hide the collection title.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
+        },
+        {
+            Title: "Collection PopUp Bubble: " + GetSelectedPreference(GetPreferenceCollectionPopup(), RegRead("prefCollectionPopup")),
+            ShortTitle: "Display Collection PopUp Bubble",
+            ID: "prefCollectionPopup",
+            ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         }
     ]
 
@@ -398,6 +425,62 @@ Function GetPreferenceTVThemeMusic() as Object
 End Function
 
 Function GetPreferenceTVThemeMusicRepeat() as Object
+    prefOptions = [
+        {
+            Title: "No [default]",
+            Id: "no",
+            IsDefault: true
+        },
+        {
+            Title: "Yes",
+            Id: "yes",
+            IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceCollectionView() as Object
+    prefOptions = [
+        {
+            Title: "Backdrop [default]",
+            Id: "backdrop",
+            IsDefault: true
+        },
+        {
+            Title: "Poster",
+            Id: "poster",
+            IsDefault: false
+        },
+        {
+            Title: "Thumb",
+            Id: "thumb",
+            IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceCollectionTitle() as Object
+    prefOptions = [
+        {
+            Title: "Show [default]",
+            Id: "show",
+            IsDefault: true
+        },
+        {
+            Title: "Hide",
+            Id: "hide",
+            IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceCollectionPopup() as Object
     prefOptions = [
         {
             Title: "No [default]",
