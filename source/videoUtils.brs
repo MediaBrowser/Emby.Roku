@@ -315,37 +315,3 @@ Function SetupVideoStreams(videoId As String, videoType As String, videoPath As 
 
     Return streamData
 End Function
-
-
-'**********************************************************
-'** Append Resume Time To Stream URLs (deprecated)
-'**********************************************************
-
-Function AddResumeOffset(StreamData As Object, offset As String) As Object
-
-    if validateParam(StreamData, "roAssociativeArray", "AddResumeOffset") = false return -1
-    if validateParam(offset, "roString", "AddResumeOffset") = false return -1
-
-    If StreamData.Streams<>invalid Then
-        ' Loop through urls, adding offset
-        For each stream in StreamData.Streams
-            stream.url = stream.url + "&StartTimeTicks=" + offset
-        End For
-    Else
-        StreamData.Stream.url = StreamData.Stream.url + "&StartTimeTicks=" + offset
-    End If
-
-    Return StreamData
-
-End Function
-
-
-'**********************************************************
-'** Get Filename Extension (remove me)
-'**********************************************************
-
-Function GetExtension(filename as String) as String
-    Print "old Get extension called"
-    list = filename.tokenize(".")
-    if list.count()>0 then return LCase(list.GetTail()) else return ""
-End Function
