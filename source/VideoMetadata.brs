@@ -274,7 +274,6 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
     firstAudio           = true
     firstAudioChannels   = 0
     defaultAudioChannels = 0
-    directPlay           = false
 
     for each stream in video.MediaStreams
 
@@ -393,7 +392,6 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
     ' Set Video Compatibility And Direct Play
     metaData.CompatVideo = compatibleVideo
     metaData.CompatAudio = compatibleAudio
-    metaData.DirectPlay  = directPlay ' Not sure This Is needed
 
     ' Set the Default Audio Channels
     metaData.DefaultAudioChannels = defaultAudioChannels
@@ -463,7 +461,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         action = "transcode"
     end if
 
-    Debug("Action: " + action)
+    Debug("Action For Video (" + metadata.Title + "): " + action)
 
     ' Get Video Bitrate
     videoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
@@ -485,6 +483,9 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         end if
         metaData.videoStream.Stream = streamParams
 
+        ' Set Direct Play Flag
+        metaData.DirectPlay = true
+
     ' Stream Copy
     else if action = "streamcopy"
         ' Base URL
@@ -501,8 +502,8 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         }
 
         ' Get Video Settings
-        videoSettings = getVideoBitrateSettings(videoBitrate)
-        query = AddToQuery(query, videoSettings)
+        'videoSettings = getVideoBitrateSettings(videoBitrate)
+        'query = AddToQuery(query, videoSettings)
 
         ' Prepare Url
         request = HttpRequest(url)
@@ -634,36 +635,99 @@ Function getVideoBitrateSettings(bitrate As Integer) As Object
             level: "4.0"
         }
 
-    else if bitrate = 4500
+    else if bitrate = 4700
         settings = {
-            videobitrate: "4500000"
+            videobitrate: "4700000"
             maxwidth: "1920"
             maxheight: "1080"
             profile: "high"
             level: "4.0"
         }
 
-    else if bitrate = 5800
+    else if bitrate = 6200
         settings = {
-            videobitrate: "5800000"
+            videobitrate: "6200000"
             maxwidth: "1920"
             maxheight: "1080"
             profile: "high"
             level: "4.0"
         }
 
-    else if bitrate = 7200
+    else if bitrate = 7700
         settings = {
-            videobitrate: "7200000"
+            videobitrate: "7700000"
             maxwidth: "1920"
             maxheight: "1080"
             profile: "high"
             level: "4.0"
         }
 
-    else if bitrate = 8600
+    else if bitrate = 9200
         settings = {
-            videobitrate: "8600000"
+            videobitrate: "9200000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 10700
+        settings = {
+            videobitrate: "10700000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 12200
+        settings = {
+            videobitrate: "12200000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 13700
+        settings = {
+            videobitrate: "13700000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 15200
+        settings = {
+            videobitrate: "15200000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 16700
+        settings = {
+            videobitrate: "16700000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 18200
+        settings = {
+            videobitrate: "18200000"
+            maxwidth: "1920"
+            maxheight: "1080"
+            profile: "high"
+            level: "4.0"
+        }
+
+    else if bitrate = 20000
+        settings = {
+            videobitrate: "20000000"
             maxwidth: "1920"
             maxheight: "1080"
             profile: "high"
