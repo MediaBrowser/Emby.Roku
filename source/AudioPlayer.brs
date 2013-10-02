@@ -135,7 +135,7 @@ End Function
 Function SetupAudioStream(audioId As String, audioPath As String) As Object
 
     ' Get Extension
-    extension = GetExtension(audioPath)
+    extension = getFileExtension(audioPath)
 
 	stream = CreateObject("roAssociativeArray")
 

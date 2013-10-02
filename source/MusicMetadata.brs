@@ -555,7 +555,7 @@ Function musicmetadata_album_songs(artistId As String) As Object
 
             ' Add Song Time
             if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
-                songInfo = songInfo + " - " + FormatChapterTime(i.RunTimeTicks)
+                songInfo = songInfo + " - " + formatTime(metaData.Length)
             end if
 
             ' Set the Title with song info
