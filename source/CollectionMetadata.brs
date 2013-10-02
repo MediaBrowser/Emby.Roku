@@ -171,7 +171,7 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
             metaData.Id = i.Id
 
             ' Show / Hide display title
-            if RegRead("prefMovieTitle") = "show" Or RegRead("prefMovieTitle") = invalid
+            if RegRead("prefCollectionTitle") = "show" Or RegRead("prefCollectionTitle") = invalid
                 metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
             end if
 
@@ -231,7 +231,7 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
             end if
 
             ' Get Image Type From Preference
-            if RegRead("prefMovieImageType") = "poster"
+            if RegRead("prefCollectionView") = "poster"
 
                 ' Get Image Sizes
                 sizes = GetImageSizes("mixed-aspect-ratio-portrait")
@@ -257,7 +257,7 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
 
                 end if
 
-            else if RegRead("prefMovieImageType") = "thumb"
+            else if RegRead("prefCollectionView") = "thumb"
 
                 ' Get Image Sizes
                 sizes = GetImageSizes("two-row-flat-landscape-custom")

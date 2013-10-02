@@ -14,7 +14,7 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
     facade.Show()
 
     ' Create Grid Screen
-    if RegRead("prefMovieImageType") = "poster" then
+    if RegRead("prefCollectionView") = "poster" then
         screen = CreateGridScreen("", title, "mixed-aspect-ratio")
     Else
         screen = CreateGridScreen("", title, "two-row-flat-landscape-custom")
@@ -24,7 +24,7 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
 
     screen.ShowNames()
 
-    if RegRead("prefMovieImageType") = "poster" then
+    if RegRead("prefCollectionView") = "poster" then
         screen.SetListPosterStyles(screen.rowStyles)
     end if
 
@@ -44,7 +44,7 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
     facade.Close()
 
     ' Show/Hide Description Popup
-    if RegRead("prefMovieDisplayPopup") = "no" Or RegRead("prefMovieDisplayPopup") = invalid then
+    if RegRead("prefCollectionPopup") = "no" Or RegRead("prefCollectionPopup") = invalid then
         screen.SetDescriptionVisible(false)
     end if
 
@@ -87,7 +87,7 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
                 end if
 
                 ' Show/Hide Description Popup
-                if RegRead("prefMovieDisplayPopup") = "yes" then
+                if RegRead("prefCollectionPopup") = "yes" then
                     screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
                 end if
             else if msg.isListItemSelected() then
