@@ -307,6 +307,61 @@ Function GetPreferenceVideoQuality() as Object
             Title: "3.2 Mbps HD [default]",
             Id: "3200",
             IsDefault: true
+        },
+        {
+            Title: "4.7 Mbps HD",
+            Id: "4700",
+            IsDefault: false
+        },
+        {
+            Title: "6.2 Mbps HD",
+            Id: "6200",
+            IsDefault: false
+        },
+        {
+            Title: "7.7 Mbps HD",
+            Id: "7700",
+            IsDefault: false
+        },
+        {
+            Title: "9.2 Mbps HD",
+            Id: "9200",
+            IsDefault: false
+        },
+        {
+            Title: "10.7 Mbps HD",
+            Id: "10700",
+            IsDefault: false
+        },
+        {
+            Title: "12.2 Mbps HD",
+            Id: "12200",
+            IsDefault: false
+        },
+        {
+            Title: "13.7 Mbps HD",
+            Id: "13700",
+            IsDefault: false
+        },
+        {
+            Title: "15.2 Mbps HD",
+            Id: "15200",
+            IsDefault: false
+        },
+        {
+            Title: "16.7 Mbps HD",
+            Id: "16700",
+            IsDefault: false
+        },
+        {
+            Title: "18.2 Mbps HD",
+            Id: "18200",
+            IsDefault: false
+        },
+        {
+            Title: "20.0 Mbps HD",
+            Id: "20000",
+            IsDefault: false
         }
     ]
 
