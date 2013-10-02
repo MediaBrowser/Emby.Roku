@@ -583,3 +583,49 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
     return metaData
 End Function
 
+
+'**********************************************************
+'** Post Video Playback
+'**********************************************************
+
+Function postVideoPlayback(videoId As String, action As String, position = invalid) As Boolean
+
+    ' Format Position Seconds into Ticks
+    if position <> invalid
+        positionTicks =  itostr(position) + "0000000"
+    end if
+
+    if action = "start"
+        ' URL
+        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId)
+
+        ' Prepare Request
+        request = HttpRequest(url)
+        request.AddAuthorization()
+    else if action = "progress"
+        ' URL
+        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId) + "/Progress?PositionTicks=" + positionTicks
+
+        ' Prepare Request
+        request = HttpRequest(url)
+        request.AddAuthorization()
+    else if action = "stop"
+        ' URL
+        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId) + "?PositionTicks=" + positionTicks
+
+        ' Prepare Request
+        request = HttpRequest(url)
+        request.AddAuthorization()
+        request.SetRequest("DELETE")
+    end if
+
+    ' Execute Request
+    response = request.PostFromStringWithTimeout("", 5)
+    if response <> invalid
+        return true
+    else
+        Debug("Failed to Post Video Playback Progress")
+    end if
+
+    return false
+End Function

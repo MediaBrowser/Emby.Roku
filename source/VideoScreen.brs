@@ -83,12 +83,12 @@ Function createVideoScreen(video As Object, options = invalid As Object)
 
             If msg.isFullResult() Then
                 Debug("full result")
-                PostPlayback2(video.Id, "stop", m.position)
+                postVideoPlayback(video.Id, "stop", m.position)
                 exit while
 
             Else If msg.isPartialResult() Then
                 Debug("partial result")
-                PostPlayback2(video.Id, "stop", m.position)
+                postVideoPlayback(video.Id, "stop", m.position)
                 exit while
 
             Else If msg.isRequestFailed() Then
@@ -101,14 +101,14 @@ Function createVideoScreen(video As Object, options = invalid As Object)
 
             Else If msg.isStreamStarted() Then
                 Debug("--- started stream ---")
-                PostPlayback2(video.Id, "start")
+                postVideoPlayback(video.Id, "start")
 
             Else If msg.isStatusMessage() and msg.GetMessage() = "startup progress"
                 ' Extra Check to Prevent Playback Loop
                 If streamStarted Then
                     Debug("--- Stream buffering again ---")
                     Print msg.GetIndex()
-                    'PostPlayback2(video.Id, "stop", DoubleToString(nowPosition))
+                    'postVideoPlayback(video.Id, "stop", DoubleToString(nowPosition))
                     'exit while
                 End If
 
@@ -144,7 +144,7 @@ Function createVideoScreen(video As Object, options = invalid As Object)
 
                 ' Only Post Playback every 10 seconds
                 If msg.GetIndex() Mod 10 = 0
-                    PostPlayback2(video.Id, "progress", m.position)
+                    postVideoPlayback(video.Id, "progress", m.position)
                 End If
 
             Else If msg.isPaused() Then
@@ -173,7 +173,7 @@ Function createVideoScreen(video As Object, options = invalid As Object)
                 index = msg.GetIndex()
 
                 If index = remoteKeyUp or index = remoteKeyBack Then
-                    PostPlayback2(video.Id, "stop", m.position)
+                    postVideoPlayback(video.Id, "stop", m.position)
                     exit while
 
                 Else If index = remoteKeyDown Then
@@ -264,47 +264,6 @@ Function createVideoScreen(video As Object, options = invalid As Object)
     m.canvas.Close()
 
     return true
-End Function
-
-
-'**********************************************************
-'** Post Playback to Server
-'**********************************************************
-
-Function PostPlayback2(videoId As String, action As String, position=invalid) As Boolean
-
-    If action = "start"
-        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
-    Else If action = "progress"
-        positionTicks =  itostr(position) + "0000000"
-        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId + "/Progress?PositionTicks=" + positionTicks, true)
-    Else If action = "stop"
-        positionTicks =  itostr(position) + "0000000"
-        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId + "?PositionTicks=" + positionTicks, true)
-        request.SetRequest("DELETE")
-    End If
-    
-    if (request.AsyncPostFromString(""))
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    return true
-                else
-                    Debug("Failed to Post Playback Progress")
-                    return false
-                end if
-            else if (event = invalid)
-                request.AsyncCancel()
-                exit while
-            end if
-        end while
-    end if
-
-    return false
 End Function
 
 
