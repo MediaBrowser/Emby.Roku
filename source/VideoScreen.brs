@@ -14,8 +14,6 @@ Function createVideoScreen(video As Object, options = invalid As Object)
     ' Setup Video Playback
     video = setupVideoPlayback(video, options)
 
-    return true
-
     ' Custom Video Player
 
     m.videoInfo = video ' All the information about the video
@@ -53,10 +51,14 @@ Function createVideoScreen(video As Object, options = invalid As Object)
     currentSeeking = false
 
     ' PlayStart in seconds
-    PlayStartSeconds = Int((playStart / 10000) / 1000)
+    if options <> invalid
+        PlayStartSeconds = firstOf(options.playstart, 0)
+    else
+        PlayStartSeconds = 0
+    end if
 
     ' Direct Play Offset
-    If video.DirectPlay And PlayStartSeconds<>0 Then
+    If video.DirectPlay <> invalid And PlayStartSeconds <> 0 Then
         Debug("Seek To: " + itostr(PlayStartSeconds * 1000))
         m.player.Seek(PlayStartSeconds * 1000)
     End If
@@ -81,12 +83,12 @@ Function createVideoScreen(video As Object, options = invalid As Object)
 
             If msg.isFullResult() Then
                 Debug("full result")
-                PostPlayback2(video.Id, "stop", DoubleToString(nowPosition))
+                PostPlayback2(video.Id, "stop", m.position)
                 exit while
 
             Else If msg.isPartialResult() Then
                 Debug("partial result")
-                PostPlayback2(video.Id, "stop", DoubleToString(nowPosition))
+                PostPlayback2(video.Id, "stop", m.position)
                 exit while
 
             Else If msg.isRequestFailed() Then
@@ -119,19 +121,9 @@ Function createVideoScreen(video As Object, options = invalid As Object)
 
             Else If msg.isPlaybackPosition() Then
                 ' Direct Play does not need offset added
-                If video.DirectPlay Then
-                    nowPositionSec = msg.GetIndex()
-                    nowPositionMs# = msg.GetIndex() * 1000
-                    nowPositionTicks# = nowPositionMs# * 10000
-                    nowPosition = nowPositionTicks#
-
+                If video.DirectPlay <> invalid Then
                     m.position = msg.GetIndex()
                 Else 
-                    nowPositionSec = msg.GetIndex() + PlayStartSeconds
-                    nowPositionMs# = msg.GetIndex() * 1000
-                    nowPositionTicks# = nowPositionMs# * 10000
-                    nowPosition = nowPositionTicks# + playStart
-
                     m.position = msg.GetIndex() + PlayStartSeconds
                 End If
 
@@ -152,11 +144,11 @@ Function createVideoScreen(video As Object, options = invalid As Object)
 
                 ' Only Post Playback every 10 seconds
                 If msg.GetIndex() Mod 10 = 0
-                    PostPlayback2(video.Id, "progress", DoubleToString(nowPosition))
+                    PostPlayback2(video.Id, "progress", m.position)
                 End If
 
             Else If msg.isPaused() Then
-                Debug("Paused Position: " + DoubleToString(nowPositionSec))
+                Debug("Paused Position: " + itostr(m.position))
 
                 m.paused = true
                 m.moreinfo = false ' Hide more info on pause
@@ -164,7 +156,7 @@ Function createVideoScreen(video As Object, options = invalid As Object)
                 PaintFullscreenCanvas2()
 
             Else If msg.isResumed() Then
-                Debug("Resume Position: " + DoubleToString(nowPositionSec))
+                Debug("Resume Position: " + itostr(m.position))
 
                 m.paused = false
                 PaintFullscreenCanvas2()
@@ -181,7 +173,7 @@ Function createVideoScreen(video As Object, options = invalid As Object)
                 index = msg.GetIndex()
 
                 If index = remoteKeyUp or index = remoteKeyBack Then
-                    PostPlayback2(video.Id, "stop", DoubleToString(nowPosition))
+                    PostPlayback2(video.Id, "stop", m.position)
                     exit while
 
                 Else If index = remoteKeyDown Then
@@ -196,7 +188,7 @@ Function createVideoScreen(video As Object, options = invalid As Object)
                     
                 Else If index = remoteKeyLeft or index = remoteKeyRev Then
                     ' Direct Play can Seek
-                    If video.DirectPlay Then
+                    If video.DirectPlay <> invalid Then
                         streamStarted = false ' Seeking, so reset stream started
                         m.paused = false ' Seeking so, un-pause
 
@@ -215,7 +207,7 @@ Function createVideoScreen(video As Object, options = invalid As Object)
 
                 Else If index = remoteKeyReplay Then
                     ' Direct Play can Seek
-                    If video.DirectPlay Then
+                    If video.DirectPlay <> invalid  Then
                         streamStarted = false ' Seeking, so reset stream started
                         m.paused = false ' Seeking so, un-pause
 
@@ -235,7 +227,7 @@ Function createVideoScreen(video As Object, options = invalid As Object)
                 Else If index = remoteKeyRight or index = remoteKeyFwd Then
 
                     ' Direct Play can Seek
-                    If video.DirectPlay Then
+                    If video.DirectPlay <> invalid Then
                         streamStarted = false ' Seeking, so reset stream started
                         m.paused = false ' Seeking so, un-pause
 
@@ -284,9 +276,11 @@ Function PostPlayback2(videoId As String, action As String, position=invalid) As
     If action = "start"
         request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId, true)
     Else If action = "progress"
-        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId + "/Progress?PositionTicks=" + position, true)
+        positionTicks =  itostr(position) + "0000000"
+        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId + "/Progress?PositionTicks=" + positionTicks, true)
     Else If action = "stop"
-        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId + "?PositionTicks=" + position, true)
+        positionTicks =  itostr(position) + "0000000"
+        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + videoId + "?PositionTicks=" + positionTicks, true)
         request.SetRequest("DELETE")
     End If
     
