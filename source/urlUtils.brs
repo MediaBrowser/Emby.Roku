@@ -87,6 +87,7 @@ Function HttpRequest(url As String) as Object
     obj.ContentType                 = http_content_type
     obj.AddAuthorization            = http_authorization
     obj.GetUrl                      = http_get_url
+    obj.SetRequest                  = http_set_request
     obj.FirstParam                  = true
     obj.CountParams                 = 0
     obj.AddParam                    = http_add_param
@@ -153,6 +154,15 @@ End Function
 
 Function http_get_url() As String
     return m.Http.GetUrl()
+End Function
+
+
+'**********************************************************
+'** Set Request Method
+'**********************************************************
+
+Function http_set_request(request as String) As Void
+    m.Http.SetRequest(request)
 End Function
 
 
