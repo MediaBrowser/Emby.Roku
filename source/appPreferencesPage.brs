@@ -25,7 +25,9 @@ Function ShowPreferencesPage()
         GetPreferenceTVThemeMusicRepeat,
         GetPreferenceCollectionView,
         GetPreferenceCollectionTitle,
-        GetPreferenceCollectionPopup
+        GetPreferenceCollectionPopup,
+        GetPreferenceEnhancedImages,
+        GetPreferenceMediaIndicators
     ]
 
     ' Fetch / Refresh Preference Screen
@@ -250,6 +252,22 @@ Function GetPreferenceList() as Object
             ShortTitle: "Display Collection PopUp Bubble",
             ID: "prefCollectionPopup",
             ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
+        },
+        {
+            Title: "Use Enhanced Images: " + GetSelectedPreference(GetPreferenceEnhancedImages(), RegRead("prefEnhancedImages")),
+            ShortTitle: "Use Enhanced Images",
+            ID: "prefEnhancedImages",
+            ShortDescriptionLine1: "Use Enhanced Images such as Cover Art.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
+        },
+        {
+            Title: "Use Media Indicators: " + GetSelectedPreference(GetPreferenceMediaIndicators(), RegRead("prefMediaIndicators")),
+            ShortTitle: "Use Media Indicators",
+            ID: "prefMediaIndicators",
+            ShortDescriptionLine1: "Show or Hide media indicators such as played or percentage played.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         }
@@ -491,6 +509,40 @@ Function GetPreferenceCollectionPopup() as Object
             Title: "Yes",
             Id: "yes",
             IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceEnhancedImages() as Object
+    prefOptions = [
+        {
+            Title: "No [default]",
+            Id: "no",
+            IsDefault: true
+        },
+        {
+            Title: "Yes",
+            Id: "yes",
+            IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceMediaIndicators() as Object
+    prefOptions = [
+        {
+            Title: "No",
+            Id: "no",
+            IsDefault: false
+        },
+        {
+            Title: "Yes [default]",
+            Id: "yes",
+            IsDefault: true
         }
     ]
 
