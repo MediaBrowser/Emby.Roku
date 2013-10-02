@@ -501,10 +501,6 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
             TimeStampOffsetMs: "0"
         }
 
-        ' Get Video Settings
-        'videoSettings = getVideoBitrateSettings(videoBitrate)
-        'query = AddToQuery(query, videoSettings)
-
         ' Prepare Url
         request = HttpRequest(url)
         request.BuildQuery(query)
