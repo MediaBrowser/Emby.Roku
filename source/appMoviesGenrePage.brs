@@ -57,9 +57,10 @@ Function ShowMoviesGenrePage(genre As String) As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                if screen.rowContent[row][selection].ContentType = "Movie" then
-                    movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesAll, selection)
-                    screen.SetFocusedListItem(row, movieIndex)
+                if screen.rowContent[row][selection].ContentType = "Movie" Then
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
+                    'movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesAll, selection)
+                    'screen.SetFocusedListItem(row, movieIndex)
                 else 
                     Debug("Unknown Type found")
                 end if

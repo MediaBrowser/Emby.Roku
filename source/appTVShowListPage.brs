@@ -130,8 +130,8 @@ Function ShowTVShowListPage() As Integer
                 if screen.rowContent[row][selection].ContentType = "Series" then
                     ShowTVSeasonsListPage(screen.rowContent[row][selection])
 
-                else if screen.rowContent[row][selection].ContentType = "Episode" then
-                    ShowTVDetailPage(screen.rowContent[row][selection].Id)
+                else if screen.rowContent[row][selection].ContentType = "Episode" Then
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
 
                     ' Refresh Next Up Data
                     tvShowNextUp = TvMetadata.GetNextUp(0, screen.rowPageSize)

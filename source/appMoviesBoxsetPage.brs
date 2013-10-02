@@ -58,8 +58,9 @@ Function ShowMoviesBoxsetPage(boxsetId As String, boxsetName As String) As Integ
                 selection = msg.getData()
 
                 If screen.rowContent[row][selection].ContentType = "Movie" Then
-                    movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesAll, selection)
-                    screen.SetFocusedListItem(row, movieIndex)
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
+                    'movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesAll, selection)
+                    'screen.SetFocusedListItem(row, movieIndex)
                 Else 
                     Debug("Unknown Type found")
                 End If
