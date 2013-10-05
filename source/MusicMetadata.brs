@@ -601,11 +601,11 @@ Function musicmetadata_album_songs(artistId As String) As Object
             sizes = GetImageSizes("list")
 
             ' Check if Item has Image, otherwise use default
-            if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.ParentId) + "/Images/Primary/0"
+            if i.AlbumId <> "" And i.AlbumId <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.AlbumId) + "/Images/Primary/0"
 
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.AlbumPrimaryImageTag)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.AlbumPrimaryImageTag)
 
             else 
                 metaData.HDPosterUrl = "pkg://images/items/collection.png"
