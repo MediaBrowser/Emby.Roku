@@ -26,6 +26,7 @@ Function ShowPreferencesPage()
         GetPreferenceCollectionView,
         GetPreferenceCollectionTitle,
         GetPreferenceCollectionPopup,
+        GetPreferenceCollectionsFirstRow,
         GetPreferenceEnhancedImages,
         GetPreferenceMediaIndicators
     ]
@@ -252,6 +253,14 @@ Function GetPreferenceList() as Object
             ShortTitle: "Display Collection PopUp Bubble",
             ID: "prefCollectionPopup",
             ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
+        },
+        {
+            Title: "Show Collections First Row: " + GetSelectedPreference(GetPreferenceCollectionsFirstRow(), RegRead("prefCollectionsFirstRow")),
+            ShortTitle: "Show Collections First Row",
+            ID: "prefCollectionsFirstRow",
+            ShortDescriptionLine1: "Show collections on the first row of the home screen. (requires restart)",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
@@ -554,6 +563,23 @@ Function GetPreferenceCollectionTitle() as Object
 End Function
 
 Function GetPreferenceCollectionPopup() as Object
+    prefOptions = [
+        {
+            Title: "No [default]",
+            Id: "no",
+            IsDefault: true
+        },
+        {
+            Title: "Yes",
+            Id: "yes",
+            IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceCollectionsFirstRow() as Object
     prefOptions = [
         {
             Title: "No [default]",

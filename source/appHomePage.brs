@@ -25,6 +25,10 @@ Function ShowHomePage()
     m.tvToggle    = ""
     m.musicToggle = ""
 
+    If RegRead("prefCollectionsFirstRow") = "yes"
+        screen.AddRow("Media Collections", "landscape")
+    End If
+    
     If itemCounts.MovieCount > 0 Then
         screen.AddRow("Movies", "landscape")
     End If
@@ -37,12 +41,20 @@ Function ShowHomePage()
         screen.AddRow("Music", "landscape")
     End If
 
-    screen.AddRow("Media Collections", "landscape")
+    If RegRead("prefCollectionsFirstRow") = "no" Or RegRead("prefCollectionsFirstRow") = invalid
+        screen.AddRow("Media Collections", "landscape")
+    End If
+
     screen.AddRow("Options", "landscape")
 
     screen.ShowNames()
 
     ' Get Data
+    If RegRead("prefCollectionsFirstRow") = "yes"
+        collectionButtons = GetCollectionButtons()
+        screen.AddRowContent(collectionButtons)
+    End If
+
     If itemCounts.MovieCount > 0 Then
         moviesButtons = GetMoviesButtons()
         screen.AddRowContent(moviesButtons)
@@ -58,8 +70,10 @@ Function ShowHomePage()
         screen.AddRowContent(musicButtons)
     End If
 
-    collectionButtons = GetCollectionButtons()
-    screen.AddRowContent(collectionButtons)
+    If RegRead("prefCollectionsFirstRow") = "no" Or RegRead("prefCollectionsFirstRow") = invalid
+        collectionButtons = GetCollectionButtons()
+        screen.AddRowContent(collectionButtons)
+    End If
 
     optionButtons = GetOptionsButtons()
     screen.AddRowContent(optionButtons)
