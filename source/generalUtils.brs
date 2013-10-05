@@ -262,18 +262,34 @@ End Function
 '** Build an Image URL
 '******************************************************
 
-Function BuildImage(url, w, h, tag, watched = false As Boolean, percentage = 0 As Integer)
+Function BuildImage(url, w, h, tag, watched = false As Boolean, percentage = 0 As Integer, hideEnhanceImages = false As Boolean)
     ' Clean Tag
     tag   = HttpEncode(tag)
     query = ""
 
-    if watched
-        query = "&Indicator=Played"
-    else if percentage <> 0
-        query = "&Indicator=PercentPlayed&PercentPlayed=" + itostr(percentage)
+    ' Use Media Indicators
+    if RegRead("prefMediaIndicators") = "yes" Or RegRead("prefMediaIndicators") = invalid
+        if watched
+            query = query + "&AddPlayedIndicator=true"
+        end if
+
+        if percentage <> 0
+            query = query + "&PercentPlayed=" + itostr(percentage)
+        end if
     end if
-    
-    return url + "?quality=90&EnableImageEnhancers=false&height=" + itostr(h) + "&width=" + itostr(w) + "&tag=" + tag + query
+
+    ' Use Enhanced Images
+    if RegRead("prefEnhancedImages") = "yes"
+        if hideEnhanceImages
+            query = query + "&EnableImageEnhancers=false"
+        else
+            query = query + "&EnableImageEnhancers=true&format=jpg&BackgroundColor=504B4B"
+        end If
+    else
+        query = query + "&EnableImageEnhancers=false"
+    end if
+
+    return url + "?quality=90&height=" + itostr(h) + "&width=" + itostr(w) + "&tag=" + tag + query
 End Function
 
 
