@@ -165,16 +165,8 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                    if i.UserData.Played = true
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played)
-                    else if i.UserData.Played = false And PlayedPercentage <> 100 
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -191,16 +183,8 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                 if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
 
-                    if i.UserData.Played = true
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played)
-                    else if i.UserData.Played = false And PlayedPercentage <> 100 
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb)
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -217,16 +201,8 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                 if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                    if i.UserData.Played = true
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played)
-                    else if i.UserData.Played = false And PlayedPercentage <> 100 
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -338,6 +314,17 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "movie")
             end if
 
+            ' Set Played Percentage
+            if i.PlayedPercentage <> invalid
+                if i.PlayedPercentage <> 100
+                    PlayedPercentage = i.PlayedPercentage
+                else
+                    PlayedPercentage = 0
+                end if
+            else
+                PlayedPercentage = 0
+            end if
+
             ' Get Image Type From Preference
             if RegRead("prefMovieImageType") = "poster"
 
@@ -348,16 +335,8 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                    if i.UserData.Played = true
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played)
-                    else if i.UserData.Played = false And i.PlayedPercentage <> invalid And i.PlayedPercentage <> 100 
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, i.PlayedPercentage)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, i.PlayedPercentage)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -374,16 +353,8 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
 
-                    if i.UserData.Played = true
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played)
-                    else if i.UserData.Played = false And i.PlayedPercentage <> invalid And i.PlayedPercentage <> 100 
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, i.PlayedPercentage)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, i.PlayedPercentage)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb)
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -400,16 +371,8 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                    if i.UserData.Played = true
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played)
-                    else if i.UserData.Played = false And i.PlayedPercentage <> invalid And i.PlayedPercentage <> 100
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, i.PlayedPercentage)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, i.PlayedPercentage)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -528,6 +491,17 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
                 metaData.HDBranded = i.IsHD
             end if
 
+            ' Set Played Percentage
+            if i.PlayedPercentage <> invalid
+                if i.PlayedPercentage <> 100
+                    PlayedPercentage = i.PlayedPercentage
+                else
+                    PlayedPercentage = 0
+                end if
+            else
+                PlayedPercentage = 0
+            end if
+
             ' Get Image Type From Preference
             if RegRead("prefMovieImageType") = "poster"
 
@@ -538,13 +512,8 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                    if i.UserData.Played <> invalid
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -561,13 +530,8 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
                 if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
 
-                    if i.UserData.Played <> invalid
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb)
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -584,13 +548,8 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
                 if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                    if i.UserData.Played <> invalid
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -673,14 +632,14 @@ Function moviemetadata_resumable() As Object
             if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                 imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
 
             else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                 imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
             else 
                 metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -761,14 +720,14 @@ Function moviemetadata_latest() As Object
             if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                 imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
 
             else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                 imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
             else 
                 metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -864,8 +823,8 @@ Function moviemetadata_genres(offset = invalid As Dynamic, limit = invalid As Dy
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Primary/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -882,14 +841,14 @@ Function moviemetadata_genres(offset = invalid As Dynamic, limit = invalid As Dy
                 if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Backdrop/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
 
                 else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Primary/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -946,7 +905,7 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
     if response <> invalid
 
         ' Fixes bug within BRS Json Parser
-        regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
+        regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks|PlaybackPositionTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
         fixedResponse = regex.ReplaceAll(response, Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
 
         contentList   = CreateObject("roArray", 25, true)
@@ -1008,6 +967,21 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
                 metaData.HDBranded = i.IsHD
             end if
 
+            ' Set Played Percentage
+            if i.PlayedPercentage <> invalid
+                PlayedPercentage = i.PlayedPercentage
+            else if i.UserData.PlaybackPositionTicks <> "" And i.UserData.PlaybackPositionTicks <> invalid
+                if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
+                    currentPosition = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
+                    totalLength     = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
+                    PlayedPercentage = Int((currentPosition / totalLength) * 100)
+                else
+                    PlayedPercentage = 0
+                end If
+            else
+                PlayedPercentage = 0
+            end if
+
             ' Get Image Type From Preference
             if RegRead("prefMovieImageType") = "poster"
 
@@ -1018,13 +992,8 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                    if i.UserData.Played <> invalid
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -1041,13 +1010,8 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
                 if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
 
-                    if i.UserData.Played <> invalid
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb)
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
@@ -1064,13 +1028,8 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
                 if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                    if i.UserData.Played <> invalid
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played)
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played)
-                    else
-                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0])
-                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0])
-                    end if
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
