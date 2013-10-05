@@ -150,6 +150,14 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
         screen.AddButton(3, "View Chapters")
         screen.AddButton(4, "Audio & Subtitles")
 
+    else if video.ContentType = "Video"
+        if video.PlaybackPosition <> 0 then
+            screen.AddButton(1, "Resume playing")
+            screen.AddButton(2, "Play from beginning")
+        else
+            screen.AddButton(2, "Play")
+        end if
+
     else if video.ContentType = "Trailer"
         screen.AddButton(2, "Play")
 
