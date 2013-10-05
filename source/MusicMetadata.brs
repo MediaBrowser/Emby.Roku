@@ -523,16 +523,16 @@ End Function
 '** Get Songs within an Album
 '**********************************************************
 
-Function musicmetadata_album_songs(artistId As String) As Object
+Function musicmetadata_album_songs(albumId As String) As Object
     ' Validate Parameter
-    if validateParam(artistId, "roString", "musicmetadata_album_songs") = false return invalid
+    if validateParam(albumId, "roString", "musicmetadata_album_songs") = false return invalid
 
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
     ' Query
     query = {
-        parentid: artistId
+        parentid: albumId
         recursive: "true"
         includeitemtypes: "Audio"
         fields: "ItemCounts,DateCreated,UserData,AudioInfo,ParentId,Path,MediaStreams"
