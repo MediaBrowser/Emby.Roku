@@ -88,11 +88,13 @@ Function createVideoScreen(video As Object, options = invalid As Object)
             If msg.isFullResult() Then
                 Debug("full result")
                 postVideoPlayback(video.Id, "stop", m.position)
+                postStopTranscode()
                 exit while
 
             Else If msg.isPartialResult() Then
                 Debug("partial result")
                 postVideoPlayback(video.Id, "stop", m.position)
+                postStopTranscode()
                 exit while
 
             Else If msg.isRequestFailed() Then
@@ -178,6 +180,7 @@ Function createVideoScreen(video As Object, options = invalid As Object)
 
                 If index = remoteKeyUp or index = remoteKeyBack Then
                     postVideoPlayback(video.Id, "stop", m.position)
+                    postStopTranscode()
                     exit while
 
                 Else If index = remoteKeyDown Then
@@ -478,11 +481,13 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
             else if msg.isPartialResult() then
                 Debug("--- video ended early ---")
                 postVideoPlayback(video.Id, "stop", position)
+                postStopTranscode()
                 exit while
                 
             else if msg.isFullResult() then
                 Debug("--- video ended at end of file ---")
                 postVideoPlayback(video.Id, "stop", position)
+                postStopTranscode()
                 exit while
                 
             else if msg.isPlaybackPosition() then

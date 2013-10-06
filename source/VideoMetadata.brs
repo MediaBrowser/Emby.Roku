@@ -648,3 +648,29 @@ Function postVideoPlayback(videoId As String, action As String, position = inval
 
     return false
 End Function
+
+
+'**********************************************************
+'** Post Stop Transcode
+'**********************************************************
+
+Function postStopTranscode() As Boolean
+    ' URL
+    url = GetServerBaseUrl() + "/Videos/ActiveEncodings"
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.AddAuthorization()
+    request.AddParam("DeviceId", getGlobalVar("rokuUniqueId", "Unknown"))
+    request.SetRequest("DELETE")
+
+    ' Execute Request
+    response = request.PostFromStringWithTimeout("", 5)
+    if response <> invalid
+        return true
+    else
+        Debug("Failed to Post Stop Transcode")
+    end if
+
+    return false
+End Function
