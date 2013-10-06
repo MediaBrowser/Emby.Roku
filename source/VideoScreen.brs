@@ -447,6 +447,13 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
     screen.SetContent(video.videoStream)
     screen.Show()
 
+    ' PlayStart in seconds
+    if options <> invalid
+        PlayStartSeconds = firstOf(options.playstart, 0)
+    else
+        PlayStartSeconds = 0
+    end if
+
     'Uncomment his line to dump the contents of the video to be played
     'PrintAA(video)
     
@@ -479,7 +486,13 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
                 exit while
                 
             else if msg.isPlaybackPosition() then
-                position = msg.GetIndex()
+                ' Direct Play does not need offset added
+                if video.DirectPlay <> invalid then
+                    position = msg.GetIndex()
+                else 
+                    position = msg.GetIndex() + PlayStartSeconds
+                end if
+
                 postVideoPlayback(video.Id, "progress", position)
 
             else if msg.isPaused() then
