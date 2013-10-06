@@ -11,6 +11,10 @@ Function createVideoScreen(video As Object, options = invalid As Object)
     ' Validate Parameter
     if validateParam(video, "roAssociativeArray", "createVideoScreen") = false return -1
 
+    ' Standard Video Player
+    createStandardVideoScreen(video, options)
+    return true
+
     ' Setup Video Playback
     video = setupVideoPlayback(video, options)
 
@@ -425,4 +429,87 @@ Function BuildMoreInfo2() As Object
     End If
 
     return more_info
+End Function
+
+
+Function createStandardVideoScreen(video As Object, options = invalid As Object)
+    ' Validate Parameter
+    if validateParam(video, "roAssociativeArray", "createStandardVideoScreen") = false return -1
+
+    ' Setup Video Playback
+    video = setupVideoPlayback(video, options)
+
+    port   = CreateObject("roMessagePort")
+    screen = CreateObject("roVideoScreen")
+    screen.SetMessagePort(port)
+
+    screen.SetPositionNotificationPeriod(10)
+    screen.SetContent(video.videoStream)
+    screen.Show()
+
+    'Uncomment his line to dump the contents of the video to be played
+    'PrintAA(video)
+    
+    while true
+        msg = wait(0, port)
+
+        if type(msg) = "roVideoScreenEvent" then
+            if msg.isRequestFailed() then
+                Debug("--- Video Requested Failer: (" + itostr(msg.GetIndex()) + ")" + msg.GetMessage() + " ---")
+                exit while
+
+            else if msg.isStatusMessage() then
+                print "Video status: "; msg.GetIndex(); " " msg.GetData()
+
+            else if msg.isButtonPressed()
+                print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
+
+            else if msg.isStreamStarted() then
+                Debug("--- started video stream ---")
+                postVideoPlayback(video.Id, "start")
+
+            else if msg.isPartialResult() then
+                Debug("--- video ended early ---")
+                postVideoPlayback(video.Id, "stop", position)
+                exit while
+                
+            else if msg.isFullResult() then
+                Debug("--- video ended at end of file ---")
+                postVideoPlayback(video.Id, "stop", position)
+                exit while
+                
+            else if msg.isPlaybackPosition() then
+                position = msg.GetIndex()
+                postVideoPlayback(video.Id, "progress", position)
+
+            else if msg.isPaused() then
+                Debug("--- video paused at " + itostr(position) + " seconds ---")
+
+            else if msg.isResumed() then
+                Debug("--- video resumed ---")
+
+            else if msg.isScreenClosed() then
+                Debug("close video screen")
+                exit while
+
+            'else if msg.isStreamSegmentInfo() then
+            '    print " Stream Seg: = "; msg.getMessage() " | index = "; msg.GetIndex()
+            '    PrintAA(msg.GetInfo())
+
+            else if msg.GetType() = 27 then
+                ' Do Nothing
+
+            else if msg.GetType() = 31 then
+                segInfo = msg.GetInfo()
+                Debug("Downloaded segment " + itostr(segInfo.Sequence) + " in " + itostr(segInfo.DownloadDuration) + "?s (" + itostr(segInfo.SegSize) + " bytes, buffer is now " + itostr(segInfo.BufferLevel) + "/" + itostr(segInfo.BufferSize))
+
+            else
+                print "Unexpected event type: "; msg.GetType()
+            end if
+        else
+            print "Unexpected message class: "; type(msg)
+        end if
+    end while
+
+    return 1
 End Function
