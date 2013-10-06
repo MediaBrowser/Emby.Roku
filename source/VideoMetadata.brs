@@ -262,7 +262,6 @@ End Function
 Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
 
     ' Setup Video / Audio / Subtitle Streams
-    metaData.videoStream     = CreateObject("roAssociativeArray")
     metaData.audioStreams    = CreateObject("roArray", 2, true)
     metaData.subtitleStreams = CreateObject("roArray", 2, true)
 
@@ -287,22 +286,22 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
 
             ' Determine Full 1080p
             if stream.Height = 1080
-                metaData.videoStream.FullHD = true
+                metaData.FullHD = true
             end if
 
             ' Determine Frame Rate
             if stream.RealFrameRate <> invalid
                 if stream.RealFrameRate >= 29
-                    metaData.videoStream.FrameRate = 30
+                    metaData.FrameRate = 30
                 else
-                    metaData.videoStream.FrameRate = 24
+                    metaData.FrameRate = 24
                 end if
 
             else if stream.AverageFrameRate <> invalid
                 if stream.RealFrameRate >= 29
-                    metaData.videoStream.FrameRate = 30
+                    metaData.FrameRate = 30
                 else
-                    metaData.videoStream.FrameRate = 24
+                    metaData.FrameRate = 24
                 end if
 
             end if
@@ -477,15 +476,15 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         streamParams.contentid = "x-direct"
 
         if extension = "mkv"
-            metaData.videoStream.StreamFormat = "mkv"
+            metaData.StreamFormat = "mkv"
         else
-            metaData.videoStream.StreamFormat = "mp4"
+            metaData.StreamFormat = "mp4"
         end if
-        metaData.videoStream.Stream = streamParams
+        metaData.Stream = streamParams
 
         ' Add Play Start
         if playStart
-            metaData.videoStream.PlayStart = playStart
+            metaData.PlayStart = playStart
         end if
 
         ' Set Direct Play Flag
@@ -515,7 +514,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         if playStart
             playStartTicks = itostr(playStart) + "0000000"
             request.AddParam("StartTimeTicks", playStartTicks)
-            metaData.videoStream.PlayStart = playStart
+            metaData.PlayStart = playStart
         end if
 
         ' Add Audio Stream
@@ -530,8 +529,8 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         streamParams.quality = true
         streamParams.contentid = "x-streamcopy"
 
-        metaData.videoStream.StreamFormat = "hls"
-        metaData.videoStream.Stream = streamParams
+        metaData.StreamFormat = "hls"
+        metaData.Stream = streamParams
 
     ' Transcode
     else
@@ -561,7 +560,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         if playStart
             playStartTicks = itostr(playStart) + "0000000"
             request.AddParam("StartTimeTicks", playStartTicks)
-            metaData.videoStream.PlayStart = playStart
+            metaData.PlayStart = playStart
         end if
 
         ' Add Audio Stream
@@ -582,8 +581,8 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
 
         streamParams.contentid = "x-transcode"
 
-        metaData.videoStream.StreamFormat = "hls"
-        metaData.videoStream.Stream = streamParams
+        metaData.StreamFormat = "hls"
+        metaData.Stream = streamParams
 
     end if
 

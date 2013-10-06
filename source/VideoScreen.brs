@@ -41,7 +41,7 @@ Function createVideoScreen(video As Object, options = invalid As Object)
     m.player.SetMessagePort(port)
     m.player.SetPositionNotificationPeriod(1)
     m.player.SetDestinationRect(0,0,0,0)
-    m.player.AddContent(video.videoStream)
+    m.player.AddContent(video)
     m.player.Play()
 
     m.canvas.AllowUpdates(false)
@@ -444,7 +444,7 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
     screen.SetMessagePort(port)
 
     screen.SetPositionNotificationPeriod(10)
-    screen.SetContent(video.videoStream)
+    screen.SetContent(video)
     screen.Show()
 
     ' PlayStart in seconds
