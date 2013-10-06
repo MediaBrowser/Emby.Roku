@@ -541,6 +541,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         streamParams.contentid = "x-streamcopy"
 
         metaData.StreamFormat = "hls"
+        metaData.SwitchingStrategy = "no-adaptation"
         metaData.Stream = streamParams
 
     ' Transcode
@@ -593,6 +594,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         streamParams.contentid = "x-transcode"
 
         metaData.StreamFormat = "hls"
+        metaData.SwitchingStrategy = "no-adaptation"
         metaData.Stream = streamParams
 
     end if
