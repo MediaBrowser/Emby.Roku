@@ -462,7 +462,7 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
 
         if type(msg) = "roVideoScreenEvent" then
             if msg.isRequestFailed() then
-                Debug("--- Video Requested Failer: (" + itostr(msg.GetIndex()) + ")" + msg.GetMessage() + " ---")
+                Debug("--- Video Request Failure: (" + itostr(msg.GetIndex()) + ")" + msg.GetMessage() + " ---")
                 exit while
 
             else if msg.isStatusMessage() then
@@ -505,16 +505,12 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
                 Debug("close video screen")
                 exit while
 
-            'else if msg.isStreamSegmentInfo() then
-            '    print " Stream Seg: = "; msg.getMessage() " | index = "; msg.GetIndex()
-            '    PrintAA(msg.GetInfo())
-
             else if msg.GetType() = 27 then
-                ' Do Nothing
+                ' Do Nothing with Segment Info
 
             else if msg.GetType() = 31 then
                 segInfo = msg.GetInfo()
-                Debug("Downloaded segment " + itostr(segInfo.Sequence) + " in " + itostr(segInfo.DownloadDuration) + "?s (" + itostr(segInfo.SegSize) + " bytes, buffer is now " + itostr(segInfo.BufferLevel) + "/" + itostr(segInfo.BufferSize))
+                Debug("Downloaded segment " + itostr(segInfo.Sequence) + " (" + itostr(segInfo.SegSize) + " bytes, buffer is now " + itostr(segInfo.BufferLevel) + "/" + itostr(segInfo.BufferSize) + ")")
 
             else
                 print "Unexpected event type: "; msg.GetType()
