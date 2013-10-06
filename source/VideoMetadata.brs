@@ -274,14 +274,25 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
     firstAudioChannels   = 0
     defaultAudioChannels = 0
 
+    ' Get Video Bitrate
+    maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
+    maxVideoBitrate = maxVideoBitrate.ToInt()
+
     for each stream in video.MediaStreams
 
         if stream.Type = "Video" And foundVideo = false
             foundVideo = true
             streamBitrate = Int(stream.BitRate / 1000)
 
-            if (stream.Codec = "h264" Or stream.Codec = "AVC") And stream.Level <= 41 And streamBitrate < 20000
+            if (stream.Codec = "h264" Or stream.Codec = "AVC") And stream.Level <= 41 And streamBitrate < maxVideoBitrate
                 compatibleVideo = true
+            end if
+
+            ' Determine Bitrate
+            if streamBitrate > maxVideoBitrate
+                metaData.streamBitrate = maxVideoBitrate
+            else
+                metaData.streamBitrate = streamBitrate
             end if
 
             ' Determine Full 1080p
@@ -471,7 +482,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
     ' Direct Stream
     if action = "direct"
         streamParams.url = GetServerBaseUrl() + "/Videos/" + metadata.Id + "/stream." + extension + "?static=true"
-        streamParams.bitrate = 0
+        streamParams.bitrate = metadata.streamBitrate
         streamParams.quality = true
         streamParams.contentid = "x-direct"
 
@@ -525,7 +536,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
 
         ' Prepare Stream
         streamParams.url = request.GetUrl()
-        streamParams.bitrate = 0
+        streamParams.bitrate = metadata.streamBitrate
         streamParams.quality = true
         streamParams.contentid = "x-streamcopy"
 
