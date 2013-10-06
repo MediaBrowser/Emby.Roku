@@ -483,6 +483,11 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         end if
         metaData.videoStream.Stream = streamParams
 
+        ' Add Play Start
+        if playStart
+            metaData.videoStream.PlayStart = playStart
+        end if
+
         ' Set Direct Play Flag
         metaData.DirectPlay = true
 
@@ -510,6 +515,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         if playStart
             playStartTicks = itostr(playStart) + "0000000"
             request.AddParam("StartTimeTicks", playStartTicks)
+            metaData.videoStream.PlayStart = playStart
         end if
 
         ' Add Audio Stream
@@ -555,6 +561,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         if playStart
             playStartTicks = itostr(playStart) + "0000000"
             request.AddParam("StartTimeTicks", playStartTicks)
+            metaData.videoStream.PlayStart = playStart
         end if
 
         ' Add Audio Stream
