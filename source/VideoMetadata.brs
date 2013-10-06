@@ -499,6 +499,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
             AudioChannels: "2"
             AudioSampleRate: "44100"
             TimeStampOffsetMs: "0"
+            DeviceId: getGlobalVar("rokuUniqueId", "Unknown")
         }
 
         ' Prepare Url
@@ -539,6 +540,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
             AudioChannels: "2"
             AudioSampleRate: "44100"
             TimeStampOffsetMs: "0"
+            DeviceId: getGlobalVar("rokuUniqueId", "Unknown")
         }
 
         ' Get Video Settings
