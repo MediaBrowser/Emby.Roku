@@ -54,7 +54,7 @@ Function createStreamSelectionDialog(title, streams, startIndex = 0, showNone = 
     dialog.SetTitle("Select " + title)
 
     ' Setup Variables
-    maxPerPage = 0
+    maxPerPage = 6 ' subtract 1 from what we want to show
     indexCount = 0
     foundMore  = false
     nextStartIndex   = startIndex
