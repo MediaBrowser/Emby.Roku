@@ -283,20 +283,25 @@ Function createVideoChapters(video As Object, audioPlayer = invalid) As Integer
             else if msg.isListItemSelected() then
                 selection = msg.GetIndex()
 
-                ' Stop Audio before Playing Video
-                if audioPlayer <> invalid And audioPlayer.IsPlaying
-                    Debug("Stop theme music")
-                    audioPlayer.Stop()
-                    sleep(300) ' Give enough time to stop music
+                ' Create the Audio and Subtitle dialogs
+                options = createAudioAndSubtitleDialog(video.audioStreams, video.subtitleStreams, video.Chapters[selection].StartPosition, true)
+
+                ' Check for cancel
+                If options <> invalid
+
+                    ' Stop Audio before Playing Video
+                    if audioPlayer <> invalid And audioPlayer.IsPlaying
+                        Debug("Stop theme music")
+                        audioPlayer.Stop()
+                        sleep(300) ' Give enough time to stop music
+                    end if
+
+                    ' Create Video Screen
+                    createVideoScreen(video, options)
+
+                    return 1
                 end if
 
-                options = {}
-                options.playstart = video.Chapters[selection].StartPosition
-
-                ' Create Video Screen
-                createVideoScreen(video, options)
-
-                return 1
             else if msg.isScreenClosed() then
                 return 1
             end if
