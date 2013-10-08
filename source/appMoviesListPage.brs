@@ -70,8 +70,6 @@ Function ShowMoviesListPage() As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                Print "Item focused Row: "; row; "; Selection: "; Selection
-
                 if Not screen.rowFinishedLoading[row]
 
                     if selection > screen.rowLoadedCount[row] - screen.rowPageEdge
@@ -157,12 +155,7 @@ Function ShowMoviesListPage() As Integer
                 index = msg.GetIndex()
 
                 if index = remoteKeyStar then
-                    'letterSelected = CreateJumpListDialog()
-
-                    'if letterSelected <> invalid then
-                    '    letter = FindClosestLetter(letterSelected, MovieMetadata)
-                    '    screen.SetFocusedListItem(0, MovieMetadata.jumpList.Lookup(letter))
-                    'end if
+                    'createContextMenuDialog()
                 end if
 
             else if msg.isScreenClosed() then
