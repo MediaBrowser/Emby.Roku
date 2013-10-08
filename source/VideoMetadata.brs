@@ -456,8 +456,12 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         else if locationType = "filesystem"
 
             if metadata.CompatibleVideo And ( (extension = "mp4" Or extension = "mpv") Or (extension = "mkv" And (rokuVersion[0] > 5 Or (rokuVersion[0] = 5 And rokuVersion[1] >= 1) ) ) )
-                if Not audioOutput51 And metaData.DefaultAudioChannels > 2 Or (audioStream Or subtitleStream)
-                    action = "streamcopy"
+                if (Not audioOutput51 And metaData.DefaultAudioChannels > 2) Or (audioStream Or subtitleStream)
+                    if subtitleStream
+                        action = "transcode"
+                    else
+                        action = "streamcopy"
+                    end if
                 else
                     if metadata.CompatibleAudio
                         action = "direct"
@@ -594,7 +598,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         ' Add Audio Settings
         if audioStream
             ' If the selected stream is compatible, then stream copy the audio
-            if metaData.CompatibleAudioStreams.DoesExist(audioStream)
+            if metaData.CompatibleAudioStreams.DoesExist(itostr(audioStream))
                 audioSettings = {
                     AudioCodec: "copy"
                     AudioStreamIndex: itostr(audioStream)
