@@ -266,13 +266,14 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
     metaData.subtitleStreams = CreateObject("roArray", 2, true)
 
     ' Determine Media Compatibility
-    compatibleVideo      = false
-    compatibleAudio      = false
-    foundVideo           = false
-    foundDefaultAudio    = false
-    firstAudio           = true
-    firstAudioChannels   = 0
-    defaultAudioChannels = 0
+    compatibleVideo        = false
+    compatibleAudio        = false
+    compatibleAudioStreams = {}
+    foundVideo             = false
+    foundDefaultAudio      = false
+    firstAudio             = true
+    firstAudioChannels     = 0
+    defaultAudioChannels   = 0
 
     ' Get Video Bitrate
     maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
@@ -347,6 +348,13 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
                 end if
             end if
 
+            ' Keep a list of compatible audio streams
+            if stream.Codec = "aac" Or (stream.Codec = "ac3" And getGlobalVar("audioOutput51")) Or (stream.Codec = "dca" And getGlobalVar("audioOutput51") And getGlobalVar("audioDTS"))
+                compatibleAudioStreams.AddReplace(itostr(stream.Index), true)
+            else
+                'compatibleAudioStreams.AddReplace(stream.Index, false)
+            end if
+
             audioData = {}
             audioData.Title = ""
 
@@ -399,9 +407,10 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
         end if
     end if
 
-    ' Set Video Compatibility And Direct Play
-    metaData.CompatVideo = compatibleVideo
-    metaData.CompatAudio = compatibleAudio
+    ' Set Video / Audio Compatibility
+    metaData.CompatibleVideo        = compatibleVideo
+    metaData.CompatibleAudio        = compatibleAudio
+    metaData.CompatibleAudioStreams = compatibleAudioStreams
 
     ' Set the Default Audio Channels
     metaData.DefaultAudioChannels = defaultAudioChannels
@@ -446,11 +455,11 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
 
         else if locationType = "filesystem"
 
-            if metadata.CompatVideo And ( (extension = "mp4" Or extension = "mpv") Or (extension = "mkv" And (rokuVersion[0] > 5 Or (rokuVersion[0] = 5 And rokuVersion[1] >= 1) ) ) )
+            if metadata.CompatibleVideo And ( (extension = "mp4" Or extension = "mpv") Or (extension = "mkv" And (rokuVersion[0] > 5 Or (rokuVersion[0] = 5 And rokuVersion[1] >= 1) ) ) )
                 if Not audioOutput51 And metaData.DefaultAudioChannels > 2 Or (audioStream Or subtitleStream)
                     action = "streamcopy"
                 else
-                    if metadata.CompatAudio
+                    if metadata.CompatibleAudio
                         action = "direct"
                     else
                         action = "streamcopy"
@@ -458,7 +467,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
                 end if
 
             else
-                if metadata.CompatVideo
+                if metadata.CompatibleVideo
                     action = "streamcopy"
                 else
                     action = "transcode"
@@ -509,13 +518,38 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         ' Default Settings
         query = {
             VideoCodec: "copy"
-            AudioCodec: "aac"
-            AudioBitRate: "128000"
-            AudioChannels: "2"
-            AudioSampleRate: "44100"
             TimeStampOffsetMs: "0"
             DeviceId: getGlobalVar("rokuUniqueId", "Unknown")
         }
+
+        ' Add Audio Settings
+        if audioStream
+            ' If the selected stream is compatible, then stream copy the audio
+            if metaData.CompatibleAudioStreams.DoesExist(itostr(audioStream))
+                audioSettings = {
+                    AudioCodec: "copy"
+                    AudioStreamIndex: itostr(audioStream)
+                }
+            else
+                audioSettings = {
+                    AudioCodec: "aac"
+                    AudioBitRate: "128000"
+                    AudioChannels: "2"
+                    AudioSampleRate: "44100"
+                    AudioStreamIndex: itostr(audioStream)
+                }
+            end if
+        else
+            audioSettings = {
+                AudioCodec: "aac"
+                AudioBitRate: "128000"
+                AudioChannels: "2"
+                AudioSampleRate: "44100"
+            }
+        end if
+
+        ' Add Audio Params to Query
+        query = AddToQuery(query, audioSettings)
 
         ' Prepare Url
         request = HttpRequest(url)
@@ -527,9 +561,6 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
             request.AddParam("StartTimeTicks", playStartTicks)
             metaData.PlayStart = playStart
         end if
-
-        ' Add Audio Stream
-        if audioStream then request.AddParam("AudioStreamIndex", itostr(audioStream))
 
         ' Add Subtitle Stream
         if subtitleStream then request.AddParam("SubtitleStreamIndex", itostr(subtitleStream))
@@ -552,17 +583,42 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         ' Default Settings
         query = {
             VideoCodec: "h264"
-            AudioCodec: "aac"
-            AudioBitRate: "128000"
-            AudioChannels: "2"
-            AudioSampleRate: "44100"
             TimeStampOffsetMs: "0"
             DeviceId: getGlobalVar("rokuUniqueId", "Unknown")
         }
 
-        ' Get Video Settings
+        ' Add Video Settings
         videoSettings = getVideoBitrateSettings(videoBitrate)
         query = AddToQuery(query, videoSettings)
+
+        ' Add Audio Settings
+        if audioStream
+            ' If the selected stream is compatible, then stream copy the audio
+            if metaData.CompatibleAudioStreams.DoesExist(audioStream)
+                audioSettings = {
+                    AudioCodec: "copy"
+                    AudioStreamIndex: itostr(audioStream)
+                }
+            else
+                audioSettings = {
+                    AudioCodec: "aac"
+                    AudioBitRate: "128000"
+                    AudioChannels: "2"
+                    AudioSampleRate: "44100"
+                    AudioStreamIndex: itostr(audioStream)
+                }
+            end if
+        else
+            audioSettings = {
+                AudioCodec: "aac"
+                AudioBitRate: "128000"
+                AudioChannels: "2"
+                AudioSampleRate: "44100"
+            }
+        end if
+
+        ' Add Audio Settings to Query
+        query = AddToQuery(query, audioSettings)
 
         ' Prepare Url
         request = HttpRequest(url)
@@ -574,9 +630,6 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
             request.AddParam("StartTimeTicks", playStartTicks)
             metaData.PlayStart = playStart
         end if
-
-        ' Add Audio Stream
-        if audioStream then request.AddParam("AudioStreamIndex", itostr(audioStream))
 
         ' Add Subtitle Stream
         if subtitleStream then request.AddParam("SubtitleStreamIndex", itostr(subtitleStream))
