@@ -2,7 +2,7 @@ MediaBrowser Roku
 
 Changelog
 
-1.16 - Added collections; Improve audio/video direct play settings; Added played/progress indicators; Added enhanced image support; Added auto-select next tv episode; Bug fixes;
+1.16 - Added collections; Improve audio/video direct play settings; Added support for other audio and subtitles; Added played/progress indicators; Added enhanced image support; Added auto-select next tv episode; Bug fixes;
 
 1.15 - New Theme; Added popup bubble; Added dynamic loading for speed improvment; Bug fixes;
 
