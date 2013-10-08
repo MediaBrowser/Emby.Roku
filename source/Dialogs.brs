@@ -7,7 +7,7 @@
 ' Create Audio And Subtitle Dialog Boxes
 '******************************************************
 
-Function createAudioAndSubtitleDialog(audioStreams, subtitleStreams, playbackPosition) As Object
+Function createAudioAndSubtitleDialog(audioStreams, subtitleStreams, playbackPosition, hidePlaybackDialog = false) As Object
 
     ' Set defaults
     audioIndex = false
@@ -25,7 +25,7 @@ Function createAudioAndSubtitleDialog(audioStreams, subtitleStreams, playbackPos
         if subIndex = 0 then subIndex = false ' Check for None
     end if
 
-    if playbackPosition <> 0
+    if playbackPosition <> 0 And Not hidePlaybackDialog
         playStart = createPlaybackOptionsDialog(playbackPosition)
         if playStart = -1 then return invalid ' Check for Cancel
     end if
