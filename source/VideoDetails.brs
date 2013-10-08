@@ -114,6 +114,27 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                 ' Audio & Subtitles
                 else if msg.GetIndex() = 4
 
+                    ' Create the Audio and Subtitle dialogs
+                    options = createAudioAndSubtitleDialog(video.audioStreams, video.subtitleStreams, video.PlaybackPosition)
+
+                    ' Check for cancel
+                    If options <> invalid
+
+                        ' Stop Audio before Playing Video
+                        if audioPlayer <> invalid And audioPlayer.IsPlaying
+                            Debug("Stop theme music")
+                            audioPlayer.Stop()
+                            sleep(300) ' Give enough time to stop music
+                        end if
+
+                        ' Create Video Screen
+                        createVideoScreen(video, options)
+
+                        ' Refresh Details
+                        video = RefreshVideoMetadata(videoId)
+                        RefreshVideoDetails(screen, video)
+
+                    end if
 
                 end if
 
