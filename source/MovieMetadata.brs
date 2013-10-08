@@ -147,7 +147,11 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                 if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
                     currentPosition = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
                     totalLength     = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-                    PlayedPercentage = Int((currentPosition / totalLength) * 100)
+                    if totalLength <> 0
+                        PlayedPercentage = Int((currentPosition / totalLength) * 100)
+                    else
+                        PlayedPercentage = 0
+                    end if
                 else
                     PlayedPercentage = 0
                 end If
@@ -974,7 +978,11 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
                 if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
                     currentPosition = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
                     totalLength     = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-                    PlayedPercentage = Int((currentPosition / totalLength) * 100)
+                    if totalLength <> 0
+                        PlayedPercentage = Int((currentPosition / totalLength) * 100)
+                    else
+                        PlayedPercentage = 0
+                    end if
                 else
                     PlayedPercentage = 0
                 end If

@@ -547,7 +547,11 @@ Function tvmetadata_nextup(offset = invalid As Dynamic, limit = invalid As Dynam
                 if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
                     currentPosition = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
                     totalLength     = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-                    PlayedPercentage = Int((currentPosition / totalLength) * 100)
+                    if totalLength <> 0
+                        PlayedPercentage = Int((currentPosition / totalLength) * 100)
+                    else
+                        PlayedPercentage = 0
+                    end if
                 else
                     PlayedPercentage = 0
                 end If
@@ -908,7 +912,11 @@ Function tvmetadata_episodes(seasonId As String) As Object
                 if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
                     currentPosition = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
                     totalLength     = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-                    PlayedPercentage = Int((currentPosition / totalLength) * 100)
+                    if totalLength <> 0
+                        PlayedPercentage = Int((currentPosition / totalLength) * 100)
+                    else
+                        PlayedPercentage = 0
+                    end if
                 else
                     PlayedPercentage = 0
                 end If
