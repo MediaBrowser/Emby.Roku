@@ -457,6 +457,9 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
         PlayStartSeconds = 0
     end if
 
+    ' Setup position so if user ends immediately it won't crash player
+    position = invalid
+
     'Uncomment his line to dump the contents of the video to be played
     'PrintAA(video)
     
@@ -480,7 +483,11 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
 
             else if msg.isPartialResult() then
                 Debug("--- video ended early ---")
-                postVideoPlayback(video.Id, "stop", position)
+                if position <> invalid
+                    postVideoPlayback(video.Id, "stop", position)
+                else
+                    postVideoPlayback(video.Id, "stop", PlayStartSeconds)
+                end if
                 postStopTranscode()
                 exit while
                 
