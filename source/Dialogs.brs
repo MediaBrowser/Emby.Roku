@@ -14,7 +14,7 @@ Function createAudioAndSubtitleDialog(audioStreams, subtitleStreams, playbackPos
     subIndex   = false
     playStart  = playbackPosition
 
-    if audioStreams.Count() > 0
+    if audioStreams.Count() > 1
         audioIndex = createStreamSelectionDialog("Audio", audioStreams)    
         if audioIndex = -1 then return invalid ' Check for cancel
     end if
