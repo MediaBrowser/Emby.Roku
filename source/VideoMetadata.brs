@@ -177,9 +177,6 @@ Function getVideoMetadata(videoId As String) As Object
                     chapterData.ShortDescriptionLine2 = formatTime(chapterPositionSeconds)
                 end if
 
-                ' Set Advanced Play
-                'chapterData.Description = "* for advanced playback"
-
                 ' Get Image Sizes
                 sizes = GetImageSizes("flat-episodic-16x9")
 
