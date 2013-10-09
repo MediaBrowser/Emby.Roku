@@ -1,10 +1,10 @@
 '**********************************************************
-'**  Media Browser Roku Client - MB Server Utils
+'**  Media Browser Roku Client - Server Utils
 '**********************************************************
 
 
 '******************************************************
-' Get the Base url of the MB server
+' Get the Base Url of the MB Server
 '******************************************************
 
 Function GetServerBaseUrl()
@@ -13,69 +13,66 @@ End Function
 
 
 '******************************************************
-' Checks the MB Server Status
+' Get the Server Status
 '******************************************************
 
-Function GetServerStatus(refresh=invalid) As Integer
+Function getServerStatus(refresh = invalid)
 
     ' If refreshing, ignore Memory And registry
-    If refresh<>invalid
-        If FindServer()<>0
-            ' FindServer() sets it To memory, Save To registry
+    if refresh <> invalid
+        if findLocalServer()
+            ' findLocalServer() sets it to memory, save to registry
             RegWrite("serverURL", m.serverURL)
-            Return 1
-        Else
+            return true
+        else
             ' No serverURL discovered
-            Return -1
-        End If
-    End If
+            return invalid
+        end if
+    end if
     
     ' Get Server URL
-    If m.serverURL<>"" And m.serverURL<>invalid
-        ' Do nothing, already In memory
-    Else If RegRead("serverURL")<>invalid
+    if m.serverURL <> "" And m.serverURL <> invalid
+        ' Do nothing, already in memory
+        
+    else if RegRead("serverURL") <> invalid
         m.serverURL = RegRead("serverURL")
-    Else If FindServer()<>0
-        ' FindServer() sets it To memory, Save To registry
+
+    else if findLocalServer()
+        ' findLocalServer() sets it to memory, save to registry
         RegWrite("serverURL", m.serverURL)
-        Return 1
-    Else
-        ' No serverURL Set Or discovered
-        Return -1
-    End If
+        return true
 
-    ' If getting Server URL From Memory Or registry, ping Server To make sure it Is alive
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/System/Info")
+    else
+        ' No serverURL set or discovered
+        return invalid
 
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
+    end if
 
-                if (code = 200)
-                    ' Server Is Alive
-                    Return 1
-                Else
-                    Return 0
-                End if
-            else if (event = invalid)
-                request.AsyncCancel()
-            endif
-        end while
-    endif
+    ' URL
+    url = GetServerBaseUrl() + "/System/Info"
 
-    Print "Something unexpected went wrong checking Server status"
-    Return 0
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+        return true ' Server is Awake
+    else
+        Debug("Server is not currently awake")
+    end if
+
+    return false
 End Function
 
 
 '******************************************************
-' Finds the MB Server trhough UDP
+' Attempts to find local MB Server through UDP
 '******************************************************
 
-Function FindServer() As Integer
-    msgPort = CreateObject("roMessagePort")
+Function findLocalServer() As Boolean
+    port = CreateObject("roMessagePort")
 
     networkMessage = "who is MediaBrowserServer?"
     networkAddress = "192.168.1.255"  ' Can only Do limited broadcast To LAN.
@@ -90,30 +87,30 @@ Function FindServer() As Integer
     udp.setBroadcast(true)
     udp.notifyReadable(true) 
 
-    udp.setMessagePort(msgPort) 'notifications for udp come to msgPort
+    udp.setMessagePort(port) 'notifications for udp come to message port
 
     udp.sendStr(networkMessage) ' Send message
 
     continue = udp.eOK()
     while continue
-        event = wait(500, msgPort)
-        If type(event)="roSocketEvent"
-            If event.getSocketID()=udp.getID()
-                If udp.isReadable()
+        event = wait(500, port)
+        if type(event) = "roSocketEvent"
+            if event.getSocketID() = udp.getID()
+                if udp.isReadable()
                     returnMessage = udp.receiveStr(512) ' max 512 characters
                     udp.close()
                     token = returnMessage.tokenize("|")
                     m.serverURL = token[1] ' Set it To Memory
-                    Return 1
-                End If
-            End If
-        Else If event=invalid
+                    return true
+                end if
+            end if
+        else if event = invalid
             udp.close()
-            Return 0
-        End If
-    End While
+            return false
+        end if
+    end while
 
-    Return 0
+    return false
 End Function
 
 
@@ -121,7 +118,7 @@ End Function
 ' Checks the User Password with SHA1 Encoded Password
 '******************************************************
 
-Function CheckUserPassword(userId As String, passwordText As String) As Boolean
+Function checkUserPassword(userId As String, passwordText As String) As Boolean
     ba = CreateObject("roByteArray")
     ba.FromAsciiString(passwordText)
 
@@ -129,26 +126,19 @@ Function CheckUserPassword(userId As String, passwordText As String) As Boolean
     digest.Setup("sha1")
     sha1Password = digest.Process(ba)
 
-    request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + userId + "/Authenticate")
-    
-    If (request.AsyncPostFromString("Password=" + sha1Password))
-        while (true)
-            msg = wait(0, request.GetPort())
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Authenticate"
 
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
+    ' Prepare Request
+    request = HttpRequest(url)
 
-                If (code = 200)
-                    Return true
-                Else
-                    Return false
-                End if
-            else if (event = invalid)
-                request.AsyncCancel()
-                exit while
-            endif
-        end while
-    End If
+    ' Execute Request
+    response = request.PostFromStringWithTimeout("Password=" + sha1Password, 5)
+    if response <> invalid
+        return true
+    else
+        Debug("Failed to Check Password for User or Password did not match")
+    end if
 
-    Return false
+    return false
 End Function
