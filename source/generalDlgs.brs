@@ -69,8 +69,8 @@ End Function
 '******************************************************
 
 Function ShowConnectionFailed() As Integer
-    title = "Can't Find MediaBrowser 3 Server"
-    message = "We were unable to find a MediaBrowser 3 Server running on the local network. Please make sure it is turned on. Try manual server configuration if the problem continues."
+    title = "Can't Find Media Browser Server"
+    message = "We were unable to find a Media Browser Server running on the local network. Please make sure it is turned on. Try manual server configuration if the problem continues."
 
     port = CreateObject("roMessagePort")
     dialog = CreateObject("roMessageDialog")
@@ -133,7 +133,7 @@ Function ShowPasswordBox(userId As String) As Integer
     ' If they filled it out, check it
     If passwordText <> ""
         ' Check password
-        validUser = CheckUserPassword(userId, passwordText)
+        validUser = checkUserPassword(userId, passwordText)
 
         If validUser = true
             Return 1

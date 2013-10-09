@@ -17,40 +17,41 @@ Sub Main()
     ' Goto Marker
     checkServerStatus:
 
-    dialogBox = ShowPleaseWait("Please Wait...", "Connecting To MediaBrowser 3 Server")
+    dialogBox = ShowPleaseWait("Please Wait...", "Connecting to Media Browser Server")
 
     'Get MediaBrowser Server
-    status = GetServerStatus()
+    serverFound = getServerStatus()
 
     ' Check If Server Ping Failed
-    If status = 0 Then
+    if Not serverFound
         dialogBox.Close()
         dialogBox = ShowPleaseWait("Please Wait...", "Could Not Find Server. Attempting Auto-Discovery")
 
         ' Refresh Server Call
-        status = GetServerStatus(true)
-    End If
+        serverFound = getServerStatus(true)
+    end if
     
     ' Check If Ping And Automated Discovery Failed
-    If status = -1 Then
+    if serverFound = invalid
         dialogBox.Close()
 
         ' Server Not found even after refresh, Give Option To Type In IP Or Try again later
         buttonPress = ShowConnectionFailed()
 
-        If buttonPress=0 Then
-            Return
-        Else
+        if buttonPress = 0
+            ' Exit Application
+            return
+        else
             savedConf = ShowManualServerConfiguration()
-            If savedConf = 1 Then
+            if savedConf = 1 Then
                 ' Retry Connection with manual entries
                 Goto checkServerStatus
-            Else
+            else
                 ' Exit Application
-                Return
-            End if
-        End If
-    End if
+                return
+            end if
+        end if
+    end if
 
     'Close Dialog Box
     dialogBox.Close()
@@ -77,7 +78,7 @@ Sub Main()
     End If
 
     ' Exit Application
-    Return
+    return
 
 End Sub
 
