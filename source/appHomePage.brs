@@ -10,7 +10,7 @@
 Function ShowHomePage()
 
     ' Create Grid Screen
-    screen = CreateGridScreen("", m.curUserProfile.Title, "two-row-flat-landscape-custom")
+    screen = CreateGridScreen("", getGlobalVar("user").Title, "two-row-flat-landscape-custom")
 
     ' Get Item Counts
     itemCounts = getMediaItemCounts()

@@ -62,8 +62,8 @@ Sub Main()
     ' Check to see if they have already selected a User
     ' Show home page if so, otherwise show login page.
     If RegRead("userId")<>invalid And RegRead("userId")<>""
-        m.curUserProfile = GetUserProfile(RegRead("userId"))
-        GetGlobalAA().AddReplace("user", m.curUserProfile) ' Will replace curUserProfile
+        userProfile = getUserProfile(RegRead("userId"))
+        GetGlobalAA().AddReplace("user", userProfile)
         homeResult = ShowHomePage()
         If homeResult = true Then
             ' Retry Login Check

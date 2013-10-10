@@ -18,7 +18,7 @@ Function ShowLoginPage()
     screen.SetListStyle("flat-category")
 
     ' Get Data
-    list = GetUserProfiles()
+    list = getAllUserProfiles()
     screen.SetContentList(list)
 
     ' Show Screen
@@ -61,105 +61,4 @@ Function ShowLoginPage()
 
     screen.Close()
     return result
-End Function
-
-
-'**********************************************************
-'** Get List of User Profiles From Server
-'**********************************************************
-
-Function GetUserProfiles() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users")
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    userList = CreateObject("roArray", 10, true)
-                    json = ParseJSON(msg.GetString())
-                    for each userProfile in json
-                        userData = {
-                            Id: userProfile.Id
-                            Title: userProfile.Name
-                            ShortDescriptionLine1: userProfile.Name
-                            HasPassword: userProfile.HasPassword
-                        }
-
-                        ' Check If Profile has Image, otherwise use default
-                        If userProfile.PrimaryImageTag<>"" And userProfile.PrimaryImageTag<>invalid
-                            userData.HDPosterUrl = GetServerBaseUrl() + "/Users/" + userProfile.Id + "/Images/Primary/0?height=200&width=&tag=" + userProfile.PrimaryImageTag
-                            userData.SDPosterUrl = GetServerBaseUrl() + "/Users/" + userProfile.Id + "/Images/Primary/0?height=200&width=&tag=" + userProfile.PrimaryImageTag
-                        Else 
-                            userData.HDPosterUrl = "pkg://images/hd-default-user.png"
-                            userData.SDPosterUrl = "pkg://images/sd-default-user.png"
-                        End If
-                        
-                        userList.push( userData )
-                    end for
-                    return userList
-                else
-                    Debug("Failed to Get All User Profiles")
-                    return invalid
-                end if
-            else if (event = invalid)
-                request.AsyncCancel()
-            end if
-        end while
-    end if
-
-    return invalid
-End Function
-
-
-'**********************************************************
-'** Get User Profile From Server
-'**********************************************************
-
-Function GetUserProfile(userId As String) As Object
-
-    if validateParam(userId, "roString", "GetUserProfile") = false return -1
-
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Users/" + userId)
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    userProfile = ParseJSON(msg.GetString())
-
-                    userData = {
-                        Id: userProfile.Id
-                        Title: userProfile.Name
-                        ShortDescriptionLine1: userProfile.Name
-                        HasPassword: userProfile.HasPassword
-                    }
-
-                    ' Check If Profile has Image, otherwise use default
-                    If userProfile.PrimaryImageTag<>"" And userProfile.PrimaryImageTag<>invalid
-                        userData.HDPosterUrl = GetServerBaseUrl() + "/Users/" + userProfile.Id + "/Images/Primary/0?height=200&width=&tag=" + userProfile.PrimaryImageTag
-                        userData.SDPosterUrl = GetServerBaseUrl() + "/Users/" + userProfile.Id + "/Images/Primary/0?height=200&width=&tag=" + userProfile.PrimaryImageTag
-                    Else 
-                        userData.HDPosterUrl = "pkg://images/hd-default-user.png"
-                        userData.SDPosterUrl = "pkg://images/sd-default-user.png"
-                    End If
-                    return userData
-                else
-                    Debug("Failed to Get User Profile")
-                    return invalid
-                end if
-            else if (event = invalid)
-                request.AsyncCancel()
-            end if
-        end while
-    end if
-
-    return invalid
 End Function
