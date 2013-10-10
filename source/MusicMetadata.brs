@@ -631,3 +631,38 @@ Function musicmetadata_album_songs(albumId As String) As Object
 
     return invalid
 End Function
+
+
+'**********************************************************
+'** Post Audio Playback
+'**********************************************************
+
+Function postAudioPlayback(audioId As String, action As String) As Boolean
+
+    if action = "start"
+        ' URL
+        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(audioId)
+
+        ' Prepare Request
+        request = HttpRequest(url)
+        request.AddAuthorization()
+    else if action = "stop"
+        ' URL
+        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(audioId)
+
+        ' Prepare Request
+        request = HttpRequest(url)
+        request.AddAuthorization()
+        request.SetRequest("DELETE")
+    end if
+
+    ' Execute Request
+    response = request.PostFromStringWithTimeout("", 5)
+    if response <> invalid
+        return true
+    else
+        Debug("Failed to Post Audio Playback")
+    end if
+
+    return false
+End Function

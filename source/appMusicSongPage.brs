@@ -58,7 +58,7 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
 
             Else If msg.isListItemSelected() Then
                 Print "Start Song"
-                PostAudioPlayback(musicData.SongInfo[player.CurrentIndex].Id, "start")
+                postAudioPlayback(musicData.SongInfo[player.CurrentIndex].Id, "start")
 
                 ' Display Speaker Icon
                 If prevIconIndex<>invalid HideSpeakerIcon(screen, prevIconIndex, musicData.SongInfo)
@@ -69,7 +69,7 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
 
             Else If msg.isRequestSucceeded()
                 Print "End Song"
-                PostAudioPlayback(musicData.SongInfo[player.CurrentIndex].Id, "stop")
+                postAudioPlayback(musicData.SongInfo[player.CurrentIndex].Id, "stop")
                 player.CurrentIndex = player.CurrentIndex + 1
 
             Else If msg.isFullResult() Then
@@ -109,7 +109,7 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
                 Print "close screen"
                 If player.IsPlaying Then
                     player.Stop()
-                    PostAudioPlayback(musicData.SongInfo[player.CurrentIndex].Id, "stop")
+                    postAudioPlayback(musicData.SongInfo[player.CurrentIndex].Id, "stop")
                 End If
 
                 return -1
@@ -136,40 +136,6 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
     end while
 
     return 0
-End Function
-
-
-'**********************************************************
-'** Post Audio Playback to Server
-'**********************************************************
-
-Function PostAudioPlayback(audioId As String, action As String) As Boolean
-
-    If action = "start"
-        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + audioId, true)
-    Else If action = "stop"
-        request = CreateURLTransferObject(GetServerBaseUrl() + "/Users/" + m.curUserProfile.Id + "/PlayingItems/" + audioId, true)
-        request.SetRequest("DELETE")
-    End If
-    
-    if (request.AsyncPostFromString(""))
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                If (code = 200)
-                    Return true
-                End if
-            else if (event = invalid)
-                request.AsyncCancel()
-                exit while
-            endif
-        end while
-    endif
-
-    return false
 End Function
 
 
