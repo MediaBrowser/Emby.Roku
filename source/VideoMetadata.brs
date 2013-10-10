@@ -685,6 +685,20 @@ Function postVideoPlayback(videoId As String, action As String, position = inval
         ' Prepare Request
         request = HttpRequest(url)
         request.AddAuthorization()
+    else if action = "pause"
+        ' URL
+        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId) + "/Progress?IsPaused=true&PositionTicks=" + positionTicks
+
+        ' Prepare Request
+        request = HttpRequest(url)
+        request.AddAuthorization()
+    else if action = "resume"
+        ' URL
+        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId) + "/Progress?IsPaused=false&PositionTicks=" + positionTicks
+
+        ' Prepare Request
+        request = HttpRequest(url)
+        request.AddAuthorization()
     else if action = "stop"
         ' URL
         url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId) + "?PositionTicks=" + positionTicks

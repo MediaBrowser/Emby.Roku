@@ -509,9 +509,11 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
 
             else if msg.isPaused() then
                 Debug("--- video paused at " + itostr(position) + " seconds ---")
+                postVideoPlayback(video.Id, "pause", position)
 
             else if msg.isResumed() then
                 Debug("--- video resumed ---")
+                postVideoPlayback(video.Id, "resume", position)
 
             else if msg.isScreenClosed() then
                 Debug("close video screen")
