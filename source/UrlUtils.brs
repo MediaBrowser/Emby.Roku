@@ -39,7 +39,7 @@ End Function
 Function HttpRequest(url As String) as Object
     obj = CreateObject("roAssociativeArray")
 
-    obj.Http                        = CreateURLTransferObject2(url)
+    obj.Http                        = CreateURLTransferObject(url)
     obj.ContentType                 = http_content_type
     obj.AddAuthorization            = http_authorization
     obj.GetUrl                      = http_get_url
@@ -69,7 +69,7 @@ End Function
 '** Creates URL Transfer Object
 '**********************************************************
 
-Function CreateURLTransferObject2(url As String) as Object
+Function CreateURLTransferObject(url As String) as Object
 
     obj = CreateObject("roUrlTransfer")
     obj.SetPort(CreateObject("roMessagePort"))
@@ -239,7 +239,7 @@ Function http_get_to_string_with_retry() As Dynamic
             else if event = invalid
                 m.Http.AsyncCancel()
                 ' reset the connection on timeouts
-                m.Http = CreateURLTransferObject2(m.Http.GetUrl())
+                m.Http = CreateURLTransferObject(m.Http.GetUrl())
                 timeout% = 2 * timeout%
             else
                 Debug("AsyncGetToString Unknown Event: " + event)
