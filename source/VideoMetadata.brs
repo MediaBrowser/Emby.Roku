@@ -281,8 +281,9 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
         if stream.Type = "Video" And foundVideo = false
             foundVideo = true
             streamBitrate = Int(stream.BitRate / 1000)
+            streamLevel   = firstOf(stream.Level, 100) ' Default to very high value to prevent compatible video match
 
-            if (stream.Codec = "h264" Or stream.Codec = "AVC") And stream.Level <= 41 And streamBitrate < maxVideoBitrate
+            if (stream.Codec = "h264" Or stream.Codec = "AVC") And streamLevel <= 41 And streamBitrate < maxVideoBitrate
                 compatibleVideo = true
             end if
 
