@@ -13,7 +13,7 @@ Function ShowHomePage()
     screen = CreateGridScreen("", m.curUserProfile.Title, "two-row-flat-landscape-custom")
 
     ' Get Item Counts
-    itemCounts = GetItemCounts()
+    itemCounts = getMediaItemCounts()
 
     If itemCounts=invalid Then
         ShowError("Error", "Could Not Get Data From Server")
@@ -145,37 +145,6 @@ Function ShowHomePage()
     end while
 
     return false
-End Function
-
-
-'**********************************************************
-'** Get Item Counts From Server
-'**********************************************************
-
-Function GetItemCounts() As Object
-    request = CreateURLTransferObjectJson(GetServerBaseUrl() + "/Items/Counts?UserId=" + m.curUserProfile.Id, true)
-
-    if (request.AsyncGetToString())
-        while (true)
-            msg = wait(0, request.GetPort())
-
-            if (type(msg) = "roUrlEvent")
-                code = msg.GetResponseCode()
-
-                if (code = 200)
-                    jsonData = ParseJSON(msg.GetString())
-                    return jsonData
-                else
-                    Debug("Failed to Get Item Counts")
-                    return invalid
-                end if
-            else if (event = invalid)
-                request.AsyncCancel()
-            end if
-        end while
-    end if
-
-    Return invalid
 End Function
 
 
