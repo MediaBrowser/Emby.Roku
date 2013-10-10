@@ -16,7 +16,7 @@ End Function
 ' Get the Server Status
 '******************************************************
 
-Function getServerStatus(refresh = invalid)
+Function getServerStatus(refresh = invalid) As Boolean
 
     ' If refreshing, ignore Memory And registry
     if refresh <> invalid
@@ -26,7 +26,7 @@ Function getServerStatus(refresh = invalid)
             return true
         else
             ' No serverURL discovered
-            return invalid
+            return false
         end if
     end if
     
@@ -44,7 +44,7 @@ Function getServerStatus(refresh = invalid)
 
     else
         ' No serverURL set or discovered
-        return invalid
+        return false
 
     end if
 

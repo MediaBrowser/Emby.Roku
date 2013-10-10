@@ -32,7 +32,7 @@ Sub Main()
     end if
     
     ' Check If Ping And Automated Discovery Failed
-    if serverFound = invalid
+    if Not serverFound
         dialogBox.Close()
 
         ' Server Not found even after refresh, Give Option To Type In IP Or Try again later
