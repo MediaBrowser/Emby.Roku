@@ -169,7 +169,10 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
         end if
 
         screen.AddButton(3, "View Chapters")
-        screen.AddButton(4, "Audio & Subtitles")
+
+        if video.audioStreams.Count() > 1 Or video.subtitleStreams.Count() > 0
+            screen.AddButton(4, "Audio & Subtitles")
+        end if
 
     else if video.ContentType = "Video"
         if video.PlaybackPosition <> 0 then
