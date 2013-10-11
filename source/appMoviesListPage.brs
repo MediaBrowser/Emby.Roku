@@ -27,19 +27,33 @@ Function ShowMoviesListPage() As Integer
     screen.AddRow("Box Sets", "portrait")
     screen.AddRow("Genres", "portrait")
 
-    screen.ShowNames()
-
-    if RegRead("prefMovieImageType") = "poster" then
-        screen.SetListPosterStyles(screen.rowStyles)
-    end if
-
     ' Initialize Movie Metadata
     MovieMetadata = InitMovieMetadata()
 
     ' Get Data
-    moviesList    = MovieMetadata.GetMovieList(0, screen.rowPageSize)
+    moviesList = MovieMetadata.GetMovieList(0, screen.rowPageSize)
+    if moviesList = invalid
+        createDialog("Problem Loading Movies", "There was an problem while attempting to get the movies list from server. Please make sure your server is running and try again.", "Back")
+        return 0
+    end if
+
     moviesBoxsets = MovieMetadata.GetBoxsets(0, screen.rowPageSize)
-    moviesGenres  = MovieMetadata.GetGenres(0, screen.rowPageSize)
+    if moviesBoxsets = invalid
+        createDialog("Problem Loading Boxsets", "There was an problem while attempting to get the list of boxset movies from the server.", "Continue")
+    end if
+
+    moviesGenres = MovieMetadata.GetGenres(0, screen.rowPageSize)
+    if moviesGenres = invalid
+        createDialog("Problem Loading Movie Genres", "There was an problem while attempting to get the list of movie genres from the server.", "Continue")
+    end if
+
+    ' Setup Row Names
+    screen.ShowNames()
+
+    ' Setup Row Styles
+    if RegRead("prefMovieImageType") = "poster" then
+        screen.SetListPosterStyles(screen.rowStyles)
+    end if
 
     screen.LoadRowContent(0, moviesList, 0, screen.rowPageSize)
     screen.LoadRowContent(1, moviesBoxsets, 0, screen.rowPageSize)
