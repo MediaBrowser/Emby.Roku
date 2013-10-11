@@ -9,56 +9,54 @@
 
 Function ShowLoginPage()
 
-    ' Setup Screen
-    port   = CreateObject("roMessagePort")
-    screen = CreateObject("roPosterScreen")
-    screen.SetMessagePort(port)
-
-    screen.SetBreadcrumbText("", "")
-    screen.SetListStyle("flat-category")
+    ' Create Poster Screen
+    screen = CreatePosterScreen("", "Login", "flat-category")
 
     ' Get Data
-    list = getAllUserProfiles()
-    screen.SetContentList(list)
+    profiles = getAllUserProfiles()
+
+    if profiles = invalid
+        createDialog("Problem Loading", "There was an problem while attempting to get the list of user profiles from the server. Please make sure your server is running and try again.", "Exit")
+        return false
+    end if
+
+    ' Set Content
+    screen.SetContent(profiles)
 
     ' Show Screen
     screen.Show()
 
     while true
-        msg = wait(0, screen.GetMessagePort())
+        msg = wait(0, screen.Port)
 
         if type(msg) = "roPosterScreenEvent" then
-            if msg.isListItemSelected() Then
-                userProfile = list[msg.GetIndex()]
+            if msg.isListItemSelected() then
+                selectedProfile = profiles[msg.GetIndex()]
 
-                If userProfile.HasPassword=true
+                if selectedProfile.HasPassword
                     ' Check User Password
-                    userPassed = ShowPasswordBox(userProfile.Id)
+                    userPassed = ShowPasswordBox(selectedProfile.Id)
 
-                    If userPassed=1 Then
-                        m.curUserProfile = userProfile
-                        RegWrite("userId", m.curUserProfile.Id)
-                        result = true
-                        exit while
-                    Else If userPassed=2 Then
+                    if userPassed = 1
+                        RegWrite("userId", selectedProfile.Id)
+                        return true
+
+                    else if userPassed = 2
                         ShowPasswordFailed()
-                    End If
 
-                    'result = false
-                Else
-                    m.curUserProfile = userProfile
-                    RegWrite("userId", m.curUserProfile.Id)
-                    result = true
-                    exit while
-                End if
-            else if msg.isScreenClosed() Then
+                    end if
+
+                else
+                    RegWrite("userId", selectedProfile.Id)
+                    return true
+                end if
+
+            else if msg.isScreenClosed() then
                 Debug("Close login screen")
-                result = false
-                exit while
+                return false
             end if
-        end If
+        end if
     end while
 
-    screen.Close()
-    return result
+    return false
 End Function
