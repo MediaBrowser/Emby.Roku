@@ -77,11 +77,9 @@ End Function
 '** Show Grid Row Titles
 '**********************************************************
 
-Function ShowGridNames() As Boolean
+Function ShowGridNames()
     m.screen.SetupLists(m.rowNames.Count())
     m.screen.SetListNames(m.rowNames)
-
-    Return true
 End Function
 
 
