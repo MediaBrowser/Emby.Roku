@@ -13,12 +13,12 @@ Function ShowHomePage()
     screen = CreateGridScreen("", getGlobalVar("user").Title, "two-row-flat-landscape-custom")
 
     ' Get Item Counts
-    itemCounts = getMediaItemCounts()
+    mediaItemCounts = getMediaItemCounts()
 
-    If itemCounts=invalid Then
-        ShowError("Error", "Could Not Get Data From Server")
+    if mediaItemCounts = invalid
+        createDialog("Problem Loading", "There was an problem while attempting to get media items from server. Please make sure your server is running and try again.", "Exit")
         return false
-    End If
+    end if
 
     ' Setup Globals
     m.movieToggle = ""
@@ -29,15 +29,15 @@ Function ShowHomePage()
         screen.AddRow("Media Collections", "landscape")
     End If
     
-    If itemCounts.MovieCount > 0 Then
+    If mediaItemCounts.MovieCount > 0 Then
         screen.AddRow("Movies", "landscape")
     End If
 
-    If itemCounts.SeriesCount > 0 Then
+    If mediaItemCounts.SeriesCount > 0 Then
         screen.AddRow("TV", "landscape")
     End If
 
-    If itemCounts.SongCount > 0 Then
+    If mediaItemCounts.SongCount > 0 Then
         screen.AddRow("Music", "landscape")
     End If
 
@@ -55,17 +55,17 @@ Function ShowHomePage()
         screen.AddRowContent(collectionButtons)
     End If
 
-    If itemCounts.MovieCount > 0 Then
+    If mediaItemCounts.MovieCount > 0 Then
         moviesButtons = GetMoviesButtons()
         screen.AddRowContent(moviesButtons)
     End If
 
-    If itemCounts.SeriesCount > 0 Then
+    If mediaItemCounts.SeriesCount > 0 Then
         tvButtons = GetTVButtons()
         screen.AddRowContent(tvButtons)
     End If
 
-    If itemCounts.SongCount > 0 Then
+    If mediaItemCounts.SongCount > 0 Then
         musicButtons = GetMusicButtons()
         screen.AddRowContent(musicButtons)
     End If
