@@ -243,7 +243,7 @@ End Function
 ' Show Dialog Box
 '******************************************************
 
-Function createDialog(title As Dynamic, text As Dynamic, buttonText As String) As Integer
+Function createDialog(title As Dynamic, text As Dynamic, buttonText As String) As Boolean
     if Not isstr(title) title = ""
     if Not isstr(text) text = ""
 
@@ -261,11 +261,10 @@ Function createDialog(title As Dynamic, text As Dynamic, buttonText As String) A
 
         if type(msg) = "roMessageDialogEvent"
             if msg.isScreenClosed()
-                return 1
+                return true
             else if msg.isButtonPressed()
-                return 1
+                return true
             end if
         end if
     end while
 End Function
-
