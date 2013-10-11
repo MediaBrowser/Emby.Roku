@@ -262,6 +262,8 @@ Sub initTheme()
         BreadcrumbDelimiter: "#eeeeee"
         
         PosterScreenLine1Text: "#ffffff"
+        PosterScreenLine2Text: "#9a9a9a"
+        EpisodeSynopsisText: "#dfdfdf"
 
         ListItemText: "#dfdfdf"
         ListItemHighlightText: "#ffffff"
