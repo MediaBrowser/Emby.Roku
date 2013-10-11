@@ -24,12 +24,6 @@ Function ShowTVShowListPage() As Integer
     screen.AddRow("Next Episodes to Watch", "portrait")
     screen.AddRow("Genres", "portrait")
 
-    screen.ShowNames()
-
-    If RegRead("prefTVImageType") = "poster" Then
-        screen.SetListPosterStyles(screen.rowStyles)
-    End If
-
     ' Initialize TV Metadata
     TvMetadata = InitTvMetadata()
 
@@ -40,9 +34,29 @@ Function ShowTVShowListPage() As Integer
 
     ' Get Data
     'tvShowAll    = TvMetadata.GetShowList(filters)
-    tvShowList   = TvMetadata.GetShowList(0, screen.rowPageSize)
+    tvShowList = TvMetadata.GetShowList(0, screen.rowPageSize)
+    if tvShowList = invalid
+        createDialog("Problem Loading TV", "There was an problem while attempting to get the television shows list from server. Please make sure your server is running and try again.", "Back")
+        return 0
+    end if
+
     tvShowNextUp = TvMetadata.GetNextUp(0, screen.rowPageSize)
+    if tvShowNextUp = invalid
+        createDialog("Problem Loading Next Up", "There was an problem while attempting to get the list of next television episodes to watch from the server.", "Continue")
+    end if
+
     tvShowGenres = TvMetadata.GetGenres(0, screen.rowPageSize)
+    if tvShowGenres = invalid
+        createDialog("Problem Loading TV Genres", "There was an problem while attempting to get the list of television show genres from the server.", "Continue")
+    end if
+
+    ' Setup Row Names
+    screen.ShowNames()
+
+    ' Setup Row Styles
+    if RegRead("prefTVImageType") = "poster" then
+        screen.SetListPosterStyles(screen.rowStyles)
+    end if
 
     screen.LoadRowContent(0, tvShowList, 0, screen.rowPageSize)
     screen.LoadRowContent(1, tvShowNextUp, 0, screen.rowPageSize)
