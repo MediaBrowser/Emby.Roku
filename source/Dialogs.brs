@@ -251,6 +251,8 @@ Function createDialog(title As Dynamic, text As Dynamic, buttonText As String)
     dialog = CreateObject("roMessageDialog")
     dialog.SetMessagePort(port)
 
+    dialog.EnableBackButton(true)
+
     dialog.SetTitle(title)
     dialog.SetText(text)
     dialog.AddButton(1, buttonText)
