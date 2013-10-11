@@ -127,8 +127,12 @@ End Function
 '**********************************************************
 
 Function LoadGridRowContent(rowIndex, rowData, offset, limit) As Boolean
-    if rowData = invalid then rowData = []
-    
+    if rowData = invalid then
+        rowData = {}
+        rowData.Items = []
+        rowData.TotalCount = 0
+    end if
+
     ' Fill In Missing Items If Not 0
     if offset <> 0 then
         for i = 0 to rowData.Items.Count() - 1
