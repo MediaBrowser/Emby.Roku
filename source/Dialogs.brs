@@ -243,27 +243,27 @@ End Function
 ' Show Dialog Box
 '******************************************************
 
-Function createDialog(title As Dynamic, text As Dynamic, buttonText As String) As Boolean
+Function createDialog(title As Dynamic, text As Dynamic, buttonText As String)
     if Not isstr(title) title = ""
     if Not isstr(text) text = ""
 
     port   = CreateObject("roMessagePort")
-    screen = CreateObject("roMessageDialog")
-    screen.SetMessagePort(port)
+    dialog = CreateObject("roMessageDialog")
+    dialog.SetMessagePort(port)
 
-    screen.SetTitle(title)
-    screen.SetText(text)
-    screen.AddButton(0, buttonText)
-    screen.Show()
+    dialog.SetTitle(title)
+    dialog.SetText(text)
+    dialog.AddButton(1, buttonText)
+    dialog.Show()
 
     while true
-        msg = wait(0, screen.GetMessagePort())
+        dlgMsg = wait(0, dialog.GetMessagePort())
 
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed()
-                return true
-            else if msg.isButtonPressed()
-                return true
+        if type(dlgMsg) = "roMessageDialogEvent"
+            if dlgMsg.isButtonPressed()
+                exit while
+            else if dlgMsg.isScreenClosed()
+                exit while
             end if
         end if
     end while
