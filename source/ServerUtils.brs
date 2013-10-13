@@ -127,7 +127,7 @@ Function checkUserPassword(userId As String, passwordText As String) As Boolean
     sha1Password = digest.Process(ba)
 
     ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Authenticate"
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(userId) + "/Authenticate"
 
     ' Prepare Request
     request = HttpRequest(url)
