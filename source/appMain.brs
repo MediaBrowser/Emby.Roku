@@ -61,21 +61,29 @@ Sub Main()
 
     ' Check to see if they have already selected a User
     ' Show home page if so, otherwise show login page.
-    If RegRead("userId")<>invalid And RegRead("userId")<>""
+    if RegRead("userId") <> invalid And RegRead("userId") <> ""
         userProfile = getUserProfile(RegRead("userId"))
+
+        ' If unable to get user profile, delete saved user and redirect to login
+        if userProfile = invalid
+            RegDelete("userId")
+            Goto checkLoginStatus
+        end if
+        
         GetGlobalAA().AddReplace("user", userProfile)
         homeResult = ShowHomePage()
-        If homeResult = true Then
+        if homeResult = true
             ' Retry Login Check
             Goto checkLoginStatus
-        End If
-    Else
+        end if
+
+    else
         loginResult = ShowLoginPage()
-        If loginResult = true Then
+        if loginResult = true
             ' Retry Login Check
             Goto checkLoginStatus
-        End If
-    End If
+        end if
+    end if
 
     ' Exit Application
     return
