@@ -277,6 +277,7 @@ Sub initTheme()
         ListItemHighlightText: "#ffffff"
         ListScreenDescriptionText: "#9a9a9a"
         ListScreenTitleColor: "#000000"
+        ListScreenHeaderText: "#ffffff"
 
         CounterTextLeft: brandingWhite
         CounterTextRight: brandingWhite
