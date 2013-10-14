@@ -282,8 +282,9 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
             foundVideo = true
             streamBitrate = Int(stream.BitRate / 1000)
             streamLevel   = firstOf(stream.Level, 100) ' Default to very high value to prevent compatible video match
+            streamProfile = LCase(firstOf(stream.Profile, "unknown")) ' Default to unknown to prevent compatible video match
 
-            if (stream.Codec = "h264" Or stream.Codec = "AVC") And streamLevel <= 41 And streamBitrate < maxVideoBitrate
+            if (stream.Codec = "h264" Or stream.Codec = "AVC") And streamLevel <= 41 And (streamProfile = "main" Or streamProfile = "high") And streamBitrate < maxVideoBitrate
                 compatibleVideo = true
             end if
 
@@ -512,6 +513,9 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         ' Set Direct Play Flag
         metaData.DirectPlay = true
 
+        ' Setup Playback Method in Rating area
+        metaData.Rating = "Direct Play (" + extension + ")"
+
     ' Stream Copy
     else if action = "streamcopy"
         ' Base URL
@@ -524,6 +528,9 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
             DeviceId: getGlobalVar("rokuUniqueId", "Unknown")
         }
 
+        ' Set playback method for info box
+        playbackInfo = "Copy Video;"
+
         ' Add Audio Settings
         if audioStream
             ' If the selected stream is compatible, then stream copy the audio
@@ -532,6 +539,8 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
                     AudioCodec: "copy"
                     AudioStreamIndex: itostr(audioStream)
                 }
+
+                playbackInfo = playbackInfo + " Copy Audio"
             else
                 audioSettings = {
                     AudioCodec: "aac"
@@ -540,6 +549,8 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
                     AudioSampleRate: "44100"
                     AudioStreamIndex: itostr(audioStream)
                 }
+
+                playbackInfo = playbackInfo + " Convert Audio"
             end if
         else
             audioSettings = {
@@ -548,6 +559,8 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
                 AudioChannels: "2"
                 AudioSampleRate: "44100"
             }
+
+            playbackInfo = playbackInfo + " Convert Audio"
         end if
 
         ' Add Audio Params to Query
@@ -576,6 +589,9 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         metaData.StreamFormat = "hls"
         metaData.SwitchingStrategy = "no-adaptation"
         metaData.Stream = streamParams
+
+        ' Setup Playback Method in Rating area
+        metaData.Rating = playbackInfo
 
     ' Transcode
     else
@@ -651,6 +667,9 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         metaData.StreamFormat = "hls"
         metaData.SwitchingStrategy = "no-adaptation"
         metaData.Stream = streamParams
+
+        ' Setup Playback Method in Rating area
+        metaData.Rating = "Convert Video and Audio"
 
     end if
 
