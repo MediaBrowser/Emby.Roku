@@ -155,11 +155,11 @@ Function createServerUpdateDialog()
     dialog.EnableOverlay(true)
 
     ' Set Title and Text
-    dialog.SetTitle("Server Update")
-    dialog.SetText("There is a pending server update available. If restarting server, please wait a minute to relaunch channel.")
+    dialog.SetTitle("Pending Server Restart")
+    dialog.SetText("There is a pending server restart. If restarting server, please wait a minute to relaunch channel.")
 
     ' Setup Buttons
-    dialog.AddButton(1, "Continue")
+    dialog.AddButton(1, "Continue without restart")
     dialog.AddButton(2, "Restart Server")
 
     dialog.Show()
@@ -183,6 +183,7 @@ Function createServerUpdateDialog()
     end while
 End Function
 
+
 '******************************************************
 ' Create Loading Error Dialog
 '******************************************************
@@ -191,6 +192,15 @@ Function createLoadingErrorDialog()
 
     createDialog("Error Loading", "There was an error while loading. Please Try again.", "Back")
 
+End Function
+
+
+'******************************************************
+' Create Folder Rip Warning Dialog
+'******************************************************
+
+Function createFolderRipWarningDialog()
+    createDialog("Warning", "Folder rips and ISO playback is experimental. It may not work at all with some titles.", "Continue")
 End Function
 
 
