@@ -84,11 +84,11 @@ Function ShowHomePage()
     ' Hide Description Popup
     screen.SetDescriptionVisible(false)
 
-    ' Check For Server Updates
+    ' Check For Server Restart
     serverInfo = getServerInfo()
 
     if serverInfo <> invalid
-        if serverInfo.HasPendingRestart
+        if serverInfo.HasPendingRestart And serverInfo.CanSelfRestart
             if createServerUpdateDialog()
                 return false
             end if
