@@ -776,3 +776,32 @@ Function postStopTranscode() As Boolean
 
     return false
 End Function
+
+
+'**********************************************************
+'** Post Manual Watched Status
+'**********************************************************
+
+Function postWatchedStatus(videoId As String, markWatched As Boolean) As Boolean
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayedItems/" + HttpEncode(videoId)
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.AddAuthorization()
+
+    ' If marking as unwatched
+    if Not markWatched
+        request.SetRequest("DELETE")
+    end if
+
+    ' Execute Request
+    response = request.PostFromStringWithTimeout("", 5)
+    if response <> invalid
+        return true
+    else
+        Debug("Failed to Post Manual Watched Status")
+    end if
+
+    return false
+End Function
