@@ -74,6 +74,12 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                         sleep(300) ' Give enough time to stop music
                     end if
 
+                    ' Warn for Folder Rips
+                    if video.videoType <> "videofile" And RegRead("warnFolderRips") = invalid
+                        RegWrite("warnFolderRips", "1")
+                        createFolderRipWarningDialog()
+                    end if
+
                     options = {}
                     options.playstart = video.PlaybackPosition
 
@@ -91,6 +97,12 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                         Debug("Stop theme music")
                         audioPlayer.Stop()
                         sleep(300) ' Give enough time to stop music
+                    end if
+
+                    ' Warn for Folder Rips
+                    if video.videoType <> "videofile" And RegRead("warnFolderRips") = invalid
+                        RegWrite("warnFolderRips", "1")
+                        createFolderRipWarningDialog()
                     end if
 
                     options = {}
@@ -125,6 +137,12 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                             Debug("Stop theme music")
                             audioPlayer.Stop()
                             sleep(300) ' Give enough time to stop music
+                        end if
+
+                        ' Warn for Folder Rips
+                        if video.videoType <> "videofile" And RegRead("warnFolderRips") = invalid
+                            RegWrite("warnFolderRips", "1")
+                            createFolderRipWarningDialog()
                         end if
 
                         ' Create Video Screen
