@@ -708,6 +708,7 @@ Function postVideoPlayback(videoId As String, action As String, position = inval
         ' Prepare Request
         request = HttpRequest(url)
         request.AddAuthorization()
+        request.AddParam("CanSeek", "true")
     else if action = "progress"
         ' URL
         url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId) + "/Progress?PositionTicks=" + positionTicks
