@@ -203,7 +203,7 @@ Function getVideoMetadata(videoId As String) As Object
 
         ' Setup Video Location / Type Information
         if i.VideoType <> invalid
-            metaData.VideoType = i.VideoType
+            metaData.VideoType = LCase(i.VideoType)
         end If
 
         if i.Path <> invalid
@@ -211,7 +211,7 @@ Function getVideoMetadata(videoId As String) As Object
         end If
 
         if i.LocationType <> invalid
-            metaData.LocationType = i.LocationType
+            metaData.LocationType = LCase(i.LocationType)
         end If
 
         ' Set HD Flags
@@ -425,8 +425,8 @@ End Function
 Function setupVideoPlayback(metadata As Object, options = invalid As Object) As Object
 
     ' Setup Video Playback
-    videoType     = LCase(metadata.VideoType)
-    locationType  = LCase(metadata.LocationType)
+    videoType     = metadata.VideoType
+    locationType  = metadata.LocationType
     rokuVersion   = getGlobalVar("rokuVersion")
     audioOutput51 = getGlobalVar("audioOutput51")
     supportsSurroundSound = getGlobalVar("surroundSound")
@@ -450,7 +450,16 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         extension = getFileExtension(metaData.VideoPath)
 
         if locationType = "remote"
-            action = "transcode"
+
+            ' If Apple trailer, direct play
+            regex = CreateObject("roRegex", "trailers.apple.com", "i")
+            if regex.IsMatch(metaData.VideoPath)
+                action = "direct"
+                metadata.IsAppleTrailer = true
+            else
+                action = "transcode"
+                metadata.IsAppleTrailer = false
+            end if
 
         else if locationType = "filesystem"
 

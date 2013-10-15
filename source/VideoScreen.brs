@@ -447,7 +447,17 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
     screen.SetMessagePort(port)
 
     screen.SetPositionNotificationPeriod(10)
+
+    ' If Apple Trailer Add Quicktime Header And Set Url directly to Apple
+    if video.IsAppleTrailer 
+        screen.AddHeader("User-Agent", "QuickTime/7.6.2")
+        video.Stream.url = video.VideoPath
+    end if
+
+    ' Set the video content
     screen.SetContent(video)
+
+    ' Show Video
     screen.Show()
 
     ' PlayStart in seconds
