@@ -84,6 +84,17 @@ Function ShowHomePage()
     ' Hide Description Popup
     screen.SetDescriptionVisible(false)
 
+    ' Check For Server Updates
+    serverInfo = getServerInfo()
+
+    if serverInfo <> invalid
+        if serverInfo.HasPendingRestart
+            if createServerUpdateDialog()
+                return false
+            end if
+        end if
+    end if
+
     while true
         msg = wait(0, screen.Port)
 

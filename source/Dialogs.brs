@@ -143,6 +143,45 @@ Function createPlaybackOptionsDialog(playbackPosition As Integer) As Integer
     end while
 End Function
 
+'******************************************************
+' Create Server Update Dialog
+'******************************************************
+
+Function createServerUpdateDialog()
+    port   = CreateObject("roMessagePort")
+    dialog = CreateObject("roMessageDialog")
+    dialog.SetMessagePort(port)
+
+    dialog.EnableOverlay(true)
+
+    ' Set Title and Text
+    dialog.SetTitle("Server Update")
+    dialog.SetText("There is a pending server update available. If restarting server, please wait a minute to relaunch channel.")
+
+    ' Setup Buttons
+    dialog.AddButton(1, "Continue")
+    dialog.AddButton(2, "Restart Server")
+
+    dialog.Show()
+
+    while true
+        msg = wait(0, dialog.GetMessagePort())
+
+        if type(msg) = "roMessageDialogEvent"
+            if msg.isScreenClosed()
+                return false
+            else if msg.isButtonPressed()
+                if msg.GetIndex() = 2
+                    ' Restart Server
+                    postServerRestart()
+                    return true
+                else
+                    return false
+                end if
+            end if
+        end if
+    end while
+End Function
 
 '******************************************************
 ' Create Loading Error Dialog
