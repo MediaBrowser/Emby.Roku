@@ -142,3 +142,57 @@ Function checkUserPassword(userId As String, passwordText As String) As Boolean
 
     return false
 End Function
+
+
+'******************************************************
+' Get Server Info
+'******************************************************
+
+Function getServerInfo() As Object
+    ' URL
+    url = GetServerBaseUrl() + "/System/Info"
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+        metaData = ParseJSON(response)
+
+        if metaData = invalid
+            Debug("Error Parsing Server Info")
+            return invalid
+        end if
+
+        return metaData
+    else
+        Debug("Failed to get Server Info")
+    end if
+
+    return invalid
+End Function
+
+
+'******************************************************
+' Post Server Restart
+'******************************************************
+
+Function postServerRestart() As Boolean
+    ' URL
+    url = GetServerBaseUrl() + "/System/Restart"
+
+    ' Prepare Request
+    request = HttpRequest(url)
+
+    ' Execute Request
+    response = request.PostFromStringWithTimeout("", 5)
+    if response <> invalid
+        return true
+    else
+        Debug("Failed to Post Server Restart")
+    end if
+
+    return false
+End Function
