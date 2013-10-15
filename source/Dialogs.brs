@@ -155,8 +155,8 @@ Function createServerUpdateDialog()
     dialog.EnableOverlay(true)
 
     ' Set Title and Text
-    dialog.SetTitle("Pending Server Restart")
-    dialog.SetText("There is a pending server restart. If restarting server, please wait a minute to relaunch channel.")
+    dialog.SetTitle("Server Restart")
+    dialog.SetText("Media Browser Server needs to restart to apply updates. If restarting server, please wait a minute to relaunch channel.")
 
     ' Setup Buttons
     dialog.AddButton(1, "Continue without restart")
