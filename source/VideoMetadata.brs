@@ -442,6 +442,9 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         playStart      = false
     end if
 
+    ' Setup Defaults
+    metadata.IsAppleTrailer = false
+
     Print "Play Start: "; playStart
     Print "Audio Stream: "; audioStream
     Print "Subtitle Stream: "; subtitleStream
@@ -458,7 +461,6 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
                 metadata.IsAppleTrailer = true
             else
                 action = "transcode"
-                metadata.IsAppleTrailer = false
             end if
 
         else if locationType = "filesystem"
