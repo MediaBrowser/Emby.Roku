@@ -156,11 +156,11 @@ Function createServerUpdateDialog()
 
     ' Set Title and Text
     dialog.SetTitle("Server Restart")
-    dialog.SetText("Media Browser Server needs to restart to apply updates. If restarting server, please wait a minute to relaunch channel.")
+    dialog.SetText("Media Browser Server needs to restart to apply updates. Restart now? Please note if restarting server, please wait a minute to relaunch channel.")
 
     ' Setup Buttons
-    dialog.AddButton(1, "Continue without restart")
-    dialog.AddButton(2, "Restart Server")
+    dialog.AddButton(1, "No")
+    dialog.AddButton(2, "Yes")
 
     dialog.Show()
 
@@ -289,7 +289,7 @@ End Function
 
 
 '******************************************************
-' Show Dialog Box
+' Create Dialog Box
 '******************************************************
 
 Function createDialog(title As Dynamic, text As Dynamic, buttonText As String)
