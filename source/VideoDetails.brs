@@ -178,33 +178,37 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
     screen.ClearButtons()
 
     ' Only Setup Buttons For Types we recognize
-    if video.ContentType = "Episode" Or video.ContentType = "Movie"
-        if video.PlaybackPosition <> 0 then
-            screen.AddButton(1, "Resume playing")
-            screen.AddButton(2, "Play from beginning")
-        else
+    if video.LocationType = "remote" Or video.ContentType = "filesystem"
+
+        if video.ContentType = "Episode" Or video.ContentType = "Movie"
+            if video.PlaybackPosition <> 0 then
+                screen.AddButton(1, "Resume playing")
+                screen.AddButton(2, "Play from beginning")
+            else
+                screen.AddButton(2, "Play")
+            end if
+
+            screen.AddButton(3, "View Chapters")
+
+            if video.audioStreams.Count() > 1 Or video.subtitleStreams.Count() > 0
+                screen.AddButton(4, "Audio & Subtitles")
+            end if
+
+        else if video.ContentType = "Video"
+            if video.PlaybackPosition <> 0 then
+                screen.AddButton(1, "Resume playing")
+                screen.AddButton(2, "Play from beginning")
+            else
+                screen.AddButton(2, "Play")
+            end if
+
+        else if video.ContentType = "Trailer"
             screen.AddButton(2, "Play")
+
         end if
-
-        screen.AddButton(3, "View Chapters")
-
-        if video.audioStreams.Count() > 1 Or video.subtitleStreams.Count() > 0
-            screen.AddButton(4, "Audio & Subtitles")
-        end if
-
-    else if video.ContentType = "Video"
-        if video.PlaybackPosition <> 0 then
-            screen.AddButton(1, "Resume playing")
-            screen.AddButton(2, "Play from beginning")
-        else
-            screen.AddButton(2, "Play")
-        end if
-
-    else if video.ContentType = "Trailer"
-        screen.AddButton(2, "Play")
 
     end if
-    
+
     ' Show Screen
     screen.SetContent(video)
     screen.Show()
