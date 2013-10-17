@@ -53,7 +53,8 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
     ' Query
     query = {
         recursive: "true"
-        includeitemtypes: "Series"
+        IncludeItemTypes: "Series"
+        ExcludeLocationTypes: "Virtual"
         fields: "SeriesInfo,ItemCounts,Overview"
         sortby: "SortName"
         sortorder: "Ascending"
@@ -341,7 +342,8 @@ Function tvmetadata_latest() As Object
     query = {
         limit: "10"
         recursive: "true"
-        includeitemtypes: "Episode"
+        IncludeItemTypes: "Episode"
+        ExcludeLocationTypes: "Virtual"
         fields: "SeriesInfo,UserData"
         sortby: "DateCreated"
         sortorder: "Descending"
@@ -747,7 +749,8 @@ Function tvmetadata_seasons(seriesId As String) As Object
     query = {
         parentid: seriesId
         recursive: "true"
-        includeitemtypes: "Season"
+        IncludeItemTypes: "Season"
+        ExcludeLocationTypes: "Virtual"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -803,7 +806,8 @@ Function tvmetadata_episodes(seasonId As String) As Object
     query = {
         parentid: seasonId
         recursive: "true"
-        includeitemtypes: "Episode"
+        IncludeItemTypes: "Episode"
+        ExcludeLocationTypes: "Virtual"
         fields: "SeriesInfo,Overview,MediaStreams,UserData"
         sortby: "SortName"
         sortorder: "Ascending"
@@ -1192,7 +1196,8 @@ Function tvmetadata_episodes_next_unplayed(seriesId As String) As Object
     query = {
         parentid: seriesId
         recursive: "true"
-        includeitemtypes: "Episode"
+        IncludeItemTypes: "Episode"
+        ExcludeLocationTypes: "Virtual"
         sortby: "SortName"
         sortorder: "Ascending"
         filters: "IsUnplayed"
