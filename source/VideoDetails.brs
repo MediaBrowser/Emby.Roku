@@ -178,7 +178,7 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
     screen.ClearButtons()
 
     ' Only Setup Buttons For Types we recognize
-    if video.LocationType = "remote" Or video.ContentType = "filesystem"
+    if video.LocationType = "filesystem" Or video.LocationType = "remote"
 
         if video.ContentType = "Episode" Or video.ContentType = "Movie"
             if video.PlaybackPosition <> 0 then
