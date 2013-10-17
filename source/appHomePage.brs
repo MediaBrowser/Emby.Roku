@@ -88,7 +88,8 @@ Function ShowHomePage()
     serverInfo = getServerInfo()
 
     if serverInfo <> invalid
-        if serverInfo.HasPendingRestart And serverInfo.CanSelfRestart
+        if serverInfo.HasPendingRestart And serverInfo.CanSelfRestart And (RegRead("prefServerUpdates") = "yes" Or RegRead("prefServerUpdates") = invalid)
+            Debug("Checking For Media Browser Server Update")
             if createServerUpdateDialog()
                 return false
             end if

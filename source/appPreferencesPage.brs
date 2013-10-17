@@ -28,7 +28,8 @@ Function ShowPreferencesPage()
         GetPreferenceCollectionPopup,
         GetPreferenceCollectionsFirstRow,
         GetPreferenceEnhancedImages,
-        GetPreferenceMediaIndicators
+        GetPreferenceMediaIndicators,
+        GetPreferenceServerUpdates
     ]
 
     ' Fetch / Refresh Preference Screen
@@ -277,6 +278,14 @@ Function GetPreferenceList() as Object
             ShortTitle: "Use Media Indicators",
             ID: "prefMediaIndicators",
             ShortDescriptionLine1: "Show or Hide media indicators such as played or percentage played.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
+        },
+        {
+            Title: "Check for Server Updates: " + GetSelectedPreference(GetPreferenceServerUpdates(), RegRead("prefServerUpdates")),
+            ShortTitle: "Check Server Updates",
+            ID: "prefServerUpdates",
+            ShortDescriptionLine1: "Check for Media Browser Server updates on start up.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         }
@@ -614,6 +623,23 @@ Function GetPreferenceEnhancedImages() as Object
 End Function
 
 Function GetPreferenceMediaIndicators() as Object
+    prefOptions = [
+        {
+            Title: "No",
+            Id: "no",
+            IsDefault: false
+        },
+        {
+            Title: "Yes [default]",
+            Id: "yes",
+            IsDefault: true
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceServerUpdates() as Object
     prefOptions = [
         {
             Title: "No",
