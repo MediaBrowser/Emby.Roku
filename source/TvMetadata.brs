@@ -454,6 +454,7 @@ Function tvmetadata_nextup(offset = invalid As Dynamic, limit = invalid As Dynam
     ' Query
     query = {
         userid: getGlobalVar("user").Id
+        ExcludeLocationTypes: "Virtual"
         fields: "SeriesInfo,DateCreated,Overview"
     }
 
