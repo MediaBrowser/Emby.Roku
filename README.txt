@@ -2,7 +2,7 @@ MediaBrowser Roku
 
 Changelog
 
-1.16.2 - Add mark/unmark played/favorite;
+1.16.2 - Add mark/unmark played/favorite; Added favorite movies to home screen;
 
 1.16.1 - Bug fixes; Server restart check; Warning for ISO/Folder rips playback; Improved trailer playback;
 
