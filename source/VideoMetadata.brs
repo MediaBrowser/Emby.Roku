@@ -147,13 +147,23 @@ Function getVideoMetadata(videoId As String) As Object
 
         end if
 
-        ' Setup Watched Status In Category Area
+        ' Setup Watched Status In Category Area and Played Flag
         if i.UserData.Played <> invalid And i.UserData.Played = true
+            metaData.IsPlayed = true
             if i.UserData.LastPlayedDate <> invalid
                 metaData.Categories = "Watched on " + formatDateStamp(i.UserData.LastPlayedDate)
             else
                 metaData.Categories = "Watched"
             end if
+        else
+            metaData.IsPlayed = false
+        end if
+
+        ' Setup Favorite Status
+        if i.UserData.IsFavorite <> invalid And i.UserData.IsFavorite = true
+            metaData.IsFavorite = true
+        else
+            metaData.IsFavorite = false
         end if
 
         ' Setup Chapters
