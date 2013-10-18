@@ -805,3 +805,32 @@ Function postWatchedStatus(videoId As String, markWatched As Boolean) As Boolean
 
     return false
 End Function
+
+
+'**********************************************************
+'** Post Favorite Status
+'**********************************************************
+
+Function postFavoriteStatus(videoId As String, markFavorite As Boolean) As Boolean
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/FavoriteItems/" + HttpEncode(videoId)
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.AddAuthorization()
+
+    ' If marking as un-favorite
+    if Not markFavorite
+        request.SetRequest("DELETE")
+    end if
+
+    ' Execute Request
+    response = request.PostFromStringWithTimeout("", 5)
+    if response <> invalid
+        return true
+    else
+        Debug("Failed to Post Favorite Status")
+    end if
+
+    return false
+End Function
