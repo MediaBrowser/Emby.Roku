@@ -808,6 +808,7 @@ Function postWatchedStatus(videoId As String, markWatched As Boolean) As Boolean
     ' Execute Request
     response = request.PostFromStringWithTimeout("", 5)
     if response <> invalid
+        Debug("Mark Played/Unplayed")
         return true
     else
         Debug("Failed to Post Manual Watched Status")
@@ -837,6 +838,7 @@ Function postFavoriteStatus(videoId As String, markFavorite As Boolean) As Boole
     ' Execute Request
     response = request.PostFromStringWithTimeout("", 5)
     if response <> invalid
+        Debug("Add/Remove Favorite")
         return true
     else
         Debug("Failed to Post Favorite Status")
