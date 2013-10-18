@@ -24,6 +24,7 @@ Function ClassMovieMetadata()
         this.GetGenreMovieList  = moviemetadata_genre_movie_list
         this.GetResumable       = moviemetadata_resumable
         this.GetLatest          = moviemetadata_latest
+        this.GetFavorites       = moviemetadata_favorites
 
         ' singleton
         m.ClassMovieMetadata = this
@@ -748,6 +749,95 @@ Function moviemetadata_latest() As Object
         }
     else
         Debug("Failed to Get Recently Added Movies")
+    end if
+
+    return invalid
+End Function
+
+
+
+'**********************************************************
+'** Get Favorite Movies
+'**********************************************************
+
+Function moviemetadata_favorites() As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+
+    ' Query
+    query = {
+        limit: "10"
+        recursive: "true"
+        includeitemtypes: "Movie"
+        sortby: "SortName"
+        sortorder: "Ascending"
+        filters: "IsFavorite"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        contentList = CreateObject("roArray", 10, true)
+        jsonObj     = ParseJSON(response)
+
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response for Favorite Movies")
+            return invalid
+        end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
+
+        for each i in jsonObj.Items
+            metaData = {}
+
+            ' Set the Content Type
+            metaData.ContentType = "Movie"
+
+            ' Set the Id
+            metaData.Id = i.Id
+
+            ' Set the display title
+            metaData.Title = firstOf(i.Name, "Unknown") ' Not even used
+            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
+
+            ' Get Image Sizes
+            sizes = GetImageSizes("two-row-flat-landscape-custom")
+
+            ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
+            if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
+
+            else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
+
+            else 
+                metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+            end if
+
+            contentList.push( metaData )
+        end for
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
+    else
+        Debug("Failed to Get Favorite Movies")
     end if
 
     return invalid

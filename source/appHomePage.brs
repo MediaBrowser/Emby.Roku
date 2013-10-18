@@ -204,6 +204,12 @@ Function GetMoviesButtons() As Object
 
         buttons.Append( switchButton )
 
+        ' Get Favorite Movies
+        favoriteMovies = MovieMetadata.GetFavorites()
+        If favoriteMovies<>invalid
+            buttons.Append( favoriteMovies.Items )
+        End if
+
     Else
         switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-resume.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-resume.png"
