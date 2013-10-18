@@ -154,6 +154,33 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
 
                     end if
 
+                ' More
+                else if msg.GetIndex() = 5
+
+                    ' Create More Video Options Dialog
+                    optionSelected = createMoreVideoOptionsDialog(video)
+
+                    ' Select action from the more options dialog
+                    if optionSelected = 1
+                        postWatchedStatus(videoId, true) ' Mark Played
+
+                    else if optionSelected = 2
+                        postWatchedStatus(videoId, false) ' Mark Unplayed
+
+                    else if optionSelected = 3
+                        postFavoriteStatus(videoId, true) ' Add Favorite
+
+                    else if optionSelected = 4
+                        postFavoriteStatus(videoId, false) ' Remove Favorite
+
+                    end if
+
+                    ' Refresh Details on Action
+                    if optionSelected <> -1
+                        video = RefreshVideoMetadata(videoId)
+                        RefreshVideoDetails(screen, video)
+                    end if
+
                 end if
 
             else if msg.isScreenClosed()
@@ -193,6 +220,8 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
             if video.audioStreams.Count() > 1 Or video.subtitleStreams.Count() > 0
                 screen.AddButton(4, "Audio & Subtitles")
             end if
+
+            screen.AddButton(5, "More")
 
         else if video.ContentType = "Video"
             if video.PlaybackPosition <> 0 then

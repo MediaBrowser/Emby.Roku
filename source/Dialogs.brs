@@ -143,6 +143,55 @@ Function createPlaybackOptionsDialog(playbackPosition As Integer) As Integer
     end while
 End Function
 
+
+'******************************************************
+' Create More Video Options Dialog
+'******************************************************
+
+Function createMoreVideoOptionsDialog(video As Object) As Integer
+    port   = CreateObject("roMessagePort")
+    dialog = CreateObject("roMessageDialog")
+    dialog.SetMessagePort(port)
+
+    dialog.SetMenuTopLeft(true)
+    dialog.EnableOverlay(true)
+    dialog.EnableBackButton(true)
+
+    ' Set Title
+    dialog.SetTitle("More Options")
+
+    ' Setup Buttons
+    if video.IsPlayed
+        dialog.AddButton(2, "Mark Unplayed")
+    else
+        dialog.AddButton(1, "Mark Played")
+    end if
+
+    if video.IsFavorite
+        dialog.AddButton(4, "Remove Favorite")
+    else
+        dialog.AddButton(3, "Add Favorite")
+    end if
+
+    dialog.AddButtonSeparator()
+    dialog.AddButton(-1, "Cancel")
+
+    dialog.Show()
+
+    while true
+        msg = wait(0, dialog.GetMessagePort())
+
+        if type(msg) = "roMessageDialogEvent"
+            if msg.isScreenClosed()
+                return -1
+            else if msg.isButtonPressed()
+                return msg.GetIndex()
+            end if
+        end if
+    end while
+End Function
+
+
 '******************************************************
 ' Create Server Update Dialog
 '******************************************************
