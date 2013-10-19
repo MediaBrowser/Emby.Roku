@@ -132,6 +132,9 @@ Function ShowHomePage()
                 Else If screen.rowContent[row][selection].ContentType = "Episode" Then
                     ShowVideoDetails(screen.rowContent[row][selection].Id)
 
+                Else If screen.rowContent[row][selection].ContentType = "Series" Then
+                    ShowTVSeasonsListPage(screen.rowContent[row][selection])
+
                 Else If screen.rowContent[row][selection].ContentType = "MusicLibrary" Then
                     ShowMusicListPage()
 
@@ -298,6 +301,12 @@ Function GetTVButtons() As Object
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-favorites.png"
 
         buttons.Append( switchButton )
+
+        ' Get Favorite TV Shows
+        favoriteShows = TvMetadata.GetFavorites()
+        If favoriteShows<>invalid
+            buttons.Append( favoriteShows.Items )
+        End if
 
     Else
 

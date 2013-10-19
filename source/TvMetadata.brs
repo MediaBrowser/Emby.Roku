@@ -25,6 +25,7 @@ Function ClassTvMetadata()
         this.GetEpisodes       = tvmetadata_episodes
         this.GetResumable      = tvmetadata_resumable
         this.GetLatest         = tvmetadata_latest
+        this.GetFavorites      = tvmetadata_favorites
         this.GetThemeMusic     = tvmetadata_theme_music
         this.GetNextEpisode    = tvmetadata_episodes_next_unplayed
 
@@ -437,6 +438,119 @@ Function tvmetadata_latest() As Object
         }
     else
         Debug("Failed to Get Recently Added TV Shows")
+    end if
+
+    return invalid
+End Function
+
+
+'**********************************************************
+'** Get Favorite TV Shows
+'**********************************************************
+
+Function tvmetadata_favorites() As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+
+    ' Query
+    query = {
+        recursive: "true"
+        IncludeItemTypes: "Episode,Season,Series"
+        ExcludeLocationTypes: "Virtual"
+        sortby: "SortName"
+        sortorder: "Ascending"
+        filters: "IsFavorite"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        seriesList  = {}
+        contentList = CreateObject("roArray", 10, true)
+        jsonObj     = ParseJSON(response)
+
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response for Favorite TV Shows")
+            return invalid
+        end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
+
+        for each i in jsonObj.Items
+
+            seriesId = firstOf(i.SeriesId, i.Id)
+
+            ' Only add to list if series has not been added yet
+            if seriesList.Lookup(seriesId) = invalid
+                seriesList.AddReplace(seriesId, 1)
+
+                metaData = {}
+
+                ' Set the Content Type
+                metaData.ContentType = "Series"
+
+                ' Set the Id
+                metaData.Id = seriesId
+
+                ' Set the display title
+                metaData.Title = firstOf(i.SeriesName, i.Name) ' Not even used
+                metaData.ShortDescriptionLine1 = firstOf(i.SeriesName, i.Name)
+
+                ' Get Image Sizes
+                sizes = GetImageSizes("two-row-flat-landscape-custom")
+
+                ' If Series, use backdrop, otherwise use parent backdrop
+                if i.Type = "Series"
+
+                    ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
+                    if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                        imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
+
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
+
+                    else 
+                        metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                        metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+                    end if
+
+                else
+
+                    ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
+                    if i.ParentBackdropImageTags[0] <> "" And i.ParentBackdropImageTags[0] <> invalid
+                        imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.ParentBackdropItemId) + "/Images/Backdrop/0"
+
+                        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ParentBackdropImageTags[0], false, 0, true)
+                        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ParentBackdropImageTags[0], false, 0, true)
+
+                    else 
+                        metaData.HDPosterUrl = "pkg://images/items/collection.png"
+                        metaData.SDPosterUrl = "pkg://images/items/collection.png"
+
+                    end if
+
+                end if
+
+                contentList.push( metaData )
+
+            end if
+
+        end for
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
+    else
+        Debug("Failed to Get Favorite TV Shows")
     end if
 
     return invalid
