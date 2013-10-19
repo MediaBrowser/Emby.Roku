@@ -890,11 +890,15 @@ Function tvmetadata_seasons(seriesId As String) As Object
         end if
 
         for each i in jsonObj.Items
-            ' Set the Id
-            listIds.push( i.Id )
+            ' Exclude empty seasons
+            itemCount = firstOf(i.RecursiveItemCount, 0)
+            if itemCount > 0
+                ' Set the Id
+                listIds.push( i.Id )
 
-            ' Set the Name
-            listNames.push( firstOf(i.Name, "Unknown") )
+                ' Set the Name
+                listNames.push( firstOf(i.Name, "Unknown") )
+            end if
         end for
         
         return [listIds, listNames]
