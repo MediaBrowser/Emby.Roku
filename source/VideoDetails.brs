@@ -30,10 +30,7 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
     else if video.ContentType = "Movie"
         screen = CreateSpringboardScreen("Movies", video.Title, "movie")
 
-    else if video.ContentType = "Video"
-        screen = CreateSpringboardScreen("", video.Title, "movie")
-
-    else if video.ContentType = "Trailer"
+    else if video.ContentType = "Video" Or video.ContentType = "Trailer" Or video.ContentType = "MusicVideo"
         screen = CreateSpringboardScreen("", video.Title, "movie")
 
     end if
@@ -223,7 +220,7 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
 
             screen.AddButton(5, "More")
 
-        else if video.ContentType = "Video"
+        else if video.ContentType = "Video" Or video.ContentType = "MusicVideo"
             if video.PlaybackPosition <> 0 then
                 screen.AddButton(1, "Resume playing")
                 screen.AddButton(2, "Play from beginning")

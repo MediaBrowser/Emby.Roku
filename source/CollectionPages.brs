@@ -117,6 +117,9 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
                 else if screen.rowContent[row][selection].ContentType = "MusicArtist" then
                     ShowMusicAlbumPage(screen.rowContent[row][selection])
 
+                else if screen.rowContent[row][selection].ContentType = "MusicVideo" then
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
+
                 ' Folder Content Type
 
                 else if screen.rowContent[row][selection].ContentType = "Folder" then
