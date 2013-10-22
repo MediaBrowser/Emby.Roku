@@ -491,6 +491,10 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
                 Debug("--- started video stream ---")
                 postVideoPlayback(video.Id, "start")
 
+                if msg.GetInfo().IsUnderrun = true
+                    Debug("--- video underrun ---")
+                end if
+
             else if msg.isPartialResult() then
                 Debug("--- video ended early ---")
                 if position <> invalid
