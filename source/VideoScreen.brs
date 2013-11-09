@@ -491,6 +491,9 @@ Function createStandardVideoScreen(video As Object, options = invalid As Object)
                 Debug("--- started video stream ---")
                 postVideoPlayback(video.Id, "start")
 
+                Debug("Average Video Stream Bitrate: " + itostr(msg.GetInfo().StreamBitrate) + " bps")
+                Debug("Measured Network Bitrate: " + itostr(msg.GetInfo().MeasuredBitrate) +  " kbps")
+
                 if msg.GetInfo().IsUnderrun = true
                     Debug("--- video underrun ---")
                 end if
