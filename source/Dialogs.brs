@@ -368,3 +368,67 @@ Function createDialog(title As Dynamic, text As Dynamic, buttonText As String)
         end if
     end while
 End Function
+
+
+'******************************************************
+' Create Keyboard Screen
+'******************************************************
+
+Function createKeyboardScreen(title = "", prompt = "", defaultText = "", secure = false)
+    result = ""
+
+    port = CreateObject("roMessagePort")
+    screen = CreateObject("roKeyboardScreen")
+    screen.SetMessagePort(port)
+
+    ' Set Title
+    if title <> ""
+        screen.SetTitle(title)
+    end if
+
+    ' Set Display Text
+    if prompt <> ""
+        screen.SetDisplayText(prompt)
+    end if
+
+    ' Set Default Text
+    if defaultText <> ""
+        screen.SetText(defaultText)
+    end if
+
+    ' Add Buttons
+    screen.AddButton(1, "Okay")
+    screen.AddButton(2, "Cancel")
+
+    ' If secure is true, the typed text will be obscured on the screen
+    ' this is useful when the user is entering a password
+    screen.SetSecureText(secure)
+
+    ' Show keyboard screen
+    screen.Show()
+
+    while true
+        msg = wait(0, port)
+
+        if type(msg) = "roKeyboardScreenEvent" then
+            if msg.isScreenClosed() then
+                exit while
+            else if msg.isButtonPressed()
+                if msg.GetIndex() = 1
+                    ' the user pressed the Okay button
+                    ' close the screen and return the text they entered
+                    result = screen.GetText()
+                    exit while
+                else if msg.GetIndex() = 2
+                    ' the user pressed the Cancel button
+                    ' close the screen and return an empty string
+                    result = ""
+                    exit while
+                end if
+            end if
+        end if
+    end while
+
+    screen.Close()
+    return result
+End Function
