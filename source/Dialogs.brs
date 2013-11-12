@@ -234,6 +234,115 @@ End Function
 
 
 '******************************************************
+' Create Server Selection Dialog
+'******************************************************
+
+Function createServerSelectionDialog()
+    port   = CreateObject("roMessagePort")
+    dialog = CreateObject("roMessageDialog")
+    dialog.SetMessagePort(port)
+
+    dialog.SetMenuTopLeft(true)
+    dialog.EnableOverlay(true)
+    dialog.EnableBackButton(true)
+
+    ' Set Title
+    dialog.SetTitle("Select Action")
+
+    ' Setup Buttons
+    dialog.AddButton(1, "Connect to Server")
+    dialog.AddButton(2, "Remove Server")
+
+    dialog.Show()
+
+    while true
+        msg = wait(0, dialog.GetMessagePort())
+
+        if type(msg) = "roMessageDialogEvent"
+            if msg.isScreenClosed()
+                return 0
+            else if msg.isButtonPressed()
+                return msg.GetIndex()
+            end if
+        end if
+    end while
+End Function
+
+
+'******************************************************
+' Create Server Remove Dialog
+'******************************************************
+
+Function createServerRemoveDialog()
+    port   = CreateObject("roMessagePort")
+    dialog = CreateObject("roMessageDialog")
+    dialog.SetMessagePort(port)
+
+    dialog.SetMenuTopLeft(true)
+    dialog.EnableOverlay(true)
+    dialog.EnableBackButton(true)
+
+    ' Set Title and Text
+    dialog.SetTitle("Confirm Action")
+    dialog.SetText("Are you sure you wish to remove this server from the list?")
+
+    ' Setup Buttons
+    dialog.AddButton(0, "No")
+    dialog.AddButton(1, "Yes")
+
+    dialog.Show()
+
+    while true
+        msg = wait(0, dialog.GetMessagePort())
+
+        if type(msg) = "roMessageDialogEvent"
+            if msg.isScreenClosed()
+                return 0
+            else if msg.isButtonPressed()
+                return msg.GetIndex()
+            end if
+        end if
+    end while
+End Function
+
+
+'******************************************************
+' Create Server Add Dialog
+'******************************************************
+
+Function createServerAddDialog()
+    port   = CreateObject("roMessagePort")
+    dialog = CreateObject("roMessageDialog")
+    dialog.SetMessagePort(port)
+
+    dialog.SetMenuTopLeft(true)
+    dialog.EnableOverlay(true)
+    dialog.EnableBackButton(true)
+
+    ' Set Title
+    dialog.SetTitle("Select Action")
+
+    ' Setup Buttons
+    dialog.AddButton(1, "Scan Network")
+    dialog.AddButton(2, "Manually Add Server")
+
+    dialog.Show()
+
+    while true
+        msg = wait(0, dialog.GetMessagePort())
+
+        if type(msg) = "roMessageDialogEvent"
+            if msg.isScreenClosed()
+                return 0
+            else if msg.isButtonPressed()
+                return msg.GetIndex()
+            end if
+        end if
+    end while
+End Function
+
+
+'******************************************************
 ' Create Loading Error Dialog
 '******************************************************
 
