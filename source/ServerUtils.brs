@@ -13,7 +13,7 @@ End Function
 
 
 '******************************************************
-' Get the Server Status
+' Get the Server Status (old)
 '******************************************************
 
 Function getServerStatus(refresh = invalid) As Boolean
@@ -68,7 +68,7 @@ End Function
 
 
 '******************************************************
-' Attempts to find local MB Server through UDP
+' Attempts to find local MB Server through Udp (old)
 '******************************************************
 
 Function findLocalServer() As Boolean
@@ -114,33 +114,60 @@ Function findLocalServer() As Boolean
 End Function
 
 
+
+
+
+
+
+
+
+
+
+
+
 '******************************************************
-' Checks the User Password with SHA1 Encoded Password
+' Scan Network to find local MB Server through UDP
 '******************************************************
 
-Function checkUserPassword(userId As String, passwordText As String) As Boolean
-    ba = CreateObject("roByteArray")
-    ba.FromAsciiString(passwordText)
+Function scanLocalNetwork() As Dynamic
+    port = CreateObject("roMessagePort")
 
-    digest = CreateObject("roEVPDigest")
-    digest.Setup("sha1")
-    sha1Password = digest.Process(ba)
+    networkMessage = "who is MediaBrowserServer?"
+    networkAddress = "192.168.1.255"  ' Can only Do limited broadcast To LAN.
+    networkPort = 7359
 
-    ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(userId) + "/Authenticate"
+    remoteAddr = CreateObject("roSocketAddress")
+    remoteAddr.setAddress(networkAddress)
+    remoteAddr.setPort(networkPort)
 
-    ' Prepare Request
-    request = HttpRequest(url)
+    udp = CreateObject("roDatagramSocket")
+    udp.setSendToAddress(remoteAddr) ' peer IP and port
+    udp.setBroadcast(true)
+    udp.notifyReadable(true) 
 
-    ' Execute Request
-    response = request.PostFromStringWithTimeout("Password=" + sha1Password, 5)
-    if response <> invalid
-        return true
-    else
-        Debug("Failed to Check Password for User or Password did not match")
-    end if
+    udp.setMessagePort(port) 'notifications for udp come to message port
 
-    return false
+    udp.sendStr(networkMessage) ' Send message
+
+    continue = udp.eOK()
+    while continue
+        event = wait(500, port)
+        if type(event) = "roSocketEvent"
+            if event.getSocketID() = udp.getID()
+                if udp.isReadable()
+                    returnMessage = udp.receiveStr(512) ' max 512 characters
+                    udp.close()
+                    token = returnMessage.tokenize("|")
+                    return token[1]
+                end if
+            end if
+        else if event = invalid
+            udp.close()
+            return invalid
+        end if
+    end while
+
+    return invalid
 End Function
 
 
@@ -148,10 +175,14 @@ End Function
 ' Get Server Info
 '******************************************************
 
-Function getServerInfo() As Object
+Function getServerInfo(baseUrl = "") As Object
     ' URL
-    url = GetServerBaseUrl() + "/System/Info"
-
+    if baseUrl <> ""
+        url = "http://" + baseUrl + "/mediabrowser/System/Info"
+    else
+        url = GetServerBaseUrl() + "/System/Info"
+    end if
+    
     ' Prepare Request
     request = HttpRequest(url)
     request.ContentType("json")
@@ -192,6 +223,36 @@ Function postServerRestart() As Boolean
         return true
     else
         Debug("Failed to Post Server Restart")
+    end if
+
+    return false
+End Function
+
+
+'******************************************************
+' Checks the User Password with SHA1 Encoded Password
+'******************************************************
+
+Function checkUserPassword(userId As String, passwordText As String) As Boolean
+    ba = CreateObject("roByteArray")
+    ba.FromAsciiString(passwordText)
+
+    digest = CreateObject("roEVPDigest")
+    digest.Setup("sha1")
+    sha1Password = digest.Process(ba)
+
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(userId) + "/Authenticate"
+
+    ' Prepare Request
+    request = HttpRequest(url)
+
+    ' Execute Request
+    response = request.PostFromStringWithTimeout("Password=" + sha1Password, 5)
+    if response <> invalid
+        return true
+    else
+        Debug("Failed to Check Password for User or Password did not match")
     end if
 
     return false
