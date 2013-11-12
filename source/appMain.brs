@@ -15,49 +15,48 @@ Sub Main()
     facade.Show()
 
     ' Goto Marker
-    checkServerStatus:
+    serverStartupMarker:
 
-    dialogBox = ShowPleaseWait("Please Wait...", "Connecting to Media Browser Server")
+    ' Server Start Up
+    serverStart = serverStartUp()
 
-    'Get MediaBrowser Server
-    serverFound = getServerStatus()
+    '** 0 = First Run, 1 = Server List, 2 = Connect to Server
+    if serverStart = 0
+        Print "Server Setup"
+        savedServer = createServerFirstRunSetupScreen()
 
-    ' Check If Server Ping Failed
-    if Not serverFound
-        dialogBox.Close()
-        dialogBox = ShowPleaseWait("Please Wait...", "Could Not Find Server. Attempting Auto-Discovery")
-
-        ' Refresh Server Call
-        serverFound = getServerStatus(true)
-    end if
-    
-    ' Check If Ping And Automated Discovery Failed
-    if Not serverFound
-        dialogBox.Close()
-
-        ' Server Not found even after refresh, Give Option To Type In IP Or Try again later
-        buttonPress = ShowConnectionFailed()
-
-        if buttonPress = 0
+        If Not savedServer
             ' Exit Application
             return
-        else
-            savedConf = ShowManualServerConfiguration()
-            if savedConf = 1 Then
-                ' Retry Connection with manual entries
-                Goto checkServerStatus
-            else
-                ' Exit Application
-                return
-            end if
         end if
+
+        ' Redo Server Startup
+        Goto serverStartupMarker
+
+    else if serverStart = 1
+        Print "Server List"
+        selectedServer = createServerListScreen()
+
+        if selectedServer = -1
+            ' Exit Application
+            return
+        else if selectedServer = 0
+            ' Redo Server Startup
+            Goto serverStartupMarker
+        end if
+
+        RegWrite("serverActive", itostr(selectedServer))
+
+        ' Redo Server Startup
+        Goto serverStartupMarker
+
+    else if serverStart = 2
+        Print "Connecting To Server"
+
     end if
 
-    'Close Dialog Box
-    dialogBox.Close()
-
     ' Goto Marker
-    checkLoginStatus:
+    serverProfileMarker:
 
     ' Check to see if they have already selected a User
     ' Show home page if so, otherwise show login page.
@@ -67,21 +66,21 @@ Sub Main()
         ' If unable to get user profile, delete saved user and redirect to login
         if userProfile = invalid
             RegDelete("userId")
-            Goto checkLoginStatus
+            Goto serverProfileMarker
         end if
         
         GetGlobalAA().AddReplace("user", userProfile)
         homeResult = ShowHomePage()
         if homeResult = true
             ' Retry Login Check
-            Goto checkLoginStatus
+            Goto serverProfileMarker
         end if
 
     else
         loginResult = ShowLoginPage()
         if loginResult = true
             ' Retry Login Check
-            Goto checkLoginStatus
+            Goto serverProfileMarker
         end if
     end if
 
@@ -268,7 +267,10 @@ Sub initTheme()
         BreadcrumbTextLeft: "#dfdfdf"
         BreadcrumbTextRight: "#eeeeee"
         BreadcrumbDelimiter: "#eeeeee"
-        
+
+        ParagraphHeaderText: "#ffffff"
+        ParagraphBodyText: "#dfdfdf"
+
         PosterScreenLine1Text: "#ffffff"
         PosterScreenLine2Text: "#9a9a9a"
         EpisodeSynopsisText: "#dfdfdf"
