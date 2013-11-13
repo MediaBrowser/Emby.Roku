@@ -85,14 +85,35 @@ Function ShowTVShowListPage() As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                if Not screen.rowFinishedLoading[row]
+                if screen.rowFinishedLoading[row] <> invalid
 
-                    if selection > screen.rowLoadedCount[row] - screen.rowPageEdge
-                        ' Queue multiple loads to Catch up to Current Selection
-                        if selection > screen.rowLoadedCount[row] + screen.rowPageSize
-                            queue = Int((selection - screen.rowLoadedCount[row]) / screen.rowPageSize) + 1
+                    if Not screen.rowFinishedLoading[row]
 
-                            for i = 1 to queue
+                        if selection > screen.rowLoadedCount[row] - screen.rowPageEdge
+                            ' Queue multiple loads to Catch up to Current Selection
+                            if selection > screen.rowLoadedCount[row] + screen.rowPageSize
+                                queue = Int((selection - screen.rowLoadedCount[row]) / screen.rowPageSize) + 1
+
+                                for i = 1 to queue
+
+                                    if row = 0
+                                        tvShowList = TvMetadata.GetShowList(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        screen.LoadRowContent(row, tvShowList, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                                    else if row = 1
+                                        tvShowNextUp = TvMetadata.GetNextUp(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        screen.LoadRowContent(row, tvShowNextUp, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                                    else if row = 2
+                                        tvShowGenres = TvMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        screen.LoadRowContent(row, tvShowGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                                    end if
+
+                                end for
+
+                            ' Otherwise Load As Selection Reaches Edge
+                            else
 
                                 if row = 0
                                     tvShowList = TvMetadata.GetShowList(screen.rowLoadedCount[row], screen.rowPageSize)
@@ -108,35 +129,19 @@ Function ShowTVShowListPage() As Integer
 
                                 end if
 
-                            end for
-
-                        ' Otherwise Load As Selection Reaches Edge
-                        else
-
-                            if row = 0
-                                tvShowList = TvMetadata.GetShowList(screen.rowLoadedCount[row], screen.rowPageSize)
-                                screen.LoadRowContent(row, tvShowList, screen.rowLoadedCount[row], screen.rowPageSize)
-
-                            else if row = 1
-                                tvShowNextUp = TvMetadata.GetNextUp(screen.rowLoadedCount[row], screen.rowPageSize)
-                                screen.LoadRowContent(row, tvShowNextUp, screen.rowLoadedCount[row], screen.rowPageSize)
-
-                            else if row = 2
-                                tvShowGenres = TvMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
-                                screen.LoadRowContent(row, tvShowGenres, screen.rowLoadedCount[row], screen.rowPageSize)
-
                             end if
 
                         end if
 
                     end if
 
+                    ' Show/Hide Description Popup
+                    if RegRead("prefTVDisplayPopup") = "yes" then
+                        screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                    end if
+
                 end if
 
-                ' Show/Hide Description Popup
-                If RegRead("prefTVDisplayPopup") = "yes" Then
-                    screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
-                End If
             else if msg.isListItemSelected() Then
                 row = msg.GetIndex()
                 selection = msg.getData()

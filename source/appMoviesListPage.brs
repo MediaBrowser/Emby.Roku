@@ -84,17 +84,43 @@ Function ShowMoviesListPage() As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                if Not screen.rowFinishedLoading[row]
+                if screen.rowFinishedLoading[row] <> invalid
 
-                    if selection > screen.rowLoadedCount[row] - screen.rowPageEdge
-                        ' Queue multiple loads to Catch up to Current Selection
-                        if selection > screen.rowLoadedCount[row] + screen.rowPageSize
-                            queue = Int((selection - screen.rowLoadedCount[row]) / screen.rowPageSize) + 1
+                    if Not screen.rowFinishedLoading[row]
 
-                            queueTimer = CreateObject("roTimespan")
-                            queueTimer.Mark()
+                        if selection > screen.rowLoadedCount[row] - screen.rowPageEdge
+                            ' Queue multiple loads to Catch up to Current Selection
+                            if selection > screen.rowLoadedCount[row] + screen.rowPageSize
+                                queue = Int((selection - screen.rowLoadedCount[row]) / screen.rowPageSize) + 1
 
-                            for i = 1 to queue
+                                queueTimer = CreateObject("roTimespan")
+                                queueTimer.Mark()
+
+                                for i = 1 to queue
+
+                                    if row = 0
+                                        moviesList = MovieMetadata.GetMovieList(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        screen.LoadRowContent(row, moviesList, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                                    else if row = 1
+                                        moviesBoxsets = MovieMetadata.GetBoxsets(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                                    else if row = 2
+                                        moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                                    end if
+
+                                end for
+
+                                Print "Loaded Queued Items (ms): " + itostr(queueTimer.TotalMilliseconds()) 
+
+                            ' Otherwise Load As Selection Reaches Edge
+                            else
+
+                                nextPageTimer = CreateObject("roTimespan")
+                                nextPageTimer.Mark()
 
                                 if row = 0
                                     moviesList = MovieMetadata.GetMovieList(screen.rowLoadedCount[row], screen.rowPageSize)
@@ -110,42 +136,21 @@ Function ShowMoviesListPage() As Integer
 
                                 end if
 
-                            end for
-
-                            Print "Loaded Queued Items (ms): " + itostr(queueTimer.TotalMilliseconds()) 
-
-                        ' Otherwise Load As Selection Reaches Edge
-                        else
-
-                            nextPageTimer = CreateObject("roTimespan")
-                            nextPageTimer.Mark()
-
-                            if row = 0
-                                moviesList = MovieMetadata.GetMovieList(screen.rowLoadedCount[row], screen.rowPageSize)
-                                screen.LoadRowContent(row, moviesList, screen.rowLoadedCount[row], screen.rowPageSize)
-
-                            else if row = 1
-                                moviesBoxsets = MovieMetadata.GetBoxsets(screen.rowLoadedCount[row], screen.rowPageSize)
-                                screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
-
-                            else if row = 2
-                                moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
-                                screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+                                Print "Loaded Next Page (ms): " + itostr(nextPageTimer.TotalMilliseconds()) 
 
                             end if
-
-                            Print "Loaded Next Page (ms): " + itostr(nextPageTimer.TotalMilliseconds()) 
 
                         end if
 
                     end if
 
+                    ' Show/Hide Description Popup
+                    if RegRead("prefMovieDisplayPopup") = "yes" then
+                        screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                    end if
+
                 end if
 
-                ' Show/Hide Description Popup
-                if RegRead("prefMovieDisplayPopup") = "yes" then
-                    screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
-                end if
             else if msg.isListItemSelected() then
                 row = msg.GetIndex()
                 selection = msg.getData()
