@@ -43,18 +43,23 @@ Function ShowPreferencesPage()
             If msg.isListItemFocused() Then
 
             Else If msg.isListItemSelected() Then
-                prefName    = preferenceList[msg.GetIndex()].Id
-                shortTitle  = preferenceList[msg.GetIndex()].ShortTitle
-                itemOptions = preferenceFunctions[msg.GetIndex()]()
+                if preferenceList[msg.GetIndex()].ContentType = "exit"
+                    Debug("Close prefs screen")
+                    return false
+                else
+                    prefName    = preferenceList[msg.GetIndex()].Id
+                    shortTitle  = preferenceList[msg.GetIndex()].ShortTitle
+                    itemOptions = preferenceFunctions[msg.GetIndex()]()
 
-                ' Show Item Options Screen
-                ShowItemOptions(shortTitle, prefName, itemOptions)
+                    ' Show Item Options Screen
+                    ShowItemOptions(shortTitle, prefName, itemOptions)
 
-                ' Refresh Page
-                preferenceList = RefreshPreferencesPage(screen)
+                    ' Refresh Page
+                    preferenceList = RefreshPreferencesPage(screen)
 
-                ' Refocus Item
-                screen.SetFocusedItem(msg.GetIndex())
+                    ' Refocus Item
+                    screen.SetFocusedItem(msg.GetIndex())
+                end if
 
             Else If msg.isScreenClosed() Then
                 Debug("Close prefs screen")
@@ -76,6 +81,17 @@ Function ShowItemOptions(title As String, itemId As String, list As Object)
     ' Create List Screen
     screen = CreateListScreen("", "Preferences")
 
+    ' Back Button
+    if getGlobalVar("legacyDevice")
+        backButton = {
+            Title: ">> Back to Preferences <<",
+            ContentType: "exit",
+        }
+
+        list.Unshift( backButton )
+    end if
+
+
     ' Set Content
     screen.SetHeader(title)
     screen.SetContent(list)
@@ -91,13 +107,17 @@ Function ShowItemOptions(title As String, itemId As String, list As Object)
             If msg.isListItemFocused() Then
 
             Else If msg.isListItemSelected() Then
-                prefSelected = list[msg.GetIndex()].Id
+                if list[msg.GetIndex()].ContentType = "exit"
+                    return false
+                else
+                    prefSelected = list[msg.GetIndex()].Id
 
-                ' Save New Preference
-                RegWrite(itemId, prefSelected)
+                    ' Save New Preference
+                    RegWrite(itemId, prefSelected)
 
-                ' Close Screen
-                return false
+                    ' Close Screen
+                    return false
+                end if
 
             Else If msg.isScreenClosed() Then
                 return false
@@ -165,6 +185,7 @@ Function GetPreferenceList() as Object
             Title: "Video Quality: " + GetSelectedPreference(GetPreferenceVideoQuality(), RegRead("prefVideoQuality")),
             ShortTitle: "Video Quality",
             ID: "prefVideoQuality",
+            ContentType: "pref",
             ShortDescriptionLine1: "Select the quality of the video streams",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -173,6 +194,7 @@ Function GetPreferenceList() as Object
             Title: "Movie Image Type: " + GetSelectedPreference(GetPreferenceMovieImageType(), RegRead("prefMovieImageType")),
             ShortTitle: "Movie Image Type",
             ID: "prefMovieImageType",
+            ContentType: "pref",
             ShortDescriptionLine1: "Select from backdrop, poster, or thumb image",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -181,6 +203,7 @@ Function GetPreferenceList() as Object
             Title: "Movie Title: " + GetSelectedPreference(GetPreferenceMovieTitle(), RegRead("prefMovieTitle")),
             ShortTitle: "Movie Title",
             ID: "prefMovieTitle",
+            ContentType: "pref",
             ShortDescriptionLine1: "Show or hide the movie title below the movie image.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -189,6 +212,7 @@ Function GetPreferenceList() as Object
             Title: "Movies PopUp Bubble: " + GetSelectedPreference(GetPreferenceMovieDisplayPopup(), RegRead("prefMovieDisplayPopup")),
             ShortTitle: "Display PopUp Bubble for Movies",
             ID: "prefMovieDisplayPopup",
+            ContentType: "pref",
             ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -197,6 +221,7 @@ Function GetPreferenceList() as Object
             Title: "TV Series Image Type: " + GetSelectedPreference(GetPreferenceTVImageType(), RegRead("prefTVImageType")),
             ShortTitle: "TV Series Image Type",
             ID: "prefTVImageType",
+            ContentType: "pref",
             ShortDescriptionLine1: "Select from backdrop, poster, or thumb image",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -205,6 +230,7 @@ Function GetPreferenceList() as Object
             Title: "TV Series Title: " + GetSelectedPreference(GetPreferenceTVTitle(), RegRead("prefTVTitle")),
             ShortTitle: "TV Series Title",
             ID: "prefTVTitle",
+            ContentType: "pref",
             ShortDescriptionLine1: "Show or hide the tv series title below the tv series image.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -213,6 +239,7 @@ Function GetPreferenceList() as Object
             Title: "TV PopUp Bubble: " + GetSelectedPreference(GetPreferenceTVDisplayPopup(), RegRead("prefTVDisplayPopup")),
             ShortTitle: "Display PopUp Bubble For TV",
             ID: "prefTVDisplayPopup",
+            ContentType: "pref",
             ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -221,6 +248,7 @@ Function GetPreferenceList() as Object
             Title: "Play TV Theme Music: " + GetSelectedPreference(GetPreferenceTVThemeMusic(), RegRead("prefTVMusic")),
             ShortTitle: "Play TV Theme Music",
             ID: "prefTVMusic",
+            ContentType: "pref",
             ShortDescriptionLine1: "Play TV theme music while browsing a TV Series.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -229,6 +257,7 @@ Function GetPreferenceList() as Object
             Title: "Repeat TV Theme Music: " + GetSelectedPreference(GetPreferenceTVThemeMusicRepeat(), RegRead("prefTVMusicLoop")),
             ShortTitle: "Repeat TV Theme Music",
             ID: "prefTVMusicLoop",
+            ContentType: "pref",
             ShortDescriptionLine1: "Repeat TV theme music while browsing TV Series.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -237,6 +266,7 @@ Function GetPreferenceList() as Object
             Title: "Collection View: " + GetSelectedPreference(GetPreferenceCollectionView(), RegRead("prefCollectionView")),
             ShortTitle: "Collection View",
             ID: "prefCollectionView",
+            ContentType: "pref",
             ShortDescriptionLine1: "Select from backdrop, poster, or thumb image",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -245,6 +275,7 @@ Function GetPreferenceList() as Object
             Title: "Collection Title: " + GetSelectedPreference(GetPreferenceCollectionTitle(), RegRead("prefCollectionTitle")),
             ShortTitle: "Collection Title",
             ID: "prefCollectionTitle",
+            ContentType: "pref",
             ShortDescriptionLine1: "Show or hide the collection title.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -253,6 +284,7 @@ Function GetPreferenceList() as Object
             Title: "Collection PopUp Bubble: " + GetSelectedPreference(GetPreferenceCollectionPopup(), RegRead("prefCollectionPopup")),
             ShortTitle: "Display Collection PopUp Bubble",
             ID: "prefCollectionPopup",
+            ContentType: "pref",
             ShortDescriptionLine1: "Show Or Hide a PopUp bubble with extra information.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -261,6 +293,7 @@ Function GetPreferenceList() as Object
             Title: "Show Collections First Row: " + GetSelectedPreference(GetPreferenceCollectionsFirstRow(), RegRead("prefCollectionsFirstRow")),
             ShortTitle: "Show Collections First Row",
             ID: "prefCollectionsFirstRow",
+            ContentType: "pref",
             ShortDescriptionLine1: "Show collections on the first row of the home screen. (requires restart)",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -269,6 +302,7 @@ Function GetPreferenceList() as Object
             Title: "Use Enhanced Images: " + GetSelectedPreference(GetPreferenceEnhancedImages(), RegRead("prefEnhancedImages")),
             ShortTitle: "Use Enhanced Images",
             ID: "prefEnhancedImages",
+            ContentType: "pref",
             ShortDescriptionLine1: "Use Enhanced Images such as Cover Art.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -277,6 +311,7 @@ Function GetPreferenceList() as Object
             Title: "Use Media Indicators: " + GetSelectedPreference(GetPreferenceMediaIndicators(), RegRead("prefMediaIndicators")),
             ShortTitle: "Use Media Indicators",
             ID: "prefMediaIndicators",
+            ContentType: "pref",
             ShortDescriptionLine1: "Show or Hide media indicators such as played or percentage played.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
@@ -285,11 +320,23 @@ Function GetPreferenceList() as Object
             Title: "Check for Server Updates: " + GetSelectedPreference(GetPreferenceServerUpdates(), RegRead("prefServerUpdates")),
             ShortTitle: "Check Server Updates",
             ID: "prefServerUpdates",
+            ContentType: "pref",
             ShortDescriptionLine1: "Check for Media Browser Server updates on start up.",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         }
     ]
+
+    if getGlobalVar("legacyDevice")
+        backButton = {
+            Title: ">> Back to Home <<",
+            ContentType: "exit",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
+        }
+
+        preferenceList.Unshift( backButton )
+    end if
 
     return preferenceList
 End Function
