@@ -271,7 +271,7 @@ Function createServerConfigurationScreen(serverAddress As String) As Boolean
         ipAddress = createKeyboardScreen("Server Setup", "Enter Server IP Address")
 
         if ipAddress <> ""
-            portNumber = createKeyboardScreen("Server Setup", "Enter Server Port #")
+            portNumber = createKeyboardScreen("Server Setup", "Enter Server Port #", "8096")
         end if
 
         ' If they filled them both out, success, otherwise they cancelled
