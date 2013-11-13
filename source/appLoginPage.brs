@@ -25,8 +25,8 @@ Function ShowLoginPage()
         Title: "Select Server"
         ContentType: "server"
         ShortDescriptionLine1: "Select Server"
-        HDPosterUrl: "pkg://images/hd-preferences-lg.png",
-        SDPosterUrl: "pkg://images/sd-preferences-lg.png"
+        HDPosterUrl: "pkg://images/hd-switch-server.png",
+        SDPosterUrl: "pkg://images/sd-switch-server.png"
     }
 
     profiles.Push( switchServer )

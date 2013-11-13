@@ -141,8 +141,8 @@ Function createServerListScreen()
             ShortDescriptionLine1: serverList[i].address,
             Action: "select",
             Id: serverList[i].id,
-            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
-            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
+            HDBackgroundImageUrl: "pkg://images/hd-server-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-server-lg.png"
         }
 
         contentList.push( entry )
@@ -155,8 +155,8 @@ Function createServerListScreen()
             ShortDescriptionLine1: "Add a new server.",
             ShortDescriptionLine2: "You may have up to 3.",
             Action: "add",
-            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
-            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
+            HDBackgroundImageUrl: "pkg://images/hd-server-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-server-lg.png"
         }
 
         contentList.push( entry )
