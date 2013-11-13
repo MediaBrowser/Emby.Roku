@@ -47,6 +47,11 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
     ' Set Breadcrumbs
     o.Screen.SetBreadcrumbText(lastLocation, currentLocation)
 
+    ' Check for legacy devices to provide exit when they have no back button
+    if getGlobalVar("legacyDevice")
+        o.Screen.SetUpBehaviorAtTopRow("exit")
+    end if
+
     ' Setup Display Style
     o.Screen.SetGridStyle(style)
     o.Screen.SetDisplayMode("scale-to-fit")
