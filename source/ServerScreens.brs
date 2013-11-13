@@ -270,7 +270,7 @@ End Function
 Function createServerConfigurationScreen(serverAddress As String) As Boolean
 
     ' Show Keyboard for Server Name
-    serverName = createKeyboardScreen("Server Setup", "Enter Server Display Name")
+    serverName = createKeyboardScreen("Server Setup", "Display Name (ex. Home)")
 
     ' Check Server Name is filled out
     if serverName = ""
@@ -281,10 +281,10 @@ Function createServerConfigurationScreen(serverAddress As String) As Boolean
     if serverAddress = ""
 
         ' Show Keyboard for IP Address
-        ipAddress = createKeyboardScreen("Server Setup", "Enter Server IP Address")
+        ipAddress = createKeyboardScreen("Server Setup", "Server IP Address (ex. 192.168.1.100)")
 
         if ipAddress <> ""
-            portNumber = createKeyboardScreen("Server Setup", "Enter Server Port #", "8096")
+            portNumber = createKeyboardScreen("Server Setup", "Server Port #", "8096")
         end if
 
         ' If they filled them both out, success, otherwise they cancelled
