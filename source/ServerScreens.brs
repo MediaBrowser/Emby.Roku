@@ -71,6 +71,11 @@ Function createServerFirstRunSetupScreen()
     screen.AddButton(1, "Scan Network")
     screen.AddButton(2, "Manually Add Server")
 
+    ' Exit Button For Legacy Devices
+    if getGlobalVar("legacyDevice")
+        screen.AddButton(3, "Exit Channel")
+    end if
+
     ' Show Screen
     screen.Show() 
 
@@ -92,12 +97,15 @@ Function createServerFirstRunSetupScreen()
                     else
                         createDialog("No Server Found", "We were unable to find a server running on your local network. Please make sure your server is running or if you continue to have problems, manually add the server.", "Back")
                     end if
-                else
+                else if msg.GetIndex() = 2
                     serverSaved = createServerConfigurationScreen("")
                     if serverSaved
                         Debug("Saved Server - Close Server Setup Screen")
                         return true
                     end if
+                else
+                    Debug("Close Server Setup Screen")
+                    return false
                 end if
             else if msg.isScreenClosed()
                 Debug("Close Server Setup Screen")
@@ -152,6 +160,16 @@ Function createServerListScreen()
         }
 
         contentList.push( entry )
+    end if
+
+    ' Back Button For Legacy Devices
+    if getGlobalVar("legacyDevice")
+        backButton = {
+            Title: ">> Exit Channel <<",
+            Action: "exit"
+        }
+
+        contentList.Push( backButton )
     end if
 
     ' Set Header
@@ -214,6 +232,10 @@ Function createServerListScreen()
                         end if
 
                     end if
+
+                else if action = "exit"
+                    Debug("Close Server List")
+                    return -1
                 end if
 
             else if msg.isScreenClosed()
