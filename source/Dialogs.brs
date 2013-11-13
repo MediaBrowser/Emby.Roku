@@ -362,6 +362,38 @@ Function createFolderRipWarningDialog()
 End Function
 
 
+'******************************************************
+' Create Waiting Dialog
+'******************************************************
+
+Function createWaitingDialog(title As dynamic, message As dynamic) As Object
+    if not isstr(title) title = ""
+    if not isstr(message) message = ""
+
+    port = CreateObject("roMessagePort")
+    dialog = invalid
+
+    ' If no message text, only Create Single Line dialog
+    if message = ""
+        dialog = CreateObject("roOneLineDialog")
+    else
+        dialog = CreateObject("roMessageDialog")
+        dialog.SetText(message)
+    end if
+
+    dialog.SetMessagePort(port)
+
+    dialog.SetTitle(title)
+    dialog.ShowBusyAnimation()
+    dialog.Show()
+
+    return dialog
+End Function
+
+
+
+
+
 Function createContextMenuDialog() As Integer
     port   = CreateObject("roMessagePort")
     dialog = CreateObject("roMessageDialog")
