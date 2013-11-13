@@ -22,17 +22,31 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
 
     screen.AddRow(title, "portrait")
 
-    screen.ShowNames()
-
-    if RegRead("prefCollectionView") = "poster" then
-        screen.SetListPosterStyles(screen.rowStyles)
-    end if
-
     ' Initialize Collection Metadata
     CollectionMetadata = InitCollectionMetadata()
 
     ' Get Data
     collectionItems = CollectionMetadata.GetCollectionItems(parentId, 0, screen.rowPageSize)
+
+    ' Check to see if Data Loaded
+    if collectionItems = invalid
+        createDialog("Problem Loading Collection", "There was an problem while attempting to get the collection list from server. Please make sure your server is running and try again.", "Back")
+        return 0
+    end if
+
+    ' Check to see if there are entries
+    if collectionItems.TotalCount = 0
+        createDialog("No Items", "There were no items found in this collection.", "Back")
+        return 0
+    end if
+
+    ' Setup Row Names
+    screen.ShowNames()
+
+    ' Setup Row Styles
+    if RegRead("prefCollectionView") = "poster" then
+        screen.SetListPosterStyles(screen.rowStyles)
+    end if
 
     ' Load Paginated Data
     screen.LoadRowContent(0, collectionItems, 0, screen.rowPageSize)
@@ -60,36 +74,41 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                if Not screen.rowFinishedLoading[row]
+                if screen.rowFinishedLoading[row] <> invalid
 
-                    if selection > screen.rowLoadedCount[row] - screen.rowPageEdge
-                        ' Queue multiple loads to Catch up to Current Selection
-                        if selection > screen.rowLoadedCount[row] + screen.rowPageSize
-                            queue = Int((selection - screen.rowLoadedCount[row]) / screen.rowPageSize) + 1
+                    if Not screen.rowFinishedLoading[row]
 
-                            for i = 1 to queue
+                        if selection > screen.rowLoadedCount[row] - screen.rowPageEdge
+                            ' Queue multiple loads to Catch up to Current Selection
+                            if selection > screen.rowLoadedCount[row] + screen.rowPageSize
+                                queue = Int((selection - screen.rowLoadedCount[row]) / screen.rowPageSize) + 1
+
+                                for i = 1 to queue
+
+                                    collectionItems = CollectionMetadata.GetCollectionItems(parentId, screen.rowLoadedCount[row], screen.rowPageSize)
+                                    screen.LoadRowContent(row, collectionItems, screen.rowLoadedCount[row], screen.rowPageSize)
+
+                                end for
+
+                            ' Otherwise Load As Selection Reaches Edge
+                            else
 
                                 collectionItems = CollectionMetadata.GetCollectionItems(parentId, screen.rowLoadedCount[row], screen.rowPageSize)
                                 screen.LoadRowContent(row, collectionItems, screen.rowLoadedCount[row], screen.rowPageSize)
 
-                            end for
-
-                        ' Otherwise Load As Selection Reaches Edge
-                        else
-
-                            collectionItems = CollectionMetadata.GetCollectionItems(parentId, screen.rowLoadedCount[row], screen.rowPageSize)
-                            screen.LoadRowContent(row, collectionItems, screen.rowLoadedCount[row], screen.rowPageSize)
+                            end if
 
                         end if
 
                     end if
 
+                    ' Show/Hide Description Popup
+                    if RegRead("prefCollectionPopup") = "yes" then
+                        screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
+                    end if
+
                 end if
 
-                ' Show/Hide Description Popup
-                if RegRead("prefCollectionPopup") = "yes" then
-                    screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
-                end if
             else if msg.isListItemSelected() then
                 row = msg.GetIndex()
                 selection = msg.getData()
