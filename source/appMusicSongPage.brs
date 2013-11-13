@@ -25,6 +25,17 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
     totalDuration = GetTotalDuration(musicData.SongInfo)
 
     screen.SetHeader("Tracks (" + itostr(musicData.SongInfo.Count()) + ") - " + totalDuration)
+
+    ' Back Button For Legacy Devices
+    if getGlobalVar("legacyDevice")
+        backButton = {
+            Title: ">> Back <<",
+            ContentType: "exit",
+        }
+
+        musicData.SongInfo.Unshift( backButton )
+    end if
+
     screen.SetContent(musicData.SongInfo)
 
     ' Show Screen
@@ -103,10 +114,20 @@ Function ShowMusicSongPage(artistInfo As Object) As Integer
                 focusedItemIndex = msg.GetIndex()
 
             Else If msg.isListItemSelected() Then
-                player.Play(msg.GetIndex())
+                if musicData.SongInfo[msg.GetIndex()].ContentType = "exit"
+                    Debug("Close Music Album Screen")
+                    If player.IsPlaying Then
+                        player.Stop()
+                        postAudioPlayback(musicData.SongInfo[player.CurrentIndex].Id, "stop")
+                    End If
+
+                    return -1
+                else
+                    player.Play(msg.GetIndex())
+                end if
 
             Else If msg.isScreenClosed() Then
-                Print "close screen"
+                Debug("Close Music Album Screen")
                 If player.IsPlaying Then
                     player.Stop()
                     postAudioPlayback(musicData.SongInfo[player.CurrentIndex].Id, "stop")
