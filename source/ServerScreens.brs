@@ -86,7 +86,14 @@ Function createServerFirstRunSetupScreen()
 
             if msg.isButtonPressed()
                 if msg.GetIndex() = 1
+                    ' Create Waiting Dialog
+                    dialog = createWaitingDialog("Please Wait...", "Please wait while we scan your network for a running media browser server.")
+
+                    ' Scan Network
                     results = scanLocalNetwork()
+
+                    ' Close Dialog
+                    dialog.Close()
 
                     if results <> invalid
                         serverSaved = createServerConfigurationScreen(results)
@@ -210,8 +217,14 @@ Function createServerListScreen()
                 else if action = "add"
                     selection = createServerAddDialog()
                     if selection = 1
+                        ' Create Waiting Dialog
+                        dialog = createWaitingDialog("Please Wait...", "Please wait while we scan your network for a running media browser server.")
+
                         ' Scan Network
                         results = scanLocalNetwork()
+
+                        ' Close Dialog
+                        dialog.Close()
 
                         if results <> invalid
                             serverSaved = createServerConfigurationScreen(results)
