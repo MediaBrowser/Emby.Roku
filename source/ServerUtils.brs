@@ -114,58 +114,129 @@ Function findLocalServer() As Boolean
 End Function
 
 
+'******************************************************
+' Source: Plex Roku Client
+'         https://github.com/plexinc/roku-client-public
+' Return the first IP address of the Roku device
+'******************************************************
 
-
-
-
-
-
-
-
-
+Function GetFirstIPAddress()
+    device = CreateObject("roDeviceInfo")
+    addrs = device.GetIPAddrs()
+    addrs.Reset()
+    if addrs.IsNext() then
+        return addrs[addrs.Next()]
+    else
+        return invalid
+    end if
+End Function
 
 
 '******************************************************
+' Source: Plex Roku Client
+'         https://github.com/plexinc/roku-client-public
 ' Scan Network to find local MB Server through UDP
 '******************************************************
 
 Function scanLocalNetwork() As Dynamic
-    port = CreateObject("roMessagePort")
 
-    networkMessage = "who is MediaBrowserServer?"
-    networkAddress = "192.168.1.255"  ' Can only Do limited broadcast To LAN.
-    networkPort = 7359
+    ' Setup Broadcast message and port
+    broadcastMessage = "who is MediaBrowserServer?"
+    broadcastPort = 7359
 
-    remoteAddr = CreateObject("roSocketAddress")
-    remoteAddr.setAddress(networkAddress)
-    remoteAddr.setPort(networkPort)
+    success = false
+    attempts = 0
 
-    udp = CreateObject("roDatagramSocket")
-    udp.setSendToAddress(remoteAddr) ' peer IP and port
-    udp.setBroadcast(true)
-    udp.notifyReadable(true) 
+    ' Setup multicast fallback
+    multicast = "239.0.0.250"
+    ip = multicast
 
-    udp.setMessagePort(port) 'notifications for udp come to message port
-
-    udp.sendStr(networkMessage) ' Send message
-
-    continue = udp.eOK()
-    while continue
-        event = wait(500, port)
-        if type(event) = "roSocketEvent"
-            if event.getSocketID() = udp.getID()
-                if udp.isReadable()
-                    returnMessage = udp.receiveStr(512) ' max 512 characters
-                    udp.close()
-                    token = returnMessage.tokenize("|")
-                    return token[1]
-                end if
-            end if
-        else if event = invalid
-            udp.close()
-            return invalid
+    subnetRegex = CreateObject("roRegex", "((\d+)\.(\d+)\.(\d+)\.)(\d+)", "")
+    addr = GetFirstIPAddress()
+    if addr <> invalid then
+        match = subnetRegex.Match(addr)
+        if match.Count() > 0 then
+            ip = match[1] + "255"
+            Debug("Using broadcast address " + ip)
         end if
+    end if
+
+    ' Attempt multiple times in case sending message fails
+    while attempts < 10
+        ' Setup UDP
+        udp  = CreateObject("roDatagramSocket")
+        port = CreateObject("roMessagePort")
+        udp.setMessagePort(port)
+        udp.setBroadcast(true)
+
+        ' Loop multiple times to make send to address stick
+        for i = 0 to 5
+            addr = CreateObject("roSocketAddress")
+            addr.setHostName(ip)
+            addr.setPort(broadcastPort)
+            udp.setSendToAddress(addr)
+
+            sendTo = udp.getSendToAddress()
+            if sendTo <> invalid
+                sendToStr = tostr(sendTo.getAddress())
+                addrStr = tostr(addr.getAddress())
+                Debug("Send To Address: " + sendToStr + " / " + addrStr)
+                if sendToStr = addrStr
+                    exit for
+                end If
+            end if
+
+            Debug("Failed To Set Send To Address")
+        end for
+
+        udp.notifyReadable(true) 
+
+        ' Send Broadcast Message
+        bytes = udp.sendStr(broadcastMessage)
+
+        if bytes > 0
+            success = udp.eOK()
+        else
+            success = false
+            if bytes = 0
+                Debug("Falling back to multicast address")
+                ip = multicast
+                try = 0
+            end if
+        end if
+
+        if success
+            exit while
+        else if attempts = 9 AND ip <> multicast then
+            Debug("Falling back to multicast address")
+            ip = multicast
+            attempts = 0
+        else
+            sleep(500)
+            Debug("Retrying, errno " + tostr(udp.status()))
+            attempts = attempts + 1
+        end If
     end while
+
+    ' Only Do Event Loop If Successful Message Sent
+    if success
+        while true
+            msg = wait(5000, port)
+
+            if type(msg) = "roSocketEvent" And msg.getSocketID() = udp.getID() And udp.isReadable()
+                receivedMessage = udp.receiveStr(512) ' max 512 characters
+                Debug("Received Message: " + receivedMessage)
+                udp.close()
+                token = receivedMessage.tokenize("|")
+                return token[1]
+            else if msg = invalid
+                Debug("Cancel UDP Broadcast")
+                udp.close()
+                return invalid
+            end if
+        end while
+
+    end if
 
     return invalid
 End Function
