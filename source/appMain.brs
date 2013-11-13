@@ -78,9 +78,13 @@ Sub Main()
 
     else
         loginResult = ShowLoginPage()
-        if loginResult = true
-            ' Retry Login Check
+        if loginResult = 1
+            ' Go back to selected user
             Goto serverProfileMarker
+        else if loginResult = 2
+            ' Remove active server and go back to selection screen
+            RegDelete("serverActive")
+            Goto serverStartupMarker
         end if
     end if
 
