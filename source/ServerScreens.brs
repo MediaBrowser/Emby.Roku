@@ -175,7 +175,7 @@ Function createServerListScreen()
                 action = contentList[msg.GetIndex()].Action
 
                 if action = "select"
-                    serverId  = (contentList[msg.GetIndex()].Id).ToInt()
+                    serverId  = contentList[msg.GetIndex()].Id
                     selection = createServerSelectionDialog()
 
                     if selection = 1
