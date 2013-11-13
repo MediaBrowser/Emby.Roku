@@ -72,6 +72,9 @@ Function getAllUserProfiles() As Object
             ' Set the Id
             metaData.Id = i.Id
 
+            ' Set the Content Type
+            metaData.ContentType = "user"
+
             ' Set the Username
             metaData.Title = firstOf(i.Name, "Unknown")
             metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")

@@ -20,6 +20,17 @@ Function ShowLoginPage()
         return false
     end if
 
+    ' Add Server Tile (eventually move this)
+    switchServer = {
+        Title: "Select Server"
+        ContentType: "server"
+        ShortDescriptionLine1: "Select Server"
+        HDPosterUrl: "pkg://images/hd-preferences-lg.png",
+        SDPosterUrl: "pkg://images/sd-preferences-lg.png"
+    }
+
+    profiles.Push( switchServer )
+
     ' Set Content
     screen.SetContent(profiles)
 
@@ -33,30 +44,37 @@ Function ShowLoginPage()
             if msg.isListItemSelected() then
                 selectedProfile = profiles[msg.GetIndex()]
 
-                if selectedProfile.HasPassword
-                    ' Check User Password
-                    userPassed = ShowPasswordBox(selectedProfile.Id)
+                if selectedProfile.ContentType = "user"
 
-                    if userPassed = 1
+                    if selectedProfile.HasPassword
+                        ' Check User Password
+                        userPassed = ShowPasswordBox(selectedProfile.Id)
+
+                        if userPassed = 1
+                            RegWrite("userId", selectedProfile.Id)
+                            return 1
+
+                        else if userPassed = 2
+                            ShowPasswordFailed()
+
+                        end if
+
+                    else
                         RegWrite("userId", selectedProfile.Id)
-                        return true
-
-                    else if userPassed = 2
-                        ShowPasswordFailed()
-
+                        return 1
                     end if
 
                 else
-                    RegWrite("userId", selectedProfile.Id)
-                    return true
+                    return 2
+
                 end if
 
             else if msg.isScreenClosed() then
                 Debug("Close login screen")
-                return false
+                return 0
             end if
         end if
     end while
 
-    return false
+    return 0
 End Function
