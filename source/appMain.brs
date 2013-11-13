@@ -178,6 +178,13 @@ Sub initGlobals()
         GetGlobalAA().AddReplace("audioDTS", false)
     end if
 
+    ' Assume everything below major version of 4.0 To be a legacy device
+    if major < 4
+        GetGlobalAA().AddReplace("legacyDevice", true)
+    else
+        GetGlobalAA().AddReplace("legacyDevice", false)
+    end if
+
     ' Check if HDTV screen
     If device.GetDisplayType() = "HDTV" Then
         GetGlobalAA().AddReplace("isHD", true)
