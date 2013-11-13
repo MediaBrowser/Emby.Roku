@@ -681,11 +681,11 @@ Function tvmetadata_nextup(offset = invalid As Dynamic, limit = invalid As Dynam
                 ' Get Image Sizes
                 sizes = GetImageSizes("mixed-aspect-ratio-portrait")
 
-                if i.ParentArtItemId <> "" And i.ParentArtItemId <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.ParentArtItemId) + "/Images/Primary/0"
+                if i.SeriesPrimaryImageTag <> "" And i.SeriesPrimaryImageTag <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.SeriesId) + "/Images/Primary/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ParentArtItemId, i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ParentArtItemId, i.UserData.Played, PlayedPercentage)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.SeriesPrimaryImageTag, i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.SeriesPrimaryImageTag, i.UserData.Played, PlayedPercentage)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/items/collection.png"
