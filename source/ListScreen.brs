@@ -23,7 +23,11 @@ Function CreateListScreen(lastLocation As String, currentLocation As String) As 
     screen.Show           = ShowListScreen
 
     ' Set Breadcrumbs
-    screen.Screen.SetBreadcrumbText(lastLocation, currentLocation)
+    if getGlobalVar("legacyDevice")
+        screen.Screen.SetTitle(currentLocation)
+    else
+        screen.Screen.SetBreadcrumbText(lastLocation, currentLocation)
+    end if
 
     Return screen
 End Function
