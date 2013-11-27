@@ -222,6 +222,8 @@ Function getVideoMetadata(videoId As String) As Object
 
         if i.LocationType <> invalid
             metaData.LocationType = LCase(i.LocationType)
+        else
+            metaData.LocationType = "none"
         end If
 
         ' Set HD Flags
@@ -498,6 +500,8 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
                 end if
             end if
 
+        else
+            action = "transcode"
         end if
 
     else
@@ -567,7 +571,6 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
                     AudioCodec: "aac"
                     AudioBitRate: "128000"
                     AudioChannels: "2"
-                    AudioSampleRate: "44100"
                     AudioStreamIndex: itostr(audioStream)
                 }
 
@@ -578,7 +581,6 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
                 AudioCodec: "aac"
                 AudioBitRate: "128000"
                 AudioChannels: "2"
-                AudioSampleRate: "44100"
             }
 
             playbackInfo = playbackInfo + " Convert Audio"
@@ -643,7 +645,6 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
                     AudioCodec: "aac"
                     AudioBitRate: "128000"
                     AudioChannels: "2"
-                    AudioSampleRate: "44100"
                     AudioStreamIndex: itostr(audioStream)
                 }
             end if
@@ -652,7 +653,6 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
                 AudioCodec: "aac"
                 AudioBitRate: "128000"
                 AudioChannels: "2"
-                AudioSampleRate: "44100"
             }
         end if
 
