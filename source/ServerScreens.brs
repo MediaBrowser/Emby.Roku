@@ -227,6 +227,10 @@ Function createServerListScreen()
                         dialog.Close()
 
                         if results <> invalid
+                            ' Show Found Server Screen
+                            createServerFoundScreen(results)
+
+                            ' Show Server Configuration Screen
                             serverSaved = createServerConfigurationScreen(results)
                             if serverSaved
                                 Debug("Saved Server - Close Server List")
@@ -269,14 +273,6 @@ End Function
 
 Function createServerConfigurationScreen(serverAddress As String) As Boolean
 
-    ' Show Keyboard for Server Name
-    serverName = createKeyboardScreen("Server Setup", "Display Name (ex. Home)")
-
-    ' Check Server Name is filled out
-    if serverName = ""
-        return false
-    end if
-
     ' Show Manual Server Entry Keyboard Screens
     if serverAddress = ""
 
@@ -304,6 +300,14 @@ Function createServerConfigurationScreen(serverAddress As String) As Boolean
         return false
     end if
 
+    ' Show Keyboard for Server Name
+    serverName = createKeyboardScreen("Server Setup", "Display Name (ex. Home)")
+
+    ' Check Server Name is filled out
+    if serverName = ""
+        serverName = "Default Server"
+    end if
+
     ' Show Auto Connect Option
     'autoConnect = createAutoConnectScreen()
 
@@ -322,6 +326,43 @@ Function createServerConfigurationScreen(serverAddress As String) As Boolean
     return true
 End Function
 
+
+
+'**********************************************************
+'** Create Server Screen
+'**********************************************************
+
+Function createServerFoundScreen(serverAddress As String)
+
+    ' Create Paragraph Screen
+    screen = CreateParagraphScreen("Server Setup")
+
+    ' Set Content
+    screen.AddHeaderText("Server Found")
+    screen.AddParagraph("We were able to find a local server running on your network at the following address:")
+    screen.AddParagraph("")
+    screen.AddParagraph(serverAddress)
+    screen.AddButton(1, "Continue")
+
+    ' Show Screen
+    screen.Show() 
+
+    while true
+        msg = wait(0, screen.Port)
+
+        if type(msg) = "roParagraphScreenEvent"
+
+            if msg.isButtonPressed()
+                return true
+            else if msg.isScreenClosed()
+                return true
+            end if
+
+        end if
+    end while
+
+    return true
+End Function
 
 '******************************************************
 ' Create Auto Connect Screen
