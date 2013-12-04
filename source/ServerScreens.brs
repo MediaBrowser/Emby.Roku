@@ -96,6 +96,10 @@ Function createServerFirstRunSetupScreen()
                     dialog.Close()
 
                     if results <> invalid
+                        ' Show Found Server Screen
+                        createServerFoundScreen(results)
+
+                        ' Show Server Configuration Screen
                         serverSaved = createServerConfigurationScreen(results)
                         if serverSaved
                             Debug("Saved Server - Close Server Setup Screen")
