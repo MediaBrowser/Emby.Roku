@@ -2,6 +2,10 @@ MediaBrowser Roku
 
 Changelog
 
+1.16.5 - More bug fixes for legacy devices; Added server successfully found page;
+
+1.16.4 - Minor bug fixes for legacy devices;
+
 1.16.3 - Redesigned server configuration; Now allows multiple servers; Bug fixes;
 
 1.16.2 - Add mark/unmark played/favorite; Added favorite movies to home screen; Add music video support; Allow enhanced images on collections;
