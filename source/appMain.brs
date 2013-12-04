@@ -268,7 +268,7 @@ Sub initTheme()
         GridScreenLogoOffsetSD_Y: "20"
         GridScreenOverhangHeightSD: "83"
 
-        ListItemHighlightSD: "pkg:/images/sd-list-item.png"
+        'ListItemHighlightSD: "pkg:/images/sd-list-item.png"
 
 
         '*** Common Styles ****
@@ -289,7 +289,7 @@ Sub initTheme()
         ListItemText: "#dfdfdf"
         ListItemHighlightText: "#ffffff"
         ListScreenDescriptionText: "#9a9a9a"
-        ListScreenTitleColor: "#000000"
+        ListScreenTitleColor: "#ffffff"
         ListScreenHeaderText: "#ffffff"
 
         CounterTextLeft: brandingWhite
