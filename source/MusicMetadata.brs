@@ -604,8 +604,13 @@ Function musicmetadata_album_songs(albumId As String) As Object
             if i.AlbumId <> "" And i.AlbumId <> invalid
                 imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.AlbumId) + "/Images/Primary/0"
 
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.AlbumPrimaryImageTag)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.AlbumPrimaryImageTag)
+                if i.AlbumPrimaryImageTag <> "" And i.AlbumPrimaryImageTag <> invalid
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.AlbumPrimaryImageTag)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.AlbumPrimaryImageTag)
+                else
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight)
+                end if
 
             else 
                 metaData.HDPosterUrl = "pkg://images/items/collection.png"

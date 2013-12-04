@@ -262,10 +262,15 @@ End Function
 '** Build an Image URL
 '******************************************************
 
-Function BuildImage(url, w, h, tag, watched = false As Boolean, percentage = 0 As Integer, hideEnhanceImages = false As Boolean)
-    ' Clean Tag
-    tag   = HttpEncode(tag)
+Function BuildImage(url, w, h, tag = "", watched = false As Boolean, percentage = 0 As Integer, hideEnhanceImages = false As Boolean)   
     query = ""
+
+    ' Check for cache tag
+    if tag <> ""
+        ' Clean Tag
+        tag = HttpEncode(tag)
+        query = query + "&tag=" + tag
+    end if
 
     ' Use Media Indicators
     if RegRead("prefMediaIndicators") = "yes" Or RegRead("prefMediaIndicators") = invalid
@@ -289,7 +294,9 @@ Function BuildImage(url, w, h, tag, watched = false As Boolean, percentage = 0 A
         query = query + "&EnableImageEnhancers=false"
     end if
 
-    return url + "?quality=90&height=" + itostr(h) + "&width=" + itostr(w) + "&tag=" + tag + query
+
+
+    return url + "?quality=90&height=" + itostr(h) + "&width=" + itostr(w) + query
 End Function
 
 
