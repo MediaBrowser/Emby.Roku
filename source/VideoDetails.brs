@@ -218,7 +218,7 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
                 screen.AddButton(4, "Audio & Subtitles")
             end if
 
-            screen.AddButton(5, "More")
+            screen.AddButton(5, "More...")
 
         else if video.ContentType = "Video" Or video.ContentType = "MusicVideo" Or video.ContentType = "AdultVideo"
             if video.PlaybackPosition <> 0 then
