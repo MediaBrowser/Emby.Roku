@@ -220,7 +220,7 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
 
             screen.AddButton(5, "More")
 
-        else if video.ContentType = "Video" Or video.ContentType = "MusicVideo"
+        else if video.ContentType = "Video" Or video.ContentType = "MusicVideo" Or video.ContentType = "AdultVideo"
             if video.PlaybackPosition <> 0 then
                 screen.AddButton(1, "Resume playing")
                 screen.AddButton(2, "Play from beginning")

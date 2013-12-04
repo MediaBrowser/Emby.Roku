@@ -148,6 +148,9 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
                 else if screen.rowContent[row][selection].ContentType = "Video" then
                     ShowVideoDetails(screen.rowContent[row][selection].Id)
 
+                else if screen.rowContent[row][selection].ContentType = "AdultVideo" then
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
+
                 ' Trailer Content Type
 
                 else if screen.rowContent[row][selection].ContentType = "Trailer" then
