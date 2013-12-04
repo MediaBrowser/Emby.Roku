@@ -76,7 +76,9 @@ Function createStreamSelectionDialog(title, streams, startIndex = 0, showNone = 
         end if
     end for
 
-    dialog.AddButtonSeparator()
+    if Not getGlobalVar("legacyDevice")
+        dialog.AddButtonSeparator()
+    end if
 
     if foundMore then dialog.AddButton(-2, "More " + title + " Selections")
     dialog.AddButton(-1, "Cancel")
@@ -119,7 +121,11 @@ Function createPlaybackOptionsDialog(playbackPosition As Integer) As Integer
     ' Setup Buttons
     dialog.AddButton(1, "Resume playing")
     dialog.AddButton(2, "Play from beginning")
-    dialog.AddButtonSeparator()
+
+    if Not getGlobalVar("legacyDevice")
+        dialog.AddButtonSeparator()
+    end if
+
     dialog.AddButton(-1, "Cancel")
 
     dialog.Show()
@@ -173,7 +179,10 @@ Function createMoreVideoOptionsDialog(video As Object) As Integer
         dialog.AddButton(3, "Add Favorite")
     end if
 
-    dialog.AddButtonSeparator()
+    if Not getGlobalVar("legacyDevice")
+        dialog.AddButtonSeparator()
+    end if
+
     dialog.AddButton(-1, "Cancel")
 
     dialog.Show()
