@@ -520,8 +520,14 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
     if action = "direct"
         streamParams.url = GetServerBaseUrl() + "/Videos/" + metadata.Id + "/stream." + extension + "?static=true"
         streamParams.bitrate = metadata.streamBitrate
-        streamParams.quality = true
         streamParams.contentid = "x-direct"
+
+        ' Set Video Quality Depending Upon Display Type
+        if getGlobalVar("displayType") = "HDTV"
+            streamParams.quality = true
+        else
+            streamParams.quality = false
+        end if
 
         if extension = "mkv"
             metaData.StreamFormat = "mkv"
@@ -606,8 +612,14 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         ' Prepare Stream
         streamParams.url = request.GetUrl()
         streamParams.bitrate = metadata.streamBitrate
-        streamParams.quality = true
         streamParams.contentid = "x-streamcopy"
+
+        ' Set Video Quality Depending Upon Display Type
+        if getGlobalVar("displayType") = "HDTV"
+            streamParams.quality = true
+        else
+            streamParams.quality = false
+        end if
 
         metaData.StreamFormat = "hls"
         metaData.SwitchingStrategy = "no-adaptation"
@@ -677,7 +689,8 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         streamParams.url = request.GetUrl()
         streamParams.bitrate = videoBitrate
 
-        if videoBitrate > 700
+        ' Set Video Quality Depending Upon Display Type and Bitrate
+        if videoBitrate > 700 And getGlobalVar("displayType") = "HDTV"
             streamParams.quality = true
         else
             streamParams.quality = false
