@@ -18,7 +18,14 @@ Function ShowMusicListPage() As Integer
 
     screen.Categories(["Albums","Artists","Genres"])
 
+    ' Fetch Default Data
     musicData = MusicMetadata.GetAlbums()
+
+    if musicData = invalid
+        createDialog("Problem Loading Music Albums", "There was an problem while attempting to get the list of music albums from the server.", "Continue")
+    end if
+
+    ' Set Content
     screen.Screen.SetContentList(musicData)
 
     ' Show Screen
@@ -39,10 +46,22 @@ Function ShowMusicListPage() As Integer
                 ' Fetch Category (0 = Albums; 1 = Artists; 2 = Genres)
                 if category = 0
                     musicData = MusicMetadata.GetAlbums()
+                    if musicData = invalid
+                        createDialog("Problem Loading Music Albums", "There was an problem while attempting to get the list of music albums from the server.", "Continue")
+                    end if
+
                 else if category = 1
                     musicData = MusicMetadata.GetArtists()
+                    if musicData = invalid
+                        createDialog("Problem Loading Music Artists", "There was an problem while attempting to get the list of music artists from the server.", "Continue")
+                    end if
+
                 else if category = 2
                     musicData = MusicMetadata.GetGenres()
+                    if musicData = invalid
+                        createDialog("Problem Loading Music Genres", "There was an problem while attempting to get the list of music genres from the server.", "Continue")
+                    end if
+
                 else
                     musicData = []
                 end if

@@ -18,6 +18,12 @@ Function ShowMusicAlbumPage(artistInfo As Object) As Integer
     ' Get Default Data
     musicData = MusicMetadata.GetArtistAlbums(artistInfo.Title)
 
+    if musicData = invalid
+        createDialog("Problem Loading Music Albums", "There was an problem while attempting to get the list of music albums from the server.", "Back")
+        return 0
+    end if
+
+    ' Set Content
     screen.Screen.SetContentList(musicData)
 
     ' Show Screen
