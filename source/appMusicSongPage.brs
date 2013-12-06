@@ -166,6 +166,7 @@ End Function
 
 Function ShowSpeakerIcon(screen As Object, index As Integer, musicData As Object) As Integer
     musicData[index].HDSmallIconUrl = "pkg://images/items/SpeakerIcon.png"
+    musicData[index].SDSmallIconUrl = "pkg://images/items/SpeakerIcon.png"
 
     screen.SetContent(musicData)
     screen.Show()
@@ -180,6 +181,7 @@ End Function
 
 Function ShowPauseIcon(screen As Object, index As Integer, musicData As Object)
     musicData[index].HDSmallIconUrl = "pkg://images/items/PauseIcon.png"
+    musicData[index].SDSmallIconUrl = "pkg://images/items/PauseIcon.png"
 
     screen.SetContent(musicData)
     screen.Show()
@@ -192,6 +194,7 @@ End Function
 
 Function HideSpeakerIcon(screen As Object, index As Integer, musicData As Object, refreshScreen=invalid)
     musicData[index].HDSmallIconUrl = false
+    musicData[index].SDSmallIconUrl = false
 
     If refreshScreen<>invalid Then
         screen.SetContent(musicData)
