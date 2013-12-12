@@ -7,7 +7,7 @@
 '** Show Movies List Page
 '**********************************************************
 
-Function ShowCollectionPage(parentId As String, title As String) As Integer
+Function ShowCollectionPage(parentId As String, title As String, index As Integer) As Integer
 
     ' Create Facade Screen
     facade = CreateObject("roGridScreen")
@@ -31,13 +31,13 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
     ' Check to see if Data Loaded
     if collectionItems = invalid
         createDialog("Problem Loading Collection", "There was an problem while attempting to get the collection list from server. Please make sure your server is running and try again.", "Back")
-        return 0
+        return -1
     end if
 
     ' Check to see if there are entries
     if collectionItems.TotalCount = 0
         createDialog("No Items", "There were no items found in this collection.", "Back")
-        return 0
+        return -1
     end if
 
     ' Setup Row Names
@@ -48,6 +48,9 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
         screen.SetListPosterStyles(screen.rowStyles)
     end if
 
+    ' Set total count
+    screen.TotalCounts[0] = collectionItems.TotalCount
+
     ' Load Paginated Data
     screen.LoadRowContent(0, collectionItems, 0, screen.rowPageSize)
 
@@ -57,6 +60,13 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
     ' Close Facade Screen
     facade.Close()
 
+    ' Recreate Screen Index
+    if index <> 0
+        recreateIndex = index
+    else
+        recreateIndex = 0
+    end if
+
     ' Show/Hide Description Popup
     if RegRead("prefCollectionPopup") = "no" Or RegRead("prefCollectionPopup") = invalid then
         screen.SetDescriptionVisible(false)
@@ -64,6 +74,9 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
 
     ' Remote key id's for navigation
     remoteKeyStar = 10
+
+    ' Refocus Item
+    screen.SetFocusedListItem(0, recreateIndex)
 
     while true
         msg = wait(0, screen.Port)
@@ -142,7 +155,11 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
                 ' Folder Content Type
 
                 else if screen.rowContent[row][selection].ContentType = "Folder" then
-                    ShowCollectionPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title)
+                    recreateCollectionPage:
+                    recreateIndex = ShowCollectionPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title, recreateIndex)
+                    if recreateIndex >= 0
+                        Goto recreateCollectionPage
+                    end if
 
                 ' Video Content Type
                 else if screen.rowContent[row][selection].ContentType = "Video" then
@@ -160,6 +177,11 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
                     Debug("Unknown Type found")
                 end if
 
+                ' Recreate Grid Screen For Legacy devices
+                if getGlobalVar("legacyDevice")
+                    return Selection
+                end if 
+
             else if msg.isRemoteKeyPressed() then
                 index = msg.GetIndex()
 
@@ -173,5 +195,5 @@ Function ShowCollectionPage(parentId As String, title As String) As Integer
         end if
     end while
 
-    return 0
+    return -1
 End Function

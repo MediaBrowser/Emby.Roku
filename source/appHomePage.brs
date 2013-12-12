@@ -84,6 +84,9 @@ Function ShowHomePage()
     ' Hide Description Popup
     screen.SetDescriptionVisible(false)
 
+    ' Recreate Screen Index
+    recreateIndex = 0
+
     ' Check For Server Restart
     serverInfo = getServerInfo()
 
@@ -139,7 +142,11 @@ Function ShowHomePage()
                     ShowMusicListPage()
 
                 Else If screen.rowContent[row][selection].ContentType = "Collection" Then
-                    ShowCollectionPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title)
+                    recreateHomeCollectionPage:
+                    recreateIndex = ShowCollectionPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title, recreateIndex)
+                    if recreateIndex >= 0
+                        Goto recreateHomeCollectionPage
+                    end if
 
                 Else If screen.rowContent[row][selection].ContentType = "SwitchUser" Then
                     RegDelete("userId")
