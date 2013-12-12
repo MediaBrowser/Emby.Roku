@@ -35,14 +35,22 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
     o.SetListPosterStyles   = SetGridPosterStyles
     o.SetFocusedListItem    = SetGridFocusedItem
     o.Show                  = ShowGridScreen
+    o.RecreateScreen        = RecreateGridScreen
 
     o.rowNames              = []
     o.rowStyles             = []
     o.rowContent            = []
+    o.loadedContent         = []
     o.rowLoadedCount        = []
     o.rowFinishedLoading    = []
+    o.TotalCounts           = []
     o.rowPageSize           = 100
     o.rowPageEdge           = 25
+
+    ' Used For Re-Creating Grid
+    o.lastLocation          = lastLocation
+    o.currentLocation       = currentLocation
+    o.gridStyle             = style
 
     ' Set Breadcrumbs
     o.Screen.SetBreadcrumbText(lastLocation, currentLocation)
@@ -131,7 +139,7 @@ End Function
 '** Load Grid Row Content (Hide if no content)
 '**********************************************************
 
-Function LoadGridRowContent(rowIndex, rowData, offset, limit) As Boolean
+Function LoadGridRowContent(rowIndex, rowData, offset, limit, reload = false) As Boolean
     if rowData = invalid then
         rowData = {}
         rowData.Items = []
@@ -145,7 +153,9 @@ Function LoadGridRowContent(rowIndex, rowData, offset, limit) As Boolean
         end for
     else
         m.rowContent.push(rowData.Items)
+        'm.loadedContent = ShallowCopy(m.rowContent, 0)
     end if
+
 
     ' Setup Row Loaded count
     if m.rowLoadedCount[rowIndex] = invalid then m.rowLoadedCount[rowIndex] = 0
@@ -180,7 +190,7 @@ Function LoadGridRowContent(rowIndex, rowData, offset, limit) As Boolean
         Print "Loading Partial Data For Row: "; rowIndex
 
     end if
-    
+
     Return true
 End Function
 
@@ -219,6 +229,70 @@ End Function
 Function ShowGridScreen()
     m.screen.Show()
 End Function
+
+
+'**********************************************************
+'** Recreate Grid Screen
+'**********************************************************
+
+Function RecreateGridScreen(viewType, showPopup)
+    m.screen.Close()
+
+    ' Copy Old Data
+    rowContent      = m.loadedContent
+    rowLoadedCount  = m.rowLoadedCount
+    rowNames        = m.rowNames
+    rowTotalCounts  = m.TotalCounts
+    lastLocation    = m.lastLocation
+    currentLocation = m.currentLocation
+    gridStyle       = m.gridStyle
+
+    Print "loaded content: "; m.rowLoadedCount[0]
+
+    ' Destroy old screen
+    m.screen = invalid
+
+    ' Create New Grid screen
+    screen = CreateGridScreen(lastLocation, currentLocation, gridStyle)
+
+    rowIndex = 0
+    for each row in rowContent
+        screen.AddRow(rowNames[rowIndex], "portrait")
+        rowIndex = rowIndex + 1
+    end for
+
+    ' Setup Row Names
+    screen.ShowNames()
+
+    ' Setup Row Styles
+    if viewType = "poster" then
+        screen.SetListPosterStyles(screen.rowStyles)
+    end if
+
+    rowIndex = 0
+    for each row in rowContent
+        ' Load Data
+        rowData = {}
+        rowData.Items      = rowContent[rowIndex]
+        rowData.TotalCount = rowTotalCounts[rowIndex]
+
+        screen.LoadRowContent(rowIndex, rowData, 0, screen.rowPageSize, true)
+
+        'screen.UpdateRowContent(rowIndex, rowContent[rowIndex])
+        rowIndex = rowIndex + 1
+    end for
+
+    ' Show Screen
+    screen.Show()
+
+    ' Show/Hide Description Popup
+    if showPopup = "no" Or showPopup = invalid then
+        screen.SetDescriptionVisible(false)
+    end if
+
+    return screen
+End Function
+
 
 
 '**********************************************************
@@ -457,4 +531,31 @@ Function GetAlphabetPositions() As Object
     posArray[1] = rowTwoArray
 
     return posArray
+End Function
+
+
+Function ShallowCopy(array As Dynamic, depth = 0 As Integer) As Dynamic
+    If Type(array) = "roArray" Then
+        copy = []
+        For Each item In array
+            childCopy = ShallowCopy(item, depth)
+            If childCopy <> invalid Then
+                copy.Push(childCopy)
+            End If
+        Next
+        Return copy
+    Else If Type(array) = "roAssociativeArray" Then
+        copy = {}
+        For Each key In array
+            If depth > 0 Then
+                copy[key] = ShallowCopy(array[key], depth - 1)
+            Else
+                copy[key] = array[key]
+            End If
+        Next
+        Return copy
+    Else
+        Return array
+    End If
+    Return invalid
 End Function
