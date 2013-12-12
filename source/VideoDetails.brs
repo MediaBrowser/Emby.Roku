@@ -30,7 +30,7 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
     else if video.ContentType = "Movie"
         screen = CreateSpringboardScreen("Movies", video.Title, "movie")
 
-    else if video.ContentType = "Video" Or video.ContentType = "Trailer" Or video.ContentType = "MusicVideo"
+    else if video.ContentType = "Video" Or video.ContentType = "Trailer" Or video.ContentType = "MusicVideo" Or video.ContentType = "AdultVideo"
         screen = CreateSpringboardScreen("", video.Title, "movie")
 
     end if
