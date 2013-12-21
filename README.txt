@@ -2,6 +2,10 @@ MediaBrowser Roku
 
 Changelog
 
+1.16.7 - Fixed login problem introduced by latest server release;
+
+1.16.6 - Minor bug fixes for legacy devices;
+
 1.16.5 - More bug fixes for legacy devices; Added server successfully found page;
 
 1.16.4 - Minor bug fixes for legacy devices;
