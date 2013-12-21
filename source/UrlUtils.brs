@@ -300,6 +300,8 @@ Function http_post_from_string_with_timeout(val As String, seconds as Integer) A
             code = event.GetResponseCode()
             if code = 200
                 str = event.GetString()
+            else if code = 204
+                str = ""
             else
                 Debug("Failed Response with Error: " + itostr(code))
             end if
