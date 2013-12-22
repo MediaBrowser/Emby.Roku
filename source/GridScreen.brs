@@ -55,9 +55,16 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
     ' Set Breadcrumbs
     o.Screen.SetBreadcrumbText(lastLocation, currentLocation)
 
-    ' Check for legacy devices to provide exit when they have no back button
+    ' Check for legacy devices to provide exit when they have no back Button
+    ' Setup loading poster for current devices
     if getGlobalVar("legacyDevice")
         o.Screen.SetUpBehaviorAtTopRow("exit")
+    else
+        if style = "two-row-flat-landscape-custom" then
+            o.Screen.SetLoadingPoster("pkg://images/defaults/sd-loading-landscape.jpg", "pkg://images/defaults/hd-loading-landscape.jpg")
+        else if style = "mixed-aspect-ratio" then
+            o.Screen.SetLoadingPoster("pkg://images/defaults/sd-loading-poster.jpg", "pkg://images/defaults/hd-loading-poster.jpg")
+        end if
     end if
 
     ' Setup Display Style
