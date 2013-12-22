@@ -122,8 +122,8 @@ Function musicmetadata_albums() As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
 
             end if
 
@@ -203,8 +203,8 @@ Function musicmetadata_artists() As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
 
             end if
 
@@ -292,8 +292,8 @@ Function musicmetadata_genres() As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
 
             end if
 
@@ -397,8 +397,8 @@ Function musicmetadata_artist_albums(artistName As String) As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
 
             end if
 
@@ -502,8 +502,8 @@ Function musicmetadata_genre_albums(genreName As String) As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
 
             end if
 
@@ -613,8 +613,8 @@ Function musicmetadata_album_songs(albumId As String) As Object
                 end if
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
 
             end if
 

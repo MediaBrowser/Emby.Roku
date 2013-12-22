@@ -174,8 +174,8 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
 
                 end if
 
@@ -192,8 +192,8 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -210,8 +210,8 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -344,8 +344,8 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
 
                 end if
 
@@ -362,8 +362,8 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -380,8 +380,8 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -521,8 +521,8 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
 
                 end if
 
@@ -539,8 +539,8 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -557,8 +557,8 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -647,8 +647,8 @@ Function moviemetadata_resumable() As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
             end if
 
@@ -735,8 +735,8 @@ Function moviemetadata_latest() As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
             end if
 
@@ -824,8 +824,8 @@ Function moviemetadata_favorites() As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
             end if
 
@@ -921,8 +921,8 @@ Function moviemetadata_genres(offset = invalid As Dynamic, limit = invalid As Dy
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
 
                 end if
 
@@ -945,8 +945,8 @@ Function moviemetadata_genres(offset = invalid As Dynamic, limit = invalid As Dy
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -1094,8 +1094,8 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
 
                 end if
 
@@ -1112,8 +1112,8 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -1130,8 +1130,8 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 

@@ -90,8 +90,8 @@ Function collectionmetadata_collection_list() As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
             end if
 
@@ -253,8 +253,8 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
 
                 end if
 
@@ -271,8 +271,8 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -289,8 +289,8 @@ Function collectionmetadata_collection_items(parentId As String, offset = invali
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
