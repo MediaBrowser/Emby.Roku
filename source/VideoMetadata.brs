@@ -198,8 +198,8 @@ Function getVideoMetadata(videoId As String) As Object
                     chapterData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, c.ImageTag, false, 0, true)
 
                 else 
-                    chapterData.HDPosterUrl = "pkg://images/items/collection.png"
-                    chapterData.SDPosterUrl = "pkg://images/items/collection.png"
+                    chapterData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    chapterData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -250,8 +250,13 @@ Function getVideoMetadata(videoId As String) As Object
             metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
         else 
-            metaData.HDPosterUrl = "pkg://images/items/collection.png"
-            metaData.SDPosterUrl = "pkg://images/items/collection.png"
+            if i.Type = "Episode"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
+            else
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
+            end if
 
         end if
 

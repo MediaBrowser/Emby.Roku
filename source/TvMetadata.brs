@@ -161,8 +161,8 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
 
                 end if
 
@@ -179,8 +179,8 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -197,8 +197,8 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -311,8 +311,8 @@ Function tvmetadata_resumable() As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
             end if
 
@@ -424,8 +424,8 @@ Function tvmetadata_latest() As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
             end if
 
@@ -517,8 +517,8 @@ Function tvmetadata_favorites() As Object
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
 
                     else 
-                        metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                        metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                        metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                        metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                     end if
 
@@ -532,8 +532,8 @@ Function tvmetadata_favorites() As Object
                         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ParentBackdropImageTags[0], false, 0, true)
 
                     else 
-                        metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                        metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                        metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                        metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                     end if
 
@@ -688,8 +688,8 @@ Function tvmetadata_nextup(offset = invalid As Dynamic, limit = invalid As Dynam
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.SeriesPrimaryImageTag, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
 
                 end if
 
@@ -704,8 +704,8 @@ Function tvmetadata_nextup(offset = invalid As Dynamic, limit = invalid As Dynam
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -803,8 +803,8 @@ Function tvmetadata_genres(offset = invalid As Dynamic, limit = invalid As Dynam
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
 
                 end if
 
@@ -827,8 +827,8 @@ Function tvmetadata_genres(offset = invalid As Dynamic, limit = invalid As Dynam
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -1058,8 +1058,8 @@ Function tvmetadata_episodes(seasonId As String) As Object
                 metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage, true)
 
             else 
-                metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
             end if
 
@@ -1188,8 +1188,8 @@ Function tvmetadata_genre_show_list(genreName As String) As Object
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
 
                 end if
 
@@ -1206,8 +1206,8 @@ Function tvmetadata_genre_show_list(genreName As String) As Object
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
@@ -1224,8 +1224,8 @@ Function tvmetadata_genre_show_list(genreName As String) As Object
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
 
                 else 
-                    metaData.HDPosterUrl = "pkg://images/items/collection.png"
-                    metaData.SDPosterUrl = "pkg://images/items/collection.png"
+                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
 
                 end if
 
