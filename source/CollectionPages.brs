@@ -161,6 +161,13 @@ Function ShowCollectionPage(parentId As String, title As String, index As Intege
                         Goto recreateCollectionPage
                     end if
 
+                else if screen.rowContent[row][selection].ContentType = "PhotoFolder" then
+                    recreatePhotoCollectionPage:
+                    recreateIndex = ShowCollectionPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title, recreateIndex)
+                    if recreateIndex >= 0
+                        Goto recreatePhotoCollectionPage
+                    end if
+
                 ' Video Content Type
                 else if screen.rowContent[row][selection].ContentType = "Video" then
                     ShowVideoDetails(screen.rowContent[row][selection].Id)
