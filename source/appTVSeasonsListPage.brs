@@ -23,6 +23,11 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     ' Get Data
     seasonData = TvMetadata.GetSeasons(seriesInfo.Id)
 
+    if seasonData = invalid
+        createDialog("Problem Loading TV Seasons", "There was an problem while attempting to get the television seasons list from server. Please make sure your server is running and try again.", "Back")
+        return 0
+    end if
+
     seasonIds   = seasonData[0]
     seasonNames = seasonData[1]
 
