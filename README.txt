@@ -2,6 +2,8 @@ MediaBrowser Roku
 
 Changelog
 
+1.17 - Added support for photos; Bug fixes;
+
 1.16.7 - Fixed login problem introduced by latest server release;
 
 1.16.6 - Minor bug fixes for legacy devices;
