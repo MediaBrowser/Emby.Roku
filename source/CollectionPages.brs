@@ -162,11 +162,7 @@ Function ShowCollectionPage(parentId As String, title As String, index As Intege
                     end if
 
                 else if screen.rowContent[row][selection].ContentType = "PhotoFolder" then
-                    recreatePhotoCollectionPage:
-                    recreateIndex = ShowCollectionPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title, recreateIndex)
-                    if recreateIndex >= 0
-                        Goto recreatePhotoCollectionPage
-                    end if
+                    ShowCollectionPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title, recreateIndex)
 
                 ' Video Content Type
                 else if screen.rowContent[row][selection].ContentType = "Video" then
@@ -179,6 +175,11 @@ Function ShowCollectionPage(parentId As String, title As String, index As Intege
 
                 else if screen.rowContent[row][selection].ContentType = "Trailer" then
                     ShowVideoDetails(screen.rowContent[row][selection].Id)
+
+                ' Photo Content Type
+
+                else if screen.rowContent[row][selection].ContentType = "Photo" then
+                    ShowPhotoPage(screen.rowContent[row][selection].Id, parentId)
 
                 else 
                     Debug("Unknown Type found")

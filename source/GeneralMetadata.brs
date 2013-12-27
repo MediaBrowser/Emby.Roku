@@ -149,3 +149,90 @@ Function getUserProfile(userId As String) As Object
 
     return invalid
 End Function
+
+
+'**********************************************************
+'** Get Items within Collection
+'**********************************************************
+
+Function getPhotosInFolder(parentId As String,  photoId = "" As String) As Object
+    ' Validate Parameter
+    if validateParam(parentId, "roString", "getPhotosInFolder") = false return invalid
+
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+
+    ' Query
+    query = {
+        parentid: parentId
+        sortby: "SortName"
+        includeitemtypes: "Photo"
+        sortorder: "Ascending"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        contentList = CreateObject("roArray", 25, true)
+        jsonObj     = ParseJSON(response)
+
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response for Photos")
+            return invalid
+        end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
+        indexCount       = 0
+        indexSelected    = 0
+
+        for each i in jsonObj.Items
+            metaData = {}
+
+            ' Set the Content Type
+            metaData.ContentType = "Photo"
+
+            ' Set the Id
+            metaData.Id = i.Id
+
+            ' Set the display title
+            metaData.Title = firstOf(i.Name, "Unknown")
+
+            ' Build URL
+            imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0?quality=90"
+
+            if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                imageUrl = imageUrl + "&tag=" + HttpEncode(i.ImageTags.Primary)
+            end if
+
+            ' Set Image URL
+            metaData.Url = imageUrl
+
+            ' Check for selected image
+            if photoId <> "" And photoId = i.Id
+                indexSelected = indexCount
+            end if
+
+            ' Increment Index
+            indexCount = indexCount + 1
+
+            contentList.push( metaData )
+        end for
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+            SelectedIndex: indexSelected
+        }
+    else
+        Debug("Failed to Get Photos")
+    end if
+
+    return invalid
+End Function
