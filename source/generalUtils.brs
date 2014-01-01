@@ -262,7 +262,7 @@ End Function
 '** Build an Image URL
 '******************************************************
 
-Function BuildImage(url, w, h, tag = "", watched = false As Boolean, percentage = 0 As Integer, hideEnhanceImages = false As Boolean)   
+Function BuildImage(url, w, h, tag = "", watched = false As Boolean, percentage = 0 As Integer, hideEnhanceImages = false As Boolean, unplayed = 0 As Integer)   
     query = ""
 
     ' Check for cache tag
@@ -280,6 +280,10 @@ Function BuildImage(url, w, h, tag = "", watched = false As Boolean, percentage 
 
         if percentage <> 0
             query = query + "&PercentPlayed=" + itostr(percentage)
+        end if
+
+        if unplayed <> 0
+            query = query + "&UnplayedCount=" + itostr(unplayed)
         end if
     end if
 
