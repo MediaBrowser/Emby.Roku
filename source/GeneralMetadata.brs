@@ -211,6 +211,9 @@ Function getPhotosInFolder(parentId As String,  photoId = "" As String) As Objec
                 imageUrl = imageUrl + "&tag=" + HttpEncode(i.ImageTags.Primary)
             end if
 
+            ' Set Max Width/Height
+            imageUrl = imageUrl + "&maxwidth=1920&maxheight=1080"
+
             ' Set Image URL
             metaData.Url = imageUrl
 
