@@ -3,7 +3,7 @@
 '**********************************************************
 
 
-Function CreateGridScreen(lastLocation As String, currentLocation As String, style As String) As Object
+Function CreateGridScreen(lastLocation As String, currentLocation As String, style As String, port = invalid As Object) As Object
 
     ' Setup Border
     if style = "two-row-flat-landscape-custom" then
@@ -19,7 +19,10 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
     ' Setup Screen
     o = CreateObject("roAssociativeArray")
 
-    port = CreateObject("roMessagePort")
+    if port = invalid then
+        port = CreateObject("roMessagePort")
+    end if
+
     grid = CreateObject("roGridScreen")
     grid.SetMessagePort(port)
 
@@ -35,6 +38,7 @@ Function CreateGridScreen(lastLocation As String, currentLocation As String, sty
     o.SetListPosterStyles   = SetGridPosterStyles
     o.SetFocusedListItem    = SetGridFocusedItem
     o.Show                  = ShowGridScreen
+    o.Close                 = CloseGridScreen
     o.RecreateScreen        = RecreateGridScreen
 
     o.rowNames              = []
@@ -235,6 +239,15 @@ End Function
 
 Function ShowGridScreen()
     m.screen.Show()
+End Function
+
+
+'**********************************************************
+'** Close Grid Screen
+'**********************************************************
+
+Function CloseGridScreen()
+    m.screen.Close()
 End Function
 
 
