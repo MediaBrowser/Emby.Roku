@@ -3,12 +3,15 @@
 '**********************************************************
 
 
-Function CreatePosterScreen(lastLocation As String, currentLocation As String, style As String) As Object
+Function CreatePosterScreen(lastLocation As String, currentLocation As String, style As String, port = invalid As Object) As Object
 
     ' Setup Screen
     o = CreateObject("roAssociativeArray")
 
-    port   = CreateObject("roMessagePort")
+    if port = invalid then
+        port = CreateObject("roMessagePort")
+    end if
+
     poster = CreateObject("roPosterScreen")
     poster.SetMessagePort(port)
 
