@@ -3,16 +3,19 @@
 '**********************************************************
 
 
-Function createHomeView(port) As Object
+Function createHomeView(controller) As Object
 
     ' Setup Screen
     o = CreateObject("roAssociativeArray")
 
     ' Create Grid Screen
-    screen = CreateGridScreen("", getGlobalVar("user").Title, "two-row-flat-landscape-custom", port)
+    screen = CreateGridScreen("", getGlobalVar("user").Title, "two-row-flat-landscape-custom", controller.GetPort())
 
-    ' Setup Common Items
+    ' Setup Variables
     o.Screen         = screen
+    'o.VController     = controller
+
+    ' Setup Functions
     o.MessageHandler = homeMessageHandler
     o.Show           = homeShowView
     o.Close          = homeCloseView
@@ -30,16 +33,23 @@ Function homeMessageHandler(msg) As Dynamic
     if type(msg) = "roGridScreenEvent" then
 
         if msg.isListItemFocused() then
-            Print "Item focused"
 
         else if msg.isListItemSelected() then
             row = msg.GetIndex()
             selection = msg.getData()
-            Print "Item selected"
+
+            Debug("Content type: " + m.screen.rowContent[row][selection].ContentType)
+
+            if m.screen.rowContent[row][selection].ContentType = "MovieLibrary" then
+                Print "movie library selected"
+
+            end if
+
+
 
         else if msg.isScreenClosed() then
             Debug("Close home view")
-            m.Close()
+            'm.Controller.popScreen()
 
         end if
 
