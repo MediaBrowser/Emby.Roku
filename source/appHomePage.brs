@@ -9,6 +9,20 @@
 
 Function ShowHomePage()
 
+    'port = CreateObject("roMessagePort")
+    'v = createHomeView(port)
+    'v.Show()
+
+    controller = createController()
+    controller.startUp()
+    controller.eventLoop()
+    Print "after Event loop"
+
+    return false
+
+
+
+
     ' Create Grid Screen
     screen = CreateGridScreen("", getGlobalVar("user").Title, "two-row-flat-landscape-custom")
 

@@ -11,8 +11,8 @@ Sub Main()
     initGlobals()
 
     'Create facade screen
-    facade = CreateObject("roPosterScreen")
-    facade.Show()
+    'facade = CreateObject("roPosterScreen")
+    'facade.Show()
 
     ' Goto Marker
     serverStartupMarker:
@@ -55,6 +55,9 @@ Sub Main()
 
     end if
 
+    ' Setup Web Server
+    'initWebServer()
+
     ' Goto Marker
     serverProfileMarker:
 
@@ -70,12 +73,23 @@ Sub Main()
         end if
         
         GetGlobalAA().AddReplace("user", userProfile)
-        homeResult = ShowHomePage()
-        if homeResult = true
-            ' Retry Login Check
-            Goto serverProfileMarker
-        end if
 
+
+        '''''''''''''''''''''''''''''''''''''''''''''''''
+        controller = createController()
+        controller.startUp()
+        controller.eventLoop()
+        '''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+
+        'homeResult = ShowHomePage()
+        'if homeResult = true
+            ' Retry Login Check
+        '    Goto serverProfileMarker
+        'end if
+
+        Print "exit"
     else
         loginResult = ShowLoginPage()
         if loginResult = 1
@@ -172,7 +186,7 @@ Sub initGlobals()
     GetGlobalAA().AddReplace("rokuModelName", modelName)
 
     ' Check for DTS passthrough support
-    if modelName = "Roku 3"
+    if modelNumber = "4200X"
         GetGlobalAA().AddReplace("audioDTS", true)
     else
         GetGlobalAA().AddReplace("audioDTS", false)
@@ -332,3 +346,26 @@ Sub initTheme()
 
     app.SetTheme( theme )
 End Sub
+
+
+Sub initWebServer()
+    ' Initialize the web server
+    globals = CreateObject("roAssociativeArray")
+    globals.pkgname  = "Media Browser"
+    globals.maxRequestLength = 4000
+    globals.idletime = 60
+    globals.wwwroot = "tmp:/"
+    globals.index_name = "index.html"
+    globals.serverName = "Media Browser"
+    AddGlobals(globals)
+    MimeType()
+    HttpTitle()
+    ClassReply().AddHandler("/logs", ProcessLogsRequest)
+
+    webServer = InitServer({port: 8324})
+End Sub
+
+Function ProcessLogsRequest() As Boolean
+    Print "logs"
+    Return true
+End Function
