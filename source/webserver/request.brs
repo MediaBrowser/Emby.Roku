@@ -1,3 +1,31 @@
+ ' This code is adapted from the Roku SDK web_server example app.
+ ' Original notices from that example are copied below.
+
+ ' Roku Streaming Player Web Server
+ ' This code was heavily influenced by darkhttpd/1.7
+ ' The darkhttpd copyright notice is included below.
+
+ '
+ ' darkhttpd
+ ' copyright (c) 2003-2008 Emil Mikulic.
+ '
+ ' Permission to use, copy, modify, and distribute this software for any
+ ' purpose with or without fee is hereby granted, provided that the
+ ' above copyright notice and this permission notice appear in all
+ ' copies.
+ ' 
+ ' THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+ ' WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+ ' WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+ ' AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+ ' DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+ ' PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ ' TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ ' PERFORMANCE OF THIS SOFTWARE.
+ ' 
+
+ ' Adapted from C to Brightscript with mods by Roku, Inc.
+
 function ClassRequest()
     this = m.ClassRequest
     if this=invalid
@@ -9,10 +37,15 @@ function ClassRequest()
         ' members
         this.method   = invalid
         this.uri      = invalid
+        this.path     = invalid
+        this.query    = invalid
         this.protocol = invalid
         this.buf      = invalid
         this.fields   = invalid
         this.id       = 0
+        this.conn     = invalid
+        this.remote_addr = invalid
+        this.remote_port = invalid
         ' copied members
         this.range_begin       = 0
         this.range_end         = 0
@@ -52,6 +85,7 @@ function request_is_complete() as Boolean
 end function
 
 function request_parse(conn as Object) as Boolean
+    m.conn = conn
     lines = m.buf.tokenize(WinNL())
     operation = lines.RemoveHead()
     if operation<>invalid 
@@ -62,12 +96,37 @@ function request_parse(conn as Object) as Boolean
             m.protocol = Ucase(parts.RemoveHead())
             info(m,m.method + " '" + m.uri + "'")
             for each line in lines
-                av = line.tokenize(": ")
-                if av.count()=2 then m.fields[av.GetHead()] = av.GetTail()
+                sep = instr(1, line, ":")
+                if sep > 1 then
+                    name = left(line, sep-1)
+                    value = mid(line, sep+1).Trim()
+                    m.fields[name] = value
+                end if
             end for
             ' interpret some fields if present
             m.parseRange()
             m.parseConn(conn)
+
+            ' parse query string if present
+            m.query = CreateObject("roAssociativeArray")
+            parts = m.uri.tokenize("?")
+            if parts.count() = 2
+                m.path = parts.GetHead()
+                args = parts.GetTail().tokenize("&")
+                for each arg in args
+                    av = arg.tokenize("=")
+                    if av.count()=2 then m.query[UrlUnescape(av.GetHead())] = UrlUnescape(av.GetTail())
+                end for
+            else
+                m.path = m.uri
+            end if
+
+            ' note the remote address information
+            parts = conn.client.tokenize(":")
+            if parts.count() = 2
+                m.remote_addr = parts.GetHead()
+                m.remote_port = parts.GetTail()
+            end if
         else
             err(m,"invalid request: "+operation)
             m.ok = false
@@ -111,4 +170,3 @@ end function
 function request_process(conn as Object) as Boolean
     return m.parse(conn)
 end function
-

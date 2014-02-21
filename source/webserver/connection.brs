@@ -1,3 +1,31 @@
+ ' This code is adapted from the Roku SDK web_server example app.
+ ' Original notices from that example are copied below.
+
+ ' Roku Streaming Player Web Server
+ ' This code was heavily influenced by darkhttpd/1.7
+ ' The darkhttpd copyright notice is included below.
+
+ '
+ ' darkhttpd
+ ' copyright (c) 2003-2008 Emil Mikulic.
+ '
+ ' Permission to use, copy, modify, and distribute this software for any
+ ' purpose with or without fee is hereby granted, provided that the
+ ' above copyright notice and this permission notice appear in all
+ ' copies.
+ ' 
+ ' THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+ ' WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+ ' WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+ ' AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+ ' DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+ ' PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ ' TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ ' PERFORMANCE OF THIS SOFTWARE.
+ ' 
+
+ ' Adapted from C to Brightscript with mods by Roku, Inc.
+
 function ClassConnection()
     ' initializes static members once
     this = m.ClassConnection
@@ -10,6 +38,7 @@ function ClassConnection()
         this.SEND_HEADER        = 2 ' sending generated header
         this.SEND_REPLY         = 3 ' sending reply
         this.DONE               = 4 ' reply sent, close or reuse as indicated
+        this.WAITING            = 5
         this.BUFSIZE            = 65536
         this.MAX_REQUEST_LENGTH = 4000
         ' copy-initializable members
@@ -137,7 +166,11 @@ function connection_poll_receive_request(server as Object)
         if m.request.process(m)
             m.reply = InitReply(m.request)
             m.reply.process()
-            m.setState(m.SEND_HEADER)
+            if m.reply.isWaiting()
+                m.setState(m.WAITING)
+            else
+                m.setState(m.SEND_HEADER)
+            end if
         else
             m.setState(m.DONE)
             m.close = true
@@ -204,4 +237,3 @@ function connection_log()
         print m.last_active.totalSeconds(); " client:"; m.client; " meth:"; m.method; " uri:"; m.uri; " code:"; m.code; " sent:"; m.total_sent; " referer:"; m.referer; " user agent:"; m.user_agent
     end if
 end function
-
