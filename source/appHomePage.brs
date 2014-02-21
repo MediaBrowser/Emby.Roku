@@ -13,12 +13,12 @@ Function ShowHomePage()
     'v = createHomeView(port)
     'v.Show()
 
-    controller = createController()
-    controller.startUp()
-    controller.eventLoop()
-    Print "after Event loop"
+    'controller = createController()
+    'controller.startUp()
+    'controller.eventLoop()
+    'Print "after Event loop"
 
-    return false
+    'return false
 
 
 

@@ -11,8 +11,8 @@ Sub Main()
     initGlobals()
 
     'Create facade screen
-    'facade = CreateObject("roPosterScreen")
-    'facade.Show()
+    facade = CreateObject("roPosterScreen")
+    facade.Show()
 
     ' Goto Marker
     serverStartupMarker:
@@ -76,20 +76,19 @@ Sub Main()
 
 
         '''''''''''''''''''''''''''''''''''''''''''''''''
-        controller = createController()
-        controller.startUp()
-        controller.eventLoop()
+        ' Comment Out For now
+        'controller = createController()
+        'controller.startUp()
+        'controller.eventLoop()
         '''''''''''''''''''''''''''''''''''''''''''''''''
 
-
-
-        'homeResult = ShowHomePage()
-        'if homeResult = true
+        homeResult = ShowHomePage()
+        if homeResult = true
             ' Retry Login Check
-        '    Goto serverProfileMarker
-        'end if
+            Goto serverProfileMarker
+        end if
 
-        Print "exit"
+        'Print "exit"
     else
         loginResult = ShowLoginPage()
         if loginResult = 1
