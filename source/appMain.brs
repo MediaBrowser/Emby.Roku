@@ -232,116 +232,156 @@ End Function
 
 Sub initTheme()
     app = CreateObject("roAppManager")
+    theme = CreateObject("roAssociativeArray")
     
     brandingWhite   = "#eeeeee"
     backgroundColor = "#504B4B"
 
     textColorWhite = "#ffffff"
     textColorBlack = "#000000"
-
-    theme = {
+    
+    rfTheme = RegRead("prefTheme")
+    if rfTheme = "dark" then 
+        GetGlobalAA().AddReplace("rf_theme_dir", "file://pkg:/images/dark/")
+        GetGlobalAA().AddReplace("rfBGcolor", "0F0F0F")
+    else 
+        GetGlobalAA().AddReplace("rf_theme_dir", "file://pkg:/images/")
+        GetGlobalAA().AddReplace("rfBGcolor", "504B4B")
+    end if
+    imageDir = GetGlobalAA().Lookup("rf_theme_dir")
+    
+    background = "#" + GetGlobalAA().Lookup("rfBGcolor")
+    titleText = "#BFBFBF"
+    normalText = "#999999"
+    detailText = "#74777A"
+    subtleText = "#525252"
+    
+    
 
         '*** HD Styles ****
-        OverhangSliceHD: "pkg:/images/overhang/hd-header-slice.png"
-        OverhangLogoHD: "pkg:/images/overhang/hd-logo.png"
-        OverhangOffsetHD_X: "80"
-        OverhangOffsetHD_Y: "30"
+        theme.OverhangSliceHD = imageDir + "overhang/hd-header-slice.png"
+        theme.OverhangLogoHD =  "pkg:/images/overhang/hd-logo.png"
+        theme.OverhangOffsetHD_X =  "80"
+        theme.OverhangOffsetHD_Y =  "30"
 
-        FilterBannerSliceHD: "pkg:/images/overhang/hd-filter-banner.png"
-        FilterBannerActiveHD: "pkg:/images/overhang/hd-filter-active.png"
-        FilterBannerInactiveHD: "pkg:/images/overhang/hd-filter-inactive.png"
+        theme.FilterBannerSliceHD =  imageDir + "overhang/hd-filter-banner.png"
+        theme.FilterBannerActiveHD =  imageDir + "overhang/hd-filter-active.png"
+        theme.FilterBannerInactiveHD =  imageDir + "overhang/hd-filter-inactive.png"
 
-        GridScreenLogoHD: "pkg:/images/overhang/hd-logo.png"
-        GridScreenOverhangSliceHD: "pkg:/images/overhang/hd-header-slice.png"
-        GridScreenLogoOffsetHD_X: "80"
-        GridScreenLogoOffsetHD_Y: "30"
-        GridScreenOverhangHeightHD: "124"
-        GridScreenFocusBorderHD: "pkg:/images/grid/hd-border-flat-landscape.png"
-        GridScreenBorderOffsetHD: "(-34,-19)"
-        GridScreenDescriptionImageHD: "pkg:/images/grid/hd-description-background.png"
-        'GridScreenDescriptionOffsetHD:"(150,205)"
+        theme.GridScreenLogoHD =  "pkg:/images/overhang/hd-logo.png"
+        theme.GridScreenOverhangSliceHD =  imageDir + "overhang/hd-header-slice.png"
+        theme.GridScreenLogoOffsetHD_X =  "80"
+        theme.GridScreenLogoOffsetHD_Y =  "30"
+        theme.GridScreenOverhangHeightHD =  "124"
+        theme.GridScreenFocusBorderHD =  imageDir + "grid/hd-border-flat-landscape.png"
+        theme.GridScreenBorderOffsetHD =  "(-34,-19)"
+        theme.GridScreenDescriptionImageHD =  "pkg:/images/grid/hd-description-background.png"
+        'theme.GridScreenDescriptionOffsetHD = "(150,205)"
 
-        ListItemHighlightHD: "pkg:/images/hd-list-item.png"
+        theme.ListItemHighlightHD =  imageDir + "hd-list-item.png"
 
 
         '*** SD Styles ****
 
-        OverhangSliceSD: "pkg:/images/overhang/sd-header-slice.png"
-        OverhangLogoSD: "pkg:/images/overhang/sd-logo.png"
-        OverhangOffsetSD_X: "20"
-        OverhangOffsetSD_Y: "20"
+        theme.OverhangSliceSD =  "pkg:/images/overhang/sd-header-slice.png"
+        theme.OverhangLogoSD =  "pkg:/images/overhang/sd-logo.png"
+        theme.OverhangOffsetSD_X =  "20"
+        theme.OverhangOffsetSD_Y =  "20"
 
-        FilterBannerSliceSD: "pkg:/images/overhang/sd-filter-banner.png"
-        FilterBannerActiveSD: "pkg:/images/overhang/sd-filter-active.png"
-        FilterBannerInactiveSD: "pkg:/images/overhang/sd-filter-inactive.png"
+        theme.FilterBannerSliceSD =  "pkg:/images/overhang/sd-filter-banner.png"
+        theme.FilterBannerActiveSD =  "pkg:/images/overhang/sd-filter-active.png"
+        theme.FilterBannerInactiveSD =  "pkg:/images/overhang/sd-filter-inactive.png"
 
-        GridScreenLogoSD: "pkg:/images/overhang/sd-logo.png"
-        GridScreenOverhangSliceSD: "pkg:/images/overhang/sd-header-slice.png"
-        GridScreenLogoOffsetSD_X: "20"
-        GridScreenLogoOffsetSD_Y: "20"
-        GridScreenOverhangHeightSD: "83"
+        theme.GridScreenLogoSD =  "pkg:/images/overhang/sd-logo.png"
+        theme.GridScreenOverhangSliceSD =  "pkg:/images/overhang/sd-header-slice.png"
+        theme.GridScreenLogoOffsetSD_X =  "20"
+        theme.GridScreenLogoOffsetSD_Y =  "20"
+        theme.GridScreenOverhangHeightSD =  "83"
 
-        'ListItemHighlightSD: "pkg:/images/sd-list-item.png"
+        'theme.ListItemHighlightSD =  "pkg:/images/sd-list-item.png"
 
 
         '*** Common Styles ****
 
-        BackgroundColor: backgroundColor
+        theme.BackgroundColor =  background
 
-        BreadcrumbTextLeft: "#dfdfdf"
-        BreadcrumbTextRight: "#eeeeee"
-        BreadcrumbDelimiter: "#eeeeee"
+        theme.BreadcrumbTextLeft =  normaltext
+        theme.BreadcrumbTextRight =  titletext
+        theme.BreadcrumbDelimiter =  titletext
 
-        ParagraphHeaderText: "#ffffff"
-        ParagraphBodyText: "#dfdfdf"
+        theme.ParagraphHeaderText =  titletext
+        theme.ParagraphBodyText =  normaltext
+        
+        if rfTheme = "dark" then 
+          theme.ThemeType = "generic-dark"
+          theme.DialogTitleText="#000000" ' header should be bold and black
+          theme.DialogBodyText="#222222"  ' text should not be too light or to dark
+          theme.ButtonNormalColor = "#333333" 'normalText
+        else
+          theme.DialogTitleText="#000000" ' header should be bold and black
+          theme.DialogBodyText="#222222"  ' text should not be too light or to dark
+          theme.ButtonNormalColor = normalText
+        end if
 
-        PosterScreenLine1Text: "#ffffff"
-        PosterScreenLine2Text: "#9a9a9a"
-        EpisodeSynopsisText: "#dfdfdf"
+        if rfTheme = "dark" then 
+          theme.TextScreenBodyText = "#f0f0f0"
+          theme.TextScreenBodyBackgroundColor = "#111111"
+          theme.TextScreenScrollBarColor = "#a0a0a0"
+          theme.TextScreenScrollThumbColor = "#f0f0f0"
+        else 
+          theme.TextScreenBodyText = "#f0f0f0"
+          theme.TextScreenBodyBackgroundColor = "#111111"
+          theme.TextScreenScrollBarColor = "#a0a0a0"
+          theme.TextScreenScrollThumbColor = "#f0f0f0"
+        end if
+    
+    
+        theme.PosterScreenLine1Text =  titletext
+        theme.PosterScreenLine2Text =  normaltext
+        theme.EpisodeSynopsisText =  normaltext
 
-        ListItemText: "#dfdfdf"
-        ListItemHighlightText: "#ffffff"
-        ListScreenDescriptionText: "#9a9a9a"
-        ListScreenTitleColor: "#ffffff"
-        ListScreenHeaderText: "#ffffff"
+        theme.ListItemText =  normaltext
+        theme.ListItemHighlightText =  titletext
+        theme.ListScreenDescriptionText =  normaltext
+        theme.ListScreenTitleColor =  titletext
+        theme.ListScreenHeaderText =  titletext
 
-        CounterTextLeft: brandingWhite
-        CounterTextRight: brandingWhite
-        CounterSeparator: brandingWhite
+        theme.CounterTextLeft =  titletext
+        theme.CounterTextRight =  normaltext
+        theme.CounterSeparator =  normaltext
 
-        FilterBannerActiveColor: "#ffffff"
-        FilterBannerInactiveColor: "#cccccc"
-        FilterBannerSideColor: "#cccccc"
+        theme.FilterBannerActiveColor =  titletext
+        theme.FilterBannerInactiveColor =  subtletext
+        theme.FilterBannerSideColor =  subtletext
 
-        GridScreenBackgroundColor: backgroundColor
-        GridScreenListNameColor: brandingWhite
-        GridScreenDescriptionTitleColor: "#1E1E1E"
-        GridScreenDescriptionDateColor: "#1E1E1E"
+        theme.GridScreenBackgroundColor =  background
+        theme.GridScreenRetrievingColor =  subtleText
+        theme.GridScreenListNameColor =  titletext
+        theme.GridScreenDescriptionTitleColor =  titletext
+        theme.GridScreenDescriptionDateColor =  titletext
 
-        SpringboardActorColor: "#9a9a9a"
+        theme.SpringboardActorColor =  titletext
 
-        SpringboardAlbumColor: "#ffffff"
-        SpringboardAlbumLabel: "#ffffff"
-        SpringboardAlbumLabelColor: "#ffffff"
+        theme.SpringboardAlbumColor =  titletext
+        theme.SpringboardAlbumLabel =  titletext
+        theme.SpringboardAlbumLabelColor =  detailtext
 
-        'SpringboardAllow6Buttons: false
+        'theme.SpringboardAllow6Buttons =  false
 
-        SpringboardArtistColor: "#ffffff"
-        SpringboardArtistLabel: "#ffffff"
-        SpringboardArtistLabelColor: "#ffffff"
+        theme.SpringboardArtistColor =  titletext
+        theme.SpringboardArtistLabel =  titletext
+        theme.SpringboardArtistLabelColor =  detailtext
 
-        SpringboardDirectorColor: "#ffffff"
-        SpringboardDirectorLabel: "#ffffff"
-        SpringboardDirectorLabelColor: "#ffffff"
-        SpringboardDirectorPrefixText: "#ffffff"
+        theme.SpringboardDirectorColor =  titletext
+        theme.SpringboardDirectorLabel =  detailtext
+        theme.SpringboardDirectorLabelColor =  titletext
+        theme.SpringboardDirectorPrefixText =  titletext
 
-        SpringboardGenreColor: "#ffffff"
-        SpringboardRuntimeColor: "#ffffff"
-        SpringboardSynopsisColor: "#dfdfdf"
-        SpringboardTitleText: "#ffffff"
-
-        'ThemeType: "generic-dark"
-    }
+        theme.SpringboardGenreColor =  normaltext
+        theme.SpringboardRuntimeColor =  normaltext
+        theme.SpringboardSynopsisColor =  normaltext
+        theme.SpringboardTitleText =  titletext
+    
 
     app.SetTheme( theme )
 End Sub
