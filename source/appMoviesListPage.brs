@@ -22,24 +22,39 @@ Function ShowMoviesListPage() As Integer
     else
         screen = CreateGridScreen("", "Movies", "two-row-flat-landscape-custom")
     end if
+    
+    ' Get Item Counts
+    mediaItemCounts = getMediaItemCounts()
 
     screen.AddRow("Movies", "portrait")
     screen.AddRow("Box Sets", "portrait")
+    if mediaItemCounts.TrailerCount > 0
+        screen.AddRow("Trailers", "portrait")
+    end if
     screen.AddRow("Genres", "portrait")
 
     ' Initialize Movie Metadata
     MovieMetadata = InitMovieMetadata()
-
+    ' Initialize Trailers Metadata
+    TrailersMetadata = InitTrailersMetadata()
+    
     ' Get Data
     moviesList = MovieMetadata.GetMovieList(0, screen.rowPageSize)
     if moviesList = invalid
-        createDialog("Problem Loading Movies", "There was an problem while attempting to get the movies list from server. Please make sure your server is running and try again.", "Back")
+        createDialog("Problem Loading Movies", "There was a problem while attempting to get the movies list from server. Please make sure your server is running and try again.", "Back")
         return 0
     end if
 
     moviesBoxsets = MovieMetadata.GetBoxsets(0, screen.rowPageSize)
     if moviesBoxsets = invalid
-        createDialog("Problem Loading Boxsets", "There was an problem while attempting to get the list of boxset movies from the server.", "Continue")
+        createDialog("Problem Loading Boxsets", "There was a problem while attempting to get the list of boxset movies from the server.", "Continue")
+    end if
+    
+    if mediaItemCounts.TrailerCount > 0
+        trailers = TrailersMetadata.GetTrailersList(0, screen.rowPageSize)
+        if trailers = invalid
+            createDialog("Problem Loading Trailers", "There was a problem while attempting to get the list of trailers from the server.", "Continue")
+        end if
     end if
 
     moviesGenres = MovieMetadata.GetGenres(0, screen.rowPageSize)
@@ -57,7 +72,8 @@ Function ShowMoviesListPage() As Integer
 
     screen.LoadRowContent(0, moviesList, 0, screen.rowPageSize)
     screen.LoadRowContent(1, moviesBoxsets, 0, screen.rowPageSize)
-    screen.LoadRowContent(2, moviesGenres, 0, screen.rowPageSize)
+    screen.LoadRowContent(2, trailers, 0, screen.rowPageSize)
+    screen.LoadRowContent(3, moviesGenres, 0, screen.rowPageSize)
 
     ' Show Screen
     screen.Show()
@@ -107,6 +123,10 @@ Function ShowMoviesListPage() As Integer
                                         screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                     else if row = 2
+                                        trailers  = TrailersMetadata.GetTrailersList(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        screen.LoadRowContent(row, trailers, screen.rowLoadedCount[row], screen.rowPageSize)
+                                    
+                                    else if row = 3
                                         moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
                                         screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
 
@@ -131,6 +151,11 @@ Function ShowMoviesListPage() As Integer
                                     screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                 else if row = 2
+                                    trailers  = TrailersMetadata.GetTrailersList(screen.rowLoadedCount[row], screen.rowPageSize)
+                                    screen.LoadRowContent(row, trailers, screen.rowLoadedCount[row], screen.rowPageSize)
+                                
+                                
+                                else if row = 3
                                     moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
                                     screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
 
@@ -166,6 +191,9 @@ Function ShowMoviesListPage() As Integer
                 else if screen.rowContent[row][selection].ContentType = "BoxSet" then
                     ShowMoviesBoxsetPage(screen.rowContent[row][selection].Id, screen.rowContent[row][selection].Title)
 
+                else if screen.rowContent[row][selection].ContentType = "Trailer" Then
+                    ShowVideoDetails(screen.rowContent[row][selection].Id)
+                    
                 else 
                     Debug("Unknown Type found")
                 end if
