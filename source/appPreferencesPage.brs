@@ -30,8 +30,6 @@ Function ShowPreferencesPage()
         GetPreferenceEnhancedImages,
         GetPreferenceMediaIndicators,
         GetPreferenceTheme,
-        GetPreferenceTrailers,
-        GetPreferenceServer,
         GetPreferenceServerUpdates
     ]
 
@@ -356,15 +354,6 @@ Function GetPreferenceList() as Object
             ID: "prefTheme",
             ContentType: "pref",
             ShortDescriptionLine1: "Select from dark or original (restart required)",
-            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
-            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
-        },
-        {
-            Title: "Media Browser Server: " + GetSelectedPreference(GetPreferenceServer(), RegRead("prefServer")),
-            ShortTitle: "Configure the server",
-            ID: "prefServer",
-            ContentType: "pref",
-            ShortDescriptionLine1: "Configure the Media Browser Server",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
@@ -749,23 +738,6 @@ Function GetPreferenceMediaIndicators() as Object
             Title: "Yes [default]",
             Id: "yes",
             IsDefault: true
-        }
-    ]
-
-    return prefOptions
-End Function
-
-Function GetPreferenceServer() as Object
-    prefOptions = [
-        {
-            Title: "Scan Network",
-            Id: "discover",
-            IsDefault: true
-        },
-        {
-            Title: "Manually Add Server",
-            Id: "manual",
-            IsDefault: false
         }
     ]
 
