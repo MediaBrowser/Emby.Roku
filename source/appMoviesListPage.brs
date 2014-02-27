@@ -72,8 +72,12 @@ Function ShowMoviesListPage() As Integer
 
     screen.LoadRowContent(0, moviesList, 0, screen.rowPageSize)
     screen.LoadRowContent(1, moviesBoxsets, 0, screen.rowPageSize)
-    screen.LoadRowContent(2, trailers, 0, screen.rowPageSize)
-    screen.LoadRowContent(3, moviesGenres, 0, screen.rowPageSize)
+    if mediaItemCounts.TrailerCount > 0
+        screen.LoadRowContent(2, trailers, 0, screen.rowPageSize)
+        screen.LoadRowContent(3, moviesGenres, 0, screen.rowPageSize)
+    else 
+        screen.LoadRowContent(2, moviesGenres, 0, screen.rowPageSize)
+    end if
 
     ' Show Screen
     screen.Show()
@@ -122,11 +126,15 @@ Function ShowMoviesListPage() As Integer
                                         moviesBoxsets = MovieMetadata.GetBoxsets(screen.rowLoadedCount[row], screen.rowPageSize)
                                         screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
 
-                                    else if row = 2
+                                    else if row = 2 and mediaItemCounts.TrailerCount > 0
                                         trailers  = TrailersMetadata.GetTrailersList(screen.rowLoadedCount[row], screen.rowPageSize)
                                         screen.LoadRowContent(row, trailers, screen.rowLoadedCount[row], screen.rowPageSize)
                                     
-                                    else if row = 3
+                                    else if row = 2 and mediaItemCounts.TrailerCount <= 0
+                                        moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+                                    
+                                    else if row = 3 and mediaItemCounts.TrailerCount > 0
                                         moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
                                         screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
 
@@ -150,12 +158,15 @@ Function ShowMoviesListPage() As Integer
                                     moviesBoxsets = MovieMetadata.GetBoxsets(screen.rowLoadedCount[row], screen.rowPageSize)
                                     screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
 
-                                else if row = 2
+                                else if row = 2 and mediaItemCounts.TrailerCount > 0
                                     trailers  = TrailersMetadata.GetTrailersList(screen.rowLoadedCount[row], screen.rowPageSize)
                                     screen.LoadRowContent(row, trailers, screen.rowLoadedCount[row], screen.rowPageSize)
                                 
-                                
-                                else if row = 3
+                                else if row = 2 and mediaItemCounts.TrailerCount <= 0
+                                    moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                                    screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
+                       
+                                else if row = 3 and mediaItemCounts.TrailerCount > 0
                                     moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
                                     screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
 

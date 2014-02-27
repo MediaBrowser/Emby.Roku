@@ -23,6 +23,8 @@ Function ClassMusicMetadata()
         this.GetArtistAlbums = musicmetadata_artist_albums
         this.GetGenreAlbums  = musicmetadata_genre_albums
         this.GetAlbumSongs   = musicmetadata_album_songs
+        this.GetLatest       = musicmetadata_latest
+        this.GetFavorites    = musicmetadata_favorites
 
         ' singleton
         m.ClassMusicMetadata = this
@@ -637,6 +639,205 @@ Function musicmetadata_album_songs(albumId As String) As Object
     return invalid
 End Function
 
+
+'**********************************************************
+'** Get Favorite Albums
+'**********************************************************
+
+Function musicmetadata_favorites() As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+
+    ' Query
+    query = {
+        limit: "10"
+        recursive: "true"
+        includeitemtypes: "MusicAlbum"
+        sortby: "SortName"
+        sortorder: "Ascending"
+        filters: "IsFavorite"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        contentList = CreateObject("roArray", 10, true)
+        jsonObj     = ParseJSON(response)
+
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response for Favorite Movies")
+            return invalid
+        end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
+
+        for each i in jsonObj.Items
+            metaData = {}
+
+            ' Set the Content Type
+            metaData.ContentType = "Album"
+
+            ' Set the Id
+            metaData.Id = i.Id
+
+            ' Set the display title
+            metaData.Title = firstOf(i.Name, "Unknown") ' Not even used
+            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
+
+            ' Get Image Sizes
+            sizes = GetImageSizes("two-row-flat-landscape-custom")
+
+            ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
+            if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
+
+            else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
+
+            else 
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
+
+            end if
+
+            contentList.push( metaData )
+        end for
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
+    else
+        Debug("Failed to Get Favorite Albums")
+    end if
+
+    return invalid
+End Function
+
+'**********************************************************
+'** Get Latest Music Albums
+'**********************************************************
+
+Function musicmetadata_latest() As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+
+    ' Query
+    query = {
+        limit: "10"
+        recursive: "true"
+        includeitemtypes: "MusicAlbum"
+        sortby: "DateCreated"
+        sortorder: "Descending"
+        filters: "IsUnplayed"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        contentList = CreateObject("roArray", 10, true)
+        jsonObj     = ParseJSON(response)
+
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response for Recently Added Movies")
+            return invalid
+        end if
+
+        totalRecordCount = jsonObj.TotalRecordCount
+
+        for each i in jsonObj.Items
+            metaData = {}
+
+            ' Set the Content Type
+            metaData.ContentType = "Album"
+
+            ' Set the Id
+            metaData.Id = i.Id
+            
+            ' Set the display title
+            metaData.Title = firstOf(i.Name, "Unknown")
+            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
+
+            ' Set the Song Count as Line 2 Display
+            if i.ChildCount <> invalid
+                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "song")
+            end if
+
+            ' Set the Artist Name
+            if i.AlbumArtist <> "" And i.AlbumArtist <> invalid
+                metaData.Artist = i.AlbumArtist
+            else if i.Artists[0] <> "" And i.Artists[0] <> invalid
+                metaData.Artist = i.Artists[0]
+            else
+                metaData.Artist = ""
+            end if
+
+            ' Set Played Percentage
+            if i.PlayedPercentage <> invalid
+                if i.PlayedPercentage <> 100
+                    PlayedPercentage = Int(i.PlayedPercentage)
+                else
+                    PlayedPercentage = 0
+                end if
+            else
+                PlayedPercentage = 0
+            end if
+
+            ' Get Image Sizes
+            sizes = GetImageSizes("two-row-flat-landscape-custom")
+
+            ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
+            if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
+
+            else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
+
+            else 
+                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
+                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
+
+            end if
+
+            contentList.push( metaData )
+        end for
+
+        return {
+            Items: contentList
+            TotalCount: totalRecordCount
+        }
+    else
+        Debug("Failed to Get Latest Albums")
+    end if
+
+    return invalid
+End Function
 
 '**********************************************************
 '** Post Audio Playback
