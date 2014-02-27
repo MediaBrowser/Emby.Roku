@@ -210,9 +210,10 @@ Function GetMoviesButtons() As Object
 
     ' Initialize Movie Metadata
     MovieMetadata = InitMovieMetadata()
+    imageDir = GetGlobalAA().Lookup("rf_theme_dir")
 
     If m.movieToggle = "latest" Then
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
+        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-latest.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
 
         ' Get Latest Unwatched Movies
@@ -223,7 +224,7 @@ Function GetMoviesButtons() As Object
         End if
 
     Else If m.movieToggle = "favorite" Then
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-favorites.png"
+        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-favorites.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-favorites.png"
 
         buttons.Append( switchButton )
@@ -235,7 +236,7 @@ Function GetMoviesButtons() As Object
         End if
 
     Else
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-resume.png"
+        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-resume.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-resume.png"
 
         ' Check For Resumable Movies, otherwise default to latest
@@ -247,7 +248,7 @@ Function GetMoviesButtons() As Object
             m.movieToggle = "latest"
 
             ' Override Image
-            switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
+            switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-latest.png"
             switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
 
             ' Get Latest Unwatched Movies
@@ -305,9 +306,10 @@ Function GetTVButtons() As Object
 
     ' Initialize TV Metadata
     TvMetadata = InitTvMetadata()
-
+    imageDir = GetGlobalAA().Lookup("rf_theme_dir")
+    
     If m.tvToggle = "latest" Then
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
+        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-tv-toggle-latest.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
 
         ' Get Latest Unwatched TV
@@ -316,9 +318,9 @@ Function GetTVButtons() As Object
             buttons.Append( switchButton )
             buttons.Append( recentTV.Items )
         End if
-
+        
     Else If m.tvToggle = "favorite" Then
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-favorites.png"
+        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-tv-toggle-favorites.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-favorites.png"
 
         buttons.Append( switchButton )
@@ -331,19 +333,19 @@ Function GetTVButtons() As Object
 
     Else
 
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-resume.png"
+        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-tv-toggle-nextup.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-resume.png"
 
-        ' Check For Resumable TV, otherwise default to latest
-        resumeTV = TvMetadata.GetResumable()
-        If resumeTV<>invalid And resumeTV.Items.Count() > 0
+        ' Check For NextUp TV, otherwise default to latest
+        nextUpTV = TvMetadata.GetNextUp()
+        If nextUpTV<>invalid And nextUpTV.Items.Count() > 0
             buttons.Append( switchButton )
-            buttons.Append( resumeTV.Items )
+            buttons.Append( nextUpTV.Items )
         Else
             m.tvToggle = "latest"
 
             ' Override Image
-            switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
+            switchButton[0].HDPosterUrl = imageDir + "tiles/hd-tv-toggle-latest.png"
             switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
 
             ' Get Latest Unwatched TV
@@ -365,10 +367,10 @@ End Function
 '**********************************************************
 
 Function GetNextTVToggle()
-    If m.tvToggle = "latest" Then
+   If m.tvToggle = "latest" Then
         m.tvToggle = "favorite"
     Else If m.tvToggle = "favorite" Then
-        m.tvToggle = "resume"
+        m.tvToggle = "nextup"
     Else
         m.tvToggle = "latest"
     End If

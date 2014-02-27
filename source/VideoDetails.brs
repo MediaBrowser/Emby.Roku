@@ -111,9 +111,36 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                     ' Refresh Details
                     video = RefreshVideoMetadata(videoId)
                     RefreshVideoDetails(screen, video)
+                    
+                ' Start Playing Trailer
+                else if msg.GetIndex() = 3
+                    ' Stop Audio before Playing Video
+                    if audioPlayer <> invalid And audioPlayer.IsPlaying
+                        Debug("Stop theme music")
+                        audioPlayer.Stop()
+                        sleep(300) ' Give enough time to stop music
+                    end if
+
+                    ' Warn for Folder Rips
+                    if video.videoType <> "videofile" And RegRead("warnFolderRips") = invalid
+                        RegWrite("warnFolderRips", "1")
+                        createFolderRipWarningDialog()
+                    end if
+
+                    options = {}
+                    options.playstart = 0
+
+                    ' Create Video Screen
+                    video.IsTrailer = true
+                    createVideoScreen(video, options)
+
+                    ' Refresh Details
+                    video = RefreshVideoMetadata(videoId)
+                    RefreshVideoDetails(screen, video)
+                
 
                 ' View Chapters
-                else if msg.GetIndex() = 3
+                else if msg.GetIndex() = 4
                     createVideoChapters(video, audioPlayer)
 
                     ' Refresh Details
@@ -121,7 +148,7 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                     RefreshVideoDetails(screen, video)
 
                 ' Audio & Subtitles
-                else if msg.GetIndex() = 4
+                else if msg.GetIndex() = 5
 
                     ' Create the Audio and Subtitle dialogs
                     options = createAudioAndSubtitleDialog(video.audioStreams, video.subtitleStreams, video.PlaybackPosition)
@@ -152,7 +179,7 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                     end if
 
                 ' More
-                else if msg.GetIndex() = 5
+                else if msg.GetIndex() = 6
 
                     ' Create More Video Options Dialog
                     optionSelected = createMoreVideoOptionsDialog(video)
@@ -212,13 +239,17 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
                 screen.AddButton(2, "Play")
             end if
 
-            screen.AddButton(3, "View Chapters")
+            if video.ContentType = "Movie" And video.LocalTrailerCount > 0
+                screen.AddButton(3, "Trailer")
+            endif
+            
+            screen.AddButton(4, "View Chapters")
 
             if video.audioStreams.Count() > 1 Or video.subtitleStreams.Count() > 0
-                screen.AddButton(4, "Audio & Subtitles")
+                screen.AddButton(5, "Audio & Subtitles")
             end if
 
-            screen.AddButton(5, "More...")
+            screen.AddButton(6, "More...")
 
         else if video.ContentType = "Video" Or video.ContentType = "MusicVideo" Or video.ContentType = "AdultVideo"
             if video.PlaybackPosition <> 0 then
