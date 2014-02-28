@@ -108,6 +108,9 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
             
             ' Set the Season count
             if i.SeasonCount <> invalid
+                if i.SeasonCount = 0
+                    i.SeasonCount = int(1)
+                end if
                 metaData.ShortDescriptionLine2 = Pluralize(i.SeasonCount, "season")
             end if
 
