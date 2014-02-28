@@ -139,16 +139,8 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                     RefreshVideoDetails(screen, video)
                 
 
-                ' View Chapters
-                else if msg.GetIndex() = 4
-                    createVideoChapters(video, audioPlayer)
-
-                    ' Refresh Details
-                    video = RefreshVideoMetadata(videoId)
-                    RefreshVideoDetails(screen, video)
-
                 ' Audio & Subtitles
-                else if msg.GetIndex() = 5
+                else if msg.GetIndex() = 4
 
                     ' Create the Audio and Subtitle dialogs
                     options = createAudioAndSubtitleDialog(video.audioStreams, video.subtitleStreams, video.PlaybackPosition)
@@ -179,7 +171,7 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                     end if
 
                 ' More
-                else if msg.GetIndex() = 6
+                else if msg.GetIndex() = 5
 
                     ' Create More Video Options Dialog
                     optionSelected = createMoreVideoOptionsDialog(video)
@@ -196,6 +188,9 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
 
                     else if optionSelected = 4
                         postFavoriteStatus(videoId, false) ' Remove Favorite
+                        
+                    else if optionSelected = 5 ' view chapters
+                        createVideoChapters(video, audioPlayer)
 
                     end if
 
@@ -242,14 +237,12 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
             if video.ContentType = "Movie" And video.LocalTrailerCount > 0
                 screen.AddButton(3, "Trailer")
             endif
-            
-            screen.AddButton(4, "View Chapters")
 
             if video.audioStreams.Count() > 1 Or video.subtitleStreams.Count() > 0
-                screen.AddButton(5, "Audio & Subtitles")
+                screen.AddButton(4, "Audio & Subtitles")
             end if
 
-            screen.AddButton(6, "More...")
+            screen.AddButton(5, "More...")
 
         else if video.ContentType = "Video" Or video.ContentType = "MusicVideo" Or video.ContentType = "AdultVideo"
             if video.PlaybackPosition <> 0 then
@@ -264,7 +257,7 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
 
         end if
 
-    end if
+    end if    
 
     ' Show Screen
     screen.SetContent(video)
