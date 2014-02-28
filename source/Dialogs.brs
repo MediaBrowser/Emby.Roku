@@ -178,6 +178,8 @@ Function createMoreVideoOptionsDialog(video As Object) As Integer
     else
         dialog.AddButton(3, "Add Favorite")
     end if
+    
+    dialog.AddButton(5, "View Chapters")
 
     if Not getGlobalVar("legacyDevice")
         dialog.AddButtonSeparator()
