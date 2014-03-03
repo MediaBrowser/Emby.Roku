@@ -167,8 +167,8 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage, false, UnplayedCount)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage, false, UnplayedCount)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, 0, false, UnplayedCount)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, 0, false, UnplayedCount)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
@@ -185,8 +185,8 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
                 if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage, false, UnplayedCount)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage, false, UnplayedCount)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, 0, false, UnplayedCount)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, 0, false, UnplayedCount)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
@@ -203,8 +203,8 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
                 if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage, false, UnplayedCount)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage, false, UnplayedCount)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
