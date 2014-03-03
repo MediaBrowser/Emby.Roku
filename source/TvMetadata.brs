@@ -875,16 +875,13 @@ Function tvmetadata_seasons(seriesId As String) As Object
     if validateParam(seriesId, "roString", "tvmetadata_seasons") = false return invalid
 
     ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+    url = GetServerBaseUrl() + "/Shows/" + HttpEncode(seriesId) + "/Seasons"
 
     ' Query
     query = {
-        parentid: seriesId
-        recursive: "true"
-        IncludeItemTypes: "Season"
-        ExcludeLocationTypes: "Virtual"
-        sortby: "SortName"
-        sortorder: "Ascending"
+        UserId: getGlobalVar("user").Id
+        IsMissing: "false"
+        IsVirtualUnaired: "false"
     }
 
     ' Prepare Request
@@ -931,22 +928,21 @@ End Function
 '** Get TV Episodes in a Season
 '**********************************************************
 
-Function tvmetadata_episodes(seasonId As String) As Object
+Function tvmetadata_episodes(seriesId As String, seasonId As String) As Object
     ' Validate Parameter
+    if validateParam(seriesId, "roString", "tvmetadata_episodes") = false return invalid
     if validateParam(seasonId, "roString", "tvmetadata_episodes") = false return invalid
 
     ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
+    url = GetServerBaseUrl() + "/Shows/" + HttpEncode(seriesId) + "/Episodes"
 
     ' Query
     query = {
-        parentid: seasonId
-        recursive: "true"
-        IncludeItemTypes: "Episode"
-        ExcludeLocationTypes: "Virtual"
+        UserId: getGlobalVar("user").Id
+        SeasonId: seasonId
+        IsMissing: "false"
+        IsVirtualUnaired: "false"
         fields: "SeriesInfo,Overview,MediaStreams,UserData"
-        sortby: "SortName"
-        sortorder: "Ascending"
     }
 
     ' Prepare Request

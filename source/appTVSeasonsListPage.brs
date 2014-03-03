@@ -35,7 +35,7 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     screen.SetListNames(seasonNames)
 
     ' Fetch Season 1/Specials
-    episodeData = TvMetadata.GetEpisodes(seasonIds[0])
+    episodeData = TvMetadata.GetEpisodes(seriesInfo.Id, seasonIds[0])
     screen.SetContentList(episodeData.Items)
     screen.SetFocusedList(0)
 
@@ -111,7 +111,7 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
                 screen.ShowMessage(loadingMsg + " " + seasonNames[msg.GetIndex()] + "...")
 
                 ' Fetch New Season
-                episodeData = TvMetadata.GetEpisodes(seasonIds[msg.GetIndex()])
+                episodeData = TvMetadata.GetEpisodes(seriesInfo.Id, seasonIds[msg.GetIndex()])
                 screen.SetContentList(episodeData.Items)
 
                 screen.ClearMessage()
