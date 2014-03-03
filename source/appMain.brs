@@ -58,12 +58,21 @@ Sub Main()
     ' Setup Web Server
     'initWebServer()
 
+    ' Set a login attempt
+    loginAttempt = false
+
     ' Goto Marker
     serverProfileMarker:
 
     ' Check to see if they have already selected a User
     ' Show home page if so, otherwise show login page.
     if RegRead("userId") <> invalid And RegRead("userId") <> ""
+
+        if (RegRead("prefRememberUser") = invalid Or RegRead("prefRememberUser") = "no") And loginAttempt = false
+            RegDelete("userId")
+            Goto serverProfileMarker
+        end if
+
         userProfile = getUserProfile(RegRead("userId"))
 
         ' If unable to get user profile, delete saved user and redirect to login
@@ -71,7 +80,7 @@ Sub Main()
             RegDelete("userId")
             Goto serverProfileMarker
         end if
-        
+
         GetGlobalAA().AddReplace("user", userProfile)
 
 
@@ -92,7 +101,8 @@ Sub Main()
     else
         loginResult = ShowLoginPage()
         if loginResult = 1
-            ' Go back to selected user
+            ' Go back to selected User
+            loginAttempt = true
             Goto serverProfileMarker
         else if loginResult = 2
             ' Remove active server and go back to selection screen

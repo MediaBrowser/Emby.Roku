@@ -27,6 +27,7 @@ Function ShowPreferencesPage()
         GetPreferenceCollectionTitle,
         GetPreferenceCollectionPopup,
         GetPreferenceCollectionsFirstRow,
+        GetPreferenceRememberUser,
         GetPreferenceEnhancedImages,
         GetPreferenceMediaIndicators,
         GetPreferenceServerUpdates
@@ -263,8 +264,8 @@ Function GetPreferenceList() as Object
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
-            Title: "Collection View: " + GetSelectedPreference(GetPreferenceCollectionView(), RegRead("prefCollectionView")),
-            ShortTitle: "Collection View",
+            Title: "Media Folders View: " + GetSelectedPreference(GetPreferenceCollectionView(), RegRead("prefCollectionView")),
+            ShortTitle: "Media Folders",
             ID: "prefCollectionView",
             ContentType: "pref",
             ShortDescriptionLine1: "Select from backdrop, poster, or thumb image",
@@ -272,8 +273,8 @@ Function GetPreferenceList() as Object
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
-            Title: "Collection Title: " + GetSelectedPreference(GetPreferenceCollectionTitle(), RegRead("prefCollectionTitle")),
-            ShortTitle: "Collection Title",
+            Title: "Media Folder Title: " + GetSelectedPreference(GetPreferenceCollectionTitle(), RegRead("prefCollectionTitle")),
+            ShortTitle: "Media Folder Title",
             ID: "prefCollectionTitle",
             ContentType: "pref",
             ShortDescriptionLine1: "Show or hide the collection title.",
@@ -281,7 +282,7 @@ Function GetPreferenceList() as Object
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
-            Title: "Collection PopUp Bubble: " + GetSelectedPreference(GetPreferenceCollectionPopup(), RegRead("prefCollectionPopup")),
+            Title: "Media Folder PopUp Bubble: " + GetSelectedPreference(GetPreferenceCollectionPopup(), RegRead("prefCollectionPopup")),
             ShortTitle: "Display Collection PopUp Bubble",
             ID: "prefCollectionPopup",
             ContentType: "pref",
@@ -290,7 +291,7 @@ Function GetPreferenceList() as Object
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
-            Title: "Show Collections First Row: " + GetSelectedPreference(GetPreferenceCollectionsFirstRow(), RegRead("prefCollectionsFirstRow")),
+            Title: "Show Media Folders First Row: " + GetSelectedPreference(GetPreferenceCollectionsFirstRow(), RegRead("prefCollectionsFirstRow")),
             ShortTitle: "Show Collections First Row",
             ID: "prefCollectionsFirstRow",
             ContentType: "pref",
@@ -299,8 +300,17 @@ Function GetPreferenceList() as Object
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
         {
-            Title: "Use Enhanced Images: " + GetSelectedPreference(GetPreferenceEnhancedImages(), RegRead("prefEnhancedImages")),
-            ShortTitle: "Use Enhanced Images",
+            Title: "Remember User: " + GetSelectedPreference(GetPreferenceRememberUser(), RegRead("prefRememberUser")),
+            ShortTitle: "Remember User",
+            ID: "prefRememberUser",
+            ContentType: "pref",
+            ShortDescriptionLine1: "Remember the current logged in user for next time you open the channel.",
+            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
+            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
+        },
+        {
+            Title: "Use CoverArt: " + GetSelectedPreference(GetPreferenceEnhancedImages(), RegRead("prefEnhancedImages")),
+            ShortTitle: "Use CoverArt Images",
             ID: "prefEnhancedImages",
             ContentType: "pref",
             ShortDescriptionLine1: "Use Enhanced Images such as Cover Art.",
@@ -645,6 +655,23 @@ Function GetPreferenceCollectionsFirstRow() as Object
         {
             Title: "Yes",
             Id: "yes",
+            IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceRememberUser() as Object
+    prefOptions = [
+        {
+            Title: "Yes [default]",
+            Id: "yes",
+            IsDefault: true
+        },
+        {
+            Title: "No",
+            Id: "no",
             IsDefault: false
         }
     ]
