@@ -24,7 +24,7 @@ Function ShowMoviesListPage() As Integer
     end if
 
     screen.AddRow("Movies", "portrait")
-    screen.AddRow("Box Sets", "portrait")
+    screen.AddRow("Collections", "portrait")
     screen.AddRow("Genres", "portrait")
 
     ' Initialize Movie Metadata
@@ -39,7 +39,7 @@ Function ShowMoviesListPage() As Integer
 
     moviesBoxsets = MovieMetadata.GetBoxsets(0, screen.rowPageSize)
     if moviesBoxsets = invalid
-        createDialog("Problem Loading Boxsets", "There was an problem while attempting to get the list of boxset movies from the server.", "Continue")
+        createDialog("Problem Loading Collections", "There was an problem while attempting to get the list of collection movies from the server.", "Continue")
     end if
 
     moviesGenres = MovieMetadata.GetGenres(0, screen.rowPageSize)
