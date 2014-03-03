@@ -81,10 +81,10 @@ Function getVideoMetadata(videoId As String) As Object
         end if
 
         ' Set the Play Access
-        metaData.PlayAccess = LCase(firstOf(i.PlayAccess, "unknown"))
+        metaData.PlayAccess = LCase(firstOf(i.PlayAccess, "full"))
 
-        ' Set the Place Holder (default to is placeholder)
-        metaData.IsPlaceHolder = firstOf(i.IsPlaceHolder, true)
+        ' Set the Place Holder (default to is not a placeholder)
+        metaData.IsPlaceHolder = firstOf(i.IsPlaceHolder, false)
 
         ' Set the Local Trailer Count
         metaData.LocalTrailerCount = firstOf(i.LocalTrailerCount, 0)
