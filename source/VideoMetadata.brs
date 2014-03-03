@@ -80,6 +80,12 @@ Function getVideoMetadata(videoId As String) As Object
             metaData.Length = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
         end if
 
+        ' Set the Play Access
+        metaData.PlayAccess = LCase(firstOf(i.PlayAccess, "unknown"))
+
+        ' Set the Place Holder (default to is placeholder)
+        metaData.IsPlaceHolder = firstOf(i.IsPlaceHolder, true)
+
         ' Set the Local Trailer Count
         metaData.LocalTrailerCount = firstOf(i.LocalTrailerCount, 0)
 
