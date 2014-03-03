@@ -239,7 +239,7 @@ Function tvmetadata_resumable() As Object
 
     ' Query
     query = {
-        limit: "10"
+        limit: "20"
         recursive: "true"
         includeitemtypes: "Episode"
         fields: "SeriesInfo"
@@ -351,7 +351,7 @@ Function tvmetadata_latest() As Object
 
     ' Query
     query = {
-        limit: "10"
+        limit: "20"
         recursive: "true"
         IncludeItemTypes: "Episode"
         ExcludeLocationTypes: "Virtual"
