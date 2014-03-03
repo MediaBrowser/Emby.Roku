@@ -288,12 +288,11 @@ Function BuildImage(url, w, h, tag = "", watched = false As Boolean, percentage 
     end if
 
     ' Use Enhanced Images
-    background = GetGlobalAA().Lookup("rfBGcolor")
     if RegRead("prefEnhancedImages") = "yes"
         if hideEnhanceImages
             query = query + "&EnableImageEnhancers=false"
         else
-            query = query + "&EnableImageEnhancers=true&format=jpg&BackgroundColor="+background
+            query = query + "&EnableImageEnhancers=true&format=jpg&BackgroundColor=504B4B"
         end If
     else
         query = query + "&EnableImageEnhancers=false"
@@ -733,73 +732,6 @@ Function AnyToString(any As Dynamic) As dynamic
     return invalid
 End Function
 
-Function GetDurationString( Seconds As Dynamic, emptyHr = 0 As Integer, emptyMin = 0 As Integer, emptySec = 0 As Integer  ) As String
-   datetime = CreateObject( "roDateTime" )
-
-   if (type(Seconds) = "roString") then
-       TotalSeconds% = Seconds.toint()
-   else if (type(Seconds) = "roInteger") or (type(Seconds) = "Integer") then
-       TotalSeconds% = Seconds
-   else
-       return "Unknown"
-   end if
-
-   datetime.FromSeconds( TotalSeconds% )
-      
-   hours = datetime.GetHours().ToStr()
-   minutes = datetime.GetMinutes().ToStr()
-   seconds = datetime.GetSeconds().ToStr()
-   
-   duration = ""
-   If hours <> "0" or emptyHr = 1 Then
-      duration = duration + hours + "h "
-   End If
-
-   If minutes <> "0" or emptyMin = 1 Then
-      duration = duration + minutes + "m "
-   End If
-   If seconds <> "0" or emptySec = 1 Then
-      duration = duration + seconds + "s"
-   End If
-   
-   Return duration
-End Function
-
-Function RRmktime( epoch As Integer, localize = 1 as Integer) As String
-    datetime = CreateObject("roDateTime")
-    datetime.FromSeconds(epoch)
-    if localize = 1 then 
-        datetime.ToLocalTime()
-    end if
-    hours = datetime.GetHours()
-    minutes = datetime.GetMinutes()
-    seconds = datetime.GetSeconds()
-       
-    duration = ""
-    hour = hours
-    If hours = 0 Then
-       hour = 12
-    End If
-
-    If hours > 12 Then
-        hour = hours-12
-    End If
-
-    If hours >= 0 and hours < 12 Then
-        AMPM = "am"
-    else
-        AMPM = "pm"
-    End if
-       
-    minute = minutes.ToStr()
-    If minutes < 10 Then
-      minute = "0" + minutes.ToStr()
-    end if
-
-    result = hour.ToStr() + ":" + minute + AMPM
-
-    Return result
-End Function
 
 '******************************************************
 'Dump the bytes of a string

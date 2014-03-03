@@ -108,9 +108,6 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
             
             ' Set the Season count
             if i.SeasonCount <> invalid
-                if i.SeasonCount = 0
-                    i.SeasonCount = int(1)
-                end if
                 metaData.ShortDescriptionLine2 = Pluralize(i.SeasonCount, "season")
             end if
 
@@ -184,19 +181,13 @@ Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dy
                 ' Get Image Sizes
                 sizes = GetImageSizes("two-row-flat-landscape-custom")
 
-                ' Check if Item has Image, otherwise try and use pirmary then use default
+                ' Check if Item has Image, otherwise use default
                 if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
 
                     metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage, false, UnplayedCount)
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage, false, UnplayedCount)
 
-                else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage, false, UnplayedCount)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage, false, UnplayedCount)
-                
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
                     metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
@@ -360,7 +351,7 @@ Function tvmetadata_latest() As Object
 
     ' Query
     query = {
-        limit: "20"
+        limit: "10"
         recursive: "true"
         IncludeItemTypes: "Episode"
         ExcludeLocationTypes: "Virtual"
@@ -832,14 +823,8 @@ Function tvmetadata_genres(offset = invalid As Dynamic, limit = invalid As Dynam
                 sizes = GetImageSizes("two-row-flat-landscape-custom")
 
 
-                ' Use Thumb, Backdrop Image Or Primary
-                if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Thumb/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, false ,0 ,true)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, false ,0 ,true)
-                
-                else if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                ' Use Backdrop Image Or Primary
+                if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Backdrop/0"
 
                     metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
@@ -1230,12 +1215,6 @@ Function tvmetadata_genre_show_list(genreName As String) As Object
                     metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
-                else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage, false, UnplayedCount)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage, false, UnplayedCount)
-                    
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
                     metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"

@@ -64,16 +64,6 @@ Function getVideoMetadata(videoId As String) As Object
         if i.OfficialRating <> invalid
             metaData.Rating = i.OfficialRating
         end if
-        
-        ' Set the Critic Rating
-        if i.CriticRating <> invalid
-            metaData.CriticRating = itostr(i.CriticRating)
-        end if
-
-        ' Set the Rating
-        if i.CommunityRating <> invalid
-            metaData.CommunityRating = itostr(i.CommunityRating)
-        end if
 
         ' Set the Release Date
         if isInt(i.ProductionYear)
@@ -118,10 +108,6 @@ Function getVideoMetadata(videoId As String) As Object
                     end if
                 end for
             end if
-            ' Set the Local Trailer Count
-        if i.LocalTrailerCount <> invalid
-            metaData.LocalTrailerCount = Int(i.LocalTrailerCount)
-        end if
 
         else if i.Type = "Episode"
 
@@ -273,40 +259,6 @@ Function getVideoMetadata(videoId As String) As Object
             end if
 
         end if
-
-        ' If we have a local trailer get the path
-        if metaData.LocalTrailerCount <> invalid And metaData.LocalTrailerCount > 0
-            ' URL
-             url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items/" + HttpEncode(videoId) + "/LocalTrailers"
-
-            ' Prepare Request
-            request = HttpRequest(url)
-            request.ContentType("json")
-            request.AddAuthorization()
-
-            ' Execute Request
-            response = request.GetToStringWithTimeout(10)
-            if response <> invalid
-
-                ' Fixes bug within BRS Json Parser
-                regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks|PlaybackPositionTicks|StartPositionTicks)" + Chr(34) + ":(-?[0-9]+)(}?]?),", "i")
-                fixedResponse = regex.ReplaceAll(response, Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + "\3,")
-
-                it = ParseJSON(fixedResponse)
-
-                if it = invalid
-                    Debug("Error Parsing Video LocalTrailer Metadata")
-                    return invalid
-                end if
-                
-                if it[0].Path <> invalid
-                    metaData.VideoTrailerPath = it[0].Path
-                end If
-                
-                ' Set the Trailer Id
-                metaData.TrailerId = it[0].Id
-            endif
-        endif
 
         return metaData
     else
@@ -513,12 +465,6 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
     Print "Play Start: "; playStart
     Print "Audio Stream: "; audioStream
     Print "Subtitle Stream: "; subtitleStream
-    
-    ' If its a local trailer change the path and id
-    if metadata.IsTrailer = true
-        metadata.VideoPath = metadata.VideoTrailerPath
-        metadata.Id = metadata.TrailerId
-    endif
 
     if videoType = "videofile"
         extension = getFileExtension(metaData.VideoPath)
@@ -604,23 +550,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         metaData.DirectPlay = true
 
         ' Setup Playback Method in Rating area
-        'metaData.Rating = "Direct Play (" + extension + ")"
-        playbackInfo = "Direct Play (" + extension + ")"
-        endString = invalid
-        date = CreateObject("roDateTime")
-        if metaData.Length <> invalid and metaData.Length > 0 then
-            duration = int(metaData.Length)
-            timeLeft = int(duration - metaData.PlaybackPosition)
-            endString = "End Time: " + RRmktime(date.AsSeconds()+timeLeft)
-            if (metaData.CriticRating <> invalid)
-               endString = endString  + " Critic Rating: " + metaData.CriticRating
-            else if (metaData.CommunityRating <> invalid)
-               endString = endString + " Rating: " + metaData.CommunityRating
-            endif
-        endif
-           
-        metaData.releasedate = playbackInfo + chr(10) + chr(10)  'two line breaks - easier to read
-        if endString <> invalid then metaData.releasedate = metaData.releasedate +  endString
+        metaData.Rating = "Direct Play (" + extension + ")"
 
     ' Stream Copy
     else if action = "streamcopy"
@@ -701,25 +631,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         metaData.Stream = streamParams
 
         ' Setup Playback Method in Rating area
-        'metaData.Rating = playbackInfo  
-   
-        endString = invalid
-        date = CreateObject("roDateTime")
-        if metaData.Length <> invalid and metaData.Length > 0 then
-            duration = int(metaData.Length)
-            timeLeft = int(duration - metaData.PlaybackPosition)
-            endString = "End Time: " + RRmktime(date.AsSeconds()+timeLeft)
-            if (metaData.CriticRating <> invalid)
-               endString = endString  + " Critic Rating: " + metaData.CriticRating
-            else if (metaData.CommunityRating <> invalid)
-               endString = endString + " Rating: " + metaData.CommunityRating
-            endif
-        endif
-           
-        metaData.releasedate = playbackInfo + chr(10) + chr(10)  'two line breaks - easier to read
-        if endString <> invalid then metaData.releasedate = metaData.releasedate +  endString
-        'if watchedString <> invalid then metaData.releasedate = metaData.releasedate + watchedString
-       
+        metaData.Rating = playbackInfo
 
     ' Transcode
     else
@@ -796,24 +708,7 @@ Function setupVideoPlayback(metadata As Object, options = invalid As Object) As 
         metaData.Stream = streamParams
 
         ' Setup Playback Method in Rating area
-        'metaData.Rating = "Convert Video and Audio"
-        
-        playbackInfo = "Convert Video and Audio"
-        endString = invalid
-        date = CreateObject("roDateTime")
-        if metaData.Length <> invalid and metaData.Length > 0 then
-            duration = int(metaData.Length)
-            timeLeft = int(duration - metaData.PlaybackPosition)
-            endString = "End Time: " + RRmktime(date.AsSeconds()+timeLeft)
-            if (metaData.CriticRating <> invalid)
-               endString = endString  + " Critic Rating: " + metaData.CriticRating
-            else if (metaData.CommunityRating <> invalid)
-               endString = endString + " Rating: " + metaData.CommunityRating
-            endif
-        endif
-           
-        metaData.releasedate = playbackInfo + chr(10) + chr(10)  'two line breaks - easier to read
-        if endString <> invalid then metaData.releasedate = metaData.releasedate +  endString
+        metaData.Rating = "Convert Video and Audio"
 
     end if
 
@@ -969,4 +864,3 @@ Function postFavoriteStatus(videoId As String, markFavorite As Boolean) As Boole
 
     return false
 End Function
-

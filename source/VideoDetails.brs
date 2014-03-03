@@ -111,33 +111,14 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                     ' Refresh Details
                     video = RefreshVideoMetadata(videoId)
                     RefreshVideoDetails(screen, video)
-                    
-                ' Start Playing Trailer
+
+                ' View Chapters
                 else if msg.GetIndex() = 3
-                    ' Stop Audio before Playing Video
-                    if audioPlayer <> invalid And audioPlayer.IsPlaying
-                        Debug("Stop theme music")
-                        audioPlayer.Stop()
-                        sleep(300) ' Give enough time to stop music
-                    end if
-
-                    ' Warn for Folder Rips
-                    if video.videoType <> "videofile" And RegRead("warnFolderRips") = invalid
-                        RegWrite("warnFolderRips", "1")
-                        createFolderRipWarningDialog()
-                    end if
-
-                    options = {}
-                    options.playstart = 0
-
-                    ' Create Video Screen
-                    video.IsTrailer = true
-                    createVideoScreen(video, options)
+                    createVideoChapters(video, audioPlayer)
 
                     ' Refresh Details
                     video = RefreshVideoMetadata(videoId)
                     RefreshVideoDetails(screen, video)
-                
 
                 ' Audio & Subtitles
                 else if msg.GetIndex() = 4
@@ -188,9 +169,6 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
 
                     else if optionSelected = 4
                         postFavoriteStatus(videoId, false) ' Remove Favorite
-                        
-                    else if optionSelected = 5 ' view chapters
-                        createVideoChapters(video, audioPlayer)
 
                     end if
 
@@ -234,9 +212,7 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
                 screen.AddButton(2, "Play")
             end if
 
-            if video.ContentType = "Movie" And video.LocalTrailerCount > 0
-                screen.AddButton(3, "Trailer")
-            endif
+            screen.AddButton(3, "View Chapters")
 
             if video.audioStreams.Count() > 1 Or video.subtitleStreams.Count() > 0
                 screen.AddButton(4, "Audio & Subtitles")
@@ -257,7 +233,7 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
 
         end if
 
-    end if    
+    end if
 
     ' Show Screen
     screen.SetContent(video)

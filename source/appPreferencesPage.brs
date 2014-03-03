@@ -29,7 +29,6 @@ Function ShowPreferencesPage()
         GetPreferenceCollectionsFirstRow,
         GetPreferenceEnhancedImages,
         GetPreferenceMediaIndicators,
-        GetPreferenceTheme,
         GetPreferenceServerUpdates
     ]
 
@@ -108,48 +107,17 @@ Function ShowItemOptions(title As String, itemId As String, list As Object)
             If msg.isListItemFocused() Then
 
             Else If msg.isListItemSelected() Then
-                prefSelected = list[msg.GetIndex()].Id
                 if list[msg.GetIndex()].ContentType = "exit"
                     return false
-                
-                else if prefSelected = "manual" then
-                    serverSaved = createServerConfigurationScreen("")
-                    if serverSaved
-                        Debug("Saved Server - Close Server Setup Screen")
-                        return false
-                    end if
-                else if prefSelected = "discover" then
-                    ' Create Waiting Dialog
-                    dialog = createWaitingDialog("Please Wait...", "Please wait while we scan your network for a running media browser server.")
-
-                    ' Scan Network
-                    results = scanLocalNetwork()
-
-                    ' Close Dialog
-                    dialog.Close()
-
-                    if results <> invalid
-                        ' Show Found Server Screen
-                        createServerFoundScreen(results)
-
-                        ' Show Server Configuration Screen
-                        serverSaved = createServerConfigurationScreen(results)
-                        if serverSaved
-                            Debug("Saved Server - Close Server Setup Screen")
-                            return false
-                        end if
-                    else
-                        createDialog("No Server Found", "We were unable to find a server running on your local network. Please make sure your server is running or if you continue to have problems, manually add the server.", "Back")
-                    end if
                 else
+                    prefSelected = list[msg.GetIndex()].Id
+
                     ' Save New Preference
                     RegWrite(itemId, prefSelected)
 
                     ' Close Screen
                     return false
                 end if
-                
-                
 
             Else If msg.isScreenClosed() Then
                 return false
@@ -345,15 +313,6 @@ Function GetPreferenceList() as Object
             ID: "prefMediaIndicators",
             ContentType: "pref",
             ShortDescriptionLine1: "Show or Hide media indicators such as played or percentage played.",
-            HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
-            SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
-        },
-        {
-            Title: "Theme: " + GetSelectedPreference(GetPreferenceTheme(), RegRead("prefTheme")),
-            ShortTitle: "Theme",
-            ID: "prefTheme",
-            ContentType: "pref",
-            ShortDescriptionLine1: "Select from dark or original (restart required)",
             HDBackgroundImageUrl: "pkg://images/hd-preferences-lg.png",
             SDBackgroundImageUrl: "pkg://images/sd-preferences-lg.png"
         },
@@ -635,23 +594,6 @@ Function GetPreferenceCollectionView() as Object
         {
             Title: "Thumb",
             Id: "thumb",
-            IsDefault: false
-        }
-    ]
-
-    return prefOptions
-End Function
-
-Function GetPreferenceTheme() as Object
-    prefOptions = [
-        {
-            Title: "Original [default]",
-            Id: "original",
-            IsDefault: true
-        },
-        {
-            Title: "Dark",
-            Id: "dark",
             IsDefault: false
         }
     ]

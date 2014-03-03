@@ -154,15 +154,6 @@ Function ShowHomePage()
 
                 Else If screen.rowContent[row][selection].ContentType = "MusicLibrary" Then
                     ShowMusicListPage()
-                    
-                Else If screen.rowContent[row][selection].ContentType = "MusicToggle" Then
-                    ' Toggle TV Display
-                    GetNextMusicToggle()
-                    musicButtons = GetMusicButtons()
-                    screen.UpdateRowContent(row, musicButtons)
-                
-                Else If screen.rowContent[row][selection].ContentType = "Album" Then
-                    ShowMusicSongPage(screen.rowContent[row][selection])
 
                 Else If screen.rowContent[row][selection].ContentType = "Collection" Then
                     recreateHomeCollectionPage:
@@ -219,10 +210,9 @@ Function GetMoviesButtons() As Object
 
     ' Initialize Movie Metadata
     MovieMetadata = InitMovieMetadata()
-    imageDir = GetGlobalAA().Lookup("rf_theme_dir")
 
     If m.movieToggle = "latest" Then
-        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-latest.png"
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
 
         ' Get Latest Unwatched Movies
@@ -233,7 +223,7 @@ Function GetMoviesButtons() As Object
         End if
 
     Else If m.movieToggle = "favorite" Then
-        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-favorites.png"
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-favorites.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-favorites.png"
 
         buttons.Append( switchButton )
@@ -245,7 +235,7 @@ Function GetMoviesButtons() As Object
         End if
 
     Else
-        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-resume.png"
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-resume.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-resume.png"
 
         ' Check For Resumable Movies, otherwise default to latest
@@ -257,7 +247,7 @@ Function GetMoviesButtons() As Object
             m.movieToggle = "latest"
 
             ' Override Image
-            switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-latest.png"
+            switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
             switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
 
             ' Get Latest Unwatched Movies
@@ -315,10 +305,9 @@ Function GetTVButtons() As Object
 
     ' Initialize TV Metadata
     TvMetadata = InitTvMetadata()
-    imageDir = GetGlobalAA().Lookup("rf_theme_dir")
-    
+
     If m.tvToggle = "latest" Then
-        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-tv-toggle-latest.png"
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
 
         ' Get Latest Unwatched TV
@@ -327,9 +316,9 @@ Function GetTVButtons() As Object
             buttons.Append( switchButton )
             buttons.Append( recentTV.Items )
         End if
-        
+
     Else If m.tvToggle = "favorite" Then
-        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-tv-toggle-favorites.png"
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-favorites.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-favorites.png"
 
         buttons.Append( switchButton )
@@ -342,19 +331,19 @@ Function GetTVButtons() As Object
 
     Else
 
-        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-tv-toggle-nextup.png"
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-resume.png"
         switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-resume.png"
 
-        ' Check For NextUp TV, otherwise default to latest
-        nextUpTV = TvMetadata.GetNextUp()
-        If nextUpTV<>invalid And nextUpTV.Items.Count() > 0
+        ' Check For Resumable TV, otherwise default to latest
+        resumeTV = TvMetadata.GetResumable()
+        If resumeTV<>invalid And resumeTV.Items.Count() > 0
             buttons.Append( switchButton )
-            buttons.Append( nextUpTV.Items )
+            buttons.Append( resumeTV.Items )
         Else
             m.tvToggle = "latest"
 
             ' Override Image
-            switchButton[0].HDPosterUrl = imageDir + "tiles/hd-tv-toggle-latest.png"
+            switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
             switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
 
             ' Get Latest Unwatched TV
@@ -376,10 +365,10 @@ End Function
 '**********************************************************
 
 Function GetNextTVToggle()
-   If m.tvToggle = "latest" Then
+    If m.tvToggle = "latest" Then
         m.tvToggle = "favorite"
     Else If m.tvToggle = "favorite" Then
-        m.tvToggle = "nextup"
+        m.tvToggle = "resume"
     Else
         m.tvToggle = "latest"
     End If
@@ -391,7 +380,6 @@ End Function
 '**********************************************************
 
 Function GetMusicButtons() As Object
-
     ' Set the Default Music library button
     buttons = [
         {
@@ -410,68 +398,8 @@ Function GetMusicButtons() As Object
             ShortDescriptionLine1: "Toggle Display"
         }
     ]
-    
-    ' Initialize Music Metadata
-    MusicMetadata = InitMusicMetadata()
-    imageDir = GetGlobalAA().Lookup("rf_theme_dir")
-
-    If m.musicToggle = "latest" Then
-        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-latest.png"
-        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
-
-        ' Get Latest Albums
-        recentMusicAlbums = MusicMetadata.GetLatest()
-        If recentMusicAlbums<>invalid
-            buttons.Append( switchButton )
-            buttons.Append( recentMusicAlbums.Items )
-        End if
-
-    Else If m.musicToggle = "favorite" Then
-        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-favorites.png"
-        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-favorites.png"
-
-        buttons.Append( switchButton )
-
-        ' Get Favorite Music
-        favoriteMusic = MusicMetadata.GetFavorites()
-        If favoriteMusic<>invalid
-            buttons.Append( favoriteMusic.Items )
-        End if
-
-    Else
-        'switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-resume.png"
-        'switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-resume.png"    
-        m.musicToggle = "latest"
-
-        ' Override Image
-        switchButton[0].HDPosterUrl = imageDir + "tiles/hd-toggle-latest.png"
-        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
-
-        ' Get Latest Albums
-        recentMusicAlbums = MusicMetadata.GetLatest()
-        If recentMusicAlbums<>invalid
-            buttons.Append( switchButton )
-            buttons.Append( recentMusicAlbums.Items )
-        End if
-       
-
-    End If
 
     Return buttons
-End Function
-
-'**********************************************************
-'** Get Next Music Toggle
-'**********************************************************
-
-Function GetNextMusicToggle()
-    If m.musicToggle = "latest" Then
-        m.musicToggle = "favorite"
-    Else If m.musicToggle = "favorite" Then
-        m.musicToggle = "resume"
-    Else
-        m.musicToggle = "latest"
-    End If
 End Function
 
 
