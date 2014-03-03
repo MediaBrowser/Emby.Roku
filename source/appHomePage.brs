@@ -20,9 +20,6 @@ Function ShowHomePage()
 
     'return false
 
-
-
-
     ' Create Grid Screen
     screen = CreateGridScreen("", getGlobalVar("user").Title, "two-row-flat-landscape-custom")
 
@@ -40,7 +37,7 @@ Function ShowHomePage()
     m.musicToggle = ""
 
     If RegRead("prefCollectionsFirstRow") = "yes"
-        screen.AddRow("Media Collections", "landscape")
+        screen.AddRow("Media Folders", "landscape")
     End If
     
     If mediaItemCounts.MovieCount > 0 Then
@@ -56,7 +53,7 @@ Function ShowHomePage()
     End If
 
     If RegRead("prefCollectionsFirstRow") = "no" Or RegRead("prefCollectionsFirstRow") = invalid
-        screen.AddRow("Media Collections", "landscape")
+        screen.AddRow("Media Folders", "landscape")
     End If
 
     screen.AddRow("Options", "landscape")
