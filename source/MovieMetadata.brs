@@ -686,7 +686,7 @@ Function moviemetadata_latest() As Object
 
     ' Query
     query = {
-        limit: "10"
+        limit: "20"
         recursive: "true"
         includeitemtypes: "Movie"
         sortby: "DateCreated"
@@ -731,7 +731,13 @@ Function moviemetadata_latest() As Object
             sizes = GetImageSizes("two-row-flat-landscape-custom")
 
             ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
-            if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+            if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
+                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
+
+                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, false, 0, true)
+                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, false, 0, true)
+
+            else if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                 imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
                 metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
