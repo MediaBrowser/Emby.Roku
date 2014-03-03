@@ -67,6 +67,7 @@ Function createServerFirstRunSetupScreen()
     ' Set Content
     screen.AddHeaderText("Welcome")
     screen.AddParagraph("To begin, please make sure you media browser server is currently running.")
+    screen.AddParagraph("Media Browser Server is available for download at http://www.mediabrowser3.com")
     screen.AddParagraph("Below you may select to scan the network and attempt to auto find the running server or to manually add one.")
     screen.AddButton(1, "Scan Network")
     screen.AddButton(2, "Manually Add Server")
