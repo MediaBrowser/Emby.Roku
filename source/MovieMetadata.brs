@@ -330,6 +330,15 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 PlayedPercentage = 0
             end if
 
+            ' Set Unplayed Count
+            UnplayedCount = 0
+
+            if i.RecursiveUnplayedItemCount <> invalid
+                if i.RecursiveUnplayedItemCount <> 0
+                    UnplayedCount = i.RecursiveUnplayedItemCount
+                end if
+            end if
+
             ' Get Image Type From Preference
             if RegRead("prefMovieImageType") = "poster"
 
@@ -340,8 +349,8 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, 0, false, UnplayedCount)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, 0, false, UnplayedCount)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
@@ -358,8 +367,8 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, 0, false, UnplayedCount)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, 0, false, UnplayedCount)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
@@ -376,8 +385,8 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
                 if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
@@ -937,6 +946,12 @@ Function moviemetadata_genres(offset = invalid As Dynamic, limit = invalid As Dy
 
                     metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
+
+                else if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Thumb/0"
+
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, false, 0, true)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, false, 0, true)
 
                 else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Primary/0"
