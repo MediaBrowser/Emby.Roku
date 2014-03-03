@@ -157,26 +157,8 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                     ' Create More Video Options Dialog
                     optionSelected = createMoreVideoOptionsDialog(video)
 
-                    ' Select action from the more options Dialog
-                    if optionSelected = 1
-                         ' Watch Trailer
-                        ' Stop Audio before Playing Video
-                        if audioPlayer <> invalid And audioPlayer.IsPlaying
-                            Debug("Stop theme music")
-                            audioPlayer.Stop()
-                            sleep(300) ' Give enough time to stop music
-                        end if
-
-                        ' Get Local Trailer    
-                        trailerVideo = getLocalTrailers(videoId)
-
-                        options = {}
-                        options.playstart = 0
-
-                        ' Create Video Screen
-                        createVideoScreen(trailerVideo, options)
- 
-                    else if optionSelected = 2
+                    ' Select action from the more options Dialog 
+                    if optionSelected = 2
                         postWatchedStatus(videoId, true) ' Mark Played
 
                     else if optionSelected = 3
@@ -195,6 +177,29 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                         video = RefreshVideoMetadata(videoId)
                         RefreshVideoDetails(screen, video)
                     end if
+
+                ' Play Trailer
+                else if msg.GetIndex() = 6
+                    ' Watch Trailer
+                    ' Stop Audio before Playing Video
+                    if audioPlayer <> invalid And audioPlayer.IsPlaying
+                        Debug("Stop theme music")
+                        audioPlayer.Stop()
+                        sleep(300) ' Give enough time to stop music
+                    end if
+
+                    ' Get Local Trailer    
+                    trailerVideo = getLocalTrailers(videoId)
+
+                    options = {}
+                    options.playstart = 0
+
+                    ' Create Video Screen
+                    createVideoScreen(trailerVideo, options)
+ 
+                     ' Refresh Details
+                    video = RefreshVideoMetadata(videoId)
+                    RefreshVideoDetails(screen, video)
 
                 end if
 
@@ -228,6 +233,10 @@ Sub RefreshVideoDetails(screen As Object, video As Object)
                 screen.AddButton(2, "Play from beginning")
             else
                 screen.AddButton(2, "Play")
+            end if
+
+            if video.LocalTrailerCount
+                screen.AddButton(6, "Play Trailer")
             end if
 
             screen.AddButton(3, "View Chapters")

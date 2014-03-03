@@ -166,10 +166,6 @@ Function createMoreVideoOptionsDialog(video As Object) As Integer
     ' Set Title
     dialog.SetTitle("More Options")
 
-    if video.LocalTrailerCount
-        dialog.AddButton(1, "Play Trailer")
-    end if
-
     ' Setup Buttons
     if video.IsPlayed
         dialog.AddButton(3, "Mark Unplayed")

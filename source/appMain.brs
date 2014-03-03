@@ -334,7 +334,7 @@ Sub initTheme()
         SpringboardAlbumLabel: "#ffffff"
         SpringboardAlbumLabelColor: "#ffffff"
 
-        'SpringboardAllow6Buttons: false
+        SpringboardAllow6Buttons: "true"
 
         SpringboardArtistColor: "#ffffff"
         SpringboardArtistLabel: "#ffffff"
