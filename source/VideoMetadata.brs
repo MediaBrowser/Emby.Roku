@@ -81,9 +81,7 @@ Function getVideoMetadata(videoId As String) As Object
         end if
 
         ' Set the Local Trailer Count
-        if i.LocalTrailerCount <> invalid
-            metaData.LocalTrailerCount = i.LocalTrailerCount
-        end if
+        metaData.LocalTrailerCount = firstOf(i.LocalTrailerCount, 0)
 
         ' Set the Playback Position
         if i.UserData.PlaybackPositionTicks <> "" And i.UserData.PlaybackPositionTicks <> invalid
