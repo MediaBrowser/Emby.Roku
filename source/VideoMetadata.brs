@@ -80,6 +80,11 @@ Function getVideoMetadata(videoId As String) As Object
             metaData.Length = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
         end if
 
+        ' Set the Local Trailer Count
+        if i.LocalTrailerCount <> invalid
+            metaData.LocalTrailerCount = i.LocalTrailerCount
+        end if
+
         ' Set the Playback Position
         if i.UserData.PlaybackPositionTicks <> "" And i.UserData.PlaybackPositionTicks <> invalid
             positionSeconds = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
@@ -863,4 +868,45 @@ Function postFavoriteStatus(videoId As String, markFavorite As Boolean) As Boole
     end if
 
     return false
+End Function
+
+
+'**********************************************************
+'** Get Local Trailers
+'**********************************************************
+
+Function getLocalTrailers(videoId As String) As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items/" + HttpEncode(videoId) + "/LocalTrailers"
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        items = ParseJSON(response)
+
+        if items = invalid
+            Debug("Error while parsing JSON response for Local Trailers")
+            return invalid
+        end if
+
+        ' Only Get First Trailer
+        i = items[0]
+        
+        metaData = {}
+
+        ' Fetch Full Video Metadata
+        metaData = getVideoMetadata(i.Id)
+
+        return metaData
+    else
+        Debug("Failed to Get Local Trailers")
+    end if
+
+    return invalid
 End Function

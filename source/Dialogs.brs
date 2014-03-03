@@ -166,17 +166,21 @@ Function createMoreVideoOptionsDialog(video As Object) As Integer
     ' Set Title
     dialog.SetTitle("More Options")
 
+    if video.LocalTrailerCount
+        dialog.AddButton(1, "Play Trailer")
+    end if
+
     ' Setup Buttons
     if video.IsPlayed
-        dialog.AddButton(2, "Mark Unplayed")
+        dialog.AddButton(3, "Mark Unplayed")
     else
-        dialog.AddButton(1, "Mark Played")
+        dialog.AddButton(2, "Mark Played")
     end if
 
     if video.IsFavorite
-        dialog.AddButton(4, "Remove Favorite")
+        dialog.AddButton(5, "Remove Favorite")
     else
-        dialog.AddButton(3, "Add Favorite")
+        dialog.AddButton(4, "Add Favorite")
     end if
 
     if Not getGlobalVar("legacyDevice")

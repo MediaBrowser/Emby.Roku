@@ -157,17 +157,35 @@ Function ShowVideoDetails(videoId As String, videoList = invalid, videoIndex = i
                     ' Create More Video Options Dialog
                     optionSelected = createMoreVideoOptionsDialog(video)
 
-                    ' Select action from the more options dialog
+                    ' Select action from the more options Dialog
                     if optionSelected = 1
+                         ' Watch Trailer
+                        ' Stop Audio before Playing Video
+                        if audioPlayer <> invalid And audioPlayer.IsPlaying
+                            Debug("Stop theme music")
+                            audioPlayer.Stop()
+                            sleep(300) ' Give enough time to stop music
+                        end if
+
+                        ' Get Local Trailer    
+                        trailerVideo = getLocalTrailers(videoId)
+
+                        options = {}
+                        options.playstart = 0
+
+                        ' Create Video Screen
+                        createVideoScreen(trailerVideo, options)
+ 
+                    else if optionSelected = 2
                         postWatchedStatus(videoId, true) ' Mark Played
 
-                    else if optionSelected = 2
+                    else if optionSelected = 3
                         postWatchedStatus(videoId, false) ' Mark Unplayed
 
-                    else if optionSelected = 3
+                    else if optionSelected = 4
                         postFavoriteStatus(videoId, true) ' Add Favorite
 
-                    else if optionSelected = 4
+                    else if optionSelected = 5
                         postFavoriteStatus(videoId, false) ' Remove Favorite
 
                     end if
