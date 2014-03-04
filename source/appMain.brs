@@ -68,7 +68,7 @@ Sub Main()
     ' Show home page if so, otherwise show login page.
     if RegRead("userId") <> invalid And RegRead("userId") <> ""
 
-        if (RegRead("prefRememberUser") = invalid Or RegRead("prefRememberUser") = "no") And loginAttempt = false
+        if RegRead("prefRememberUser") = "no" And loginAttempt = false
             RegDelete("userId")
             Goto serverProfileMarker
         end if
