@@ -32,8 +32,8 @@ Function ShowHomePage()
     end if
 
     ' Setup Globals
-    m.movieToggle = ""
-    m.tvToggle    = ""
+    m.movieToggle = GetSavedToggle("movie")
+    m.tvToggle    = GetSavedToggle("tv")
     m.musicToggle = ""
 
     If RegRead("prefCollectionsFirstRow") = "yes"
@@ -134,6 +134,9 @@ Function ShowHomePage()
                 Else If screen.rowContent[row][selection].ContentType = "Movie" Then
                     ShowVideoDetails(screen.rowContent[row][selection].Id)
 
+                Else If screen.rowContent[row][selection].ContentType = "MovieGenre" Then
+                    ShowMoviesGenrePage(screen.rowContent[row][selection].Id)
+
                 Else If screen.rowContent[row][selection].ContentType = "TVLibrary" Then
                     ShowTVShowListPage()
 
@@ -148,6 +151,9 @@ Function ShowHomePage()
 
                 Else If screen.rowContent[row][selection].ContentType = "Series" Then
                     ShowTVSeasonsListPage(screen.rowContent[row][selection])
+
+                Else If screen.rowContent[row][selection].ContentType = "TvGenre" Then
+                    ShowTVShowGenrePage(screen.rowContent[row][selection].Id)
 
                 Else If screen.rowContent[row][selection].ContentType = "MusicLibrary" Then
                     ShowMusicListPage()
@@ -205,57 +211,77 @@ Function GetMoviesButtons() As Object
         }
     ]
 
-    ' Initialize Movie Metadata
-    MovieMetadata = InitMovieMetadata()
+    ' Suggested
+    if m.movieToggle = 1 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-1.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-1.jpg"
 
-    If m.movieToggle = "latest" Then
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
-        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
+        buttons.Append( switchButton )
+
+        ''  TODO '''''''''''''''''''''''''''''''''''''''''''
+
+    ' Latest
+    else if m.movieToggle = 2 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-2.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-2.jpg"
+
+        buttons.Append( switchButton )
 
         ' Get Latest Unwatched Movies
-        recentMovies = MovieMetadata.GetLatest()
-        If recentMovies<>invalid
-            buttons.Append( switchButton )
+        recentMovies = getMovieLatest()
+        if recentMovies <> invalid
             buttons.Append( recentMovies.Items )
-        End if
+        end if
 
-    Else If m.movieToggle = "favorite" Then
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-favorites.png"
-        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-favorites.png"
+    ' Jump In
+    else if m.movieToggle = 3 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-3.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-3.jpg"
+
+        buttons.Append( switchButton )
+
+        ''  TODO '''''''''''''''''''''''''''''''''''''''''''
+
+    ' Resume
+    else if m.movieToggle = 4 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-4.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-4.jpg"
+
+        buttons.Append( switchButton )
+
+        ' Get Resumable Movies
+        resumeMovies = getMovieResumable()
+        if resumeMovies <> invalid
+            buttons.Append( resumeMovies.Items )
+        end if
+
+    ' Favorites
+    else if m.movieToggle = 5 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-5.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-5.jpg"
 
         buttons.Append( switchButton )
 
         ' Get Favorite Movies
-        favoriteMovies = MovieMetadata.GetFavorites()
-        If favoriteMovies<>invalid
+        favoriteMovies = getMovieFavorites()
+        if favoriteMovies <> invalid
             buttons.Append( favoriteMovies.Items )
-        End if
+        end if
 
-    Else
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-resume.png"
-        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-resume.png"
+    ' Genre
+    else if m.movieToggle = 6 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-6.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-6.jpg"
 
-        ' Check For Resumable Movies, otherwise default to latest
-        resumeMovies = MovieMetadata.GetResumable()
-        If resumeMovies<>invalid And resumeMovies.Items.Count() > 0
-            buttons.Append( switchButton )
-            buttons.Append( resumeMovies.Items )
-        Else
-            m.movieToggle = "latest"
+        buttons.Append( switchButton )
 
-            ' Override Image
-            switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
-            switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
+        ' Get Movie Genres
+        genresMovies = getMovieGenres(invalid, invalid, true)
+        if genresMovies <> invalid
+            buttons.Append( genresMovies.Items )
+        end if
 
-            ' Get Latest Unwatched Movies
-            recentMovies = MovieMetadata.GetLatest()
-            If recentMovies<>invalid
-                buttons.Append( switchButton )
-                buttons.Append( recentMovies.Items )
-            End if
-        End if
-
-    End If
+    end if
 
     Return buttons
 End Function
@@ -266,13 +292,14 @@ End Function
 '**********************************************************
 
 Function GetNextMovieToggle()
-    If m.movieToggle = "latest" Then
-        m.movieToggle = "favorite"
-    Else If m.movieToggle = "favorite" Then
-        m.movieToggle = "resume"
-    Else
-        m.movieToggle = "latest"
-    End If
+    m.movieToggle = m.movieToggle + 1
+
+    if m.movieToggle = 7 then
+        m.movieToggle = 1
+    end if
+
+    ' Update Registry
+    SaveToggle("movie", m.movieToggle)
 End Function
 
 
@@ -300,58 +327,81 @@ Function GetTVButtons() As Object
         }
     ]
 
-    ' Initialize TV Metadata
-    TvMetadata = InitTvMetadata()
+    ' Suggested
+    if m.tvToggle = 1 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-1.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-1.jpg"
 
-    If m.tvToggle = "latest" Then
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
-        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
+        buttons.Append( switchButton )
+
+        ' Get Next Episodes To Watch
+        nextUpTV = getTvNextUp(invalid, invalid, true)
+        if nextUpTV <> invalid
+            buttons.Append( nextUpTV.Items )
+        end if
+
+    ' Latest
+    else if m.tvToggle = 2 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-2.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-2.jpg"
+
+        buttons.Append( switchButton )
 
         ' Get Latest Unwatched TV
-        recentTV = TvMetadata.GetLatest()
-        If recentTV<>invalid
-            buttons.Append( switchButton )
+        recentTV = getTvLatest()
+        if recentTV <> invalid
             buttons.Append( recentTV.Items )
-        End if
+        end if
 
-    Else If m.tvToggle = "favorite" Then
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-favorites.png"
-        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-favorites.png"
+    ' Jump In
+    else if m.tvToggle = 3 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-3.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-3.jpg"
+
+        buttons.Append( switchButton )
+
+        ''  TODO '''''''''''''''''''''''''''''''''''''''''''
+
+    ' Resume
+    else if m.tvToggle = 4 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-4.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-4.jpg"
+
+        buttons.Append( switchButton )
+
+        ' Get Resumable TV
+        resumeTV = getTvResumable()
+        if resumeTV <> invalid
+            buttons.Append( resumeTV.Items )
+        end if
+
+    ' Favorites
+    else if m.tvToggle = 5 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-5.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-5.jpg"
 
         buttons.Append( switchButton )
 
         ' Get Favorite TV Shows
-        favoriteShows = TvMetadata.GetFavorites()
-        If favoriteShows<>invalid
+        favoriteShows = getTvFavorites()
+        if favoriteShows <> invalid
             buttons.Append( favoriteShows.Items )
-        End if
+        end if
 
-    Else
+    ' Genre
+    else if m.tvToggle = 6 then
+        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-6.jpg"
+        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-6.jpg"
 
-        switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-resume.png"
-        switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-resume.png"
+        buttons.Append( switchButton )
 
-        ' Check For Resumable TV, otherwise default to latest
-        resumeTV = TvMetadata.GetResumable()
-        If resumeTV<>invalid And resumeTV.Items.Count() > 0
-            buttons.Append( switchButton )
-            buttons.Append( resumeTV.Items )
-        Else
-            m.tvToggle = "latest"
+        ' Get TV Show Genres
+        genresTV = getTvGenres(invalid, invalid, true)
+        if genresTV <> invalid
+            buttons.Append( genresTV.Items )
+        end if
 
-            ' Override Image
-            switchButton[0].HDPosterUrl = "pkg://images/tiles/hd-toggle-latest.png"
-            switchButton[0].SDPosterUrl = "pkg://images/tiles/sd-toggle-latest.png"
-
-            ' Get Latest Unwatched TV
-            recentTV = TvMetadata.GetLatest()
-            If recentTV<>invalid
-                buttons.Append( switchButton )
-                buttons.Append( recentTV.Items )
-            End if
-        End if
-
-    End If
+    end if
 
     Return buttons
 End Function
@@ -362,13 +412,14 @@ End Function
 '**********************************************************
 
 Function GetNextTVToggle()
-    If m.tvToggle = "latest" Then
-        m.tvToggle = "favorite"
-    Else If m.tvToggle = "favorite" Then
-        m.tvToggle = "resume"
-    Else
-        m.tvToggle = "latest"
-    End If
+    m.tvToggle = m.tvToggle + 1
+
+    if m.tvToggle = 7 then
+        m.tvToggle = 1
+    end if
+
+    ' Update Registry
+    SaveToggle("tv", m.tvToggle)
 End Function
 
 
@@ -447,4 +498,64 @@ Function GetOptionsButtons() As Object
     ]
 
     Return buttons
+End Function
+
+'**********************************************************
+'** Get Saved Toggle
+'**********************************************************
+
+Function GetSavedToggle(toggle As String) As Integer
+
+    if toggle = "movie"
+        regToggle = RegRead("movieToggle")
+    else if toggle = "tv"
+        regToggle = RegRead("tvToggle")
+    end if
+
+    ' Check For Empty
+    if regToggle = invalid then return 1
+
+    ' Convert To Array
+    savedToggles = RegistryStringToArray(regToggle)
+
+    if savedToggles.DoesExist(getGlobalVar("user").Id)
+        toggleValue = (savedToggles[getGlobalVar("user").Id]).ToInt()
+    else
+        toggleValue = 1
+    end if
+
+    return toggleValue
+End Function
+
+'**********************************************************
+'** Save Toggle Value
+'**********************************************************
+
+Function SaveToggle(toggle As String, toggleValue = Integer) As Boolean
+
+    if toggle = "movie"
+        regToggle = RegRead("movieToggle")
+    else if toggle = "tv"
+        regToggle = RegRead("tvToggle")
+    end if
+
+    ' Check For Empty
+    if regToggle = invalid then regToggle = ""
+
+    ' Convert To Array
+    savedToggles = RegistryStringToArray(regToggle)
+
+    ' Update Array
+    savedToggles.AddReplace(getGlobalVar("user").Id, toggleValue)
+
+    ' Convert To String
+    str = RegistryArrayToString(savedToggles)
+
+    if toggle = "movie"
+        RegWrite("movieToggle", str)
+    else if toggle = "tv"
+        RegWrite("tvToggle", str)
+    end if
+
+    return true
 End Function
