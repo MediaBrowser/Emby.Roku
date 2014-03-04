@@ -11,60 +11,55 @@ Function ShowTVShowGenrePage(genre As String) As Integer
 
     if validateParam(genre, "roString", "ShowTVShowGenrePage") = false return -1
 
-    ' Setup Screen
-    port   = CreateObject("roMessagePort")
-    screen = CreateObject("roGridScreen")
-    screen.SetMessagePort(port)
+    ' Create Grid Screen
+    if RegRead("prefTVImageType") = "poster" then
+        screen = CreateGridScreen("TV", genre, "mixed-aspect-ratio")
+    else
+        screen = CreateGridScreen("TV", genre, "two-row-flat-landscape-custom")
+    end if
 
-    screen.SetBreadcrumbText("TV", genre)
+    screen.AddRow("Shows", "portrait")
 
-    ' Determine Display Type
-    If RegRead("prefTVImageType") = "poster" Then
-        screen.SetGridStyle("mixed-aspect-ratio")
-    Else
-        screen.SetGridStyle("two-row-flat-landscape-custom")
-    End If
+    screen.ShowNames()
 
-    screen.SetDisplayMode("scale-to-fill")
-
-    ' Show Screen
-    screen.SetupLists(1)
-    screen.SetListNames(["Shows"])
-
-    rowData = CreateObject("roArray", 2, true)
-
-    ' Initialize TV Metadata
-    TvMetadata = InitTvMetadata()
+    if RegRead("prefTVImageType") = "poster" then
+        screen.SetListPosterStyles(screen.rowStyles)
+    end if
 
     ' Get Data
-    tvShowAll = TvMetadata.GetGenreShowList(genre)
-    rowData[0] = tvShowAll.Items
-    screen.SetContentList(0, tvShowAll.Items)
+    showsAll = GetTvGenreShowList(genre)
 
+    if showsAll <> invalid
+        screen.AddRowContent(showsAll.Items)
+    end if
+
+    ' Show Screen
     screen.Show()
 
-    ' Hide Description Popup
-    screen.SetDescriptionVisible(false)
+    ' Show/Hide Description Popup
+    if RegRead("prefTVDisplayPopup") = "no" Or RegRead("prefTVDisplayPopup") = invalid then
+        screen.SetDescriptionVisible(false)
+    end if
 
     while true
-        msg = wait(0, screen.GetMessagePort())
+        msg = wait(0, screen.Port)
 
-        if type(msg) = "roGridScreenEvent" Then
+        if type(msg) = "roGridScreenEvent" then
             if msg.isListItemFocused() then
                 ' Show/Hide Description Popup
-                If RegRead("prefTVDisplayPopup") = "yes" Then
+                if RegRead("prefTVDisplayPopup") = "yes" then
                     screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
-                End If
-            else if msg.isListItemSelected() Then
+                end if
+            else if msg.isListItemSelected() then
                 row = msg.GetIndex()
                 selection = msg.getData()
 
-                If rowData[row][selection].ContentType = "Series" Then
-                    ShowTVSeasonsListPage(rowData[row][selection])
-                Else 
+                if screen.rowContent[row][selection].ContentType = "Series" Then
+                    ShowTVSeasonsListPage(screen.rowContent[row][selection])
+                else 
                     Debug("Unknown Type found")
-                End If
-
+                end if
+                
             else if msg.isScreenClosed() then
                 return -1
             end if
