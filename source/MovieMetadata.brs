@@ -20,11 +20,7 @@ Function ClassMovieMetadata()
         this.GetMovieList       = moviemetadata_movie_list
         this.GetBoxsets         = moviemetadata_boxsets
         this.GetBoxsetMovieList = moviemetadata_boxset_movie_list
-        this.GetGenres          = moviemetadata_genres
         this.GetGenreMovieList  = moviemetadata_genre_movie_list
-        this.GetResumable       = moviemetadata_resumable
-        this.GetLatest          = moviemetadata_latest
-        this.GetFavorites       = moviemetadata_favorites
 
         ' singleton
         m.ClassMovieMetadata = this
@@ -592,7 +588,7 @@ End Function
 '** Get Resumable Movies
 '**********************************************************
 
-Function moviemetadata_resumable() As Object
+Function getMovieResumable() As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -680,7 +676,7 @@ End Function
 '** Get Latest Unwatched Movies
 '**********************************************************
 
-Function moviemetadata_latest() As Object
+Function getMovieLatest() As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -775,7 +771,7 @@ End Function
 '** Get Favorite Movies
 '**********************************************************
 
-Function moviemetadata_favorites() As Object
+Function getMovieFavorites() As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -863,7 +859,7 @@ End Function
 '** Get Movie Genres
 '**********************************************************
 
-Function moviemetadata_genres(offset = invalid As Dynamic, limit = invalid As Dynamic) As Object
+Function getMovieGenres(offset = invalid As Dynamic, limit = invalid As Dynamic, homePage = false) As Object
     ' URL
     url = GetServerBaseUrl() + "/Genres"
 
@@ -907,7 +903,7 @@ Function moviemetadata_genres(offset = invalid As Dynamic, limit = invalid As Dy
             metaData = {}
 
             ' Set the Content Type
-            metaData.ContentType = "Genre"
+            metaData.ContentType = "MovieGenre"
 
             ' Set the Id
             ' Genres Use Name as Id
@@ -924,7 +920,7 @@ Function moviemetadata_genres(offset = invalid As Dynamic, limit = invalid As Dy
             end if
 
             ' Get Image Type From Preference
-            if RegRead("prefMovieImageType") = "poster"
+            if RegRead("prefMovieImageType") = "poster" And homePage = false
                 ' Get Image Sizes
                 sizes = GetImageSizes("mixed-aspect-ratio-portrait")
 
