@@ -42,7 +42,7 @@ Function ShowMoviesListPage() As Integer
         createDialog("Problem Loading Collections", "There was an problem while attempting to get the list of collection movies from the server.", "Continue")
     end if
 
-    moviesGenres = MovieMetadata.GetGenres(0, screen.rowPageSize)
+    moviesGenres = getMovieGenres(0, screen.rowPageSize)
     if moviesGenres = invalid
         createDialog("Problem Loading Movie Genres", "There was an problem while attempting to get the list of movie genres from the server.", "Continue")
     end if
@@ -107,7 +107,7 @@ Function ShowMoviesListPage() As Integer
                                         screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                     else if row = 2
-                                        moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        moviesGenres  = getMovieGenres(screen.rowLoadedCount[row], screen.rowPageSize)
                                         screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                     end if
@@ -131,7 +131,7 @@ Function ShowMoviesListPage() As Integer
                                     screen.LoadRowContent(row, moviesBoxsets, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                 else if row = 2
-                                    moviesGenres  = MovieMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                                    moviesGenres  = getMovieGenres(screen.rowLoadedCount[row], screen.rowPageSize)
                                     screen.LoadRowContent(row, moviesGenres, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                 end if
@@ -160,7 +160,7 @@ Function ShowMoviesListPage() As Integer
                     'movieIndex = ShowMoviesDetailPage(screen.rowContent[row][selection].Id, moviesList, selection)
                     'screen.SetFocusedListItem(row, movieIndex)
 
-                else if screen.rowContent[row][selection].ContentType = "Genre" then
+                else if screen.rowContent[row][selection].ContentType = "MovieGenre" then
                     ShowMoviesGenrePage(screen.rowContent[row][selection].Id)
 
                 else if screen.rowContent[row][selection].ContentType = "BoxSet" then
