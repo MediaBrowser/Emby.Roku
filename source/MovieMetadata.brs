@@ -187,6 +187,12 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
                     metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
 
+                else if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
+
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
+
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
                     metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
@@ -365,6 +371,12 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
 
                     metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, 0, false, UnplayedCount)
                     metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, 0, false, UnplayedCount)
+
+                else if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
+
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
