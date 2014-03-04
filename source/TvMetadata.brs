@@ -18,14 +18,8 @@ Function ClassTvMetadata()
 
         ' functions
         this.GetShowList       = tvmetadata_show_list
-        this.GetNextUp         = tvmetadata_nextup
-        this.GetGenres         = tvmetadata_genres
-        this.GetGenreShowList  = tvmetadata_genre_show_list
         this.GetSeasons        = tvmetadata_seasons
         this.GetEpisodes       = tvmetadata_episodes
-        this.GetResumable      = tvmetadata_resumable
-        this.GetLatest         = tvmetadata_latest
-        this.GetFavorites      = tvmetadata_favorites
         this.GetThemeMusic     = tvmetadata_theme_music
         this.GetNextEpisode    = tvmetadata_episodes_next_unplayed
 
@@ -233,7 +227,7 @@ End Function
 '** Get Resumable TV
 '**********************************************************
 
-Function tvmetadata_resumable() As Object
+Function getTvResumable() As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -345,7 +339,7 @@ End Function
 '** Get Latest Unwatched TV Episodes
 '**********************************************************
 
-Function tvmetadata_latest() As Object
+Function getTvLatest() As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -458,7 +452,7 @@ End Function
 '** Get Favorite TV Shows
 '**********************************************************
 
-Function tvmetadata_favorites() As Object
+Function getTvFavorites() As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -571,7 +565,7 @@ End Function
 '** Get Next Unwatched TV Episodes
 '**********************************************************
 
-Function tvmetadata_nextup(offset = invalid As Dynamic, limit = invalid As Dynamic) As Object
+Function getTvNextUp(offset = invalid As Dynamic, limit = invalid As Dynamic, homePage = false) As Object
     ' URL
     url = GetServerBaseUrl() + "/Shows/NextUp"
 
@@ -687,7 +681,7 @@ Function tvmetadata_nextup(offset = invalid As Dynamic, limit = invalid As Dynam
             end if
 
             ' Get Image Type From Preference
-            if RegRead("prefTVImageType") = "poster"
+            if RegRead("prefTVImageType") = "poster" And homePage = false
                 ' Get Image Sizes
                 sizes = GetImageSizes("mixed-aspect-ratio-portrait")
 
@@ -740,7 +734,7 @@ End Function
 '** Get TV Genres
 '**********************************************************
 
-Function tvmetadata_genres(offset = invalid As Dynamic, limit = invalid As Dynamic) As Object
+Function getTvGenres(offset = invalid As Dynamic, limit = invalid As Dynamic, homePage = false) As Object
     ' URL
     url = GetServerBaseUrl() + "/Genres"
 
@@ -784,7 +778,7 @@ Function tvmetadata_genres(offset = invalid As Dynamic, limit = invalid As Dynam
             metaData = {}
 
             ' Set the Content Type
-            metaData.ContentType = "Genre"
+            metaData.ContentType = "TvGenre"
 
             ' Set the Id
             ' Genres Use Name as Id
@@ -801,7 +795,7 @@ Function tvmetadata_genres(offset = invalid As Dynamic, limit = invalid As Dynam
             end if
 
             ' Get Image Type From Preference
-            if RegRead("prefTVImageType") = "poster"
+            if RegRead("prefTVImageType") = "poster" And homePage = false
                 ' Get Image Sizes
                 sizes = GetImageSizes("mixed-aspect-ratio-portrait")
 
@@ -1095,9 +1089,9 @@ End Function
 '** Get TV Shows in a Genre
 '**********************************************************
 
-Function tvmetadata_genre_show_list(genreName As String) As Object
+Function GetTvGenreShowList(genreName As String) As Object
     ' Validate Parameter
-    if validateParam(genreName, "roString", "tvmetadata_genre_show_list") = false return invalid
+    if validateParam(genreName, "roString", "GetTvGenreShowList") = false return invalid
 
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
@@ -1187,6 +1181,15 @@ Function tvmetadata_genre_show_list(genreName As String) As Object
                 PlayedPercentage = 0
             end if
 
+            ' Set Unplayed Count
+            UnplayedCount = 0
+
+            if i.RecursiveUnplayedItemCount <> invalid
+                if i.RecursiveUnplayedItemCount <> 0
+                    UnplayedCount = i.RecursiveUnplayedItemCount
+                end if
+            end if
+
             ' Get Image Type From Preference
             if RegRead("prefTVImageType") = "poster"
 
@@ -1197,8 +1200,8 @@ Function tvmetadata_genre_show_list(genreName As String) As Object
                 if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, 0, false, UnplayedCount)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, 0, false, UnplayedCount)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
@@ -1215,8 +1218,8 @@ Function tvmetadata_genre_show_list(genreName As String) As Object
                 if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, 0, false, UnplayedCount)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, 0, false, UnplayedCount)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
@@ -1233,8 +1236,8 @@ Function tvmetadata_genre_show_list(genreName As String) As Object
                 if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
                     imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
 
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
+                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
 
                 else 
                     metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"

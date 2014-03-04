@@ -40,12 +40,12 @@ Function ShowTVShowListPage() As Integer
         return 0
     end if
 
-    tvShowNextUp = TvMetadata.GetNextUp(0, screen.rowPageSize)
+    tvShowNextUp = getTvNextUp(0, screen.rowPageSize)
     if tvShowNextUp = invalid
         createDialog("Problem Loading Next Up", "There was an problem while attempting to get the list of next television episodes to watch from the server.", "Continue")
     end if
 
-    tvShowGenres = TvMetadata.GetGenres(0, screen.rowPageSize)
+    tvShowGenres = getTvGenres(0, screen.rowPageSize)
     if tvShowGenres = invalid
         createDialog("Problem Loading TV Genres", "There was an problem while attempting to get the list of television show genres from the server.", "Continue")
     end if
@@ -101,11 +101,11 @@ Function ShowTVShowListPage() As Integer
                                         screen.LoadRowContent(row, tvShowList, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                     else if row = 1
-                                        tvShowNextUp = TvMetadata.GetNextUp(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        tvShowNextUp = getTvNextUp(screen.rowLoadedCount[row], screen.rowPageSize)
                                         screen.LoadRowContent(row, tvShowNextUp, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                     else if row = 2
-                                        tvShowGenres = TvMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        tvShowGenres = getTvGenres(screen.rowLoadedCount[row], screen.rowPageSize)
                                         screen.LoadRowContent(row, tvShowGenres, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                     end if
@@ -120,11 +120,11 @@ Function ShowTVShowListPage() As Integer
                                     screen.LoadRowContent(row, tvShowList, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                 else if row = 1
-                                    tvShowNextUp = TvMetadata.GetNextUp(screen.rowLoadedCount[row], screen.rowPageSize)
+                                    tvShowNextUp = getTvNextUp(screen.rowLoadedCount[row], screen.rowPageSize)
                                     screen.LoadRowContent(row, tvShowNextUp, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                 else if row = 2
-                                    tvShowGenres = TvMetadata.GetGenres(screen.rowLoadedCount[row], screen.rowPageSize)
+                                    tvShowGenres = getTvGenres(screen.rowLoadedCount[row], screen.rowPageSize)
                                     screen.LoadRowContent(row, tvShowGenres, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                 end if
@@ -153,10 +153,10 @@ Function ShowTVShowListPage() As Integer
                     ShowVideoDetails(screen.rowContent[row][selection].Id)
 
                     ' Refresh Next Up Data
-                    tvShowNextUp = TvMetadata.GetNextUp(0, screen.rowPageSize)
+                    tvShowNextUp = getTvNextUp(0, screen.rowPageSize)
                     screen.UpdateRowContent(row, tvShowNextUp.Items)
 
-                else if screen.rowContent[row][selection].ContentType = "Genre" then
+                else if screen.rowContent[row][selection].ContentType = "TvGenre" then
                     ShowTVShowGenrePage(screen.rowContent[row][selection].Id)
 
                 else 
