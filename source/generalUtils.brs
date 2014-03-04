@@ -54,6 +54,39 @@ End Function
 
 
 '******************************************************
+' Registry Array To String
+'******************************************************
+
+Function RegistryArrayToString(array As Object) As String
+    str = ""
+    for each key in array
+        if key <> invalid
+            str = tostr(key) + ":" + tostr(array[key]) + "|" + str
+        end if
+    end for
+
+    return str
+End Function
+
+
+'******************************************************
+' Registry String To Array
+'******************************************************
+
+Function RegistryStringToArray(str As String) As Object
+    aa = CreateObject("roAssociativeArray")
+    list = str.tokenize("|") 'strTokenize(str, "|")
+
+    for each e in list
+        element = e.tokenize(":")
+        aa.AddReplace(element[0], element[1])
+    end for
+
+    return aa
+End Function
+
+
+'******************************************************
 ' Source: Plex Roku Client
 '         https://github.com/plexinc/roku-client-public
 ' Return the first valid argument
