@@ -24,17 +24,14 @@ Function ShowTVShowListPage() As Integer
     screen.AddRow("Next Episodes to Watch", "portrait")
     screen.AddRow("Genres", "portrait")
 
-    ' Initialize TV Metadata
-    TvMetadata = InitTvMetadata()
-
     ' Filter (example)
     'filters = {
     '    sortby: "PremiereDate"
     '}
 
     ' Get Data
-    'tvShowAll    = TvMetadata.GetShowList(filters)
-    tvShowList = TvMetadata.GetShowList(0, screen.rowPageSize)
+    'tvShowAll    = getTvShowList(filters)
+    tvShowList = getTvShowList(0, screen.rowPageSize)
     if tvShowList = invalid
         createDialog("Problem Loading TV", "There was an problem while attempting to get the television shows list from server. Please make sure your server is running and try again.", "Back")
         return 0
@@ -97,7 +94,7 @@ Function ShowTVShowListPage() As Integer
                                 for i = 1 to queue
 
                                     if row = 0
-                                        tvShowList = TvMetadata.GetShowList(screen.rowLoadedCount[row], screen.rowPageSize)
+                                        tvShowList = getTvShowList(screen.rowLoadedCount[row], screen.rowPageSize)
                                         screen.LoadRowContent(row, tvShowList, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                     else if row = 1
@@ -116,7 +113,7 @@ Function ShowTVShowListPage() As Integer
                             else
 
                                 if row = 0
-                                    tvShowList = TvMetadata.GetShowList(screen.rowLoadedCount[row], screen.rowPageSize)
+                                    tvShowList = getTvShowList(screen.rowLoadedCount[row], screen.rowPageSize)
                                     screen.LoadRowContent(row, tvShowList, screen.rowLoadedCount[row], screen.rowPageSize)
 
                                 else if row = 1
@@ -168,12 +165,6 @@ Function ShowTVShowListPage() As Integer
                 index = msg.GetIndex()
 
                 'If index = remoteKeyStar Then
-                '    letterSelected = CreateJumpListDialog()
-
-                '    If letterSelected <> invalid Then
-                '        letter = FindClosestLetter(letterSelected, TvMetadata)
-                '        screen.SetFocusedListItem(0, TvMetadata.jumpList.Lookup(letter))
-                '    End If
                 'End If
 
             else if msg.isScreenClosed() Then

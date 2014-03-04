@@ -17,11 +17,8 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     screen.SetListStyle("flat-episodic-16x9")
     screen.SetListDisplayMode("scale-to-fill")
 
-    ' Initialize TV Metadata
-    TvMetadata = InitTvMetadata()
-
     ' Get Data
-    seasonData = TvMetadata.GetSeasons(seriesInfo.Id)
+    seasonData = getTvSeasons(seriesInfo.Id)
 
     if seasonData = invalid
         createDialog("Problem Loading TV Seasons", "There was an problem while attempting to get the television seasons list from server. Please make sure your server is running and try again.", "Back")
@@ -35,12 +32,12 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     screen.SetListNames(seasonNames)
 
     ' Fetch Season 1/Specials
-    episodeData = TvMetadata.GetEpisodes(seriesInfo.Id, seasonIds[0])
+    episodeData = getTvEpisodes(seriesInfo.Id, seasonIds[0])
     screen.SetContentList(episodeData.Items)
     screen.SetFocusedList(0)
 
     ' Fetch Next Unplayed Episode
-    nextEpisode = TvMetadata.GetNextEpisode(seriesInfo.Id)
+    nextEpisode = getTvNextEpisode(seriesInfo.Id)
 
     if nextEpisode <> invalid And nextEpisode.Season <> invalid
         if nextEpisode.Season = 0
@@ -71,7 +68,7 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
     ' Only fetch theme music if turned on
     If RegRead("prefTVMusic") = "yes" Then
         ' Fetch Theme Music
-        themeMusic = TvMetadata.GetThemeMusic(seriesInfo.Id)
+        themeMusic = getTvThemeMusic(seriesInfo.Id)
 
         If themeMusic<>invalid And themeMusic.Count() <> 0 Then
             Debug("playing theme music")
@@ -111,7 +108,7 @@ Function ShowTVSeasonsListPage(seriesInfo As Object) As Integer
                 screen.ShowMessage(loadingMsg + " " + seasonNames[msg.GetIndex()] + "...")
 
                 ' Fetch New Season
-                episodeData = TvMetadata.GetEpisodes(seriesInfo.Id, seasonIds[msg.GetIndex()])
+                episodeData = getTvEpisodes(seriesInfo.Id, seasonIds[msg.GetIndex()])
                 screen.SetContentList(episodeData.Items)
 
                 screen.ClearMessage()

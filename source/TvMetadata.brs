@@ -1,47 +1,13 @@
 '*****************************************************************
-'**  Media Browser Roku Client - TV Metadata Class
+'**  Media Browser Roku Client - TV Metadata
 '*****************************************************************
-
-
-Function ClassTvMetadata()
-    ' initializes static members once
-    this = m.ClassTvMetadata
-
-    if this = invalid
-        this = CreateObject("roAssociativeArray")
-
-        ' constants
-        this.class        = "TvMetadata"
-
-        'variables
-        this.jumpList     = {}
-
-        ' functions
-        this.GetShowList       = tvmetadata_show_list
-        this.GetSeasons        = tvmetadata_seasons
-        this.GetEpisodes       = tvmetadata_episodes
-        this.GetThemeMusic     = tvmetadata_theme_music
-        this.GetNextEpisode    = tvmetadata_episodes_next_unplayed
-
-        ' singleton
-        m.ClassTvMetadata = this
-    end if
-    
-    return this
-End Function
-
-
-Function InitTvMetadata()
-    this = ClassTvMetadata()
-    return this
-End Function
 
 
 '**********************************************************
 '** Get All TV Shows
 '**********************************************************
 
-Function tvmetadata_show_list(offset = invalid As Dynamic, limit = invalid As Dynamic, filters = invalid As Object) As Object
+Function getTvShowList(offset = invalid As Dynamic, limit = invalid As Dynamic, filters = invalid As Object) As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -870,9 +836,9 @@ End Function
 '** Get TV Seasons for Show
 '**********************************************************
 
-Function tvmetadata_seasons(seriesId As String) As Object
+Function getTvSeasons(seriesId As String) As Object
     ' Validate Parameter
-    if validateParam(seriesId, "roString", "tvmetadata_seasons") = false return invalid
+    if validateParam(seriesId, "roString", "getTvSeasons") = false return invalid
 
     ' URL
     url = GetServerBaseUrl() + "/Shows/" + HttpEncode(seriesId) + "/Seasons"
@@ -928,10 +894,10 @@ End Function
 '** Get TV Episodes in a Season
 '**********************************************************
 
-Function tvmetadata_episodes(seriesId As String, seasonId As String) As Object
+Function getTvEpisodes(seriesId As String, seasonId As String) As Object
     ' Validate Parameter
-    if validateParam(seriesId, "roString", "tvmetadata_episodes") = false return invalid
-    if validateParam(seasonId, "roString", "tvmetadata_episodes") = false return invalid
+    if validateParam(seriesId, "roString", "getTvEpisodes") = false return invalid
+    if validateParam(seasonId, "roString", "getTvEpisodes") = false return invalid
 
     ' URL
     url = GetServerBaseUrl() + "/Shows/" + HttpEncode(seriesId) + "/Episodes"
@@ -1095,7 +1061,7 @@ End Function
 '** Get TV Shows in a Genre
 '**********************************************************
 
-Function GetTvGenreShowList(genreName As String) As Object
+Function getTvGenreShowList(genreName As String) As Object
     ' Validate Parameter
     if validateParam(genreName, "roString", "GetTvGenreShowList") = false return invalid
 
@@ -1272,9 +1238,9 @@ End Function
 '** Get TV Show Theme Music
 '**********************************************************
 
-Function tvmetadata_theme_music(seriesId As String) As Object
+Function getTvThemeMusic(seriesId As String) As Object
     ' Validate Parameter
-    if validateParam(seriesId, "roString", "tvmetadata_theme_music") = false return invalid
+    if validateParam(seriesId, "roString", "getTvThemeMusic") = false return invalid
 
     ' URL
     url = GetServerBaseUrl() + "/Items/" + HttpEncode(seriesId) + "/ThemeSongs"
@@ -1326,9 +1292,9 @@ End Function
 '** Get TV Show Next Unplayed Episode
 '**********************************************************
 
-Function tvmetadata_episodes_next_unplayed(seriesId As String) As Object
+Function getTvNextEpisode(seriesId As String) As Object
     ' Validate Parameter
-    if validateParam(seriesId, "roString", "tvmetadata_episodes_next_unplayed") = false return invalid
+    if validateParam(seriesId, "roString", "getTvNextEpisode") = false return invalid
 
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
