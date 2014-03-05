@@ -18,9 +18,9 @@ Function ShowMoviesAlphaPage(letter As String) As Integer
 
     ' Create Grid Screen
     if RegRead("prefMovieImageType") = "poster" then
-        screen = CreateGridScreen("", "Movies", "mixed-aspect-ratio")
+        screen = CreateGridScreen("Movies", UCase(letter), "mixed-aspect-ratio")
     else
-        screen = CreateGridScreen("", "Movies", "two-row-flat-landscape-custom")
+        screen = CreateGridScreen("Movies", UCase(letter), "two-row-flat-landscape-custom")
     end if
 
     screen.AddRow("Movies", "portrait")

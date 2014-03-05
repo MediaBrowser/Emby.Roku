@@ -15,9 +15,9 @@ Function ShowTVAlphaPage(letter As String) As Integer
 
     ' Create Grid Screen
     If RegRead("prefTVImageType") = "poster" Then
-        screen = CreateGridScreen("", "TV", "mixed-aspect-ratio")
+        screen = CreateGridScreen("TV", UCase(letter), "mixed-aspect-ratio")
     Else
-        screen = CreateGridScreen("", "TV", "two-row-flat-landscape-custom")
+        screen = CreateGridScreen("TV", UCase(letter), "two-row-flat-landscape-custom")
     End If
 
     screen.AddRow("Shows", "portrait")
