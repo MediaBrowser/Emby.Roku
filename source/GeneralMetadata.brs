@@ -53,6 +53,7 @@ Function getAllUserProfiles() As Object
     ' Prepare Request
     request = HttpRequest(url)
     request.ContentType("json")
+    request.AddAuthorization()
 
     ' Execute Request
     response = request.GetToStringWithTimeout(10)
@@ -121,6 +122,7 @@ Function getUserProfile(userId As String) As Object
     ' Prepare Request
     request = HttpRequest(url)
     request.ContentType("json")
+    request.AddAuthorization()
 
     ' Execute Request
     response = request.GetToStringWithTimeout(10)

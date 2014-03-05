@@ -257,6 +257,7 @@ Function getServerInfo(baseUrl = "") As Object
     ' Prepare Request
     request = HttpRequest(url)
     request.ContentType("json")
+    request.AddAuthorization()
 
     ' Execute Request
     response = request.GetToStringWithTimeout(10)
@@ -287,6 +288,7 @@ Function postServerRestart() As Boolean
 
     ' Prepare Request
     request = HttpRequest(url)
+    request.AddAuthorization()
 
     ' Execute Request
     response = request.PostFromStringWithTimeout("", 5)
