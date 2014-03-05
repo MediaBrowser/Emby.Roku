@@ -99,7 +99,12 @@ End Function
 '**********************************************************
 
 Function http_authorization() As Void
-    authString = "MediaBrowser UserId=" + Quote() + HttpEncode(getGlobalVar("user").Id) + Quote() + ", Client=" + Quote() + "Roku" + Quote() + ", Device=" + Quote() + getGlobalVar("rokuModelName", "Unknown") + Quote() + ", DeviceId=" + Quote() + getGlobalVar("rokuUniqueId", "Unknown") + Quote() + ", Version=" + Quote() + getGlobalVar("channelVersion", "Unknown") + Quote()
+    authString = "MediaBrowser "
+    if getGlobalVar("user") <> invalid
+        authString = authString + "UserId=" + Quote() + HttpEncode(getGlobalVar("user").Id) + Quote() + ", "
+    end if
+
+    authString = authString + "Client=" + Quote() + "Roku" + Quote() + ", Device=" + Quote() + getGlobalVar("rokuModelName", "Unknown") + Quote() + ", DeviceId=" + Quote() + getGlobalVar("rokuUniqueId", "Unknown") + Quote() + ", Version=" + Quote() + getGlobalVar("channelVersion", "Unknown") + Quote()
     m.Http.AddHeader("Authorization", authString)
 End Function
 
