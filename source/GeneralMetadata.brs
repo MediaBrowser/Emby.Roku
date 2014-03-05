@@ -239,3 +239,30 @@ Function getPhotosInFolder(parentId As String,  photoId = "" As String) As Objec
 
     return invalid
 End Function
+
+
+'**********************************************************
+'** Get Alphabetical List
+'**********************************************************
+
+Function getAlphabetList(contentType As String) As Object
+
+    ' Set the buttons
+    buttons = []
+    letters = ["#", "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+
+    for each cLetter in letters
+        letterButton = {
+            Id: cLetter
+            ContentType: contentType
+            Title: " "
+            ShortDescriptionLine1: " "
+            HDPosterUrl: "pkg://images/letters/" + cLetter + ".jpg"
+            SDPosterUrl: "pkg://images/letters/" + cLetter + ".jpg"
+        }
+
+        buttons.Push( letterButton )
+    end for
+
+    return buttons
+End Function

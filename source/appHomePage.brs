@@ -137,6 +137,9 @@ Function ShowHomePage()
                 Else If screen.rowContent[row][selection].ContentType = "MovieGenre" Then
                     ShowMoviesGenrePage(screen.rowContent[row][selection].Id)
 
+                Else If screen.rowContent[row][selection].ContentType = "MovieAlphabet" Then
+                    ShowMoviesAlphaPage(screen.rowContent[row][selection].Id)
+
                 Else If screen.rowContent[row][selection].ContentType = "TVLibrary" Then
                     ShowTVShowListPage()
 
@@ -154,6 +157,9 @@ Function ShowHomePage()
 
                 Else If screen.rowContent[row][selection].ContentType = "TvGenre" Then
                     ShowTVShowGenrePage(screen.rowContent[row][selection].Id)
+
+                Else If screen.rowContent[row][selection].ContentType = "TvAlphabet" Then
+                    ShowTVAlphaPage(screen.rowContent[row][selection].Id)
 
                 Else If screen.rowContent[row][selection].ContentType = "MusicLibrary" Then
                     ShowMusicListPage()
@@ -240,7 +246,11 @@ Function GetMoviesButtons() As Object
 
         buttons.Append( switchButton )
 
-        ''  TODO '''''''''''''''''''''''''''''''''''''''''''
+        ' Get Alphabetical List
+        alphaMovies = getAlphabetList("MovieAlphabet")
+        if alphaMovies <> invalid
+            buttons.Append( alphaMovies )
+        end if
 
     ' Resume
     else if m.movieToggle = 4 then
@@ -360,7 +370,11 @@ Function GetTVButtons() As Object
 
         buttons.Append( switchButton )
 
-        ''  TODO '''''''''''''''''''''''''''''''''''''''''''
+        ' Get Alphabetical List
+        alphaTV = getAlphabetList("TvAlphabet")
+        if alphaTV <> invalid
+            buttons.Append( alphaTV )
+        end if
 
     ' Resume
     else if m.tvToggle = 4 then
