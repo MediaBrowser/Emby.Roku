@@ -1,4 +1,20 @@
-## Changelog
+How to Contribute
+============
+
+First enable devloper mode on your Roku device:
+
+http://sdkdocs.roku.com/display/sdkdoc/Developer+Guide
+
+Then, zip up the source code directory. Visit 192.168.1.100 in your browser, updating the IP address with the IP of the Roku device. From here you can upload the zip to the device.
+
+To debug, use any telnet client on port 8085 of the Roku. In windows, open a command promt:
+
+telnet
+0 192.168.1.100 8085
+
+
+Changelog
+============
 
 1.2:
 
