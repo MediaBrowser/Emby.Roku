@@ -348,7 +348,6 @@ Function processSearchHintsResponse(json as String) as Object
     if json <> invalid
 
 		response = normalizeJson(json)
-
         jsonObj     = ParseJSON(response)
 
         if jsonObj = invalid

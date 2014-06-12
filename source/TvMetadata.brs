@@ -288,6 +288,8 @@ Function getTvSeasons(seriesId As String) As Object
         listIds   = CreateObject("roArray", 7, true)
         listNames = CreateObject("roArray", 7, true)
         listNumbers = CreateObject("roArray", 7, true)
+		
+		response = normalizeJson(response)
         jsonObj   = ParseJSON(response)
 
         if jsonObj = invalid
@@ -310,8 +312,6 @@ Function getTvSeasons(seriesId As String) As Object
         end for
         
         return [listIds, listNames, listNumbers]
-    else
-        Debug("Failed to Get TV Seasons List for Show")
     end if
 
     return invalid
@@ -360,8 +360,6 @@ Function getTvGenreShowList(genreName As String, offset = invalid As Dynamic, li
 		if searchPage = true then imageType = 1
 
         return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
-    else
-        Debug("Failed to Get TV Shows List In Genre")
     end if
 
     return invalid
@@ -373,6 +371,7 @@ End Function
 '**********************************************************
 
 Function getTvNextEpisode(seriesId As String) As Object
+
     ' Validate Parameter
     if validateParam(seriesId, "roString", "getTvNextEpisode") = false return invalid
 
@@ -395,6 +394,7 @@ Function getTvNextEpisode(seriesId As String) As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
+        response = normalizeJson(response)
         jsonObj = ParseJSON(response)
 
         if jsonObj = invalid
@@ -421,8 +421,6 @@ Function getTvNextEpisode(seriesId As String) As Object
         end if
 
         return metaData
-    else
-        Debug("Failed to Get TV Show Next Unplayed Episode")
     end if
 
     return invalid

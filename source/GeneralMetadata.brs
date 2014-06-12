@@ -38,10 +38,10 @@ End Function
 
 
 '******************************************************
-' Get All User Profiles
+' getPublicUserProfiles
 '******************************************************
 
-Function getAllUserProfiles() As Object
+Function getPublicUserProfiles() As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/Public"
 
@@ -146,146 +146,6 @@ Function parseUser(i as Object) as Object
 
 	return metadata
 
-End Function
-
-
-'**********************************************************
-'** Get Items within Collection
-'**********************************************************
-
-Function getPhotosInFolder(parentId As String,  photoId = "" As String) As Object
-    ' Validate Parameter
-    if validateParam(parentId, "roString", "getPhotosInFolder") = false return invalid
-
-    ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
-
-    ' Query
-    query = {
-        parentid: parentId
-        sortby: "SortName"
-        includeitemtypes: "Photo"
-        sortorder: "Ascending"
-    }
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-    request.BuildQuery(query)
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-
-        contentList = CreateObject("roArray", 25, true)
-        jsonObj     = ParseJSON(response)
-
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Photos")
-            return invalid
-        end if
-
-        totalRecordCount = jsonObj.TotalRecordCount
-        indexCount       = 0
-        indexSelected    = 0
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Photo"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown")
-
-            ' Build URL
-            imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0?quality=90"
-
-            if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                imageUrl = imageUrl + "&tag=" + HttpEncode(i.ImageTags.Primary)
-            end if
-
-            ' Set Max Width/Height
-            imageUrl = imageUrl + "&maxwidth=1920&maxheight=1080"
-
-            ' Set Image URL
-            metaData.Url = imageUrl
-
-            ' Check for selected image
-            if photoId <> "" And photoId = i.Id
-                indexSelected = indexCount
-            end if
-
-            ' Increment Index
-            indexCount = indexCount + 1
-
-            contentList.push( metaData )
-        end for
-
-        return {
-            Items: contentList
-            TotalCount: totalRecordCount
-            SelectedIndex: indexSelected
-        }
-    else
-        Debug("Failed to Get Photos")
-    end if
-
-    return invalid
-End Function
-
-
-'**********************************************************
-'** Get Trailers in a Genre
-'**********************************************************
-
-Function getTrailerGenreList(genreName As String, offset = invalid As Dynamic, limit = invalid As Dynamic, searchPage = false) As Object
-    ' Validate Parameter
-    if validateParam(genreName, "roString", "getTrailerGenreList") = false return invalid
-
-    ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
-
-    ' Query
-    query = {
-        genres: genreName
-        recursive: "true"
-        IncludeItemTypes: "Trailer"
-        fields: "UserData"
-        sortby: "SortName"
-        sortorder: "Ascending"
-    }
-
-    ' Paging
-    if limit <> invalid And offset <> invalid
-        query.AddReplace("StartIndex", itostr(offset))
-        query.AddReplace("Limit", itostr(limit))
-    end if    
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-    request.BuildQuery(query)
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-
-		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
-
-		if searchPage = true then imageType = 1
-
-        return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
-    else
-        Debug("Failed to Get Trailers List In Genre")
-    end if
-
-    return invalid
 End Function
 
 

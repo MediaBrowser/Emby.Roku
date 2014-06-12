@@ -94,33 +94,6 @@ Function isProgramOnAir(item as Object) As Boolean
 End Function
 
 '**********************************************************
-'** getChannelDayIndex
-'**********************************************************
-
-Function getChannelDayIndex(direction As String, focused As Integer, list As Object) As Integer
-
-    if direction = "next"
-        listSize = list.Count()-1
-
-        for count = 0 to listSize
-            if list[count] > focused
-                return list[count]
-            end if
-        end for
-    else
-        listSize = list.Count()-1
-
-        for count = listSize to 0 step -1
-            if list[count] < focused
-                return list[count]
-            end if
-        end for
-    end if
-
-    return focused
-End Function
-
-'**********************************************************
 '** createLiveTvRecordingGroupsScreen
 '**********************************************************
 

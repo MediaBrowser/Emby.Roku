@@ -806,8 +806,6 @@ Function getSpecialFeaturesFromUrl(url As String) As Object
         end for
 
         return contentList
-    else
-        Debug("Failed to Get Local Trailers")
     end if
 
     return invalid
@@ -832,8 +830,6 @@ Function getVideoIntros(videoId As String) As Object
     if response <> invalid
 
 		return parseItemsResponse(response, 0, "flat-episodic-16x9")
-    else
-        Debug("Failed to Get Video Intros")
     end if
 
     return invalid

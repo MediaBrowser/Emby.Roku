@@ -1,5 +1,5 @@
 '**********************************************************
-'** Get Search Results
+'** parseSearchResultsResponse
 '**********************************************************
 
 Function parseSearchResultsResponse(response as String) As Object
