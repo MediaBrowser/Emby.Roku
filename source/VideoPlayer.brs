@@ -8,16 +8,11 @@
 '** Play video
 '**********************************************************
 
-Sub playVideo(video As Object, options as Object) 
+Function getListWithIntros(context, contextIndex, playOptions) 
 
-    if AudioPlayer().IsPlaying
-        Debug("Stop audio player")
-        AudioPlayer().Stop()
-    end if
+    list = []
 
-	list = []
-
-    if options.playstart = 0 and options.intros <> false
+    if playOptions.playstart = 0 and playOptions.intros <> false
 
         intros = getVideoIntros(video.Id)
 
@@ -33,18 +28,19 @@ Sub playVideo(video As Object, options as Object)
 
     end if
 
-	list.push(video)
-	video.playOptions = options
-	playVideoList(list)
+	return {
+		context: context
+		contextIndex: contextIndex
+	}
 	
-End Sub
+End Function
 
-Function createVideoPlayerScreen(metadata, playOptions, viewController)
+Function createVideoPlayerScreen(context, contextIndex, playOptions, viewController)
 
 	obj = CreateObject("roAssociativeArray")
     initBaseScreen(obj, viewController)
 
-    obj.Item = metadata
+    obj.Item = context[contextIndex]
 
     obj.Show = videoPlayerShow
     obj.HandleMessage = videoPlayerHandleMessage

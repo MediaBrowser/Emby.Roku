@@ -1208,12 +1208,12 @@ Function vcCreatePhotoPlayer(context, contextIndex=invalid, show=true, shuffled=
     return screen
 End Function
 
-Function vcCreateVideoPlayer(metadata, playOptions, show=true)
+Function vcCreateVideoPlayer(context, contextIndex, playOptions, show=true)
     
 	' Stop any background audio first
     AudioPlayer().Stop()
 
-    screen = createVideoPlayerScreen(metadata, playOptions, m)
+    screen = createVideoPlayerScreen(context, contextIndex, playOptions, m)
     screen.ScreenName = "Video Player"
 
     m.AddBreadcrumbs(screen, invalid)
@@ -1235,7 +1235,7 @@ Function vcCreatePlayerForItem(context, contextIndex, playOptions)
         return m.CreateScreenForItem(context, contextIndex, invalid)
     else if item.MediaType = "Video" then
 	
-		return m.CreateVideoPlayer(item, playOptions)
+		return m.CreateVideoPlayer(context, contextIndex, playOptions)
     else
         Debug("Not sure how to play item of type " + tostr(item.ContentType))
         return m.CreateScreenForItem(context, contextIndex, invalid)
