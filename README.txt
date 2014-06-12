@@ -13,6 +13,14 @@ telnet
 0 192.168.1.100 8085
 
 
+Guidelines for Pull Requests
+============
+
+* One change per pull request. Please make sure the pull request does not contain more than one change, or changes that are unrelated to the issue being addressed.
+* Make sure to preserve file formatting. Do not make significant changes to whitespace, tabs, etc because this will make it more difficult to review the changes.
+* Comment your code. Do not recite the code in comment form, but do comment on why you're doing things one way or another.
+
+
 Changelog
 ============
 
