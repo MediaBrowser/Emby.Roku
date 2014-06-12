@@ -134,7 +134,7 @@ End Sub
 Sub ShowPasswordFailed()
 
     title = "Login Failed"
-    message = "The password for that user is incorrect. Please double check the password and try again or try another user."
+    message = "Invalid username or password. Please try again."
 
     dlg = createBaseDialog()
     dlg.Title = title

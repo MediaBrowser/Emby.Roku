@@ -47,7 +47,7 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
     query = {
         recursive: "true"
         includeitemtypes: "Movie"
-        fields: "Overview,UserData"
+        fields: "Overview,PrimaryImageAspectRatio"
         sortby: "SortName"
         sortorder: "Ascending"
 		CollapseBoxSetItems: "false"
@@ -77,8 +77,6 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
 		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
         return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
-    else
-        Debug("Failed to Get Movies List")
     end if
 
     return invalid
@@ -90,6 +88,7 @@ End Function
 '**********************************************************
 
 Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As Dynamic) As Object
+
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -97,7 +96,7 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
     query = {
         recursive: "true"
         includeitemtypes: "BoxSet"
-        fields: "Overview,UserData,ItemCounts"
+        fields: "Overview,PrimaryImageAspectRatio"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -121,8 +120,6 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
 		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
         return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
-    else
-        Debug("Failed to Get Movie Boxsets")
     end if
 
     return invalid
@@ -134,6 +131,7 @@ End Function
 '**********************************************************
 
 Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
+
     ' Validate Parameter
     if validateParam(boxsetId, "roString", "moviemetadata_boxset_movie_list") = false return invalid
 
@@ -144,7 +142,7 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
     query = {
         parentid: boxsetId
         recursive: "true"
-        fields: "Overview,UserData"
+        fields: "Overview,PrimaryImageAspectRatio"
         sortby: "ProductionYear,SortName"
         sortorder: "Ascending"
     }
@@ -162,8 +160,6 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
 		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
         return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
-    else
-        Debug("Failed to Get Movies in a Boxset")
     end if
 
     return invalid
@@ -183,7 +179,7 @@ Function getMovieResumable() As Object
         limit: "10"
         recursive: "true"
         includeitemtypes: "Movie"
-		fields: "UserData,PlayedPercentage"
+		fields: "PrimaryImageAspectRatio"
         sortby: "DatePlayed"
         sortorder: "Descending"
         filters: "IsResumable"
@@ -200,8 +196,6 @@ Function getMovieResumable() As Object
     if response <> invalid
 
         return parseItemsResponse(response, 1, "mixed-aspect-ratio-portrait")
-    else
-        Debug("Failed to Get Resumable Movies")
     end if
 
     return invalid
@@ -221,6 +215,7 @@ Function getSuggestedMovies() As Object
         UserId: getGlobalVar("user").Id
         ItemLimit: "20"
         CategoryLimit: "1"
+		fields: "PrimaryImageAspectRatio"
     }
 
     ' Prepare Request
@@ -260,8 +255,6 @@ Function getSuggestedMovies() As Object
             RecommendationType: recommendationType
             BaselineItemName: baselineItemName
         }
-    else
-        Debug("Failed to Get Recently Added Movies")
     end if
 
     return invalid
@@ -284,6 +277,7 @@ Function getMovieLatest() As Object
         sortby: "DateCreated"
         sortorder: "Descending"
         filters: "IsUnplayed"
+		fields: "PrimaryImageAspectRatio"
     }
 
     ' Prepare Request
@@ -300,8 +294,6 @@ Function getMovieLatest() As Object
 
         return parseItemsResponse(response, 1, "mixed-aspect-ratio-portrait")
 
-    else
-        Debug("Failed to Get Recently Added Movies")
     end if
 
     return invalid
@@ -324,6 +316,7 @@ Function getMovieFavorites() As Object
         sortby: "SortName"
         sortorder: "Ascending"
         filters: "IsFavorite"
+		fields: "PrimaryImageAspectRatio"
     }
 
     ' Prepare Request
@@ -339,8 +332,6 @@ Function getMovieFavorites() As Object
 		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
         return parseItemsResponse(response, 1, "mixed-aspect-ratio-portrait")
-    else
-        Debug("Failed to Get Favorite Movies")
     end if
 
     return invalid
@@ -360,7 +351,7 @@ Function getMovieGenres(offset = invalid As Dynamic, limit = invalid As Dynamic,
         userid: getGlobalVar("user").Id
         recursive: "true"
         includeitemtypes: "Movie"
-        fields: "ItemCounts"
+        fields: "PrimaryImageAspectRatio"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -386,8 +377,6 @@ Function getMovieGenres(offset = invalid As Dynamic, limit = invalid As Dynamic,
 		if homePage = true then imageType = 1
 
         return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait", "moviegenre")
-    else
-        Debug("Failed to Get Genres for Movies")
     end if
 
     return invalid
@@ -399,6 +388,7 @@ End Function
 '**********************************************************
 
 Function getMovieGenreList(genreName As String, offset = invalid As Dynamic, limit = invalid As Dynamic, searchPage = false) As Object
+
     ' Validate Parameter
     if validateParam(genreName, "roString", "getMovieGenreList") = false return invalid
 
@@ -410,7 +400,7 @@ Function getMovieGenreList(genreName As String, offset = invalid As Dynamic, lim
         genres: genreName
         recursive: "true"
         includeitemtypes: "Movie"
-        fields: "UserData,Overview"
+        fields: "PrimaryImageAspectRatio,Overview"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -436,8 +426,6 @@ Function getMovieGenreList(genreName As String, offset = invalid As Dynamic, lim
 		if searchPage = true then imageType = 1
 
         return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
-    else
-        Debug("Failed to Get Movies List In Genre")
     end if
 
     return invalid

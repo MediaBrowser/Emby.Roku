@@ -16,7 +16,7 @@ Function getTvShowList(offset = invalid As Dynamic, limit = invalid As Dynamic, 
     query = {
         recursive: "true"
         IncludeItemTypes: "Series"
-        fields: "Overview"
+        fields: "Overview,PrimaryImageAspectRatio"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -45,8 +45,6 @@ Function getTvShowList(offset = invalid As Dynamic, limit = invalid As Dynamic, 
 		imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
 
         return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
-    else
-        Debug("Failed to Get TV Shows List")
     end if
 
     return invalid
@@ -66,7 +64,7 @@ Function getTvResumable() As Object
         limit: "20"
         recursive: "true"
         includeitemtypes: "Episode"
-        fields: "SeriesInfo,PlayedPercentage,UserData"
+        fields: "PrimaryImageAspectRatio"
         sortby: "DatePlayed"
         sortorder: "Descending"
         filters: "IsResumable"
@@ -105,7 +103,7 @@ Function getTvLatest() As Object
         recursive: "true"
         IncludeItemTypes: "Episode"
         ExcludeLocationTypes: "Virtual"
-        fields: "SeriesInfo,UserData"
+        fields: "PrimaryImageAspectRatio"
         sortby: "DateCreated"
         sortorder: "Descending"
         filters: "IsUnplayed"
@@ -122,8 +120,6 @@ Function getTvLatest() As Object
     if response <> invalid
 
         return parseItemsResponse(response, 0, "two-row-flat-landscape-custom")
-    else
-        Debug("Failed to Get Recently Added TV Shows")
     end if
 
     return invalid
@@ -145,6 +141,7 @@ Function getTvFavorites() As Object
         sortby: "SortName"
         sortorder: "Ascending"
         filters: "IsFavorite"
+		fields: "PrimaryImageAspectRatio"
     }
 
     ' Prepare Request
@@ -158,8 +155,6 @@ Function getTvFavorites() As Object
     if response <> invalid
 
         return parseItemsResponse(response, 1, "two-row-flat-landscape-custom")
-    else
-        Debug("Failed to Get Favorite TV Shows")
     end if
 
     return invalid
@@ -177,7 +172,7 @@ Function getTvNextUp(offset = invalid As Dynamic, limit = invalid As Dynamic, ho
     ' Query
     query = {
         userid: getGlobalVar("user").Id
-        fields: "SeriesInfo,DateCreated,Overview"
+        fields: "PrimaryImageAspectRatio,Overview"
     }
 
     ' Paging
@@ -202,8 +197,6 @@ Function getTvNextUp(offset = invalid As Dynamic, limit = invalid As Dynamic, ho
 		if mode = "seriesimageasprimary" then imageStyle = "mixed-aspect-ratio-portrait"
 		
 		return parseItemsResponse(response, imageType, imageStyle, mode)
-    else
-        Debug("Failed to Get Next Episodes to Watch for TV Shows")
     end if
 
     return invalid
@@ -223,7 +216,7 @@ Function getTvGenres(offset = invalid As Dynamic, limit = invalid As Dynamic, ho
         userid: getGlobalVar("user").Id
         recursive: "true"
         includeitemtypes: "Series"
-        fields: "ItemCounts"
+        fields: "PrimaryImageAspectRatio"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -249,8 +242,6 @@ Function getTvGenres(offset = invalid As Dynamic, limit = invalid As Dynamic, ho
 		if homePage = true then imageType = 1
 
         return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait", "tvgenre")
-    else
-        Debug("Failed to Get Genres for TV Shows")
     end if
 
     return invalid
@@ -262,6 +253,7 @@ End Function
 '**********************************************************
 
 Function getTvSeasons(seriesId As String) As Object
+
     ' Validate Parameter
     if validateParam(seriesId, "roString", "getTvSeasons") = false return invalid
 
@@ -273,6 +265,7 @@ Function getTvSeasons(seriesId As String) As Object
         UserId: getGlobalVar("user").Id
         IsMissing: "false"
         IsVirtualUnaired: "false"
+		fields: "PrimaryImageAspectRatio"
     }
 
     ' Prepare Request
@@ -334,7 +327,7 @@ Function getTvGenreShowList(genreName As String, offset = invalid As Dynamic, li
         genres: genreName
         recursive: "true"
         includeitemtypes: "Series"
-        fields: "ItemCounts,SortName,Overview"
+        fields: "PrimaryImageAspectRatio,Overview"
         sortby: "SortName"
         sortorder: "Ascending"
     }

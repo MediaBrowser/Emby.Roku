@@ -47,7 +47,7 @@ Function getMusicAlbums(offset = invalid As Dynamic, limit = invalid As Dynamic,
     query = {
         recursive: "true"
         includeitemtypes: "MusicAlbum"
-        fields: "ItemCounts,DateCreated,UserData,AudioInfo,ParentId,SortName,Overview"
+        fields: "Overview,PrimaryImageAspectRatio"
         sortby: "AlbumArtist,SortName"
         sortorder: "Ascending"
     }
@@ -74,8 +74,6 @@ Function getMusicAlbums(offset = invalid As Dynamic, limit = invalid As Dynamic,
     if response <> invalid
 
         return parseItemsResponse(response, 0, "mixed-aspect-ratio-square")
-    else
-        Debug("Error getting music albums.")
     end if
 
     return invalid
@@ -94,7 +92,7 @@ Function getMusicArtists(offset = invalid As Dynamic, limit = invalid As Dynamic
     query = {
         userid: getGlobalVar("user").Id
         recursive: "true"
-        fields: "ItemCounts,UserData,SortName"
+        fields: "PrimaryImageAspectRatio"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -121,8 +119,7 @@ Function getMusicArtists(offset = invalid As Dynamic, limit = invalid As Dynamic
         return parseItemsResponse(response, 0, "mixed-aspect-ratio-square")
     end if
 
-	Debug("Failed to Get Music Artists")
-    return invalid
+	return invalid
 
 End Function
 
@@ -140,7 +137,7 @@ Function getMusicGenres() As Object
         userid: getGlobalVar("user").Id
         recursive: "true"
         includeitemtypes: "Audio,MusicVideo"
-        fields: "ItemCounts"
+        fields: "PrimaryImageAspectRatio"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -156,8 +153,6 @@ Function getMusicGenres() As Object
     if response <> invalid
 
         return parseItemsResponse(response, 0, "mixed-aspect-ratio-portrait")
-    else
-        Debug("Failed to Get Genres for Music")
     end if
 
     return invalid
@@ -180,7 +175,7 @@ Function musicmetadata_artist_albums(artistName As String) As Object
         artists: artistName
         recursive: "true"
         includeitemtypes: "MusicAlbum"
-        fields: "ItemCounts,DateCreated,UserData,AudioInfo,ParentId"
+        fields: "PrimaryImageAspectRatio,DateCreated"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -196,8 +191,6 @@ Function musicmetadata_artist_albums(artistName As String) As Object
     if response <> invalid
 
         return parseItemsResponse(response, 0, "arced-square")
-    else
-        Debug("Failed to Get Albums by an Artist")
     end if
 
     return invalid
@@ -220,7 +213,7 @@ Function musicmetadata_genre_albums(genreName As String) As Object
         genres: genreName
         recursive: "true"
         includeitemtypes: "MusicAlbum"
-        fields: "ItemCounts,DateCreated,UserData,AudioInfo,ParentId"
+        fields: "PrimaryImageAspectRatio,DateCreated"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -236,8 +229,6 @@ Function musicmetadata_genre_albums(genreName As String) As Object
     if response <> invalid
 
         return parseItemsResponse(response, 0, "arced-square")
-    else
-        Debug("Failed to Get Albums by Genre")
     end if
 
     return invalid
@@ -260,7 +251,7 @@ Function musicmetadata_album_songs(albumId As String) As Object
         parentid: albumId
         recursive: "true"
         includeitemtypes: "Audio"
-        fields: "UserData,ParentId,MediaSources"
+        fields: "PrimaryImageAspectRatio,MediaSources"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -275,8 +266,6 @@ Function musicmetadata_album_songs(albumId As String) As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 		return parseItemsResponse(response, 0, "list")
-    else
-        Debug("Error getting song list")
     end if
 
     return invalid
@@ -296,7 +285,7 @@ Function getMusicLatest() As Object
         limit: "20"
         recursive: "true"
         includeitemtypes: "MusicAlbum"
-        fields: "ItemCounts"
+        fields: "PrimaryImageAspectRatio"
         sortby: "DateCreated"
         sortorder: "Descending"
     }
