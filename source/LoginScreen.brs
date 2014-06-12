@@ -146,7 +146,7 @@ End Sub
 
 Function getLoginScreenDataContainer(viewController as Object, item as Object) as Object
 
-    profiles = getAllUserProfiles()
+    profiles = getPublicUserProfiles()
 
     if profiles = invalid
         return invalid
