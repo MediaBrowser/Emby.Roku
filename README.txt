@@ -1,6 +1,4 @@
-MediaBrowser Roku
-
-Changelog
+## Changelog
 
 1.2:
 
