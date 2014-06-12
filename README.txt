@@ -1,6 +1,28 @@
-MediaBrowser Roku
+How to Contribute
+============
+
+First enable devloper mode on your Roku device:
+
+http://sdkdocs.roku.com/display/sdkdoc/Developer+Guide
+
+Then, zip up the source code directory. Visit 192.168.1.100 in your browser, updating the IP address with the IP of the Roku device. From here you can upload the zip to the device.
+
+To debug, use any telnet client on port 8085 of the Roku. In windows, open a command promt:
+
+telnet
+o 192.168.1.100 8085
+
+
+Guidelines for Pull Requests
+============
+
+* One change per pull request. Please make sure the pull request does not contain more than one change, or changes that are unrelated to the issue being addressed.
+* Make sure to preserve file formatting. Do not make significant changes to whitespace, tabs, etc because this will make it more difficult to review the changes.
+* Comment your code. Do not recite the code in comment form, but do comment on why you're doing things one way or another.
+
 
 Changelog
+============
 
 1.2:
 
