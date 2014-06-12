@@ -225,7 +225,8 @@ Sub videoActivate(priorScreen)
 			playOptions = {
 				playstart: 0
 			}
-            m.ViewController.CreateVideoPlayer(m.metadata, playOptions)
+            
+			m.ViewController.CreatePlayerForItem([m.metadata], 0, playOptions)
         else
             m.Refresh(true)
 
@@ -259,7 +260,7 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
                 options = {
 					playstart: 0
 				}
-				playVideo(item, options)
+				m.ViewController.CreatePlayerForItem([item], 0, options)
 
                 ' Refresh play data after playing.
                 m.refreshOnActivate = true
@@ -268,7 +269,7 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
                 options = {
 					playstart: item.BookmarkPosition
 				}
-				playVideo(item, options)
+				m.ViewController.CreatePlayerForItem([item], 0, options)
 
                 ' Refresh play data after playing.
                 m.refreshOnActivate = true
@@ -284,7 +285,7 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
 					playstart: 0
 					intros: false
 				}
-				playVideo(getLocalTrailers(item.Id)[0], options)
+				m.ViewController.CreatePlayerForItem(getLocalTrailers(item.Id), 0, options)
 
             else if buttonCommand = "trailers" then
                 newScreen = createLocalTrailersScreen(viewController, item)
@@ -356,7 +357,7 @@ Function handleChaptersScreenMessage(msg) as Boolean
 				intros: false
 			}
 
-            playVideo(item, playOptions)
+            m.ViewController.CreatePlayerForItem([item], 0, playOptions)
 
         end if
 			

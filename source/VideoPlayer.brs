@@ -4,8 +4,44 @@
 
 '** Credit: Plex Roku https://github.com/plexinc/roku-client-public
 
+'**********************************************************
+'** Play video
+'**********************************************************
+
+Sub playVideo(video As Object, options as Object) 
+
+    if AudioPlayer().IsPlaying
+        Debug("Stop audio player")
+        AudioPlayer().Stop()
+    end if
+
+	list = []
+
+    if options.playstart = 0 and options.intros <> false
+
+        intros = getVideoIntros(video.Id)
+
+        if intros <> invalid
+		
+            for each i in intros.Items	
+
+				i.playOptions = {}
+				list.push(i)
+            end for
+			
+        end if
+
+    end if
+
+	list.push(video)
+	video.playOptions = options
+	playVideoList(list)
+	
+End Sub
+
 Function createVideoPlayerScreen(metadata, playOptions, viewController)
-    obj = CreateObject("roAssociativeArray")
+
+	obj = CreateObject("roAssociativeArray")
     initBaseScreen(obj, viewController)
 
     obj.Item = metadata

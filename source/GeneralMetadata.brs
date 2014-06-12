@@ -976,3 +976,47 @@ Function GetFullItemMetadata(item, isForPlayback as Boolean, options as Object) 
 	return item
 
 End Function
+
+
+'**********************************************************
+'** Format Time From Seconds
+'**********************************************************
+
+Function formatTime(seconds As Integer) As String
+    if validateParam(seconds, "roInt", "formatTime") = false return -1
+
+    textTime = ""
+    hasHours = false
+
+    ' Special Check For Zero
+    if seconds < 60
+        return "0:" + ZeroPad(itostr(seconds))
+    end if
+    
+    ' Hours
+    if seconds >= 3600
+        textTime = textTime + itostr(seconds / 3600) + ":"
+        hasHours = true
+        seconds = seconds Mod 3600
+    end if
+    
+    ' Minutes
+    if seconds >= 60
+        if hasHours
+            textTime = textTime + ZeroPad(itostr(seconds / 60)) + ":"
+        else
+            textTime = textTime + itostr(seconds / 60) + ":"
+        end if
+        
+        seconds = seconds Mod 60
+    else
+        if hasHours
+            textTime = textTime + "00:"
+        end if
+    end if
+
+    ' Seconds
+    textTime = textTime + ZeroPad(itostr(seconds))
+
+    return textTime
+End Function

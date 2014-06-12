@@ -1225,7 +1225,7 @@ Function vcCreateVideoPlayer(metadata, playOptions, show=true)
     return screen
 End Function
 
-Function vcCreatePlayerForItem(context, contextIndex, seekValue=invalid)
+Function vcCreatePlayerForItem(context, contextIndex, playOptions)
     item = context[contextIndex]
 
     if item.MediaType = "Photo" then
@@ -1235,10 +1235,7 @@ Function vcCreatePlayerForItem(context, contextIndex, seekValue=invalid)
         return m.CreateScreenForItem(context, contextIndex, invalid)
     else if item.MediaType = "Video" then
 	
-		playOptions = {
-			playstart: seekValue
-		}
-        return m.CreateVideoPlayer(item, playOptions)
+		return m.CreateVideoPlayer(item, playOptions)
     else
         Debug("Not sure how to play item of type " + tostr(item.ContentType))
         return m.CreateScreenForItem(context, contextIndex, invalid)
