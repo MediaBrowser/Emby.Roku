@@ -10,7 +10,7 @@ Then, zip up the source code directory. Visit 192.168.1.100 in your browser, upd
 To debug, use any telnet client on port 8085 of the Roku. In windows, open a command promt:
 
 telnet
-0 192.168.1.100 8085
+o 192.168.1.100 8085
 
 
 Guidelines for Pull Requests
