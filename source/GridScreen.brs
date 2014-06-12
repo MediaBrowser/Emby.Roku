@@ -1,82 +1,433 @@
 '**********************************************************
 '**  Media Browser Roku Client - Grid Screen
+'** Credit: Plex Roku https://github.com/plexinc/roku-client-public
 '**********************************************************
 
+Function CreateGridScreen(viewController as Object, style As String) As Object
 
-Function CreateGridScreen(lastLocation As String, currentLocation As String, style As String, port = invalid As Object) As Object
+    setGridTheme(viewController, style)
 
-    ' Setup Border
-    if style = "two-row-flat-landscape-custom" then
-        app = CreateObject("roAppManager")
-        app.SetThemeAttribute("GridScreenFocusBorderHD", "pkg:/images/grid/hd-border-flat-landscape.png")
-        app.SetThemeAttribute("GridScreenBorderOffsetHD", "-34,-19")
-    else if style = "mixed-aspect-ratio" then
-        app = CreateObject("roAppManager")
-        app.SetThemeAttribute("GridScreenFocusBorderHD", "pkg:/images/grid/hd-border-portrait.png")
-        app.SetThemeAttribute("GridScreenBorderOffsetHD", "-25,-35")
-    end if
+    screen = CreateObject("roAssociativeArray")
 
-    ' Setup Screen
-    o = CreateObject("roAssociativeArray")
-
-    if port = invalid then
-        port = CreateObject("roMessagePort")
-    end if
+    initBaseScreen(screen, viewController)
 
     grid = CreateObject("roGridScreen")
-    grid.SetMessagePort(port)
+    grid.SetMessagePort(screen.Port)
 
-    ' Setup Common Items
-    o.Screen                = grid
-    o.Port                  = port
-    o.AddRow                = AddGridRow
-    o.ShowNames             = ShowGridNames
-    o.AddRowContent         = AddGridRowContent
-    o.UpdateRowContent      = UpdateGridRowContent
-    o.LoadRowContent        = LoadGridRowContent
-    o.SetDescriptionVisible = ShowGridDescriptionBox
-    o.SetListPosterStyles   = SetGridPosterStyles
-    o.SetFocusedListItem    = SetGridFocusedItem
-    o.Show                  = ShowGridScreen
-    o.Close                 = CloseGridScreen
-    o.RecreateScreen        = RecreateGridScreen
-
-    o.rowNames              = []
-    o.rowStyles             = []
-    o.rowContent            = []
-    o.loadedContent         = []
-    o.rowLoadedCount        = []
-    o.rowFinishedLoading    = []
-    o.TotalCounts           = []
-    o.rowPageSize           = 100
-    o.rowPageEdge           = 25
-
-    ' Used For Re-Creating Grid
-    o.lastLocation          = lastLocation
-    o.currentLocation       = currentLocation
-    o.gridStyle             = style
-
-    ' Set Breadcrumbs
-    o.Screen.SetBreadcrumbText(lastLocation, currentLocation)
+    ' Standard properties for all our Screen types
+    screen.Screen = grid
 
     ' Check for legacy devices to provide exit when they have no back Button
     ' Setup loading poster for current devices
     if getGlobalVar("legacyDevice")
-        o.Screen.SetUpBehaviorAtTopRow("exit")
+        upBehavior = "exit"
     else
+		upBehavior = "stop"
         if style = "two-row-flat-landscape-custom" then
-            o.Screen.SetLoadingPoster("pkg://images/defaults/sd-loading-landscape.jpg", "pkg://images/defaults/hd-loading-landscape.jpg")
+            screen.Screen.SetLoadingPoster(viewController.getThemeImageUrl("sd-loading-landscape.jpg"), viewController.getThemeImageUrl("hd-loading-landscape.jpg"))
         else if style = "mixed-aspect-ratio" then
-            o.Screen.SetLoadingPoster("pkg://images/defaults/sd-loading-poster.jpg", "pkg://images/defaults/hd-loading-poster.jpg")
+            screen.Screen.SetLoadingPoster(viewController.getThemeImageUrl("sd-loading-poster.jpg"), viewController.getThemeImageUrl("hd-loading-poster.jpg"))
         end if
     end if
 
-    ' Setup Display Style
-    o.Screen.SetGridStyle(style)
-    o.Screen.SetDisplayMode("scale-to-fit")
+    ' If we don't know exactly what we're displaying, scale-to-fit looks the
+    ' best. Anything else makes something look horrible when the grid has
+    ' some combination of posters and video frames.
+    grid.SetDisplayMode("scale-to-fit")
+    grid.SetGridStyle(style)
+    grid.SetUpBehaviorAtTopRow(upBehavior)
 
-    Return o
+    screen.DestroyAndRecreate = gridDestroyAndRecreate
+    screen.Show = ShowGridScreen
+    screen.HandleMessage = gridHandleMessage
+    screen.Activate = gridActivate
+    screen.OnTimerExpired = gridOnTimerExpired
+
+	screen.displayInfoBox = 0
+
+    screen.timer = createTimer()
+    screen.selectedRow = 0
+    screen.focusedIndex = 0
+    screen.contentArray = []
+    screen.lastUpdatedSize = []
+    screen.gridStyle = style
+    screen.upBehavior = upBehavior
+    screen.hasData = false
+    screen.hasBeenFocused = false
+    screen.ignoreNextFocus = false
+    screen.recreating = false
+
+    screen.OnDataLoaded = gridOnDataLoaded
+
+    screen.AddRow                = AddGridRow
+    screen.ShowNames             = ShowGridNames
+    screen.AddRowContent         = AddGridRowContent
+    screen.UpdateRowContent      = UpdateGridRowContent
+    screen.LoadRowContent        = LoadGridRowContent
+    screen.SetDescriptionVisible = ShowGridDescriptionBox
+    screen.SetListPosterStyles   = SetGridPosterStyles
+    screen.SetFocusedListItem    = SetGridFocusedItem
+    screen.Close                 = CloseGridScreen
+
+    screen.rowNames              = []
+    screen.rowStyles             = []
+    screen.rowContent            = []
+    screen.loadedContent         = []
+    screen.rowLoadedCount        = []
+    screen.rowFinishedLoading    = []
+    screen.TotalCounts           = []
+    screen.rowPageSize           = 100
+    screen.rowPageEdge           = 25
+
+    return screen
+
 End Function
+
+'* Convenience method to create a grid screen with a loader for the specified item
+Function createPaginatedGridScreen(viewController as Object, names as Object, keys as Object, dataLoaderHttpHandler as Object, style As String) As Object
+
+    obj = createGridScreen(viewController, style)
+
+    container = CreateObject("roAssociativeArray")
+	container.names = names
+	container.keys = keys
+
+    obj.Loader = createPaginatedLoader(container, dataLoaderHttpHandler, 8, 75)
+    obj.Loader.Listener = obj
+
+    return obj
+
+End Function
+
+'* Convenience method to create a grid screen with a loader for the specified item
+Function createGridScreenForItem(item, viewController, style) As Object
+    obj = createGridScreen(viewController, style)
+
+    obj.Item = item
+
+    container = createPlexContainerForUrl(item.server, item.sourceUrl, item.key)
+    container.SeparateSearchItems = true
+    obj.Loader = createPaginatedLoader(container, 8, 75)
+    obj.Loader.Listener = obj
+
+    ' Don't play theme music on top of grid screens on the older Roku models.
+    ' It's not worth the DestroyAndRecreate headache.
+    if GetGlobal("rokuVersionArr", [0])[0] >= 4 AND NOT AudioPlayer().IsPlaying AND firstOf(RegRead("prefThemeMusic", "preferences"), "yes") = "yes" then
+        AudioPlayer().PlayThemeMusic(item)
+        obj.Cleanup = baseStopAudioPlayer
+    end if
+
+    return obj
+End Function
+
+Function gridHandleMessage(msg) As Boolean
+    handled = false
+
+    if type(msg) = "roGridScreenEvent" then
+        handled = true
+        if msg.isListItemSelected() then
+
+			' TODO: Remove this check once all screens have loaders
+			if m.Loader <> invalid then
+				context = m.contentArray[msg.GetIndex()]
+			else
+				context = m.rowContent[msg.GetIndex()]
+			end if
+            
+            index = msg.GetData()
+
+            item = context[index]
+
+            if item <> invalid then
+
+                if item.ContentType = "Series" then
+                    breadcrumbs = [item.Title]
+                else
+
+					' TODO: Remove this check once all screens have loaders
+					if m.Loader <> invalid then
+						breadcrumbs = [m.Loader.GetNames()[msg.GetIndex()], item.Title]
+					else
+						breadcrumbs = [m.rowNames[msg.GetIndex()], item.Title]
+					end if
+                end if
+
+                m.Facade = CreateObject("roGridScreen")
+                m.Facade.Show()
+
+                m.ViewController.CreateScreenForItem(context, index, breadcrumbs)
+            end if
+
+        else if msg.isListItemFocused() then
+            ' If the user is getting close to the limit of what we've
+            ' preloaded, make sure we kick off another update.
+
+            m.selectedRow = msg.GetIndex()
+            m.focusedIndex = msg.GetData()
+
+            if m.ignoreNextFocus then
+                m.ignoreNextFocus = false
+            else
+                m.hasBeenFocused = true
+            end if
+
+			' TODO: Remove this check once all screens have loaders
+			if m.Loader <> invalid then
+				if m.selectedRow < 0 OR m.selectedRow >= m.contentArray.Count() then
+					Debug("Ignoring grid ListItemFocused event for bogus row: " + tostr(msg.GetIndex()))
+				else
+					lastUpdatedSize = m.lastUpdatedSize[m.selectedRow]
+					if m.focusedIndex + 10 > lastUpdatedSize AND m.contentArray[m.selectedRow].Count() > lastUpdatedSize then
+						data = m.contentArray[m.selectedRow]
+					   m.Screen.SetContentListSubset(m.selectedRow, data, lastUpdatedSize, data.Count() - lastUpdatedSize)
+						m.lastUpdatedSize[m.selectedRow] = data.Count()
+					end if
+
+					m.Loader.LoadMoreContent(m.selectedRow, 2)
+				end if
+			end If
+        
+		else if msg.isRemoteKeyPressed() then
+
+            if msg.GetIndex() = 13 then
+                Debug("Playing item directly from grid")
+                context = m.rowContent[m.selectedRow]
+                m.ViewController.CreatePlayerForItem(context, m.focusedIndex)
+
+            end if
+
+        else if msg.isScreenClosed() then
+            if m.recreating then
+                Debug("Ignoring grid screen close, we should be recreating")
+                m.recreating = false
+            else
+                m.ViewController.PopScreen(m)
+            end if
+        end if
+    end if
+
+    return handled
+End Function
+
+'**********************************************************
+'** gridOnDataLoaded
+'**********************************************************
+
+Sub gridOnDataLoaded(row As Integer, data As Object, startItem As Integer, count As Integer, finished As Boolean)
+
+    Debug("Loaded " + tostr(count) + " elements in row " + tostr(row) + ", now have " + tostr(data.Count()))
+
+    m.contentArray[row] = data
+
+    ' Don't bother showing empty rows
+    if data.Count() = 0 then
+        if m.Screen <> invalid then
+            m.Screen.SetListVisible(row, false)
+            m.Screen.SetContentList(row, data)
+        end if
+
+        if NOT m.hasData then
+            pendingRows = (m.Loader.GetPendingRequestCount() > 0)
+
+            if NOT pendingRows then
+                for i = 0 to m.contentArray.Count() - 1
+                    if m.Loader.GetLoadStatus(i) < 2 then
+                        pendingRows = true
+                        exit for
+                    end if
+                next
+            end if
+
+            if NOT pendingRows then
+                Debug("Nothing in any grid rows")
+
+                ' If there's no data, show a helpful dialog. But if there's no
+                ' data on a refresh, it's a bit of a mess. The dialog is only
+                ' marginally helpful, and there's some sort of race condition
+                ' with the fact that we reset the content list for the current
+                ' row when the screen came back. That can hang the app for
+                ' non-obvious reasons. Even without showing the dialog, closing
+                ' the screen has a bit of an ugly flash.
+
+                if m.Refreshing <> true then
+                    dialog = createBaseDialog()
+                    dialog.Title = "Section Empty"
+                    dialog.Text = "This section doesn't contain any items."
+                    dialog.Show()
+                    m.closeOnActivate = true
+                else
+                    m.Screen.Close()
+                end if
+
+                return
+            end if
+        end if
+
+        ' Load the next row though. This is particularly important if all of
+        ' the initial rows are empty, we need to keep loading until we find a
+        ' row with data.
+        if row < m.contentArray.Count() - 1 then
+            m.Loader.LoadMoreContent(row + 1, 0)
+        end if
+
+        return
+    else if count > 0 AND m.Screen <> invalid then
+        m.Screen.SetListVisible(row, true)
+    end if
+
+    m.hasData = true
+
+    ' It seems like you should be able to do this, but you have to pass in
+    ' the full content list, not some other array you want to use to update
+    ' the content list.
+    ' m.Screen.SetContentListSubset(rowIndex, content, startItem, content.Count())
+
+    lastUpdatedSize = m.lastUpdatedSize[row]
+
+    if finished then
+        if m.Screen <> invalid then m.Screen.SetContentList(row, data)
+        m.lastUpdatedSize[row] = data.Count()
+    else if startItem < lastUpdatedSize then
+        if m.Screen <> invalid then m.Screen.SetContentListSubset(row, data, startItem, count)
+        m.lastUpdatedSize[row] = data.Count()
+    else if startItem = 0 OR (m.selectedRow = row AND m.focusedIndex + 10 > lastUpdatedSize) then
+        if m.Screen <> invalid then m.Screen.SetContentListSubset(row, data, lastUpdatedSize, data.Count() - lastUpdatedSize)
+        m.lastUpdatedSize[row] = data.Count()
+    end if
+
+    ' Continue loading this row
+    extraRows = 2 - (m.selectedRow - row)
+    if extraRows >= 0 AND extraRows <= 2 then
+        m.Loader.LoadMoreContent(row, extraRows)
+    end if
+End Sub
+
+'**********************************************************
+'** setGridTheme
+'**********************************************************
+
+Sub setGridTheme(viewController as Object, style as String)
+    ' This has to be done before the CreateObject call. Once the grid has
+    ' been created you can change its style, but you can't change its theme.
+
+    app = CreateObject("roAppManager")
+    if style = "two-row-flat-landscape-custom" then
+        app.SetThemeAttribute("GridScreenFocusBorderHD", viewController.getThemeImageUrl("hd-border-flat-landscape.png"))
+        app.SetThemeAttribute("GridScreenBorderOffsetHD", "-34,-19")
+        app.SetThemeAttribute("GridScreenDescriptionOffsetHD", "270,140")
+    else if style = "mixed-aspect-ratio" then
+        app.SetThemeAttribute("GridScreenFocusBorderHD", viewController.getThemeImageUrl("hd-border-portrait.png"))
+        app.SetThemeAttribute("GridScreenBorderOffsetHD", "-25,-35")
+        app.SetThemeAttribute("GridScreenDescriptionOffsetHD", "210,260")
+    end if
+End Sub
+
+'**********************************************************
+'** gridDestroyAndRecreate
+'**********************************************************
+
+Sub gridDestroyAndRecreate()
+    ' Close our current grid and recreate it once we get back.
+    ' Works around a weird glitch when certain screens (maybe just
+    ' an audio player) are shown on top of grids.
+    if m.Screen <> invalid then
+        Debug("Destroying grid...")
+        m.Screen.Close()
+        m.Screen = invalid
+
+        if m.ViewController.IsActiveScreen(m) then
+            m.recreating = true
+
+            timer = createTimer()
+            timer.Name = "Reactivate"
+
+            ' Pretty arbitrary, but too close to 0 won't work. This is obviously
+            ' a hack, but we're working around an acknowledged bug that will
+            ' never be fixed, so what can you do.
+            timer.SetDuration(1500)
+
+            m.ViewController.AddTimer(timer, m)
+        end if
+    end if
+End Sub
+
+'**********************************************************
+'** gridActivate
+'**********************************************************
+
+Sub gridActivate(priorScreen)
+    if m.popOnActivate then
+        m.ViewController.PopScreen(m)
+        return
+    else if m.closeOnActivate then
+        if m.Screen <> invalid then
+            m.Screen.Close()
+        else
+            m.ViewController.PopScreen(m)
+        end if
+        return
+    end if
+
+    ' If our screen was destroyed by some child screen, recreate it now
+    if m.Screen = invalid then
+
+        Debug("Recreating grid...")
+        setGridTheme(m.ViewController, m.gridStyle)
+        m.Screen = CreateObject("roGridScreen")
+        m.Screen.SetMessagePort(m.Port)
+        m.Screen.SetDisplayMode("scale-to-fit")
+        m.Screen.SetGridStyle(m.gridStyle)
+        m.Screen.SetUpBehaviorAtTopRow(m.upBehavior)
+
+        names = m.Loader.GetNames()
+        m.Screen.SetupLists(names.Count())
+        m.Screen.SetListNames(names)
+
+		if m.displayInfoBox = 0 then
+			m.SetDescriptionVisible(false)
+		else
+			m.SetDescriptionVisible(true)
+		end if
+
+        m.ViewController.UpdateScreenProperties(m)
+
+        for row = 0 to names.Count() - 1
+            m.Screen.SetContentList(row, m.contentArray[row])
+            if m.contentArray[row].Count() = 0 AND m.Loader.GetLoadStatus(row) = 2 then
+                m.Screen.SetListVisible(row, false)
+            end if
+        end for
+        m.Screen.SetFocusedListItem(m.selectedRow, m.focusedIndex)
+
+        m.Screen.Show()
+
+    else
+        ' Regardless, reset the current row in case the currently
+        ' selected item had metadata changed that would affect its
+        ' display in the grid.
+
+		if m.contentArray <> invalid then
+			m.Screen.SetContentList(m.selectedRow, m.contentArray[m.selectedRow])
+		end if
+        
+    end if
+
+    m.HasData = false
+    m.Refreshing = true
+
+	if m.Loader <> invalid then
+		' TODO: Remove this check once all screens have loaders
+		m.Loader.RefreshData()
+	end if
+
+    if m.Facade <> invalid then m.Facade.Close()
+End Sub
+
+Sub gridOnTimerExpired(timer)
+    if timer.Name = "Reactivate" AND m.ViewController.IsActiveScreen(m) then
+        m.Activate(invalid)
+    end if
+End Sub
 
 
 '**********************************************************
@@ -89,6 +440,8 @@ Function AddGridRow(title As String, rowStyle As String) As Boolean
 
     If rowStyle = "portrait" Then
         m.rowStyles.push( "portrait" )
+    Else If rowStyle = "square" Then
+        m.rowStyles.push( "square" )
     Else
         m.rowStyles.push( "landscape" )
     End If
@@ -164,7 +517,7 @@ Function LoadGridRowContent(rowIndex, rowData, offset, limit, reload = false) As
         end for
     else
         m.rowContent.push(rowData.Items)
-        'm.loadedContent = ShallowCopy(m.rowContent, 0)
+		
     end if
 
 
@@ -220,7 +573,7 @@ End Function
 '**********************************************************
 
 Function SetGridPosterStyles(styles As Object)
-    'm.screen.SetListPosterStyles(styles)
+    m.screen.SetListPosterStyles(styles)
 End Function
 
 
@@ -238,7 +591,70 @@ End Function
 '**********************************************************
 
 Function ShowGridScreen()
-    m.screen.Show()
+
+	if m.Loader = invalid then
+		m.Screen.Show()
+		return 0
+	end If
+
+    facade = CreateObject("roGridScreen")
+    facade.Show()
+
+    totalTimer = createTimer()
+
+    names = m.Loader.GetNames()
+
+    if names.Count() = 0 then
+        Debug("Nothing to load for grid")
+        dialog = createBaseDialog()
+        dialog.Facade = facade
+        dialog.Title = "Content Unavailable"
+        dialog.Text = "An error occurred while trying to load this content, make sure the server is running."
+        dialog.Show()
+
+        m.popOnActivate = true
+        return -1
+    end if
+
+    m.Screen.SetupLists(names.Count())
+    m.Screen.SetListNames(names)
+
+    if m.displayInfoBox = 0 then
+        m.SetDescriptionVisible(false)
+	else
+		m.SetDescriptionVisible(true)
+    end if
+
+    ' If we already "loaded" an empty row, we need to set the list visibility now
+    ' that we've setup the lists.
+    for row = 0 to names.Count() - 1
+        if m.contentArray[row] = invalid then m.contentArray[row] = []
+        m.lastUpdatedSize[row] = m.contentArray[row].Count()
+        m.Screen.SetContentList(row, m.contentArray[row])
+        if m.lastUpdatedSize[row] = 0 AND m.Loader.GetLoadStatus(row) = 2 then
+            m.Screen.SetListVisible(row, false)
+        end if
+    end for
+
+    m.Screen.Show()
+    facade.Close()
+
+    ' Only two rows and five items per row are visible on the screen, so
+    ' don't load much more than we need to before initially showing the
+    ' grid. Once we start the event loop we can load the rest of the
+    ' content.
+
+    maxRow = names.Count() - 1
+    if maxRow > 1 then maxRow = 1
+
+    for row = 0 to maxRow
+        Debug("Loading beginning of row " + tostr(row) + ", " + tostr(names[row]))
+        m.Loader.LoadMoreContent(row, 0)
+    end for
+
+    totalTimer.PrintElapsedTime("Total initial grid load")
+
+    return 0
 End Function
 
 
@@ -248,334 +664,4 @@ End Function
 
 Function CloseGridScreen()
     m.screen.Close()
-End Function
-
-
-'**********************************************************
-'** Recreate Grid Screen
-'**********************************************************
-
-Function RecreateGridScreen(viewType, showPopup)
-    m.screen.Close()
-
-    ' Copy Old Data
-    rowContent      = m.loadedContent
-    rowLoadedCount  = m.rowLoadedCount
-    rowNames        = m.rowNames
-    rowTotalCounts  = m.TotalCounts
-    lastLocation    = m.lastLocation
-    currentLocation = m.currentLocation
-    gridStyle       = m.gridStyle
-
-    Print "loaded content: "; m.rowLoadedCount[0]
-
-    ' Destroy old screen
-    m.screen = invalid
-
-    ' Create New Grid screen
-    screen = CreateGridScreen(lastLocation, currentLocation, gridStyle)
-
-    rowIndex = 0
-    for each row in rowContent
-        screen.AddRow(rowNames[rowIndex], "portrait")
-        rowIndex = rowIndex + 1
-    end for
-
-    ' Setup Row Names
-    screen.ShowNames()
-
-    ' Setup Row Styles
-    if viewType = "poster" then
-        screen.SetListPosterStyles(screen.rowStyles)
-    end if
-
-    rowIndex = 0
-    for each row in rowContent
-        ' Load Data
-        rowData = {}
-        rowData.Items      = rowContent[rowIndex]
-        rowData.TotalCount = rowTotalCounts[rowIndex]
-
-        screen.LoadRowContent(rowIndex, rowData, 0, screen.rowPageSize, true)
-
-        'screen.UpdateRowContent(rowIndex, rowContent[rowIndex])
-        rowIndex = rowIndex + 1
-    end for
-
-    ' Show Screen
-    screen.Show()
-
-    ' Show/Hide Description Popup
-    if showPopup = "no" Or showPopup = invalid then
-        screen.SetDescriptionVisible(false)
-    end if
-
-    return screen
-End Function
-
-
-
-'**********************************************************
-'** Find Closest Letter with Data
-'**********************************************************
-
-Function FindClosestLetter(letter As String, metadata As Object) As String
-    letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
-
-    ' If Data exists, just return the letter
-    If metadata.jumpList.DoesExist(letter) Then
-        return letter
-    End If
-
-    ' Determine the index of the letter
-    index = 0
-    letterIndex = 0
-
-    For Each cLetter In letters
-        If cLetter = letter Then
-            letterIndex = index
-            Exit For
-        End If
-        index = index + 1
-    End For
-
-    ' Find closest letter with data incrementing
-    For i=letterIndex To 25
-        If metadata.jumpList.DoesExist(letters[i]) Then
-            return letters[i]
-        End If
-    End For
-
-    ' Find closest letter with data decreasing
-    For i=letterIndex To 0 Step -1
-        If metadata.jumpList.DoesExist(letters[i]) Then
-            return letters[i]
-        End If
-    End For
-
-    return invalid
-End Function
-
-
-'**********************************************************
-'** Create the Jump List Dialog
-'**********************************************************
-
-Function CreateJumpListDialog()
-
-    ' Setup Screen
-    port = CreateObject("roMessagePort")
-    canvas = CreateObject("roImageCanvas")
-    canvas.SetMessagePort(port)
-
-    ' Center Dialog
-    canvasRect = canvas.GetCanvasRect()
-
-    dlgRect = {x: 0, y: 0, w: 700, h: 300}
-    dlgRect.x = int((canvasRect.w - dlgRect.w) / 2)
-    dlgRect.y = int((canvasRect.h - dlgRect.h) / 2)
-
-    ' Build Dialog
-    list = []
-    selectedIndex = 0
-    selectedRow = 0
-
-    ' Letters List
-    letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
-    lettersLower = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
-    positions = GetAlphabetPositions()
-
-    ' Dialog Background
-    dialogBackground = {
-        url: "pkg:/images/jumplist/dialog.png"
-        TargetRect: dlgRect
-    }
-
-    ' Instruction Text
-    list.Push({
-        Text:  "Jump To Letter:"
-        TextAttrs: { font: "small", color: "#303030", halign: "center", valign: "top" }
-        TargetRect: {x: 300, y: 250, w: 200, h: 60}
-    })
-
-    ' Alphabet
-    For i=0 To 12
-        list.Push({
-            Text:  letters[i]
-            TextAttrs: { font: "huge", color: "#303030", halign: "center", valign: "middle" }
-            TargetRect: positions[0][i]
-        })
-    End For
-
-    For i=0 To 12
-        list.Push({
-            Text:  letters[i+13]
-            TextAttrs: { font: "huge", color: "#303030", halign: "center", valign: "middle" }
-            TargetRect: positions[1][i]
-        })
-    End For
-
-    ' Selected Letter Box
-    selectedLetter = {
-        url: "pkg:/images/jumplist/box.png",
-        TargetRect: {x: positions[selectedRow][selectedIndex].x-5, y: positions[selectedRow][selectedIndex].y-9, w: 60, h: 60}
-    }            
-
-    ' Show Dialog
-    canvas.SetLayer(0, { Color: "#00000000", CompositionMode: "Source_Over" })
-    canvas.SetLayer(1, dialogBackground)
-    canvas.SetLayer(2, list)
-    canvas.SetLayer(3, selectedLetter)
-    canvas.Show()
-
-    canvas.AllowUpdates(true)
-
-    ' Remote key id's for navigation
-    remoteKeyBack   = 0
-    remoteKeyUp     = 2
-    remoteKeyDown   = 3
-    remoteKeyLeft   = 4
-    remoteKeyRight  = 5
-    remoteKeyOK     = 6
-    
-    While true
-        msg = wait(0, port)
-
-        If type(msg) = "roImageCanvasEvent" Then
-
-            If msg.isRemoteKeyPressed()
-                index = msg.GetIndex()
-
-                If index = remoteKeyBack Then
-                    canvas.Close()
-                    return invalid
-                Else If index = remoteKeyOK Then
-                    canvas.Close()
-                    If selectedRow = 1 Then
-                        return lettersLower[selectedIndex+13]
-                    Else
-                        return lettersLower[selectedIndex]
-                    End If
-
-                Else If index = remoteKeyLeft Then
-                    selectedIndex = selectedIndex-1
-                    If selectedIndex < 0
-                        selectedIndex = 0
-                    End if
-
-                Else If index = remoteKeyRight Then
-                    selectedIndex = selectedIndex+1
-                    If selectedIndex > 12
-                        selectedIndex = 12
-                    End if
-
-                Else If index = remoteKeyUp Then
-                    selectedRow = selectedRow-1
-                    If selectedRow < 0
-                        selectedRow = 0
-                    End if
-
-                Else If index = remoteKeyDown Then
-                    selectedRow = selectedRow+1
-                    If selectedRow > 1
-                        selectedRow = 1
-                    End If
-
-                ' Handle Remote Keyboards
-                Else if index > 64 and index < 91 then
-                    return LCase(chr(index))
-
-                Else If index > 97 and index < 123 then
-                    return chr(index)
-
-                End If
-
-                ' Rebuild Dialog Screen
-                selectedLetter.TargetRect = {x: positions[selectedRow][selectedIndex].x-5, y: positions[selectedRow][selectedIndex].y-9, w: 60, h: 60}
-
-                canvas.SetLayer(0, { Color: "#00000000", CompositionMode: "Source_Over" })
-                canvas.SetLayer(1, dialogBackground)
-                canvas.SetLayer(2, list)
-                canvas.SetLayer(3, selectedLetter)                
-
-            End If       
-            
-        End If
-    End While
-
-    return invalid
-End Function
-
-
-'**********************************************************
-'** Get the position of letters for jump list
-'**********************************************************
-
-Function GetAlphabetPositions() As Object
-    posArray = []
-    rowOneArray = []
-    rowTwoArray = []
-
-    ' A-M
-    rowOneArray.Push({x: 310, y: 300, w: 50, h: 50}) ' A
-    rowOneArray.Push({x: 360, y: 300, w: 50, h: 50}) ' B
-    rowOneArray.Push({x: 410, y: 300, w: 50, h: 50}) ' C
-    rowOneArray.Push({x: 460, y: 300, w: 50, h: 50}) ' D
-    rowOneArray.Push({x: 510, y: 300, w: 50, h: 50}) ' E
-    rowOneArray.Push({x: 560, y: 300, w: 50, h: 50}) ' F
-    rowOneArray.Push({x: 610, y: 300, w: 50, h: 50}) ' G
-    rowOneArray.Push({x: 660, y: 300, w: 50, h: 50}) ' H
-    rowOneArray.Push({x: 710, y: 300, w: 50, h: 50}) ' I
-    rowOneArray.Push({x: 760, y: 300, w: 50, h: 50}) ' J
-    rowOneArray.Push({x: 810, y: 300, w: 50, h: 50}) ' K
-    rowOneArray.Push({x: 860, y: 300, w: 50, h: 50}) ' L
-    rowOneArray.Push({x: 910, y: 300, w: 50, h: 50}) ' M
-
-    posArray[0] = rowOneArray
-
-    ' N-Z
-    rowTwoArray.Push({x: 310, y: 380, w: 50, h: 50}) ' N
-    rowTwoArray.Push({x: 360, y: 380, w: 50, h: 50}) ' O
-    rowTwoArray.Push({x: 410, y: 380, w: 50, h: 50}) ' P
-    rowTwoArray.Push({x: 460, y: 380, w: 50, h: 50}) ' Q
-    rowTwoArray.Push({x: 510, y: 380, w: 50, h: 50}) ' R
-    rowTwoArray.Push({x: 560, y: 380, w: 50, h: 50}) ' S
-    rowTwoArray.Push({x: 610, y: 380, w: 50, h: 50}) ' T
-    rowTwoArray.Push({x: 660, y: 380, w: 50, h: 50}) ' U
-    rowTwoArray.Push({x: 710, y: 380, w: 50, h: 50}) ' V
-    rowTwoArray.Push({x: 760, y: 380, w: 50, h: 50}) ' W
-    rowTwoArray.Push({x: 810, y: 380, w: 50, h: 50}) ' X
-    rowTwoArray.Push({x: 860, y: 380, w: 50, h: 50}) ' Y
-    rowTwoArray.Push({x: 910, y: 380, w: 50, h: 50}) ' Z
-
-    posArray[1] = rowTwoArray
-
-    return posArray
-End Function
-
-
-Function ShallowCopy(array As Dynamic, depth = 0 As Integer) As Dynamic
-    If Type(array) = "roArray" Then
-        copy = []
-        For Each item In array
-            childCopy = ShallowCopy(item, depth)
-            If childCopy <> invalid Then
-                copy.Push(childCopy)
-            End If
-        Next
-        Return copy
-    Else If Type(array) = "roAssociativeArray" Then
-        copy = {}
-        For Each key In array
-            If depth > 0 Then
-                copy[key] = ShallowCopy(array[key], depth - 1)
-            Else
-                copy[key] = array[key]
-            End If
-        Next
-        Return copy
-    Else
-        Return array
-    End If
-    Return invalid
 End Function

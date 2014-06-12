@@ -1,156 +1,498 @@
-'*****************************************************************
-'**  Media Browser Roku Client - Audio Player
-'*****************************************************************
+'**********************************************************
+'**  Modified beyond recognition but originally based on:
+'**  Audio Player Example Application - Audio Playback
+'**  November 2009
+'**  Copyright (c) 2009 Roku Inc. All Rights Reserved.
+'** Credit: Plex Roku https://github.com/plexinc/roku-client-public
+'**********************************************************
 
+Function AudioPlayer() As Object
 
-Function CreateAudioPlayer(port=invalid) As Object
+    ' Unlike just about everything else, the audio player isn't a Screen.
+    ' So we'll wrap the Roku audio player similarly, but not quite in the
+    ' same way.
 
-    ' Setup Player
-    o = CreateObject("roAssociativeArray")
+    if m.AudioPlayer = invalid then
+        obj = CreateObject("roAssociativeArray")
 
-    ' If Port is not set, create a new one
-    If port=invalid Or type(port)<>"roMessagePort" Then
-        port = CreateObject("roMessagePort")
-    End If
+        obj.Port = GetViewController().GlobalMessagePort
 
-    audioPlayer = CreateObject("roAudioPlayer")
-    audioPlayer.SetMessagePort(port)
+        ' We need a ScreenID property in order to use the view controller for timers
+        obj.ScreenID = -1
 
-    ' Setup Common Items
-    o.audioPlayer    = audioPlayer
-    o.Port           = port
-    o.AddTrack       = AddAudioTrack
-    o.AddPlaylist    = AddAudioPlaylist
-    o.ClearContent   = ClearAudioContent
-    o.Repeat         = RepeatAudio
-    o.Play           = PlayAudio
-    o.Stop           = StopAudio
-    o.Pause          = PauseAudio
-    o.Resume         = ResumeAudio
-    o.PrevTrack      = PreviousAudioTrack
-    o.NextTrack      = NextAudioTrack
-	o.MessageHandler = AudioMessageHandler
+        obj.HandleMessage = audioPlayerHandleMessage
+        obj.Cleanup = audioPlayerCleanup
 
-    o.CurrentIndex   = invalid
-    o.TrackCount     = 0
+        obj.Play = audioPlayerPlay
+        obj.PlayIndex = audioPlayerPlayIndex
+        obj.Pause = audioPlayerPause
+        obj.Resume = audioPlayerResume
+        obj.Stop = audioPlayerStop
+        obj.Seek = audioPlayerSeek
+        obj.Next = audioPlayerNext
+        obj.Prev = audioPlayerPrev
 
-    o.IsPlaying      = false
-    o.IsPaused       = false
+        obj.player = CreateObject("roAudioPlayer")
+        obj.player.SetMessagePort(obj.Port)
 
-    Return o
+        obj.Context = invalid
+        obj.CurIndex = invalid
+        obj.ContextScreenID = invalid
+        obj.SetContext = audioPlayerSetContext
+        obj.SetContextFromItems = audioPlayerSetContextFromItems
+
+        obj.ShowContextMenu = audioPlayerShowContextMenu
+
+        obj.PlayThemeMusic = audioPlayerPlayThemeMusic
+
+        obj.IsPlaying = false
+        obj.IsPaused = false
+
+        obj.Repeat = 0
+        obj.SetRepeat = audioPlayerSetRepeat
+        NowPlayingManager().timelines["music"].attrs["repeat"] = "0"
+
+        obj.IsShuffled = false
+        obj.SetShuffle = audioPlayerSetShuffle
+        NowPlayingManager().timelines["music"].attrs["shuffle"] = "0"
+
+        obj.playbackTimer = createTimer()
+        obj.playbackOffset = 0
+        obj.GetPlaybackProgress = audioPlayerGetPlaybackProgress
+
+        obj.UpdateNowPlaying = audioPlayerUpdateNowPlaying
+        obj.OnTimerExpired = audioPlayerOnTimerExpired
+		
+		obj.reportPlayback = audioPlayerReportPlayback
+
+        obj.IgnoreTimelines = false
+        obj.timelineTimer = createTimer()
+        obj.timelineTimer.Name = "timeline"
+        obj.timelineTimer.SetDuration(1000, true)
+        obj.timelineTimer.Active = false
+        GetViewController().AddTimer(obj.timelineTimer, obj)
+
+        ' Singleton
+        m.AudioPlayer = obj
+    end if
+
+    return m.AudioPlayer
+
 End Function
 
-Function AddAudioTrack(songUrl As string, format as string)
-    m.TrackCount = m.TrackCount + 1
+Function audioPlayerHandleMessage(msg) As Boolean
+    handled = false
 
-	song = CreateObject("roAssociativeArray")
-	song.Url = songUrl
-	song.StreamFormat = format
+    if type(msg) = "roAudioPlayerEvent" then
+        handled = true
+        item = m.Context[m.CurIndex]
 
-	m.audioPlayer.AddContent(song)
+        if msg.isRequestSucceeded() then
+
+            Debug("Playback of single song completed")
+
+            ' Send an analytics event, but not for theme music
+            if m.ContextScreenID <> invalid then
+                amountPlayed = m.GetPlaybackProgress()
+                Debug("Sending analytics event, appear to have listened to audio for " + tostr(amountPlayed) + " seconds")
+                'AnalyticsTracker().TrackEvent("Playback", firstOf(item.ContentType, "track"), item.mediaContainerIdentifier, amountPlayed)
+				m.reportPlayback("stop")
+            end if
+
+            if m.Repeat <> 1 then
+                maxIndex = m.Context.Count() - 1
+                newIndex = m.CurIndex + 1
+                if newIndex > maxIndex then newIndex = 0
+                m.CurIndex = newIndex
+            end if
+
+        else if msg.isRequestFailed() then
+            Debug("Audio playback failed")
+            m.IgnoreTimelines = false
+            maxIndex = m.Context.Count() - 1
+            newIndex = m.CurIndex + 1
+            if newIndex > maxIndex then newIndex = 0
+            m.CurIndex = newIndex
+
+        else if msg.isListItemSelected() then
+            Debug("Starting to play track: " + tostr(item.Url))
+            m.IgnoreTimelines = false
+            m.IsPlaying = true
+            m.IsPaused = false
+            m.playbackOffset = 0
+            m.playbackTimer.Mark()
+            GetViewController().DestroyGlitchyScreens()
+
+            if m.Repeat = 1 then
+                m.player.SetNext(m.CurIndex)
+            end if
+
+            if m.Context.Count() > 1 then
+                NowPlayingManager().SetControllable("music", "skipPrevious", (m.CurIndex > 0 OR m.Repeat = 2))
+                NowPlayingManager().SetControllable("music", "skipNext", (m.CurIndex < m.Context.Count() - 1 OR m.Repeat = 2))
+            end if
+			m.reportPlayback("start")
+
+        else if msg.isStatusMessage() then
+            Debug("Audio player status: " + tostr(msg.getMessage()))
+
+        else if msg.isFullResult() then
+            Debug("Playback of entire audio list finished")
+            m.Stop()
+
+        else if msg.isPartialResult() then
+            Debug("isPartialResult")
+
+        else if msg.isPaused() then
+            Debug("Stream paused by user")
+            m.IsPlaying = false
+            m.IsPaused = true
+            m.playbackOffset = m.playbackOffset + m.playbackTimer.GetElapsedSeconds()
+            m.playbackTimer.Mark()
+			m.reportPlayback("progress")
+
+        else if msg.isResumed() then
+            Debug("Stream resumed by user")
+            m.IsPlaying = true
+            m.IsPaused = false
+            m.playbackTimer.Mark()
+			m.reportPlayback("progress")
+        end if
+
+        m.UpdateNowPlaying()
+    end if
+
+    return handled
 End Function
 
-Function AddAudioPlaylist(songs As Object)
-    ' Add Each Song
-    For each songData in songs
-        m.AddTrack(songData.url, songData.format)
-    End For
+Sub audioPlayerReportPlayback(action as String)
+
+	isPaused = m.IsPaused
+	
+	position = m.GetPlaybackProgress()
+	
+	item = m.Context[m.CurIndex]
+
+	reportPlayback(item.Id, action, item.playMethod, isPaused, item.canSeek, position, item.MediaSourceId, invalid, invalid)
+End Sub
+
+Sub audioPlayerCleanup()
+    m.Stop()
+    m.timelineTimer = invalid
+    fn = function() :m.AudioPlayer = invalid :end function
+    fn()
+End Sub
+
+Sub audioPlayerPlay()
+    if m.Context <> invalid then
+        m.player.Play()
+    end if
+End Sub
+
+Sub audioPlayerPlayIndex(index as integer)
+    if m.Context <> invalid then
+        m.player.Stop()
+		m.player.SetNext(index)
+		m.player.Play()
+    end if
+End Sub
+
+Sub audioPlayerPause()
+    if m.Context <> invalid then
+        m.player.Pause()
+    end if
+End Sub
+
+Sub audioPlayerResume()
+    if m.Context <> invalid then
+        m.player.Resume()
+    end if
+End Sub
+
+Sub audioPlayerStop()
+    if m.Context <> invalid then
+        m.player.Stop()
+        m.player.SetNext(m.CurIndex)
+        m.IsPlaying = false
+        m.IsPaused = false
+    end if
+End Sub
+
+Sub audioPlayerSeek(offset, relative=false)
+    if relative then
+        if m.IsPlaying then
+            offset = offset + (1000 * m.GetPlaybackProgress())
+        else if m.IsPaused then
+            offset = offset + (1000 * m.playbackOffset)
+        end if
+
+        if offset < 0 then offset = 0
+    end if
+
+    if m.IsPlaying then
+        m.playbackOffset = int(offset / 1000)
+        m.playbackTimer.Mark()
+        m.player.Seek(offset)
+    else if m.IsPaused then
+        ' If we just call Seek while paused, we don't get a resumed event. This
+        ' way the UI is always correct, but it's possible for a blip of audio.
+        m.playbackOffset = int(offset / 1000)
+        m.playbackTimer.Mark()
+        m.player.Resume()
+        m.player.Seek(offset)
+    end if
+End Sub
+
+Sub audioPlayerNext()
+    if m.Context = invalid then return
+
+    maxIndex = m.Context.Count() - 1
+    newIndex = m.CurIndex + 1
+
+    if newIndex > maxIndex then newIndex = 0
+
+    m.IgnoreTimelines = true
+    m.Stop()
+    m.CurIndex = newIndex
+    m.player.SetNext(newIndex)
+    m.Play()
+End Sub
+
+Sub audioPlayerPrev()
+    if m.Context = invalid then return
+
+    newIndex = m.CurIndex - 1
+    if newIndex < 0 then newIndex = m.Context.Count() - 1
+
+    m.IgnoreTimelines = true
+    m.Stop()
+    m.CurIndex = newIndex
+    m.player.SetNext(newIndex)
+    m.Play()
+End Sub
+
+Sub audioPlayerSetContext(context, contextIndex, screen, startPlayer)
+
+    if startPlayer then
+        m.IgnoreTimelines = true
+        m.Stop()
+    end if
+
+    item = context[contextIndex]
+
+    m.Context = context
+    m.CurIndex = contextIndex
+
+    if screen <> invalid then
+        m.ContextScreenID = screen.ScreenID
+    else
+        m.ContextScreenID = invalid
+    end if
+
+    if item.server <> invalid then
+        AddAccountHeaders(m.player, item.server.AccessToken)
+    end if
+
+    if screen = invalid then
+        if firstOf(RegRead("theme_music", "preferences"), "loop") = "loop" then
+            m.Repeat = 1
+        else
+            m.Repeat = 0
+        end if
+    else
+        pref = firstOf(RegRead("loopalbums", "preferences"), "sometimes")
+        if pref = "sometimes" then
+            loop = (context.Count() > 1)
+        else
+            loop = (pref = "always")
+        end if
+        if loop then
+            m.SetRepeat(2)
+        else
+            m.SetRepeat(0)
+        end if
+    end if
+
+    m.player.SetLoop(m.Repeat = 2)
+    m.player.SetContentList(context)
+
+    m.IsShuffled = (screen <> invalid AND screen.IsShuffled)
+    if m.IsShuffled then
+        NowPlayingManager().timelines["music"].attrs["shuffle"] = "1"
+    else
+        NowPlayingManager().timelines["music"].attrs["shuffle"] = "0"
+    end if
+
+    NowPlayingManager().SetControllable("music", "skipPrevious", context.Count() > 1)
+    NowPlayingManager().SetControllable("music", "skipNext", context.Count() > 1)
+
+    if startPlayer then
+        m.player.SetNext(contextIndex)
+        m.IsPlaying = false
+        m.IsPaused = false
+    else
+        maxIndex = context.Count() - 1
+        newIndex = contextIndex + 1
+        if newIndex > maxIndex then newIndex = 0
+        m.player.SetNext(newIndex)
+    end if
+End Sub
+
+Sub audioPlayerSetContextFromItems(items, contextIndex, screen, startPlayer)
+
+	context = []
+
+    for each i in items
+
+		if i.MediaType = "Audio" then
+
+			context.push(i)
+		end if
+
+    end for
+
+	if context.Count() > 0 then
+		m.SetContext(context, contextIndex, screen, startPlayer)
+	end if
+
+End Sub
+
+Sub audioPlayerShowContextMenu()
+    dialog = createBaseDialog()
+    dialog.Title = "Now Playing"
+    dialog.Text = firstOf(m.Context[m.CurIndex].Title, "")
+
+    if m.IsPlaying then
+        dialog.SetButton("pause", "Pause")
+    else if m.IsPaused then
+        dialog.SetButton("resume", "Play")
+    else
+        dialog.SetButton("play", "Play")
+    end if
+    dialog.SetButton("stop", "Stop")
+
+    if m.Context.Count() > 1 then
+        dialog.SetButton("next_track", "Next Track")
+        dialog.SetButton("prev_track", "Previous Track")
+    end if
+
+    dialog.SetButton("show", "Go to Now Playing")
+    dialog.SetButton("close", "Close")
+
+    dialog.HandleButton = audioPlayerMenuHandleButton
+    dialog.ParentScreen = m
+    dialog.Show()
+End Sub
+
+Function audioPlayerMenuHandleButton(command, data) As Boolean
+    ' We're evaluated in the context of the dialog, but we want to be in the
+    ' context of the audio player.
+    obj = m.ParentScreen
+
+    if command = "play" then
+        obj.Play()
+    else if command = "pause" then
+        obj.Pause()
+    else if command = "resume" then
+        obj.Resume()
+    else if command = "stop" then
+        obj.Stop()
+    else if command = "next_track" then
+        obj.Next()
+    else if command = "prev_track" then
+        obj.Prev()
+    else if command = "show" then
+        dummyItem = CreateObject("roAssociativeArray")
+        dummyItem.ContentType = "audio"
+        dummyItem.Key = "nowplaying"
+        GetViewController().CreateScreenForItem(dummyItem, invalid, ["Now Playing"])
+    else if command = "close" then
+        return true
+    end if
+
+    ' For now, close the dialog after any button press instead of trying to
+    ' refresh the buttons based on the new state.
+    return true
 End Function
 
-Function ClearAudioContent()
-	m.audioPlayer.ClearContent()
+Sub audioPlayerPlayThemeMusic(item)
+
+	if item.Id = invalid or item.Id = "" then return
+	
+	result = getThemeMusic(item.Id)
+
+	if result <> invalid and result.Items.Count() > 0 then
+		m.SetContextFromItems(result.Items, 0, invalid, true)
+		m.Play()
+	end if
+
+End Sub
+
+Function audioPlayerGetPlaybackProgress() As Integer
+    return m.playbackOffset + m.playbackTimer.GetElapsedSeconds()
 End Function
 
-Function RepeatAudio(repeat As Boolean)
-	m.audioPlayer.SetLoop(repeat)
-End Function
+Sub audioPlayerOnTimerExpired(timer)
+    if timer.Name = "timeline"
+        m.UpdateNowPlaying()
+		m.reportPlayback("progress")
+    end if
+End Sub
 
-Function PlayAudio(track As Integer)
-    m.IsPlaying = true
+Sub audioPlayerUpdateNowPlaying()
+    if m.IgnoreTimelines then return
+    state = "stopped"
+    item = invalid
+    time = 0
 
-	m.audioPlayer.Stop()
-    m.CurrentIndex = track
-	m.audioPlayer.SetNext(track)
-	m.audioPlayer.Play()
-End Function
+    m.timelineTimer.Active = m.IsPlaying
 
-Function StopAudio()
-    m.IsPlaying = false
-	m.audioPlayer.Stop()
-End Function
+    if m.IsPlaying then
+        state = "playing"
+        time = 1000 * m.GetPlaybackProgress()
+        item = m.Context[m.CurIndex]
+    else if m.IsPaused then
+        state = "paused"
+        time = 1000 * m.playbackOffset
+        item = m.Context[m.CurIndex]
+    else if m.Context <> invalid then
+        item = m.Context[m.CurIndex]
+    end if
 
-Function PauseAudio()
-    m.IsPlaying = false
-    m.IsPaused  = true
-	m.audioPlayer.Pause()
-End Function
+    if m.ContextScreenID <> invalid then
+        NowPlayingManager().UpdatePlaybackState("music", item, state, time)
+    end if
+End Sub
 
-Function ResumeAudio()
-    m.IsPlaying = true
-    m.IsPaused  = false
-	m.audioPlayer.Resume()
-End Function
+Sub audioPlayerSetRepeat(repeatVal)
+    if m.Repeat = repeatVal then return
 
-Function PreviousAudioTrack()
-    prevIndex = m.CurrentIndex - 1
-    If prevIndex < 0 Then
-        prevIndex = 0
-    End If
+    m.Repeat = repeatVal
+    m.player.SetLoop(repeatVal = 2)
 
-	m.audioPlayer.Stop()
-    m.CurrentIndex = prevIndex
-	m.audioPlayer.SetNext(prevIndex)
-	m.audioPlayer.Play()
-End Function
+    if repeatVal = 1 then
+        m.player.SetNext(m.CurIndex)
+    end if
 
-Function NextAudioTrack()
-    nextIndex = m.CurrentIndex + 1
-    If nextIndex > m.TrackCount-1 Then
-        Return 0
-        'nextIndex = m.TrackCount-1
-    End If
+    NowPlayingManager().timelines["music"].attrs["repeat"] = tostr(repeatVal)
+End Sub
 
-	m.audioPlayer.Stop()
-    m.CurrentIndex = nextIndex
-	m.audioPlayer.SetNext(nextIndex)
-	m.audioPlayer.Play()
-End Function
+Sub audioPlayerSetShuffle(shuffleVal)
+    newVal = (shuffleVal = 1)
+    if newVal = m.IsShuffled then return
 
+    m.IsShuffled = newVal
+    if m.IsShuffled then
+        m.CurIndex = ShuffleArray(m.Context, m.CurIndex)
+    else
+        m.CurIndex = UnshuffleArray(m.Context, m.CurIndex)
+    end if
 
+    m.player.SetContentList(m.Context)
+    maxIndex = m.Context.Count() - 1
+    newIndex = m.CurIndex + 1
+    if newIndex > maxIndex then newIndex = 0
+    m.player.SetNext(newIndex)
 
-Function AudioMessageHandler(timeout as Integer, escape as String) As Object
-	'print "In audioPlayer get selection - Waiting for msg escape=" ; escape
-	while true
-	    msg = wait(timeout, m.Port)
-	    'print "Got msg = "; type(msg)
-	    if type(msg) = "roAudioPlayerEvent" return msg
-	    if type(msg) = escape return msg
-	    if type(msg) = "Invalid" return msg
-	    ' eat all other messages
-	end while
-End Function
-
-
-
-Function SetupAudioStream(audioId As String, audioPath As String) As Object
-
-    ' Get Extension
-    extension = getFileExtension(audioPath)
-
-	stream = CreateObject("roAssociativeArray")
-
-    ' Direct Playback mp3 and wma
-    If (extension = "mp3") 
-        stream.url = GetServerBaseUrl() + "/Audio/" + audioId + "/stream.mp3?static=true"
-        stream.format = "mp3"
-    Else If (extension = "wma") 
-        stream.url = GetServerBaseUrl() + "/Audio/" + audioId + "/stream.wma?static=true"
-        stream.format = "wma"
-    Else
-        ' Transcode Play
-        stream.url = GetServerBaseUrl() + "/Audio/" + audioId + "/stream.mp3"
-        stream.format = "mp3"
-    End If
-
-    Return stream
-End Function
+    NowPlayingManager().timelines["music"].attrs["shuffle"] = tostr(shuffleVal)
+End Sub

@@ -52,6 +52,16 @@ Function RegDelete(key, section=invalid)
     sec.Flush()
 End Function
 
+Function RegUserRead(key)
+    userValue = RegRead(key, getGlobalVar("user").Id)
+
+    return userValue
+End Function
+
+Function RegUserWrite(key, val)
+    RegWrite(key, tostr(val), getGlobalVar("user").Id) ' Save Value
+End Function
+
 
 '******************************************************
 ' Registry Array To String
@@ -175,6 +185,52 @@ Function strTrim(str As String) As String
 End Function
 
 
+'******************************************************
+' CurrentTimeAsString
+'******************************************************
+
+Function CurrentTimeAsString(localized=true As Boolean) As String
+
+    'timeFormat = RegRead("home_clock_display", "preferences", "12h")
+	timeFormat = "12h"
+
+    if timeFormat = "off" then return ""
+
+    time = CreateObject("roDateTime")
+
+    return GetTimeString(time, localized)
+	
+End Function
+
+Function GetTimeString(time as Object, localized=true As Boolean) As String
+
+    'timeFormat = RegRead("home_clock_display", "preferences", "12h")
+	timeFormat = "12h"
+
+    if localized then
+        time.ToLocalTime()
+    end if
+
+    hours = time.GetHours()
+    if timeFormat = "24h" then
+        suffix = ""
+    else if hours >= 12 then
+        hours = hours - 12
+        suffix = " pm"
+        if hours = 0 then hours = 12
+    else
+        suffix = " am"
+        if hours = 0 then hours = 12
+    end if
+    timeStr = tostr(hours) + ":"
+
+    minutes = time.GetMinutes()
+    if minutes < 10 then
+        timeStr = timeStr + "0"
+    end if
+    return timeStr + tostr(minutes) + suffix
+End Function
+
 '**********************************************************
 '** Zero Pad Text
 '**********************************************************
@@ -221,6 +277,12 @@ Function GetImageSizes(screenType)
         sdWidth  = 110
         sdHeight = 150
 
+    else if screenType = "flat-square"
+        hdWidth  = 132
+        hdHeight = 132
+        sdWidth  = 96
+        sdHeight = 86
+
     else if screenType = "mixed-aspect-ratio-portrait"
         hdWidth  = 192
         hdHeight = 274
@@ -232,6 +294,12 @@ Function GetImageSizes(screenType)
         hdHeight = 144
         sdWidth  = 140
         sdHeight = 94
+
+    else if screenType = "mixed-aspect-ratio-square"
+        hdWidth  = 192
+        hdHeight = 192
+        sdWidth  = 140
+        sdHeight = 126
 
     '*** Poster ****
     else if screenType = "flat-episodic-16x9"
@@ -272,6 +340,18 @@ Function GetImageSizes(screenType)
         sdWidth  = 177
         sdHeight = 90
 
+    else if screenType = "rounded-square-generic"
+        hdWidth  = 209
+        hdHeight = 209
+        sdWidth  = 143
+        sdHeight = 129
+
+    else if screenType = "arced-portrait"
+        hdWidth  = 214
+        hdHeight = 306
+        sdWidth  = 158
+        sdHeight = 204
+
     else
         ' default flat movie
         hdWidth  = 210
@@ -295,7 +375,7 @@ End Function
 '** Build an Image URL
 '******************************************************
 
-Function BuildImage(url, w, h, tag = "", watched = false As Boolean, percentage = 0 As Integer, hideEnhanceImages = false As Boolean, unplayed = 0 As Integer)   
+Function BuildImage(url, w, h, tag = "", watched = false As Boolean, percentage = 0 As Integer, unplayed = 0 As Integer)   
     query = ""
 
     ' Check for cache tag
@@ -322,18 +402,12 @@ Function BuildImage(url, w, h, tag = "", watched = false As Boolean, percentage 
 
     ' Use Enhanced Images
     if RegRead("prefEnhancedImages") = "yes"
-        if hideEnhanceImages
-            query = query + "&EnableImageEnhancers=false"
-        else
-            query = query + "&EnableImageEnhancers=true&format=jpg&BackgroundColor=504B4B"
-        end If
+        query = query + "&EnableImageEnhancers=true&format=jpg&BackgroundColor=" + HttpEncode(getGlobalVar("backgroundColor"))
     else
         query = query + "&EnableImageEnhancers=false"
     end if
 
-
-
-    return url + "?quality=90&height=" + itostr(h) + "&width=" + itostr(w) + query
+    return url + "?height=" + itostr(h) + "&width=" + itostr(w) + query
 End Function
 
 
@@ -355,10 +429,18 @@ End Function
 '** Is object an Integer
 '******************************************************
 
-Function isInt(obj as dynamic) As Boolean
+Function isint(obj as dynamic) As Boolean
     if obj = invalid return false
     if GetInterface(obj, "ifInt") = invalid return false
     return true
+End Function
+
+Function validint(obj As Dynamic) As Integer
+    if obj <> invalid and GetInterface(obj, "ifInt") <> invalid then
+        return obj
+    else
+        return 0
+    end if
 End Function
 
 

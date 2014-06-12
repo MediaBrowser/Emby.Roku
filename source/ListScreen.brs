@@ -3,34 +3,72 @@
 '**********************************************************
 
 
-Function CreateListScreen(lastLocation As String, currentLocation As String) As Object
+Function CreateListScreen(viewController as Object) As Object
 
     ' Setup Screen
-    screen = CreateObject("roAssociativeArray")
+    obj = CreateObject("roAssociativeArray")
+	initBaseScreen(obj, viewController)
+	
+	obj.HandleMessage = handleListScreenMessage
 
-    port = CreateObject("roMessagePort")
-    list = CreateObject("roListScreen")
-    list.SetMessagePort(port)
+    screen = CreateObject("roListScreen")
+    screen.SetMessagePort(obj.Port)
 
     ' Setup Common Items
-    screen.Screen         = list
-    screen.Port           = port
-    screen.SetHeader      = SetListHeader
-    screen.SetTitle       = SetListTitle
-    screen.SetContent     = SetListContent
-    screen.SetItem        = SetListItem
-    screen.SetFocusedItem = SetListFocusedItem
-    screen.Show           = ShowListScreen
+    obj.Screen         = screen
+    obj.SetHeader      = SetListHeader
+    obj.SetContent     = SetListContent
+    obj.SetItem        = SetListItem
+    obj.SetFocusedItem = SetListFocusedItem
+    obj.Show           = ShowListScreen
 
-    ' Set Breadcrumbs
+	obj.contentArray = []
+
     if getGlobalVar("legacyDevice")
-        screen.Screen.SetTitle(currentLocation)
-    else
-        screen.Screen.SetBreadcrumbText(lastLocation, currentLocation)
+        obj.Screen.SetUpBehaviorAtTopRow("exit")
     end if
 
-    Return screen
+    Return obj
 End Function
+
+'**********************************************************
+'** Set Header for List Screen
+'**********************************************************
+
+Function handleListScreenMessage(msg) as Boolean
+
+	handled = false
+
+    ' Fetch / Refresh Preference Screen
+    If type(msg) = "roListScreenEvent" Then
+
+		if msg.isScreenClosed() then
+
+			handled = true
+			m.ViewController.PopScreen(m)
+			
+        Else If msg.isListItemSelected() Then
+
+            handled = true
+
+            index = msg.GetIndex()
+            selected = m.contentArray[index]
+
+			if selected <> invalid then
+
+				contentType = selected.ContentType
+
+				breadcrumbs = [selected.Title]
+
+				m.ViewController.CreateScreenForItem(m.contentArray, index, breadcrumbs)
+			end if
+		end if
+    End If
+
+	return handled
+
+End Function
+
 
 
 '**********************************************************
@@ -45,21 +83,12 @@ End Function
 
 
 '**********************************************************
-'** Set Title for List Screen
-'**********************************************************
-
-Function SetListTitle(text As String) As Integer
-    m.screen.SetTitle(text)
-
-    Return 0
-End Function
-
-
-'**********************************************************
 '** Set Content for List Screen
 '**********************************************************
 
 Function SetListContent(contentList As Object)
+
+	m.contentArray = contentList
     m.screen.SetContent(contentList)
 End Function
 

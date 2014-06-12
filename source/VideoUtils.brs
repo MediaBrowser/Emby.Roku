@@ -248,3 +248,48 @@ Function getFileExtension(filename as String) as String
     list = filename.tokenize(".")
     if list.count() > 0 then return LCase(list.GetTail()) else return ""
 End Function
+
+
+'**********************************************************
+'** Play video
+'**********************************************************
+
+Sub playVideo(video As Object, options as Object) 
+
+    if AudioPlayer().IsPlaying
+        Debug("Stop audio player")
+        AudioPlayer().Stop()
+    end if
+
+	list = []
+
+    if options.playstart = 0 and options.intros <> false
+
+        intros = getVideoIntros(video.Id)
+
+        if intros <> invalid
+		
+            for each i in intros.Items	
+
+				list.push(i)
+            end for
+			
+        end if
+
+    end if
+
+	list.push(video)
+	playVideoList(list, options)
+	
+End Sub
+
+Sub playVideoList(list As Object, options as Object) 
+
+    if AudioPlayer().IsPlaying
+        Debug("Stop audio player")
+        AudioPlayer().Stop()
+    end if
+
+	GetViewController().CreateVideoPlayer(list[0], options, true)
+	
+End Sub

@@ -43,6 +43,7 @@ Function HttpRequest(url As String) as Object
     obj.ContentType                 = http_content_type
     obj.AddAuthorization            = http_authorization
     obj.GetUrl                      = http_get_url
+	obj.GetRequest = http_get_request
     obj.SetRequest                  = http_set_request
     obj.FirstParam                  = true
     obj.CountParams                 = 0
@@ -64,6 +65,10 @@ Function HttpRequest(url As String) as Object
     return obj
 End Function
 
+Function http_get_request() As Object
+    
+	return m.Http
+End Function
 
 '**********************************************************
 '** Creates URL Transfer Object
@@ -99,13 +104,20 @@ End Function
 '**********************************************************
 
 Function http_authorization() As Void
-    authString = "MediaBrowser "
+
+	authString = "MediaBrowser"
+
+	authString = authString + " Client=" + Quote() + "Roku" + Quote()
+	authString = authString + ", Device=" + Quote() + firstOf(regRead("prefDisplayName"), getGlobalVar("rokuModelName", "Unknown")) + Quote()
+	authString = authString + ", DeviceId=" + Quote() + getGlobalVar("rokuUniqueId", "Unknown") + Quote()
+	authString = authString + ", Version=" + Quote() + HttpEncode(getGlobalVar("channelVersion", "Unknown")) + Quote()
+
     if getGlobalVar("user") <> invalid
-        authString = authString + "UserId=" + Quote() + HttpEncode(getGlobalVar("user").Id) + Quote() + ", "
+        authString = authString + ", UserId=" + Quote() + HttpEncode(getGlobalVar("user").Id) + Quote()
     end if
 
-    authString = authString + "Client=" + Quote() + "Roku" + Quote() + ", Device=" + Quote() + getGlobalVar("rokuModelName", "Unknown") + Quote() + ", DeviceId=" + Quote() + getGlobalVar("rokuUniqueId", "Unknown") + Quote() + ", Version=" + Quote() + getGlobalVar("channelVersion", "Unknown") + Quote()
     m.Http.AddHeader("Authorization", authString)
+	
 End Function
 
 
@@ -308,7 +320,7 @@ Function http_post_from_string_with_timeout(val As String, seconds as Integer) A
             else if code = 204
                 str = ""
             else
-                Debug("Failed Response with Error: " + itostr(code))
+                Debug("Failed Response with Error: (" + itostr(code) + ") " + event.GetFailureReason())
             end if
         else if event = invalid
             Debug("AsyncPostFromString timeout")

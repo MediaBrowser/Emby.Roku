@@ -20,7 +20,6 @@ Function ClassMovieMetadata()
         this.GetMovieList       = moviemetadata_movie_list
         this.GetBoxsets         = moviemetadata_boxsets
         this.GetBoxsetMovieList = moviemetadata_boxset_movie_list
-        this.GetGenreMovieList  = moviemetadata_genre_movie_list
 
         ' singleton
         m.ClassMovieMetadata = this
@@ -51,6 +50,7 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
         fields: "Overview,UserData"
         sortby: "SortName"
         sortorder: "Ascending"
+		CollapseBoxSetItems: "false"
     }
 
     ' Filter/Sort Query
@@ -74,158 +74,9 @@ Function moviemetadata_movie_list(offset = invalid As Dynamic, limit = invalid A
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        ' Fixes bug within BRS Json Parser
-        regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks|PlaybackPositionTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
-        fixedResponse = regex.ReplaceAll(response, Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
+		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
-        contentList   = CreateObject("roArray", 25, true)
-        jsonObj       = ParseJSON(fixedResponse)
-
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Movies List")
-            return invalid
-        end if
-
-        totalRecordCount = jsonObj.TotalRecordCount
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Movie"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Show / Hide display title
-            if RegRead("prefMovieTitle") = "show" Or RegRead("prefMovieTitle") = invalid
-                metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-            end if
-
-            '** PopUp Metadata **
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown")
-
-            ' Set the Run Time
-            if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
-                metaData.Length = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-            end if
-
-            ' Set the Overview
-            if i.Overview <> invalid
-                metaData.Description = i.Overview
-            end if
-
-            ' Set the Official Rating
-            if i.OfficialRating <> invalid
-                metaData.Rating = i.OfficialRating
-            end if
-
-            ' Set the Star rating
-            if i.CommunityRating <> invalid
-                metaData.UserStarRating = Int(i.CommunityRating) * 10
-            end if
-
-            ' Set the Release Date
-            if isInt(i.ProductionYear)
-                metaData.ReleaseDate = itostr(i.ProductionYear)
-            end if
-
-            ' Set the HD Branding
-            if i.IsHD <> invalid
-                metaData.HDBranded = i.IsHD
-            end If
-            
-            ' Set Played Percentage
-            if i.PlayedPercentage <> invalid
-                PlayedPercentage = i.PlayedPercentage
-            else if i.UserData.PlaybackPositionTicks <> "" And i.UserData.PlaybackPositionTicks <> invalid
-                if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
-                    currentPosition = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
-                    totalLength     = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-                    if totalLength <> 0
-                        PlayedPercentage = Int((currentPosition / totalLength) * 100)
-                    else
-                        PlayedPercentage = 0
-                    end if
-                else
-                    PlayedPercentage = 0
-                end If
-            else
-                PlayedPercentage = 0
-            end if
-
-            ' Get Image Type From Preference
-            if RegRead("prefMovieImageType") = "poster"
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("mixed-aspect-ratio-portrait")
-
-                ' Check if Item has Image, otherwise use default
-                if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
-
-                end if
-
-            else if RegRead("prefMovieImageType") = "thumb"
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-                ' Check if Item has Image, otherwise use default
-                if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
-
-                else if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-                end if
-
-            else
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-                ' Check if Item has Image, otherwise use default
-                if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-                end if
-
-            end if
-
-            contentList.push( metaData )
-        end for
-
-        return {
-            Items: contentList
-            TotalCount: totalRecordCount
-        }
+        return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
     else
         Debug("Failed to Get Movies List")
     end if
@@ -267,150 +118,9 @@ Function moviemetadata_boxsets(offset = invalid As Dynamic, limit = invalid As D
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        contentList = CreateObject("roArray", 15, true)
-        jsonObj     = ParseJSON(response)
+		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Movie Boxsets")
-            return invalid
-        end if
-
-        totalRecordCount = jsonObj.TotalRecordCount
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "BoxSet"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Show / Hide display title
-            if RegRead("prefMovieTitle") = "show" Or RegRead("prefMovieTitle") = invalid
-                metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-            end if
-
-            '** PopUp Metadata **
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown")
-
-            ' Set the Overview
-            if i.Overview <> invalid
-                metaData.Description = i.Overview
-            end if
-
-            ' Set the Official Rating
-            if i.OfficialRating <> invalid
-                metaData.Rating = i.OfficialRating
-            end if
-
-            ' Set the Star rating
-            if i.CommunityRating <> invalid
-                metaData.UserStarRating = Int(i.CommunityRating) * 10
-            end if
-
-            ' Set the Release Date
-            if isInt(i.ProductionYear)
-                metaData.ReleaseDate = itostr(i.ProductionYear)
-            end if
-
-            ' Set the Movie Count
-            if i.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "movie")
-            end if
-
-            ' Set Played Percentage
-            if i.PlayedPercentage <> invalid
-                if i.PlayedPercentage <> 100
-                    PlayedPercentage = i.PlayedPercentage
-                else
-                    PlayedPercentage = 0
-                end if
-            else
-                PlayedPercentage = 0
-            end if
-
-            ' Set Unplayed Count
-            UnplayedCount = 0
-
-            if i.RecursiveUnplayedItemCount <> invalid
-                if i.RecursiveUnplayedItemCount <> 0
-                    UnplayedCount = i.RecursiveUnplayedItemCount
-                end if
-            end if
-
-            ' Get Image Type From Preference
-            if RegRead("prefMovieImageType") = "poster"
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("mixed-aspect-ratio-portrait")
-
-                ' Check if Item has Image, otherwise use default
-                if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, 0, false, UnplayedCount)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, 0, false, UnplayedCount)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
-
-                end if
-
-            else if RegRead("prefMovieImageType") = "thumb"
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-                ' Check if Item has Image, otherwise use default
-                if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, 0, false, UnplayedCount)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, 0, false, UnplayedCount)
-
-                else if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-                end if
-
-            else
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-                ' Check if Item has Image, otherwise use default
-                if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, 0, false, UnplayedCount)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-                end if
-
-            end if
-
-            contentList.push( metaData )
-        end for
-
-        return {
-            Items: contentList
-            TotalCount: totalRecordCount
-        }
+        return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
     else
         Debug("Failed to Get Movie Boxsets")
     end if
@@ -434,7 +144,6 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
     query = {
         parentid: boxsetId
         recursive: "true"
-        includeitemtypes: "Movie"
         fields: "Overview,UserData"
         sortby: "ProductionYear,SortName"
         sortorder: "Ascending"
@@ -450,144 +159,9 @@ Function moviemetadata_boxset_movie_list(boxsetId As String) As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        ' Fixes bug within BRS Json Parser
-        regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
-        fixedResponse = regex.ReplaceAll(response, Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
+		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
-        contentList   = CreateObject("roArray", 10, true)
-        jsonObj       = ParseJSON(fixedResponse)
-
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Movies in a Boxset")
-            return invalid
-        end if
-
-        totalRecordCount = jsonObj.TotalRecordCount
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Movie"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Show / Hide display title
-            if RegRead("prefMovieTitle") = "show" Or RegRead("prefMovieTitle") = invalid
-                metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-            end if
-
-            '** PopUp Metadata **
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown")
-
-            ' Set the Run Time
-            if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
-                metaData.Length = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-            end if
-
-            ' Set the Overview
-            if i.Overview <> invalid
-                metaData.Description = i.Overview
-            end if
-
-            ' Set the Official Rating
-            if i.OfficialRating <> invalid
-                metaData.Rating = i.OfficialRating
-            end if
-
-            ' Set the Star rating
-            if i.CommunityRating <> invalid
-                metaData.UserStarRating = Int(i.CommunityRating) * 10
-            end if
-
-            ' Set the Release Date
-            if isInt(i.ProductionYear)
-                metaData.ReleaseDate = itostr(i.ProductionYear)
-            end if
-
-            ' Set the HD Branding
-            if i.IsHD <> invalid
-                metaData.HDBranded = i.IsHD
-            end if
-
-            ' Set Played Percentage
-            if i.PlayedPercentage <> invalid
-                if i.PlayedPercentage <> 100
-                    PlayedPercentage = i.PlayedPercentage
-                else
-                    PlayedPercentage = 0
-                end if
-            else
-                PlayedPercentage = 0
-            end if
-
-            ' Get Image Type From Preference
-            if RegRead("prefMovieImageType") = "poster"
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("mixed-aspect-ratio-portrait")
-
-                ' Check if Item has Image, otherwise use default
-                if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
-
-                end if
-
-            else if RegRead("prefMovieImageType") = "thumb"
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-                ' Check if Item has Image, otherwise use default
-                if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-                end if
-
-            else
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-                ' Check if Item has Image, otherwise use default
-                if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-                end if
-
-            end if
-
-            contentList.push( metaData )
-        end for
-
-        return {
-            Items: contentList
-            TotalCount: totalRecordCount
-        }
+        return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
     else
         Debug("Failed to Get Movies in a Boxset")
     end if
@@ -609,6 +183,7 @@ Function getMovieResumable() As Object
         limit: "10"
         recursive: "true"
         includeitemtypes: "Movie"
+		fields: "UserData,PlayedPercentage"
         sortby: "DatePlayed"
         sortorder: "Descending"
         filters: "IsResumable"
@@ -624,60 +199,69 @@ Function getMovieResumable() As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        contentList = CreateObject("roArray", 10, true)
-        jsonObj     = ParseJSON(response)
+        return parseItemsResponse(response, 1, "mixed-aspect-ratio-portrait")
+    else
+        Debug("Failed to Get Resumable Movies")
+    end if
+
+    return invalid
+End Function
+
+
+'**********************************************************
+'** Get Suggested Movies
+'**********************************************************
+
+Function getSuggestedMovies() As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Movies/Recommendations"
+
+    ' Query
+    query = {
+        UserId: getGlobalVar("user").Id
+        ItemLimit: "20"
+        CategoryLimit: "1"
+    }
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+        contentList = CreateObject("roArray", 20, true)
+        fixedResponse = normalizeJson(response)
+        jsonObj     = ParseJSON(fixedResponse)
 
         if jsonObj = invalid
-            Debug("Error while parsing JSON response for Resumable Movies")
+            Debug("Error while parsing JSON response for Recently Added Movies")
             return invalid
         end if
 
-        totalRecordCount = jsonObj.TotalRecordCount
+        ' Only Grab 1 Category
+        jsonObj = jsonObj[0]
+
+        ' Recommended Because
+        recommendationType = jsonObj.RecommendationType
+        baselineItemName = jsonObj.BaselineItemName
 
         for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Movie"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown") ' Not even used
-            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-
-            ' Get Image Sizes
-            sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-            ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
-            if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
-
-            else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
-
-            else 
-                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-            end if
+            metaData = getMetadataFromServerItem(i, 1, "mixed-aspect-ratio-portrait")
 
             contentList.push( metaData )
         end for
 
         return {
             Items: contentList
-            TotalCount: totalRecordCount
+            RecommendationType: recommendationType
+            BaselineItemName: baselineItemName
         }
     else
-        Debug("Failed to Get Resumable Movies")
+        Debug("Failed to Get Recently Added Movies")
     end if
 
     return invalid
@@ -712,71 +296,16 @@ Function getMovieLatest() As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        contentList = CreateObject("roArray", 10, true)
-        jsonObj     = ParseJSON(response)
+		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Recently Added Movies")
-            return invalid
-        end if
+        return parseItemsResponse(response, 1, "mixed-aspect-ratio-portrait")
 
-        totalRecordCount = jsonObj.TotalRecordCount
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Movie"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown") ' Not even used
-            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-
-            ' Get Image Sizes
-            sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-            ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
-            if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, false, 0, true)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, false, 0, true)
-
-            else if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
-
-            else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
-
-            else 
-                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-            end if
-
-            contentList.push( metaData )
-        end for
-
-        return {
-            Items: contentList
-            TotalCount: totalRecordCount
-        }
     else
         Debug("Failed to Get Recently Added Movies")
     end if
 
     return invalid
 End Function
-
 
 
 '**********************************************************
@@ -807,58 +336,9 @@ Function getMovieFavorites() As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        contentList = CreateObject("roArray", 10, true)
-        jsonObj     = ParseJSON(response)
+		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Favorite Movies")
-            return invalid
-        end if
-
-        totalRecordCount = jsonObj.TotalRecordCount
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Movie"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown") ' Not even used
-            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-
-            ' Get Image Sizes
-            sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-            ' Check if Item has Image, Check if Parent Item has Image, otherwise use default
-            if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
-
-            else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
-
-            else 
-                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-            end if
-
-            contentList.push( metaData )
-        end for
-
-        return {
-            Items: contentList
-            TotalCount: totalRecordCount
-        }
+        return parseItemsResponse(response, 1, "mixed-aspect-ratio-portrait")
     else
         Debug("Failed to Get Favorite Movies")
     end if
@@ -901,93 +381,11 @@ Function getMovieGenres(offset = invalid As Dynamic, limit = invalid As Dynamic,
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        contentList = CreateObject("roArray", 10, true)
-        jsonObj     = ParseJSON(response)
+		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Genres for Movies")
-            return invalid
-        end if
+		if homePage = true then imageType = 1
 
-        totalRecordCount = jsonObj.TotalRecordCount
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "MovieGenre"
-
-            ' Set the Id
-            ' Genres Use Name as Id
-            metaData.Id = firstOf(i.Name, "Unknown")
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown")
-            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-
-            ' Set Movie Count
-            if i.MovieCount <> invalid
-                metaData.ShortDescriptionLine2 = Pluralize(i.MovieCount, "movie")
-                metaData.Description = Pluralize(i.MovieCount, "movie")
-            end if
-
-            ' Get Image Type From Preference
-            if RegRead("prefMovieImageType") = "poster" And homePage = false
-                ' Get Image Sizes
-                sizes = GetImageSizes("mixed-aspect-ratio-portrait")
-
-                ' Check If Item has Image, otherwise use default
-                if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Primary/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
-
-                end if
-
-            else
-                ' Get Image Sizes
-                sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-
-                ' Use Backdrop Image Or Primary
-                if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Backdrop/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
-
-                else if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Thumb/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, false, 0, true)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, false, 0, true)
-
-                else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Genres/" + HttpEncode(i.Name) + "/Images/Primary/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-                end if
-
-            end if
-
-            contentList.push( metaData )
-        end for
-
-        return {
-            Items: contentList
-            TotalCount: totalRecordCount
-        }
+        return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait", "moviegenre")
     else
         Debug("Failed to Get Genres for Movies")
     end if
@@ -1000,9 +398,9 @@ End Function
 '** Get Movies in a Genre
 '**********************************************************
 
-Function moviemetadata_genre_movie_list(genreName As String) As Object
+Function getMovieGenreList(genreName As String, offset = invalid As Dynamic, limit = invalid As Dynamic, searchPage = false) As Object
     ' Validate Parameter
-    if validateParam(genreName, "roString", "moviemetadata_genre_movie_list") = false return invalid
+    if validateParam(genreName, "roString", "getMovieGenreList") = false return invalid
 
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
@@ -1017,6 +415,12 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
         sortorder: "Ascending"
     }
 
+    ' Paging
+    if limit <> invalid And offset <> invalid
+        query.AddReplace("StartIndex", itostr(offset))
+        query.AddReplace("Limit", itostr(limit))
+    end if    
+
     ' Prepare Request
     request = HttpRequest(url)
     request.ContentType("json")
@@ -1027,152 +431,11 @@ Function moviemetadata_genre_movie_list(genreName As String) As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        ' Fixes bug within BRS Json Parser
-        regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks|PlaybackPositionTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
-        fixedResponse = regex.ReplaceAll(response, Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
+		imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
-        contentList   = CreateObject("roArray", 25, true)
-        jsonObj       = ParseJSON(fixedResponse)
+		if searchPage = true then imageType = 1
 
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Movies List In Genre")
-            return invalid
-        end if
-
-        totalRecordCount = jsonObj.TotalRecordCount
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Movie"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Show / Hide display title
-            if RegRead("prefMovieTitle") = "show" Or RegRead("prefMovieTitle") = invalid
-                metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-            end if
-
-            '** PopUp Metadata **
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown")
-
-            ' Set the Movie overview
-            if i.Overview <> invalid
-                metaData.Description = i.Overview
-            end if
-
-            ' Set the Movie rating
-            if i.OfficialRating <> invalid
-                metaData.Rating = i.OfficialRating
-            end if
-
-            ' Set the Star rating
-            if i.CommunityRating <> invalid
-                metaData.UserStarRating = Int(i.CommunityRating) * 10
-            end if
-
-            ' Set the Run Time
-            if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
-                metaData.Length = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-            end if
-
-            ' Set the Release Date
-            if isInt(i.ProductionYear)
-                metaData.ReleaseDate = itostr(i.ProductionYear)
-            end if
-
-            ' Set the HD Branding
-            if i.IsHD <> invalid
-                metaData.HDBranded = i.IsHD
-            end if
-
-            ' Set Played Percentage
-            if i.PlayedPercentage <> invalid
-                PlayedPercentage = i.PlayedPercentage
-            else if i.UserData.PlaybackPositionTicks <> "" And i.UserData.PlaybackPositionTicks <> invalid
-                if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
-                    currentPosition = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
-                    totalLength     = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-                    if totalLength <> 0
-                        PlayedPercentage = Int((currentPosition / totalLength) * 100)
-                    else
-                        PlayedPercentage = 0
-                    end if
-                else
-                    PlayedPercentage = 0
-                end If
-            else
-                PlayedPercentage = 0
-            end if
-
-            ' Get Image Type From Preference
-            if RegRead("prefMovieImageType") = "poster"
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("mixed-aspect-ratio-portrait")
-
-                ' Check if Item has Image, otherwise use default
-                if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
-
-                end if
-
-            else if RegRead("prefMovieImageType") = "thumb"
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-                ' Check if Item has Image, otherwise use default
-                if i.ImageTags.Thumb <> "" And i.ImageTags.Thumb <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Thumb/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Thumb, i.UserData.Played, PlayedPercentage)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-                end if
-
-            else
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("two-row-flat-landscape-custom")
-
-                ' Check if Item has Image, otherwise use default
-                if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Backdrop/0"
-
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], i.UserData.Played, PlayedPercentage)
-
-                else 
-                    metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                    metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-                end if
-
-            end if
-
-            contentList.push( metaData )
-        end for
-
-        return {
-            Items: contentList
-            TotalCount: totalRecordCount
-        }
+        return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
     else
         Debug("Failed to Get Movies List In Genre")
     end if

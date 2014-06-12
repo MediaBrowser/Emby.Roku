@@ -1,280 +1,48 @@
-'**********************************************************
-'**  Media Browser Roku Client - General Dialogs
-'**********************************************************
-
-
 '******************************************************
-' Create Audio And Subtitle Dialog Boxes
+' createErrorDialog
 '******************************************************
 
-Function createAudioAndSubtitleDialog(audioStreams, subtitleStreams, playbackPosition, hidePlaybackDialog = false) As Object
+Sub createErrorDialog(button = "Back") As Object
 
-    ' Set defaults
-    audioIndex = false
-    subIndex   = false
-    playStart  = playbackPosition
-
-    if audioStreams.Count() > 1
-        audioIndex = createStreamSelectionDialog("Audio", audioStreams)    
-        if audioIndex = -1 then return invalid ' Check for cancel
-    end if
-
-    if subtitleStreams.Count() > 0
-        subIndex = createStreamSelectionDialog("Subtitle", subtitleStreams, 0, true)
-        if subIndex = -1 then return invalid ' Check for Cancel
-        if subIndex = 0 then subIndex = false ' Check for None
-    end if
-
-    if playbackPosition <> 0 And Not hidePlaybackDialog
-        playStart = createPlaybackOptionsDialog(playbackPosition)
-        if playStart = -1 then return invalid ' Check for Cancel
-    end if
-
-    return {
-        audio: audioIndex
-        subtitle: subIndex
-        playstart: playStart
-    }
-End Function
-
-
-'******************************************************
-' Create Audio Or Subtitle Streams Dialog Box
-'******************************************************
-
-Function createStreamSelectionDialog(title, streams, startIndex = 0, showNone = false) As Integer
-    port   = CreateObject("roMessagePort")
-    dialog = CreateObject("roMessageDialog")
-    dialog.SetMessagePort(port)
-
-    dialog.SetMenuTopLeft(true)
-    dialog.EnableOverlay(true)
-
-    ' Set Title
-    dialog.SetTitle("Select " + title)
-
-    ' Setup Variables
-    maxPerPage = 6 ' subtract 1 from what we want to show
-    indexCount = 0
-    foundMore  = false
-    nextStartIndex   = startIndex
-    totalStreamCount = streams.Count()-1
-
-    if showNone then dialog.AddButton(0, "None")
-
-    ' Setup Buttons
-    for i = startIndex to totalStreamCount
-        if streams[i] <> invalid
-            dialog.AddButton(streams[i].Index, streams[i].Title)
-            indexCount = indexCount + 1
-        end if
-
-        if indexCount > maxPerPage And i <> totalStreamCount then
-            foundMore = true
-            nextStartIndex = i + 1
-            exit for
-        end if
-    end for
-
-    if Not getGlobalVar("legacyDevice")
-        dialog.AddButtonSeparator()
-    end if
-
-    if foundMore then dialog.AddButton(-2, "More " + title + " Selections")
-    dialog.AddButton(-1, "Cancel")
-    dialog.Show()
-
-    while true
-        msg = wait(0, dialog.GetMessagePort())
-
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed()
-                return 0
-            else if msg.isButtonPressed()
-                if msg.GetIndex() = -2
-                    dialog.Close()
-                    return createStreamSelectionDialog(title, streams, nextStartIndex)
-                else
-                    return msg.GetIndex()
-                end if
-            end if
-        end if
-    end while
-End Function
-
-
-'******************************************************
-' Create Playback Options Dialog
-'******************************************************
-
-Function createPlaybackOptionsDialog(playbackPosition As Integer) As Integer
-    port   = CreateObject("roMessagePort")
-    dialog = CreateObject("roMessageDialog")
-    dialog.SetMessagePort(port)
-
-    dialog.SetMenuTopLeft(true)
-    dialog.EnableOverlay(true)
-
-    ' Set Title
-    dialog.SetTitle("Select Playback")
-
-    ' Setup Buttons
-    dialog.AddButton(1, "Resume playing")
-    dialog.AddButton(2, "Play from beginning")
-
-    if Not getGlobalVar("legacyDevice")
-        dialog.AddButtonSeparator()
-    end if
-
-    dialog.AddButton(-1, "Cancel")
-
-    dialog.Show()
-
-    while true
-        msg = wait(0, dialog.GetMessagePort())
-
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed()
-                return 1
-            else if msg.isButtonPressed()
-                if msg.GetIndex() = -1
-                    return -1
-                else if msg.GetIndex() = 1
-                    return playbackPosition
-                else
-                    return 0
-                end if
-            end if
-        end if
-    end while
-End Function
-
-
-'******************************************************
-' Create More Video Options Dialog
-'******************************************************
-
-Function createMoreVideoOptionsDialog(video As Object) As Integer
-    port   = CreateObject("roMessagePort")
-    dialog = CreateObject("roMessageDialog")
-    dialog.SetMessagePort(port)
-
-    dialog.SetMenuTopLeft(true)
-    dialog.EnableOverlay(true)
-    dialog.EnableBackButton(true)
-
-    ' Set Title
-    dialog.SetTitle("More Options")
-
-    ' Setup Buttons
-    if video.IsPlayed
-        dialog.AddButton(3, "Mark Unplayed")
-    else
-        dialog.AddButton(2, "Mark Played")
-    end if
-
-    if video.IsFavorite
-        dialog.AddButton(5, "Remove Favorite")
-    else
-        dialog.AddButton(4, "Add Favorite")
-    end if
-
-    if Not getGlobalVar("legacyDevice")
-        dialog.AddButtonSeparator()
-    end if
-
-    dialog.AddButton(-1, "Cancel")
-
-    dialog.Show()
-
-    while true
-        msg = wait(0, dialog.GetMessagePort())
-
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed()
-                return -1
-            else if msg.isButtonPressed()
-                return msg.GetIndex()
-            end if
-        end if
-    end while
-End Function
-
+    createDialog("Error Loading Data", "There was an error loading data from the server. Please make sure your server is running and try again.", button)
+	
+End Sub
 
 '******************************************************
 ' Create Server Update Dialog
 '******************************************************
 
-Function createServerUpdateDialog()
-    port   = CreateObject("roMessagePort")
-    dialog = CreateObject("roMessageDialog")
-    dialog.SetMessagePort(port)
+Sub showServerUpdateDialog()
 
-    dialog.EnableOverlay(true)
+	dlg = createContextViewMenuYesNoDialog("Server Restart", "Media Browser Server needs to restart to apply updates. Restart now? Please note if restarting server, please wait a minute to relaunch channel.")
+	dlg.HandleButton = handleServerUpdateDialogButton
+	dlg.Show()
+	
+End Sub
 
-    ' Set Title and Text
-    dialog.SetTitle("Server Restart")
-    dialog.SetText("Media Browser Server needs to restart to apply updates. Restart now? Please note if restarting server, please wait a minute to relaunch channel.")
+Function handleServerUpdateDialogButton(command, data) As Boolean
 
-    ' Setup Buttons
-    dialog.AddButton(1, "No")
-    dialog.AddButton(2, "Yes")
-
-    dialog.Show()
-
-    while true
-        msg = wait(0, dialog.GetMessagePort())
-
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed()
-                return false
-            else if msg.isButtonPressed()
-                if msg.GetIndex() = 2
-                    ' Restart Server
-                    postServerRestart()
-                    return true
-                else
-                    return false
-                end if
-            end if
-        end if
-    end while
+    if command = "2" then
+		postServerRestart()
+        return true
+    end if
+	
+    return false
 End Function
-
 
 '******************************************************
 ' Create Server Selection Dialog
 '******************************************************
 
 Function createServerSelectionDialog()
-    port   = CreateObject("roMessagePort")
-    dialog = CreateObject("roMessageDialog")
-    dialog.SetMessagePort(port)
 
-    dialog.SetMenuTopLeft(true)
-    dialog.EnableOverlay(true)
-    dialog.EnableBackButton(true)
+    dlg = createBaseDialog()
+    dlg.Title = "Select Action"
+    dlg.SetButton("1", "Connect to Server")
+    dlg.SetButton("2", "Remove Server")
+    dlg.Show(true)
 
-    ' Set Title
-    dialog.SetTitle("Select Action")
-
-    ' Setup Buttons
-    dialog.AddButton(1, "Connect to Server")
-    dialog.AddButton(2, "Remove Server")
-
-    dialog.Show()
-
-    while true
-        msg = wait(0, dialog.GetMessagePort())
-
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed()
-                return 0
-            else if msg.isButtonPressed()
-                return msg.GetIndex()
-            end if
-        end if
-    end while
+	return dlg.Result
 End Function
 
 
@@ -282,36 +50,9 @@ End Function
 ' Create Server Remove Dialog
 '******************************************************
 
-Function createServerRemoveDialog()
-    port   = CreateObject("roMessagePort")
-    dialog = CreateObject("roMessageDialog")
-    dialog.SetMessagePort(port)
+Function createServerRemoveDialog() as String
 
-    dialog.SetMenuTopLeft(true)
-    dialog.EnableOverlay(true)
-    dialog.EnableBackButton(true)
-
-    ' Set Title and Text
-    dialog.SetTitle("Confirm Action")
-    dialog.SetText("Are you sure you wish to remove this server from the list?")
-
-    ' Setup Buttons
-    dialog.AddButton(0, "No")
-    dialog.AddButton(1, "Yes")
-
-    dialog.Show()
-
-    while true
-        msg = wait(0, dialog.GetMessagePort())
-
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed()
-                return 0
-            else if msg.isButtonPressed()
-                return msg.GetIndex()
-            end if
-        end if
-    end while
+    return showContextViewMenuYesNoDialog("Confirm Action", "Are you sure you wish to remove this server from the list?")
 End Function
 
 
@@ -320,265 +61,242 @@ End Function
 '******************************************************
 
 Function createServerAddDialog()
-    port   = CreateObject("roMessagePort")
-    dialog = CreateObject("roMessageDialog")
-    dialog.SetMessagePort(port)
 
-    dialog.SetMenuTopLeft(true)
-    dialog.EnableOverlay(true)
-    dialog.EnableBackButton(true)
-
-    ' Set Title
-    dialog.SetTitle("Select Action")
-
-    ' Setup Buttons
-    dialog.AddButton(1, "Scan Network")
-    dialog.AddButton(2, "Manually Add Server")
-
-    dialog.Show()
-
-    while true
-        msg = wait(0, dialog.GetMessagePort())
-
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed()
-                return 0
-            else if msg.isButtonPressed()
-                return msg.GetIndex()
-            end if
-        end if
-    end while
+    dlg = createBaseDialog()
+    dlg.Title = "Select Action"
+    dlg.SetButton("1", "Scan Network")
+    dlg.SetButton("2", "Manually Add Server")
+    dlg.Show(true)
+	return dlg.Result
 End Function
 
-
 '******************************************************
-' Create Loading Error Dialog
-'******************************************************
-
-Function createLoadingErrorDialog()
-
-    createDialog("Error Loading", "There was an error while loading. Please Try again.", "Back")
-
-End Function
-
-
-'******************************************************
-' Create Folder Rip Warning Dialog
+' Create Context Menu Dialog
 '******************************************************
 
-Function createFolderRipWarningDialog()
-    createDialog("Warning", "Folder rips and ISO playback is experimental. It may not work at all with some titles.", "Continue")
-End Function
+Sub createContextMenuDialog(menuType As String, useFacade = true) 
 
+	facade = invalid
 
-'******************************************************
-' Create Waiting Dialog
-'******************************************************
+	if useFacade = true then
+		facade = CreateObject("roGridScreen")
+		facade.Show()
+	end if
 
-Function createWaitingDialog(title As dynamic, message As dynamic) As Object
-    if not isstr(title) title = ""
-    if not isstr(message) message = ""
+    dlg = createBaseDialog()
+    dlg.Title = "Options"
 
-    port = CreateObject("roMessagePort")
-    dialog = invalid
-
-    ' If no message text, only Create Single Line dialog
-    if message = ""
-        dialog = CreateObject("roOneLineDialog")
-    else
-        dialog = CreateObject("roMessageDialog")
-        dialog.SetText(message)
+    ' Option Arrays
+    if menuType = "movie"
+        filterByOptions  = ["None", "Unwatched", "Watched"]
+        sortByOptions    = ["Name", "Date Added", "Date Played", "Release Date"]
+        sortOrderOptions = ["Ascending", "Descending"]
+    else if menuType = "tv"
+        filterByOptions  = ["None", "Continuing", "Ended"]
+        sortByOptions    = ["Name", "Date Added", "Premiere Date"]
+        sortOrderOptions = ["Ascending", "Descending"]
+    else if menuType = "mediaFolders"
+        filterByOptions  = ["None", "Unplayed", "Played"]
+        sortByOptions    = ["Name", "Date Added", "Date Played", "Release Date"]
+        sortOrderOptions = ["Ascending", "Descending"]
     end if
 
-    dialog.SetMessagePort(port)
-
-    dialog.SetTitle(title)
-    dialog.ShowBusyAnimation()
-    dialog.Show()
-
-    return dialog
-End Function
-
-
-
-
-
-Function createContextMenuDialog() As Integer
-    port   = CreateObject("roMessagePort")
-    dialog = CreateObject("roMessageDialog")
-    dialog.SetMessagePort(port)
-
-    dialog.SetMenuTopLeft(true)
-    dialog.EnableOverlay(true)
-
-    ' Set Title
-    dialog.SetTitle("Options")
+    ' Get Saved Options
+    filterBy  = (firstOf(RegUserRead(menuType + "FilterBy"), "0")).ToInt()
+    sortBy    = (firstOf(RegUserRead(menuType + "SortBy"), "0")).ToInt()
+    sortOrder = (firstOf(RegUserRead(menuType + "SortOrder"), "0")).ToInt()
 
     ' Setup Buttons
-    dialog.AddButton(1, "Filter by: None")
-    dialog.AddButton(2, "Sort by: Name")
-    dialog.AddButton(3, "Direction: Ascending")
-    dialog.AddButton(4, "View Menu")
+    dlg.SetButton("1", "Filter by: " + filterByOptions[filterBy])
+    dlg.SetButton("2", "Sort by: " + sortByOptions[sortBy])
+    dlg.SetButton("3", "Sort order: " + sortOrderOptions[sortOrder])
+    dlg.SetButton("4", "View Menu")
+    dlg.SetButton("7", "Close")
 
-    dialog.AddButtonSeparator()
+    dlg.Show(true)
 
-    dialog.AddButton(5, "Search")
-    dialog.AddButton(6, "Home")
+	returned = dlg.Result
 
-    dialog.AddButtonSeparator()
+    if returned = "1"
+        returned = createContextFilterByOptionsDialog(menuType)
+        if returned <> invalid then RegUserWrite(menuType + "FilterBy", returned)
 
-    dialog.AddButton(7, "Close")
+        createContextMenuDialog(menuType, false)
+		return
 
-    dialog.Show()
+    else if returned = "2"
+        returned = createContextSortByOptionsDialog(menuType)
+        if returned <> invalid then RegUserWrite(menuType + "SortBy", returned)
 
-    while true
-        msg = wait(0, dialog.GetMessagePort())
+        createContextMenuDialog(menuType, false)
+		return
 
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed()
-                return 1
-            else if msg.isButtonPressed()
-                if msg.GetIndex() = 1
-                    dialog.Close()
-                    returned = createContextOptionsDialog("Filter Options")
-                    createContextMenuDialog() ' Re-create self
-                else if msg.GetIndex() = 2
-                    dialog.Close()
-                    returned = createContextOptionsDialog("Sort Options")
-                    createContextMenuDialog() ' Re-create self
+    else if returned = "3"
+        returned = createContextSortOrderOptionsDialog()
+        if returned <> invalid then RegUserWrite(menuType + "SortOrder", returned)
 
-                end if
-                
-                return 1
-            end if
-        end if
-    end while
-End Function
+        createContextMenuDialog(menuType, false)
+		return
+
+    else if returned = "4"
+        createContextViewMenuDialog(menuType)
+
+        createContextMenuDialog(menuType, false)
+		return
+
+    end if
+
+	if facade <> invalid then
+		facade.Close()
+	end if
+
+End Sub
 
 
-Function createContextOptionsDialog(title As String) As Integer
-    port   = CreateObject("roMessagePort")
-    dialog = CreateObject("roMessageDialog")
-    dialog.SetMessagePort(port)
-
-    dialog.SetMenuTopLeft(true)
-    dialog.EnableOverlay(true)
-
-    ' Set Title
-    dialog.SetTitle(title)
+Function createContextFilterByOptionsDialog(menuType As String)
+    dlg = createBaseDialog()
+    dlg.Title = "Filter Options"
 
     ' Setup Buttons
-    dialog.AddButton(0, "None")
-    dialog.AddButton(1, "Un-Watched")
+    dlg.SetButton("0", "None")
 
-    dialog.Show()
+    if menuType = "movie"
+        dlg.SetButton("1", "Unwatched")
+        dlg.SetButton("2", "Watched")
+    else if menuType = "tv"
+        dlg.SetButton("1", "Continuing")
+        dlg.SetButton("2", "Ended")
+    else if menuType = "mediaFolders"
+        dlg.SetButton("1", "Unplayed")
+        dlg.SetButton("2", "Played")
+    end if
 
-    while true
-        msg = wait(0, dialog.GetMessagePort())
-
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed()
-                return 1
-            else if msg.isButtonPressed()
-                return msg.GetIndex()
-            end if
-        end if
-    end while
+    dlg.Show(true)
+	return dlg.Result
 End Function
 
+
+Function createContextSortByOptionsDialog(menuType As String)
+    dlg = createBaseDialog()
+    dlg.Title = "Sort By"
+
+    ' Setup Buttons
+    dlg.SetButton("0", "Name")
+
+    if menuType = "movie"
+        dlg.SetButton("1", "Date Added")
+        dlg.SetButton("2", "Date Played")
+        dlg.SetButton("3", "Release Date")
+    else if menuType = "tv"
+        dlg.SetButton("1", "Date Added")
+        dlg.SetButton("2", "Premiere Date")
+    else if menuType = "mediaFolders"
+        dlg.SetButton("1", "Date Added")
+        dlg.SetButton("2", "Date Played")
+        dlg.SetButton("3", "Release Date")
+    end if
+
+    dlg.Show(true)
+	return dlg.Result
+End Function
+
+
+Function createContextSortOrderOptionsDialog()
+    dlg = createBaseDialog()
+    dlg.Title = "Sort Order"
+    dlg.SetButton("0", "Ascending")
+    dlg.SetButton("1", "Descending")
+    dlg.Show(true)
+	return dlg.Result
+End Function
+
+
+Sub createContextViewMenuDialog(menuType As String)
+    dlg = createBaseDialog()
+    dlg.Title = "View Menu"
+
+    ' Get Saved Options
+    imageStyleOptions = ["Poster", "Thumb", "Backdrop"]
+    displayOptions    = ["No", "Yes"]
+    imageType         = (firstOf(RegUserRead(menuType + "ImageType"), "0")).ToInt()
+    displayLabel      = (firstOf(RegUserRead(menuType + "Label"), "1")).ToInt()
+    displayInfoBox    = (firstOf(RegUserRead(menuType + "InfoBox"), "0")).ToInt()
+
+    ' Setup Buttons
+    dlg.SetButton("1", "Image Style: " + imageStyleOptions[imageType])
+    dlg.SetButton("2", "Display Label: " + displayOptions[displayLabel])
+    dlg.SetButton("3", "Display Info Box: " + displayOptions[displayInfoBox])
+
+    dlg.SetButton("7", "Close")
+
+    dlg.Show(true)
+
+	returned = dlg.Result
+
+    if returned = "1"
+        returned = createContextViewMenuImageStyleDialog()
+        if returned <> invalid then RegUserWrite(menuType + "ImageType", returned)
+
+        createContextViewMenuDialog(menuType) ' Re-create self
+    else if returned = "2"
+        returned = showContextViewMenuYesNoDialog("Display Labels")
+        if returned <> invalid then RegUserWrite(menuType + "Label", returned)
+
+        createContextViewMenuDialog(menuType) ' Re-create self
+    else if returned = "3"
+        returned = showContextViewMenuYesNoDialog("Display Info Box")
+        if returned <> invalid then RegUserWrite(menuType + "InfoBox", returned)
+
+        createContextViewMenuDialog(menuType) ' Re-create self
+    end if
+End Sub
+
+
+Function createContextViewMenuImageStyleDialog()
+
+    dlg = createBaseDialog()
+	dlg.enableOverlay = false
+    dlg.Title = "Image Style"
+    dlg.SetButton("0", "Poster")
+    dlg.SetButton("1", "Thumb")
+    dlg.SetButton("2", "Backdrop")
+    dlg.Show(true)
+	return dlg.Result
+End Function
+
+
+Function createContextViewMenuYesNoDialog(title As String, text = "" as String)
+
+    dlg = createBaseDialog()
+    dlg.Title = title
+	dlg.Text = text
+    dlg.SetButton("1", "Yes")
+    dlg.SetButton("0", "No")
+	return dlg
+	
+End Function
+
+Function showContextViewMenuYesNoDialog(title As String, text = "" as String)
+
+    dlg = createContextViewMenuYesNoDialog(title, text)
+    dlg.Show(true)
+    return dlg.Result
+	
+End Function
 
 '******************************************************
 ' Create Dialog Box
 '******************************************************
 
-Function createDialog(title As Dynamic, text As Dynamic, buttonText As String)
+Function createDialog(title As Dynamic, text As Dynamic, buttonText As String, blocking = false)
     if Not isstr(title) title = ""
     if Not isstr(text) text = ""
 
-    port   = CreateObject("roMessagePort")
-    dialog = CreateObject("roMessageDialog")
-    dialog.SetMessagePort(port)
+    dlg = createBaseDialog()
+    dlg.Title = title
+	dlg.Text = text
+    dlg.SetButton(buttonText, buttonText)
+	
+	dlg.Show(blocking)
 
-    dialog.EnableBackButton(true)
-
-    dialog.SetTitle(title)
-    dialog.SetText(text)
-    dialog.AddButton(1, buttonText)
-    dialog.Show()
-
-    while true
-        dlgMsg = wait(0, dialog.GetMessagePort())
-
-        if type(dlgMsg) = "roMessageDialogEvent"
-            if dlgMsg.isButtonPressed()
-                exit while
-            else if dlgMsg.isScreenClosed()
-                exit while
-            end if
-        end if
-    end while
-End Function
-
-
-'******************************************************
-' Create Keyboard Screen
-'******************************************************
-
-Function createKeyboardScreen(title = "", prompt = "", defaultText = "", secure = false)
-    result = ""
-
-    port = CreateObject("roMessagePort")
-    screen = CreateObject("roKeyboardScreen")
-    screen.SetMessagePort(port)
-
-    ' Set Title
-    if title <> ""
-        screen.SetTitle(title)
-    end if
-
-    ' Set Display Text
-    if prompt <> ""
-        screen.SetDisplayText(prompt)
-    end if
-
-    ' Set Default Text
-    if defaultText <> ""
-        screen.SetText(defaultText)
-    end if
-
-    ' Add Buttons
-    screen.AddButton(1, "Okay")
-    screen.AddButton(2, "Cancel")
-
-    ' If secure is true, the typed text will be obscured on the screen
-    ' this is useful when the user is entering a password
-    screen.SetSecureText(secure)
-
-    ' Show keyboard screen
-    screen.Show()
-
-    while true
-        msg = wait(0, port)
-
-        if type(msg) = "roKeyboardScreenEvent" then
-            if msg.isScreenClosed() then
-                exit while
-            else if msg.isButtonPressed()
-                if msg.GetIndex() = 1
-                    ' the user pressed the Okay button
-                    ' close the screen and return the text they entered
-                    result = screen.GetText()
-                    exit while
-                else if msg.GetIndex() = 2
-                    ' the user pressed the Cancel button
-                    ' close the screen and return an empty string
-                    result = ""
-                    exit while
-                end if
-            end if
-        end if
-    end while
-
-    screen.Close()
-    return result
 End Function

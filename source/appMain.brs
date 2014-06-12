@@ -4,115 +4,18 @@
 
 Sub Main()
 
-    'Initialize theme
-    initTheme()
-
     'Initialize globals
     initGlobals()
 
-    'Create facade screen
-    facade = CreateObject("roPosterScreen")
-    facade.Show()
+    'Initialize theme
+    'prepare the screen for display and get ready to begin
+    viewController = createViewController()
+	
+	' Uncomment this as needed to debug startup sequence
+	'RegDelete("serverActive")
 
-    ' Goto Marker
-    serverStartupMarker:
-
-    ' Server Start Up
-    serverStart = serverStartUp()
-
-    '** 0 = First Run, 1 = Server List, 2 = Connect to Server
-    if serverStart = 0
-        Print "Server Setup"
-        savedServer = createServerFirstRunSetupScreen()
-
-        If Not savedServer
-            ' Exit Application
-            return
-        end if
-
-        ' Redo Server Startup
-        Goto serverStartupMarker
-
-    else if serverStart = 1
-        Print "Server List"
-        selectedServer = createServerListScreen()
-
-        if selectedServer = -1
-            ' Exit Application
-            return
-        else if selectedServer = 0
-            ' Redo Server Startup
-            Goto serverStartupMarker
-        end if
-
-        RegWrite("serverActive", itostr(selectedServer))
-
-        ' Redo Server Startup
-        Goto serverStartupMarker
-
-    else if serverStart = 2
-        Print "Connecting To Server"
-
-    end if
-
-    ' Setup Web Server
-    'initWebServer()
-
-    ' Set a login attempt
-    loginAttempt = false
-
-    ' Goto Marker
-    serverProfileMarker:
-
-    ' Check to see if they have already selected a User
-    ' Show home page if so, otherwise show login page.
-    if RegRead("userId") <> invalid And RegRead("userId") <> ""
-
-        if RegRead("prefRememberUser") = "no" And loginAttempt = false
-            RegDelete("userId")
-            Goto serverProfileMarker
-        end if
-
-        userProfile = getUserProfile(RegRead("userId"))
-
-        ' If unable to get user profile, delete saved user and redirect to login
-        if userProfile = invalid
-            RegDelete("userId")
-            Goto serverProfileMarker
-        end if
-
-        GetGlobalAA().AddReplace("user", userProfile)
-
-
-        '''''''''''''''''''''''''''''''''''''''''''''''''
-        ' Comment Out For now
-        'controller = createController()
-        'controller.startUp()
-        'controller.eventLoop()
-        '''''''''''''''''''''''''''''''''''''''''''''''''
-
-        homeResult = ShowHomePage()
-        if homeResult = true
-            ' Retry Login Check
-            Goto serverProfileMarker
-        end if
-
-        'Print "exit"
-    else
-        loginResult = ShowLoginPage()
-        if loginResult = 1
-            ' Go back to selected User
-            loginAttempt = true
-            Goto serverProfileMarker
-        else if loginResult = 2
-            ' Remove active server and go back to selection screen
-            RegDelete("serverActive")
-            Goto serverStartupMarker
-        end if
-    end if
-
-    ' Exit Application
-    return
+	'RunScreenSaver()
+	viewController.Show()
 
 End Sub
 
@@ -141,7 +44,8 @@ Sub initGlobals()
         entry = line.Tokenize("=")
 
         If entry[0]="version" Then
-            GetGlobalAA().AddReplace("channelVersion", entry[1])
+			Debug("--" + entry[1] + "--")
+            GetGlobalAA().AddReplace("channelVersion", MID(entry[1], 0, 4))
             Exit For
         End If
     End For
@@ -177,11 +81,15 @@ Sub initGlobals()
         models["2400X"] = "Roku LT"
         models["2450X"] = "Roku LT"
         models["2400SK"] = "Now TV"
+        models["2700X"] = "Roku LT (2013)"
+        models["2710X"] = "Roku 1 (2013)"
+        models["2720X"] = "Roku 2 (2013)"
         models["3000X"] = "Roku 2 HD"
         models["3050X"] = "Roku 2 XD"
         models["3100X"] = "Roku 2 XS"
         models["3400X"] = "Roku Streaming Stick"
         models["3420X"] = "Roku Streaming Stick"
+        models["3500R"] = "Roku Streaming Stick (2014)"
         models["4200X"] = "Roku 3"
 
         If models.DoesExist(modelNumber) Then
@@ -224,6 +132,8 @@ Sub initGlobals()
     GetGlobalAA().AddReplace("displayMode", device.GetDisplayMode())
     GetGlobalAA().AddReplace("displayType", device.GetDisplayType())
 
+	SupportsSurroundSound()
+
 End Sub
 
 
@@ -235,146 +145,46 @@ Function getGlobalVar(name, default=invalid)
     Return firstOf(GetGlobalAA().Lookup(name), default)
 End Function
 
+Function SupportsSurroundSound(transcoding=false, refresh=false) As Boolean
 
-'*************************************************************
-'** Setup the theme for the application
-'*************************************************************
+    ' Before the Roku 3, there's no need to ever refresh.
+    major = getGlobalVar("rokuVersion")[0]
 
-Sub initTheme()
-    app = CreateObject("roAppManager")
-    
-    brandingWhite   = "#eeeeee"
-    backgroundColor = "#504B4B"
+    if m.SurroundSoundTimer = invalid then
+        refresh = true
+        m.SurroundSoundTimer = CreateTimer()
+    else if major <= 4 then
+        refresh = false
+    else if m.SurroundSoundTimer.GetElapsedSeconds() > 10 then
+        refresh = true
+    end if
 
-    textColorWhite = "#ffffff"
-    textColorBlack = "#000000"
+    if refresh then
+        device = CreateObject("roDeviceInfo")
+        result = device.HasFeature("5.1_surround_sound")
+        GetGlobalAA().AddReplace("surroundSound", result)
+        m.SurroundSoundTimer.Mark()
+    else
+        result = getGlobalVar("surroundSound")
+    end if
 
-    theme = {
+    if transcoding then
+        return (result AND major >= 4)
+    else
+        return result
+    end if
+End Function
 
-        '*** HD Styles ****
-        OverhangSliceHD: "pkg:/images/overhang/hd-header-slice.png"
-        OverhangLogoHD: "pkg:/images/overhang/hd-logo.png"
-        OverhangOffsetHD_X: "80"
-        OverhangOffsetHD_Y: "30"
-
-        FilterBannerSliceHD: "pkg:/images/overhang/hd-filter-banner.png"
-        FilterBannerActiveHD: "pkg:/images/overhang/hd-filter-active.png"
-        FilterBannerInactiveHD: "pkg:/images/overhang/hd-filter-inactive.png"
-
-        GridScreenLogoHD: "pkg:/images/overhang/hd-logo.png"
-        GridScreenOverhangSliceHD: "pkg:/images/overhang/hd-header-slice.png"
-        GridScreenLogoOffsetHD_X: "80"
-        GridScreenLogoOffsetHD_Y: "30"
-        GridScreenOverhangHeightHD: "124"
-        GridScreenFocusBorderHD: "pkg:/images/grid/hd-border-flat-landscape.png"
-        GridScreenBorderOffsetHD: "(-34,-19)"
-        GridScreenDescriptionImageHD: "pkg:/images/grid/hd-description-background.png"
-        'GridScreenDescriptionOffsetHD:"(150,205)"
-
-        ListItemHighlightHD: "pkg:/images/hd-list-item.png"
-
-
-        '*** SD Styles ****
-
-        OverhangSliceSD: "pkg:/images/overhang/sd-header-slice.png"
-        OverhangLogoSD: "pkg:/images/overhang/sd-logo.png"
-        OverhangOffsetSD_X: "20"
-        OverhangOffsetSD_Y: "20"
-
-        FilterBannerSliceSD: "pkg:/images/overhang/sd-filter-banner.png"
-        FilterBannerActiveSD: "pkg:/images/overhang/sd-filter-active.png"
-        FilterBannerInactiveSD: "pkg:/images/overhang/sd-filter-inactive.png"
-
-        GridScreenLogoSD: "pkg:/images/overhang/sd-logo.png"
-        GridScreenOverhangSliceSD: "pkg:/images/overhang/sd-header-slice.png"
-        GridScreenLogoOffsetSD_X: "20"
-        GridScreenLogoOffsetSD_Y: "20"
-        GridScreenOverhangHeightSD: "83"
-
-        'ListItemHighlightSD: "pkg:/images/sd-list-item.png"
-
-
-        '*** Common Styles ****
-
-        BackgroundColor: backgroundColor
-
-        BreadcrumbTextLeft: "#dfdfdf"
-        BreadcrumbTextRight: "#eeeeee"
-        BreadcrumbDelimiter: "#eeeeee"
-
-        ParagraphHeaderText: "#ffffff"
-        ParagraphBodyText: "#dfdfdf"
-
-        PosterScreenLine1Text: "#ffffff"
-        PosterScreenLine2Text: "#9a9a9a"
-        EpisodeSynopsisText: "#dfdfdf"
-
-        ListItemText: "#dfdfdf"
-        ListItemHighlightText: "#ffffff"
-        ListScreenDescriptionText: "#9a9a9a"
-        ListScreenTitleColor: "#ffffff"
-        ListScreenHeaderText: "#ffffff"
-
-        CounterTextLeft: brandingWhite
-        CounterTextRight: brandingWhite
-        CounterSeparator: brandingWhite
-
-        FilterBannerActiveColor: "#ffffff"
-        FilterBannerInactiveColor: "#cccccc"
-        FilterBannerSideColor: "#cccccc"
-
-        GridScreenBackgroundColor: backgroundColor
-        GridScreenListNameColor: brandingWhite
-        GridScreenDescriptionTitleColor: "#1E1E1E"
-        GridScreenDescriptionDateColor: "#1E1E1E"
-
-        SpringboardActorColor: "#9a9a9a"
-
-        SpringboardAlbumColor: "#ffffff"
-        SpringboardAlbumLabel: "#ffffff"
-        SpringboardAlbumLabelColor: "#ffffff"
-
-        SpringboardAllow6Buttons: "true"
-
-        SpringboardArtistColor: "#ffffff"
-        SpringboardArtistLabel: "#ffffff"
-        SpringboardArtistLabelColor: "#ffffff"
-
-        SpringboardDirectorColor: "#ffffff"
-        SpringboardDirectorLabel: "#ffffff"
-        SpringboardDirectorLabelColor: "#ffffff"
-        SpringboardDirectorPrefixText: "#ffffff"
-
-        SpringboardGenreColor: "#ffffff"
-        SpringboardRuntimeColor: "#ffffff"
-        SpringboardSynopsisColor: "#dfdfdf"
-        SpringboardTitleText: "#ffffff"
-
-        'ThemeType: "generic-dark"
-    }
-
-    app.SetTheme( theme )
-End Sub
-
-
-Sub initWebServer()
-    ' Initialize the web server
-    globals = CreateObject("roAssociativeArray")
-    globals.pkgname  = "Media Browser"
-    globals.maxRequestLength = 4000
-    globals.idletime = 60
-    globals.wwwroot = "tmp:/"
-    globals.index_name = "index.html"
-    globals.serverName = "Media Browser"
-    AddGlobals(globals)
-    MimeType()
-    HttpTitle()
-    ClassReply().AddHandler("/logs", ProcessLogsRequest)
-
-    webServer = InitServer({port: 8324})
-End Sub
-
-Function ProcessLogsRequest() As Boolean
-    Print "logs"
-    Return true
+Function CheckMinimumVersion(versionArr, requiredVersion) As Boolean
+    index = 0
+    for each num in versionArr
+        if index >= requiredVersion.count() then exit for
+        if num < requiredVersion[index] then
+            return false
+        else if num > requiredVersion[index] then
+            return true
+        end if
+        index = index + 1
+    next
+    return true
 End Function

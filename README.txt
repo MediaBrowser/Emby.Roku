@@ -2,6 +2,36 @@ MediaBrowser Roku
 
 Changelog
 
+1.2:
+
+* Added global event loop. All screens have been refactored to use it.
+* Added remote control support
+* Unified all duplicate metadata parsing. Features are now consistent regardless of item types.
+* Most data is now background loaded for a more responsive presentation
+* Image indicators are now available on all screens
+* Display clock in top right of home page
+* Support WakeOnLan
+* Added logo screen saver
+* Added new splash screen
+* Updated theme to a darker, flatter style
+* Added placeholder for custom themes, to be implemented later
+* Added support for latest api features. New progress api's are used to report additional information to the server.
+* Added user configurable device display name (for reporting activity to the server)
+* Server now detects when the client goes offline (within 1 minute), rather than waiting for an idle timer
+* Detail page image shape is chosen automatically based on image aspect ratio, rather than item type
+* All folder types can now be browsed, including games. Some will use the video detail screen when selected.
+* Cast & Crew added to video page
+* Added now playing context menu to song list page, with next, previous, shuffle, and loop functions
+* Stopping an intro is now able to prevent playback of the main feature
+* Support automatic selection of optimal media source
+* Increased possibilities of direct play video
+* Add additional checks against direct play to avoid it based on new criteria
+* Support user's configured audio and subtitle language preferences
+* Display transcoding info in video screen OSD
+* Servers are saved using friendly name reported by the server
+* Support channels
+
+
 1.17 - Added support for photos; Redesigned home screen toggles; Bug fixes; More bug fixes; Other minor features;
 
 1.16.7 - Fixed login problem introduced by latest server release;

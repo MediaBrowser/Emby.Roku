@@ -17,9 +17,6 @@ Function ClassMusicMetadata()
         this.jumpList     = {}
 
         ' functions
-        this.GetAlbums       = musicmetadata_albums
-        this.GetArtists      = musicmetadata_artists
-        this.GetGenres       = musicmetadata_genres
         this.GetArtistAlbums = musicmetadata_artist_albums
         this.GetGenreAlbums  = musicmetadata_genre_albums
         this.GetAlbumSongs   = musicmetadata_album_songs
@@ -42,7 +39,7 @@ End Function
 '** Get Music Albums
 '**********************************************************
 
-Function musicmetadata_albums() As Object
+Function getMusicAlbums(offset = invalid As Dynamic, limit = invalid As Dynamic, filters = invalid As Object) As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
@@ -50,10 +47,21 @@ Function musicmetadata_albums() As Object
     query = {
         recursive: "true"
         includeitemtypes: "MusicAlbum"
-        fields: "ItemCounts,DateCreated,UserData,AudioInfo,ParentId,SortName"
-        sortby: "SortName"
+        fields: "ItemCounts,DateCreated,UserData,AudioInfo,ParentId,SortName,Overview"
+        sortby: "AlbumArtist,SortName"
         sortorder: "Ascending"
     }
+
+    ' Filter/Sort Query
+    if filters <> invalid
+        query = AddToQuery(query, filters)
+    end if
+
+    ' Paging
+    if limit <> invalid And offset <> invalid
+        query.AddReplace("StartIndex", itostr(offset))
+        query.AddReplace("Limit", itostr(limit))
+    end if    
 
     ' Prepare Request
     request = HttpRequest(url)
@@ -65,74 +73,9 @@ Function musicmetadata_albums() As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        contentList = CreateObject("roArray", 15, true)
-        jsonObj     = ParseJSON(response)
-
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Music Albums")
-            return invalid
-        end if
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Album"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown")
-            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-
-            ' Set the Song Count as Line 2 Display
-            if i.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "song")
-            end if
-
-            ' Set the Artist Name
-            if i.AlbumArtist <> "" And i.AlbumArtist <> invalid
-                metaData.Artist = i.AlbumArtist
-            else if i.Artists[0] <> "" And i.Artists[0] <> invalid
-                metaData.Artist = i.Artists[0]
-            else
-                metaData.Artist = ""
-            end if
-
-            ' Set Played Percentage
-            if i.PlayedPercentage <> invalid
-                if i.PlayedPercentage <> 100
-                    PlayedPercentage = Int(i.PlayedPercentage)
-                else
-                    PlayedPercentage = 0
-                end if
-            else
-                PlayedPercentage = 0
-            end if
-
-            ' Get Image Sizes
-            sizes = GetImageSizes("arced-square")
-
-            ' Check if Item has Image, otherwise use default
-            if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-
-            else 
-                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
-                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
-
-            end if
-
-            contentList.push( metaData )
-        end for
-        
-        return contentList
+        return parseItemsResponse(response, 0, "mixed-aspect-ratio-square")
     else
-        Debug("Failed to Get Music Albums")
+        Debug("Error getting music albums.")
     end if
 
     return invalid
@@ -143,9 +86,9 @@ End Function
 '** Get Music Artists
 '**********************************************************
 
-Function musicmetadata_artists() As Object
+Function getMusicArtists(offset = invalid As Dynamic, limit = invalid As Dynamic, filters = invalid As Object) As Object
     ' URL
-    url = GetServerBaseUrl() + "/Artists"
+    url = GetServerBaseUrl() + "/Items?IncludeItemTypes=MusicArtist"
 
     ' Query
     query = {
@@ -156,6 +99,15 @@ Function musicmetadata_artists() As Object
         sortorder: "Ascending"
     }
 
+    if filters <> invalid
+        query = AddToQuery(query, filters)
+    end if
+
+    if limit <> invalid And offset <> invalid
+        query.AddReplace("StartIndex", itostr(offset))
+        query.AddReplace("Limit", itostr(limit))
+    end if    
+
     ' Prepare Request
     request = HttpRequest(url)
     request.ContentType("json")
@@ -164,59 +116,14 @@ Function musicmetadata_artists() As Object
 
     ' Execute Request
     response = request.GetToStringWithTimeout(10)
+
     if response <> invalid
-
-        contentList = CreateObject("roArray", 15, true)
-        jsonObj     = ParseJSON(response)
-
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Music Artists")
-            return invalid
-        end if
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Artist"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown")
-            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-
-            ' Set the Song Count as Line 2 Display
-            if i.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "song")
-            end if
-
-            ' Get Image Sizes
-            sizes = GetImageSizes("arced-square")
-
-            ' Check if Item has Image, otherwise use default
-            if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                imageUrl = GetServerBaseUrl() + "/Artists/" + HttpEncode(i.Name) + "/Images/Primary/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
-
-            else 
-                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
-                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
-
-            end if
-
-            contentList.push( metaData )
-        end for
-        
-        return contentList
-    else
-        Debug("Failed to Get Music Artists")
+        return parseItemsResponse(response, 0, "mixed-aspect-ratio-square")
     end if
 
+	Debug("Failed to Get Music Artists")
     return invalid
+
 End Function
 
 
@@ -224,7 +131,7 @@ End Function
 '** Get Music Genres
 '**********************************************************
 
-Function musicmetadata_genres() As Object
+Function getMusicGenres() As Object
     ' URL
     url = GetServerBaseUrl() + "/MusicGenres"
 
@@ -232,7 +139,7 @@ Function musicmetadata_genres() As Object
     query = {
         userid: getGlobalVar("user").Id
         recursive: "true"
-        includeitemtypes: "Audio"
+        includeitemtypes: "Audio,MusicVideo"
         fields: "ItemCounts"
         sortby: "SortName"
         sortorder: "Ascending"
@@ -248,59 +155,7 @@ Function musicmetadata_genres() As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        contentList = CreateObject("roArray", 10, true)
-        jsonObj     = ParseJSON(response)
-
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Genres for Music")
-            return invalid
-        end if
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Genre"
-
-            ' Set the Id
-            ' Genres Use Name as Id
-            metaData.Id = firstOf(i.Name, "Unknown")
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown")
-            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-
-            ' Set Song Count
-            if i.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "song")
-            end if
-
-            ' Get Image Sizes
-            sizes = GetImageSizes("arced-square")
-
-            ' Use Primary Or Backdrop Image
-            if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                imageUrl = GetServerBaseUrl() + "/MusicGenres/" + HttpEncode(i.Name) + "/Images/Primary/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
-
-            else if i.BackdropImageTags[0] <> "" And i.BackdropImageTags[0] <> invalid
-                imageUrl = GetServerBaseUrl() + "/MusicGenres/" + HttpEncode(i.Name) + "/Images/Backdrop/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], false, 0, true)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], false, 0, true)
-
-            else 
-                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
-                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
-
-            end if
-
-            contentList.push( metaData )
-        end for
-        
-        return contentList
+        return parseItemsResponse(response, 0, "mixed-aspect-ratio-portrait")
     else
         Debug("Failed to Get Genres for Music")
     end if
@@ -340,72 +195,7 @@ Function musicmetadata_artist_albums(artistName As String) As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        contentList = CreateObject("roArray", 10, true)
-        jsonObj     = ParseJSON(response)
-
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Albums by Artist")
-            return invalid
-        end if
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Album"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown")
-            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-
-            ' Set the Song Count as Line 2 Display
-            if i.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "song")
-            end if
-
-            ' Set the Artist Name
-            if i.AlbumArtist <> "" And i.AlbumArtist <> invalid
-                metaData.Artist = i.AlbumArtist
-            else if i.Artists[0] <> "" And i.Artists[0] <> invalid
-                metaData.Artist = i.Artists[0]
-            else
-                metaData.Artist = ""
-            end if
-
-            ' Set Played Percentage
-            if i.PlayedPercentage <> invalid
-                if i.PlayedPercentage <> 100
-                    PlayedPercentage = Int(i.PlayedPercentage)
-                else
-                    PlayedPercentage = 0
-                end if
-            else
-                PlayedPercentage = 0
-            end if
-
-            ' Get Image Sizes
-            sizes = GetImageSizes("arced-square")
-
-            ' Check if Item has Image, otherwise use default
-            if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-
-            else 
-                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
-                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
-
-            end if
-
-            contentList.push( metaData )
-        end for
-        
-        return contentList
+        return parseItemsResponse(response, 0, "arced-square")
     else
         Debug("Failed to Get Albums by an Artist")
     end if
@@ -445,72 +235,7 @@ Function musicmetadata_genre_albums(genreName As String) As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        contentList = CreateObject("roArray", 10, true)
-        jsonObj     = ParseJSON(response)
-
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Albums by Genre")
-            return invalid
-        end if
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Album"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Set the display title
-            metaData.Title = firstOf(i.Name, "Unknown")
-            metaData.ShortDescriptionLine1 = firstOf(i.Name, "Unknown")
-
-            ' Set the Song Count as Line 2 Display
-            if i.ChildCount <> invalid
-                metaData.ShortDescriptionLine2 = Pluralize(i.ChildCount, "song")
-            end if
-
-            ' Set the Artist Name
-            if i.AlbumArtist <> "" And i.AlbumArtist <> invalid
-                metaData.Artist = i.AlbumArtist
-            else if i.Artists[0] <> "" And i.Artists[0] <> invalid
-                metaData.Artist = i.Artists[0]
-            else
-                metaData.Artist = ""
-            end if
-
-            ' Set Played Percentage
-            if i.PlayedPercentage <> invalid
-                if i.PlayedPercentage <> 100
-                    PlayedPercentage = Int(i.PlayedPercentage)
-                else
-                    PlayedPercentage = 0
-                end if
-            else
-                PlayedPercentage = 0
-            end if
-
-            ' Get Image Sizes
-            sizes = GetImageSizes("arced-square")
-
-            ' Check if Item has Image, otherwise use default
-            if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-                metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-                metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, PlayedPercentage)
-
-            else 
-                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
-                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
-
-            end if
-
-            contentList.push( metaData )
-        end for
-        
-        return contentList
+        return parseItemsResponse(response, 0, "arced-square")
     else
         Debug("Failed to Get Albums by Genre")
     end if
@@ -535,7 +260,7 @@ Function musicmetadata_album_songs(albumId As String) As Object
         parentid: albumId
         recursive: "true"
         includeitemtypes: "Audio"
-        fields: "ItemCounts,DateCreated,UserData,AudioInfo,ParentId,Path,MediaStreams"
+        fields: "UserData,ParentId,MediaSources"
         sortby: "SortName"
         sortorder: "Ascending"
     }
@@ -549,89 +274,9 @@ Function musicmetadata_album_songs(albumId As String) As Object
     ' Execute Request
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
-
-        ' Fixes bug within BRS Json Parser
-        regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks)" + Chr(34) + ":(-?[0-9]+),", "i")
-        fixedResponse = regex.ReplaceAll(response, Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + ",")
-
-        songListCount = 1
-        contentList = CreateObject("roArray", 10, true)
-        streamList  = CreateObject("roArray", 10, true)
-        jsonObj     = ParseJSON(fixedResponse)
-
-        if jsonObj = invalid
-            Debug("Error while parsing JSON response for Songs within an Album")
-            return invalid
-        end if
-
-        for each i in jsonObj.Items
-            metaData = {}
-
-            ' Set the Content Type
-            metaData.ContentType = "Audio"
-
-            ' Set the Id
-            metaData.Id = i.Id
-
-            ' Set the Run Time
-            if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
-                metaData.Length = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-            end if
-
-            ' Build Song Information for Title Display
-            songInfo = itostr(songListCount) + "."
-
-            ' Add Song Name
-            if i.Name <> invalid
-                songInfo = songInfo + " " + i.Name
-            end if
-
-            ' Add Song Time
-            if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
-                songInfo = songInfo + " - " + formatTime(metaData.Length)
-            end if
-
-            ' Set the Title with song info
-            metaData.Title = songInfo
-
-            ' Setup Song; Improve this
-            streamData = SetupAudioStream(i.Id, i.Path)
-
-            ' Get Image Sizes
-            sizes = GetImageSizes("list")
-
-            ' Check if Item has Image, otherwise use default
-            if i.AlbumId <> "" And i.AlbumId <> invalid
-                imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.AlbumId) + "/Images/Primary/0"
-
-                if i.AlbumPrimaryImageTag <> "" And i.AlbumPrimaryImageTag <> invalid
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.AlbumPrimaryImageTag)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.AlbumPrimaryImageTag)
-                else
-                    metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight)
-                    metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight)
-                end if
-
-            else 
-                metaData.HDPosterUrl = "pkg://images/defaults/hd-square.jpg"
-                metaData.SDPosterUrl = "pkg://images/defaults/sd-square.jpg"
-
-            end if
-
-            ' Increment Count
-            songListCount = songListCount + 1
-
-            contentList.push( metaData )
-            streamList.push( streamData )
-        end for
-
-        ' Improve this
-        return {
-            SongInfo: contentList
-            SongStreams: streamList
-        }
+		return parseItemsResponse(response, 0, "list")
     else
-        Debug("Failed to Get Songs within an Album")
+        Debug("Error getting song list")
     end if
 
     return invalid
@@ -639,35 +284,35 @@ End Function
 
 
 '**********************************************************
-'** Post Audio Playback
+'** Get Latest Albums
 '**********************************************************
 
-Function postAudioPlayback(audioId As String, action As String) As Boolean
+Function getMusicLatest() As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
 
-    if action = "start"
-        ' URL
-        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(audioId)
+    ' Query
+    query = {
+        limit: "20"
+        recursive: "true"
+        includeitemtypes: "MusicAlbum"
+        fields: "ItemCounts"
+        sortby: "DateCreated"
+        sortorder: "Descending"
+    }
 
-        ' Prepare Request
-        request = HttpRequest(url)
-        request.AddAuthorization()
-    else if action = "stop"
-        ' URL
-        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(audioId)
-
-        ' Prepare Request
-        request = HttpRequest(url)
-        request.AddAuthorization()
-        request.SetRequest("DELETE")
-    end if
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+    request.BuildQuery(query)
 
     ' Execute Request
-    response = request.PostFromStringWithTimeout("", 5)
+    response = request.GetToStringWithTimeout(10)
     if response <> invalid
-        return true
-    else
-        Debug("Failed to Post Audio Playback")
+        return parseItemsResponse(response, 0, "mixed-aspect-ratio-square")
     end if
-
-    return false
+	
+	Debug ("Error getting latest music")
+    return invalid
 End Function

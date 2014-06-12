@@ -23,253 +23,18 @@ Function getVideoMetadata(videoId As String) As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        ' Fixes bug within BRS Json Parser
-        regex         = CreateObject("roRegex", Chr(34) + "(RunTimeTicks|PlaybackPositionTicks|StartPositionTicks)" + Chr(34) + ":(-?[0-9]+)(}?]?),", "i")
-        fixedResponse = regex.ReplaceAll(response, Chr(34) + "\1" + Chr(34) + ":" + Chr(34) + "\2" + Chr(34) + "\3,")
+        fixedResponse = normalizeJson(response)
 
         i = ParseJSON(fixedResponse)
 
-        if i = invalid
-            Debug("Error Parsing Video Metadata")
-            return invalid
-        end if
-
-        if i.Type = invalid
-            Debug("No Content Type Set for Video")
-            return invalid
-        end if
-        
-        metaData = {}
-
-        ' Set the Content Type
-        metaData.ContentType = i.Type
-
-        ' Set the Id
-        metaData.Id = i.Id
-
-        ' Set the Title
-        metaData.Title = firstOf(i.Name, "Unknown")
-
-        ' Set the Series Title
-        if i.SeriesName <> invalid
-            metaData.SeriesTitle = i.SeriesName
-        end if
-
-        ' Set the Overview
-        if i.Overview <> invalid
-            metaData.Description = i.Overview
-        end if
-
-        ' Set the Official Rating
-        if i.OfficialRating <> invalid
-            metaData.Rating = i.OfficialRating
-        end if
-
-        ' Set the Release Date
-        if isInt(i.ProductionYear)
-            metaData.ReleaseDate = itostr(i.ProductionYear)
-        end if
-
-        ' Set the Star Rating
-        if i.CommunityRating <> invalid
-            metaData.UserStarRating = Int(i.CommunityRating) * 10
-        end if
-
-        ' Set the Run Time
-        if i.RunTimeTicks <> "" And i.RunTimeTicks <> invalid
-            metaData.Length = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-        end if
-
-        ' Set the Play Access
-        metaData.PlayAccess = LCase(firstOf(i.PlayAccess, "full"))
-
-        ' Set the Place Holder (default to is not a placeholder)
-        metaData.IsPlaceHolder = firstOf(i.IsPlaceHolder, false)
-
-        ' Set the Local Trailer Count
-        metaData.LocalTrailerCount = firstOf(i.LocalTrailerCount, 0)
-
-        ' Set the Playback Position
-        if i.UserData.PlaybackPositionTicks <> "" And i.UserData.PlaybackPositionTicks <> invalid
-            positionSeconds = Int(((i.UserData.PlaybackPositionTicks).ToFloat() / 10000) / 1000)
-            metaData.PlaybackPosition = positionSeconds
-        else
-            metaData.PlaybackPosition = 0
-        end if
-
-        if i.Type = "Movie"
-
-            ' Check For People, Grab First 3 If Exists
-            if i.People <> invalid And i.People.Count() > 0
-                metaData.Actors = CreateObject("roArray", 3, true)
-
-                ' Set Max People to grab Size of people array
-                maxPeople = i.People.Count()-1
-
-                ' Check To Max sure there are 3 people
-                if maxPeople > 3
-                    maxPeople = 2
-                end if
-
-                for actorCount = 0 to maxPeople
-                    if i.People[actorCount].Name <> "" And i.People[actorCount].Name <> invalid
-                        metaData.Actors.Push(i.People[actorCount].Name)
-                    end if
-                end for
-            end if
-
-        else if i.Type = "Episode"
-
-            ' Build Episode Information
-            episodeInfo = ""
-
-            ' Add Series Name
-            if i.SeriesName <> invalid
-                episodeInfo = i.SeriesName
-            end if
-
-            ' Add Season Number
-            if i.ParentIndexNumber <> invalid
-                if episodeInfo <> ""
-                    episodeInfo = episodeInfo + " / "
-                end if
-
-                episodeInfo = episodeInfo + "Season " + itostr(i.ParentIndexNumber)
-            end if
-
-            ' Add Episode Number
-            if i.IndexNumber <> invalid
-                if episodeInfo <> ""
-                    episodeInfo = episodeInfo + " / "
-                end if
-                
-                episodeInfo = episodeInfo + "Episode " + itostr(i.IndexNumber)
-
-                ' Add Double Episode Number
-                if i.IndexNumberEnd <> invalid
-                    episodeInfo = episodeInfo + "-" + itostr(i.IndexNumberEnd)
-                end if
-            end if
-
-            ' Use Actors Area for Series / Season / Episode
-            metaData.Actors = episodeInfo
-
-        end if
-
-        ' Setup Watched Status In Category Area and Played Flag
-        if i.UserData.Played <> invalid And i.UserData.Played = true
-            metaData.IsPlayed = true
-            if i.UserData.LastPlayedDate <> invalid
-                metaData.Categories = "Watched on " + formatDateStamp(i.UserData.LastPlayedDate)
-            else
-                metaData.Categories = "Watched"
-            end if
-        else
-            metaData.IsPlayed = false
-        end if
-
-        ' Setup Favorite Status
-        if i.UserData.IsFavorite <> invalid And i.UserData.IsFavorite = true
-            metaData.IsFavorite = true
-        else
-            metaData.IsFavorite = false
-        end if
-
-        ' Setup Chapters
-        if i.Chapters <> invalid
-
-            metaData.Chapters = CreateObject("roArray", 5, true)
-            chapterCount = 0
-
-            for each c in i.Chapters
-                chapterData = {}
-
-                ' Set the chapter display title
-                chapterData.Title = firstOf(c.Name, "Unknown")
-                chapterData.ShortDescriptionLine1 = firstOf(c.Name, "Unknown")
-
-                ' Set chapter time
-                if c.StartPositionTicks <> invalid
-                    chapterPositionSeconds = Int(((c.StartPositionTicks).ToFloat() / 10000) / 1000)
-
-                    chapterData.StartPosition = chapterPositionSeconds
-                    chapterData.ShortDescriptionLine2 = formatTime(chapterPositionSeconds)
-                end if
-
-                ' Get Image Sizes
-                sizes = GetImageSizes("flat-episodic-16x9")
-
-                ' Check if Chapter has Image, otherwise use default
-                if c.ImageTag <> "" And c.ImageTag <> invalid
-                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Chapter/" + itostr(chapterCount)
-
-                    chapterData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, c.ImageTag, false, 0, true)
-                    chapterData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, c.ImageTag, false, 0, true)
-
-                else 
-                    chapterData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                    chapterData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-
-                end if
-
-                ' Increment Count
-                chapterCount = chapterCount + 1
-
-                metaData.Chapters.push( chapterData )
-            end for
-
-        end if
-
-        ' Setup Video Location / Type Information
-        if i.VideoType <> invalid
-            metaData.VideoType = LCase(i.VideoType)
-        end If
-
-        if i.Path <> invalid
-            metaData.VideoPath = i.Path
-        end If
-
-        if i.LocationType <> invalid
-            metaData.LocationType = LCase(i.LocationType)
-        else
-            metaData.LocationType = "none"
-        end If
-
-        ' Set HD Flags
-        if i.IsHd <> invalid
-            metaData.HDBranded = i.IsHd
-            metaData.IsHD = i.IsHd
-        end if
-
-        ' Parse Media Info
-        metaData = parseVideoMediaInfo(metaData, i)
-
         ' Get Image Sizes
         if i.Type = "Episode"
-            sizes = GetImageSizes("rounded-rect-16x9-generic")
+            imageStyle = "rounded-rect-16x9-generic"
         else
-            sizes = GetImageSizes("movie")
-        end if
-        
-        ' Check if Item has Image, otherwise use default
-        if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-            imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-            metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, false, 0, true)
-            metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, false, 0, true)
-
-        else 
-            if i.Type = "Episode"
-                metaData.HDPosterUrl = "pkg://images/defaults/hd-landscape.jpg"
-                metaData.SDPosterUrl = "pkg://images/defaults/sd-landscape.jpg"
-            else
-                metaData.HDPosterUrl = "pkg://images/defaults/hd-poster.jpg"
-                metaData.SDPosterUrl = "pkg://images/defaults/sd-poster.jpg"
-            end if
-
+            imageStyle = "movie"
         end if
 
-        return metaData
+		return getMetadataFromServerItem(i, 0, imageStyle, "springboard")
     else
         Debug("Failed to Get Video Metadata")
     end if
@@ -277,52 +42,32 @@ Function getVideoMetadata(videoId As String) As Object
     return invalid
 End Function
 
-
 '**********************************************************
-'** Parse Media Information
+'** addVideoDisplayInfo
 '**********************************************************
 
-Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
+Sub addVideoDisplayInfo(metaData as Object, item as Object)
 
-    ' Setup Video / Audio / Subtitle Streams
-    metaData.audioStreams    = CreateObject("roArray", 2, true)
-    metaData.subtitleStreams = CreateObject("roArray", 2, true)
+	mediaStreams = invalid
 
-    ' Determine Media Compatibility
-    compatibleVideo        = false
-    compatibleAudio        = false
-    compatibleAudioStreams = {}
+	if item.MediaSources <> invalid and item.MediaSources.Count() > 0 then
+		mediaStreams = item.MediaSources[0].MediaStreams
+	end if
+
+	if mediaStreams = invalid then mediaStreams = item.MediaStreams
+
+	' Can't continue at this point
+	if mediaStreams = invalid then return
+
     foundVideo             = false
-    foundDefaultAudio      = false
-    firstAudio             = true
-    firstAudioChannels     = 0
-    defaultAudioChannels   = 0
 
-    ' Get Video Bitrate
-    maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
-    maxVideoBitrate = maxVideoBitrate.ToInt()
-
-    for each stream in video.MediaStreams
+    for each stream in mediaStreams
 
         if stream.Type = "Video" And foundVideo = false
             foundVideo = true
-            streamBitrate = Int(stream.BitRate / 1000)
-            streamLevel   = firstOf(stream.Level, 100) ' Default to very high value to prevent compatible video match
-            streamProfile = LCase(firstOf(stream.Profile, "unknown")) ' Default to unknown to prevent compatible video match
-
-            if (stream.Codec = "h264" Or stream.Codec = "AVC") And streamLevel <= 41 And (streamProfile = "main" Or streamProfile = "high") And streamBitrate < maxVideoBitrate
-                compatibleVideo = true
-            end if
-
-            ' Determine Bitrate
-            if streamBitrate > maxVideoBitrate
-                metaData.streamBitrate = maxVideoBitrate
-            else
-                metaData.streamBitrate = streamBitrate
-            end if
 
             ' Determine Full 1080p
-            if stream.Height = 1080
+            if stream.Height >= 1080
                 metaData.FullHD = true
             end if
 
@@ -345,474 +90,609 @@ Function parseVideoMediaInfo(metaData As Object, video As Object) As Object
 
         else if stream.Type = "Audio" 
 
-            if firstAudio
-                firstAudio = false
-                firstAudioChannels = firstOf(stream.Channels, 2)
-
-                ' Determine Compatible Audio (Default audio will override)
-                if stream.Codec = "aac" Or (stream.Codec = "ac3" And getGlobalVar("audioOutput51")) Or (stream.Codec = "dca" And getGlobalVar("audioOutput51") And getGlobalVar("audioDTS"))
-                    compatibleAudio = true
-                end if
+            channels = firstOf(stream.Channels, 2)
+            if channels > 5
+                metaData.AudioFormat = "dolby-digital"
             end if
-
-            ' Use Default To Determine Surround Sound
-            if stream.IsDefault
-                foundDefaultAudio = true
-
-                channels = firstOf(stream.Channels, 2)
-                defaultAudioChannels = channels
-                if channels > 5
-                    metaData.AudioFormat = "dolby-digital"
-                end if
-                
-                ' Determine Compatible Audio
-                if stream.Codec = "aac" Or (stream.Codec = "ac3" And getGlobalVar("audioOutput51")) Or (stream.Codec = "dca" And getGlobalVar("audioOutput51") And getGlobalVar("audioDTS"))
-                    compatibleAudio = true
-                else
-                    compatibleAudio = false
-                end if
-            end if
-
-            ' Keep a list of compatible audio streams
-            if stream.Codec = "aac" Or (stream.Codec = "ac3" And getGlobalVar("audioOutput51")) Or (stream.Codec = "dca" And getGlobalVar("audioOutput51") And getGlobalVar("audioDTS"))
-                compatibleAudioStreams.AddReplace(itostr(stream.Index), true)
-            else
-                'compatibleAudioStreams.AddReplace(stream.Index, false)
-            end if
-
-            audioData = {}
-            audioData.Title = ""
-
-            ' Set Index
-            audioData.Index = stream.Index
-
-            ' Set Language
-            if stream.Language <> invalid
-                audioData.Title = formatLanguage(stream.Language)
-            end if
-
-            ' Set Description
-            if stream.Profile <> invalid
-                audioData.Title = audioData.Title + ", " + stream.Profile
-            else if stream.Codec <> invalid
-                audioData.Title = audioData.Title + ", " + stream.Codec
-            end if
-
-            ' Set Channels
-            if stream.Channels <> invalid
-                audioData.Title = audioData.Title + ", Channels: " + itostr(stream.Channels)
-            end if
-
-            metaData.audioStreams.push( audioData )
-
-        else if stream.Type = "Subtitle" 
-
-            subtitleData = {}
-            subtitleData.Title = ""
-
-            ' Set Index
-            subtitleData.Index = stream.Index
-
-            ' Set Language
-            if stream.Language <> invalid
-                subtitleData.Title = formatLanguage(stream.Language)
-            end if
-
-            metaData.subtitleStreams.push( subtitleData )
 
         end if
 
     end for
 
-    ' If no default audio was found, use first audio stream
-    if Not foundDefaultAudio
-        defaultAudioChannels = firstAudioChannels
-        if firstAudioChannels > 5
-            metaData.AudioFormat = "dolby-digital"
+End Sub
+
+'**********************************************************
+'** addVideoPlaybackInfo
+'**********************************************************
+
+Sub addVideoPlaybackInfo(item, options)
+
+	streamInfo = getPlaybackStreamInfo(item, options) 
+
+	if streamInfo = invalid then return
+
+	item.StreamInfo = streamInfo
+
+	' Setup Roku Stream
+	' http://sdkdocs.roku.com/display/sdkdoc/Content+Meta-Data
+
+	mediaSource = streamInfo.MediaSource
+	mediaSourceId = mediaSource.Id
+	
+	isDisplayHd = getGlobalVar("displayType") = "HDTV"
+
+	if streamInfo.IsDirectStream Then
+
+		item.Stream = {
+			url: GetServerBaseUrl() + "/Videos/" + item.Id + "/stream?static=true&mediaSourceId=" + mediaSourceId,
+			contentid: "x-directstream",
+			bitrate: streamInfo.Bitrate / 1000,
+			quality: false
+		}
+
+		' http://sdkdocs.roku.com/display/sdkdoc/Content+Meta-Data
+		if mediaSource.Container = "mov" or mediaSource.Container = "m4v" then
+			item.StreamFormat = "mp4"
+		else
+			item.StreamFormat = mediaSource.Container
+		end if
+
+	else
+
+		url = GetServerBaseUrl() + "/Videos/" + item.Id + "/stream.m3u8?mediaSourceId=" + mediaSourceId
+
+		if isDisplayHd then
+			url = url + "&maxWidth=1920"
+			url = url + "&maxHeight=1080"
+		else		
+			url = url + "&maxWidth=1280"
+			url = url + "&maxHeight=720"
+		end if
+		
+		url = url + "&videoCodec=h264"
+		url = url + "&profile=high"
+		url = url + "&level=41"
+		url = url + "&deviceId=" + getGlobalVar("rokuUniqueId", "Unknown")
+		url = url + "&TimeStampOffsetMs=0"
+
+		url = url + "&AudioCodec=" + streamInfo.AudioCodec
+		url = url + "&MaxAudioChannels=" + tostr(streamInfo.MaxAudioChannels)
+
+		if options.playstart <> invalid then
+			url = url + "&StartTimeTicks="+ tostr(options.playstart) + "0000000"
+		end if
+
+		if streamInfo.AudioStreamIndex <> invalid then
+			url = url + "&AudioStreamIndex=" + tostr(streamInfo.AudioStreamIndex)
+		end if
+
+		if streamInfo.SubtitleStreamIndex <> invalid then
+			url = url + "&SubtitleStreamIndex=" + tostr(streamInfo.SubtitleStreamIndex)
+		end if
+
+		if streamInfo.AudioBitrate <> invalid then
+			url = url + "&AudioBitrate=" + tostr(streamInfo.AudioBitrate)
+		end if
+
+		if streamInfo.VideoBitrate <> invalid then
+			url = url + "&VideoBitrate=" + tostr(streamInfo.VideoBitrate)
+		end if
+
+		if streamInfo.MaxFramerate <> invalid then
+			url = url + "&MaxFramerate=" + tostr(streamInfo.MaxFramerate)
+		end if
+
+		item.Stream = {
+			url: url,
+			contentid: "x-hls",
+			bitrate: streamInfo.Bitrate / 1000,
+			quality: false
+		}
+
+        item.StreamFormat = "hls"
+        item.SwitchingStrategy = "no-adaptation"
+
+	end If
+
+	if item.IsHD = true And isDisplayHd then item.Stream.quality = true
+
+End Sub
+
+Function getPlaybackStreamInfo(item, options) as Object
+
+	streams = []
+
+	' Create streams for each media source
+	for each source in item.MediaSources
+		if options.MediaSourceId = invalid OR source.Id = options.MediaSourceId then
+
+			streams.push(getStreamInfo(source, options))
+		end if
+
+	end for
+
+	' If a specific media source was requested
+	if options.MediaSourceId <> invalid then
+		for each stream in streams
+			if stream.MediaSourceId = options.MediaSourceId then
+				return stream
+			end if
+		end for
+	end if
+
+	' Now choose the optimal one
+	for each stream in streams
+		if stream.IsDirectStream = true then
+			return stream
+		end if
+	end for
+
+	for each stream in streams
+		if stream.IsNativeVideo = true then
+			return stream
+		end if
+	end for
+
+	' No direct play or native video stream. Just take the first one
+	return streams[0]
+	
+End Function
+
+Function getStreamInfo(mediaSource as Object, options as Object) as Object
+
+	audioStream = getMediaStream(mediaSource.MediaStreams, "Audio", options.AudioStreamIndex, mediaSource.DefaultAudioStreamIndex)
+	videoStream = getMediaStream(mediaSource.MediaStreams, "Video", invalid, invalid)
+	subtitleStream = getMediaStream(mediaSource.MediaStreams, "Subtitle", options.SubtitleStreamIndex, mediaSource.DefaultSubtitleStreamIndex)
+
+	streamInfo = {
+		MediaSource: mediaSource,
+		VideoStream: videoStream,
+		AudioStream: audioStream,
+		SubtitleStream: subtitleStream
+	}
+
+	if audioStream <> invalid then streamInfo.AudioStreamIndex = audioStream.Index
+	if subtitleStream <> invalid then streamInfo.SubtitleStreamIndex = subtitleStream.Index
+
+	if videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStream, options) then
+
+		streamInfo.IsDirectStream = true
+		streamInfo.Bitrate = mediaSource.Bitrate
+
+	else
+		streamInfo.IsDirectStream = false
+
+		maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
+		maxVideoBitrate = maxVideoBitrate.ToInt()
+	
+		streamInfo.VideoBitrate = maxVideoBitrate * 1000
+
+		streamInfo.AudioStreamIndex = mediaSource.DefaultAudioStreamIndex
+		streamInfo.SubtitleStreamIndex = mediaSource.DefaultSubtitleStreamIndex
+
+		' TODO: Support audio stream copy when possible
+		sourceAudioChannels = 2
+		if audioStream <> invalid and audioStream.Channels <> invalid then 
+			sourceAudioChannels = audioStream.Channels
+		end If
+
+		surroundSound = SupportsSurroundSound(false, false)
+		audioOutput51 = getGlobalVar("audioOutput51")
+
+		if sourceAudioChannels > 2 then
+			streamInfo.AudioCodec = "aac"
+			streamInfo.MaxAudioChannels = 2
+			streamInfo.AudioBitrate = 128000
+			
+		else if surroundSound and audioOutput51
+			streamInfo.AudioCodec = "ac3"
+			streamInfo.MaxAudioChannels = 5
+			streamInfo.AudioBitrate = 256000
+			
+		else
+			streamInfo.AudioCodec = "aac"
+			streamInfo.MaxAudioChannels = 2
+			streamInfo.AudioBitrate = 128000
+		end if
+
+		streamInfo.Bitrate = streamInfo.AudioBitrate + streamInfo.VideoBitrate
+
+		' If over 30, encode at 24fps - but don't force transcoding if between 24 and 30
+		if videoStream <> invalid and videoStream.AverageFrameRate <> invalid and videoStream.AverageFrameRate > 30 then
+			streamInfo.MaxFramerate = mediaSource.MaxFramerate
+		end if
+
+		' if stream.Codec = "aac" Or (stream.Codec = "ac3" And getGlobalVar("audioOutput51")) Or (stream.Codec = "dca" And getGlobalVar("audioOutput51") And getGlobalVar("audioDTS"))
+
+	end if
+
+	return streamInfo
+
+End Function
+
+Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStream, options) As Boolean
+
+	if mediaSource.Bitrate = invalid then
+		Debug("videoCanDirectPlay: Unknown source bitrate")
+		return false
+	else
+		maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
+		maxVideoBitrate = maxVideoBitrate.ToInt() * 1000
+
+		if maxVideoBitrate < mediaSource.Bitrate Then
+			Debug("videoCanDirectPlay: bitrate too high")
+			return false
+		end If
+
+	end If
+
+    ' With the Roku 3, the surround sound support may have changed because of
+    ' the headphones in the remote. If we have a cached direct play decision,
+    ' we need to make sure the surround sound support hasn't changed and
+    ' possibly reevaluate.
+    surroundSound = SupportsSurroundSound(false, false)
+
+	audioOutput51 = getGlobalVar("audioOutput51")
+    surroundSoundDCA = surroundSound AND audioOutput51 'AND (RegRead("fivepointoneDCA", "preferences", "1") = "1")
+    surroundSound = surroundSound AND audioOutput51 'AND (RegRead("fivepointone", "preferences", "1") = "1")
+
+    ' There doesn't seem to be a great way to do this, but we need to see if
+    ' the audio streams will support direct play. We'll assume that if there
+    ' are audio streams with different numbers of channels, they're probably
+    ' the same audio; if there are multiple streams with the same number of
+    ' channels, they're probably something like commentary or another language.
+    ' So if the selected stream is the first stream with that number of
+    ' channels, it might be chosen by the Roku when Direct Playing. We don't
+    ' just check the selected stream though, because if the 5.1 AC3 stream is
+    ' selected and there's also a stereo AAC stream, we can direct play.
+    ' But if there's a surround AAC stream before a stereo AAC stream, that
+    ' doesn't work.
+
+    stereoCodec = invalid
+    surroundCodec = invalid
+    secondaryStreamSelected = false
+    surroundStreamFirst = false
+    numAudioStreams = 0
+    numVideoStreams = 0
+    for each stream in mediaSource.MediaStreams
+        if stream.Type = "Audio" then
+            numAudioStreams = numAudioStreams + 1
+            numChannels = firstOf(stream.Channels, 0)
+            if numChannels <= 2 then
+                if stereoCodec = invalid then
+                    stereoCodec = stream.Codec
+                    surroundStreamFirst = (surroundCodec <> invalid)
+                else if stream.Index = audioStream.Index then
+                    secondaryStreamSelected = true
+                end if
+            else if numChannels >= 6 then
+                ' The Roku is just passing through the surround sound, so
+                ' it theoretically doesn't care whether there were 6 channels
+                ' or 60.
+                if surroundCodec = invalid then
+                    surroundCodec = stream.codec
+                else if stream.Index = audioStream.Index then
+                    secondaryStreamSelected = true
+                end if
+            else
+                Debug("Unexpected channels on audio stream: " + tostr(stream.channels))
+            end if
+        else if stream.Type = "Video" then
+            numVideoStreams = numVideoStreams + 1
         end if
+    next
+
+	container = mediaSource.Container
+	videoCodec = invalid
+	if videoStream <> invalid then videoCodec = videoStream.Codec
+	audioCodec = invalid
+	if audioStream <> invalid then audioCodec = audioStream.Codec
+	subtitleCodec = invalid
+	if subtitleStream <> invalid then subtitleCodec = subtitleStream.Codec
+
+    Debug("Media item container: " + tostr(container))
+    Debug("Media item video codec: " + tostr(videoCodec))
+    Debug("Media item audio codec: " + tostr(audioCodec))
+    Debug("Media item subtitles: " + tostr(subtitleCodec))
+    Debug("Media item stereo codec: " + tostr(stereoCodec))
+    Debug("Media item surround codec: " + tostr(surroundCodec))
+    Debug("Secondary audio stream selected: " + tostr(secondaryStreamSelected))
+
+    ' If no streams are provided, treat the Media audio codec as stereo.
+    if numAudioStreams = 0 then
+        stereoCodec = audioCodec
     end if
 
-    ' Set Video / Audio Compatibility
-    metaData.CompatibleVideo        = compatibleVideo
-    metaData.CompatibleAudio        = compatibleAudio
-    metaData.CompatibleAudioStreams = compatibleAudioStreams
+    ' Multiple video streams aren't supported, regardless of type.
+    if numVideoStreams > 1 then
+        Debug("videoCanDirectPlay: multiple video streams")
+        return false
+    end if
 
-    ' Set the Default Audio Channels
-    metaData.DefaultAudioChannels = defaultAudioChannels
+    versionArr = getGlobalVar("rokuVersion")
+    major = versionArr[0]
 
-    return metaData
+    if subtitleStream <> invalid AND NOT shouldUseSoftSubs(subtitleStream) then
+        Debug("videoCanDirectPlay: need to burn in subtitles")
+        return false
+    end if
+
+    if secondaryStreamSelected then
+        Debug("videoCanDirectPlay: audio stream selected")
+        return false
+    end if
+
+	' TODO: Add this information to server output, along with RefFrames
+    if (videoStream <> invalid AND videoStream.IsAnamorphic = true) AND NOT firstOf(GetGlobalAA("playsAnamorphic"), false) then
+        Debug("videoCanDirectPlay: anamorphic videos not supported")
+        return false
+    end if
+
+    if videoStream <> invalid and videoStream.Height <> invalid and videoStream.Height > 1080 then
+        Debug("videoCanDirectPlay: height is greater than 1080: " + tostr(videoStream.Height))
+        return false
+    end if
+
+    if container = "mp4" OR container = "mov" OR container = "m4v" then
+
+        if (videoCodec <> "h264" AND videoCodec <> "mpeg4") then
+            Debug("videoCanDirectPlay: vc not h264/mpeg4")
+            return false
+        end if
+
+        if videoStream <> invalid and videoStream.RefFrames <> invalid AND firstOf(videoStream.RefFrames, 0) > firstOf(GetGlobalAA("maxRefFrames"), 0) then
+            ' Not only can we not Direct Play, but we want to make sure we
+            ' don't try to Direct Stream.
+            'mediaItem.forceTranscode = true
+            Debug("videoCanDirectPlay: too many ReFrames: " + tostr(videoStream.RefFrames))
+            return false
+        end if
+
+        if surroundSound AND (surroundCodec = "ac3" OR stereoCodec = "ac3") then
+            'mediaItem.canDirectPlay = true
+            return true
+        end if
+
+        if surroundStreamFirst then
+            Debug("videoCanDirectPlay: first audio stream is unsupported 5.1")
+            return false
+        end if
+
+        if stereoCodec = "aac" then
+            'mediaItem.canDirectPlay = true
+            return true
+        end if
+
+        if stereoCodec = invalid AND numAudioStreams = 0 AND major >= 4 then
+            ' If everything else looks ok and there are no audio streams, that's
+            ' fine on Roku 2+.
+            'mediaItem.canDirectPlay = true
+            return true
+        end if
+
+        Debug("videoCanDirectPlay: ac not aac/ac3")
+        return false
+    end if
+
+    if container = "wmv" then
+
+		' Apparently deprecated since 4.1:
+		' http://sdkdocs.roku.com/display/sdkdoc/Content+Meta-Data
+		return False
+
+        ' TODO: What exactly should we check here?
+        if major > 3 then
+            Debug("videoCanDirectPlay: wmv not supported by version " + tostr(major))
+            return false
+        end if
+
+        ' Based on docs, only WMA9.2 is supported for audio
+        if stereoCodec = invalid OR Left(stereoCodec, 3) <> "wma" then
+            Debug("videoCanDirectPlay: ac not stereo wmav2")
+            return false
+        end if
+
+        ' Video support is less obvious. WMV9 up to 480p, VC-1 up to 1080p?
+        if videoCodec <> "wmv3" AND videoCodec <> "vc1" then
+            Debug("videoCanDirectPlay: vc not wmv3/vc1")
+            return false
+        end if
+
+        'mediaItem.canDirectPlay = true
+        return true
+    end if
+
+    if container = "mkv" then
+        if NOT CheckMinimumVersion(versionArr, [5, 1]) then
+            Debug("videoCanDirectPlay: mkv not supported by version " + tostr(major))
+            return false
+        end if
+
+        if (videoCodec <> "h264" AND videoCodec <> "mpeg4") then
+            Debug("videoCanDirectPlay: vc not h264/mpeg4")
+            return false
+        end if
+
+        if videoStream <> invalid and videoStream.RefFrames <> invalid then
+            if firstOf(videoStream.RefFrames, 0) > firstOf(GetGlobalAA("maxRefFrames"), 0) then
+                ' Not only can we not Direct Play, but we want to make sure we
+                ' don't try to Direct Stream.
+                'mediaItem.forceTranscode = true
+                Debug("videoCanDirectPlay: too many ReFrames: " + tostr(videoStream.RefFrames))
+                return false
+            end if
+
+            if firstOf(videoStream.BitDepth, 0) > 8 then
+                'mediaItem.forceTranscode = true
+                Debug("videoCanDirectPlay: bitDepth too high: " + tostr(videoStream.BitDepth))
+                return false
+            end if
+        end if
+
+        if surroundSound AND (surroundCodec = "ac3" OR stereoCodec = "ac3") then
+            'mediaItem.canDirectPlay = true
+            return true
+        end if
+
+        if surroundSoundDCA AND (surroundCodec = "dca" OR stereoCodec = "dca") then
+            'mediaItem.canDirectPlay = true
+            return true
+        end if
+
+        if surroundStreamFirst then
+            Debug("videoCanDirectPlay: first audio stream is unsupported 5.1")
+            return false
+        end if
+
+        if stereoCodec <> invalid AND (stereoCodec = "aac" OR stereoCodec = "mp3") then
+            'mediaItem.canDirectPlay = true
+            return true
+        end if
+
+        Debug("videoCanDirectPlay: ac not aac/ac3/mp3")
+        return false
+    end if
+
+    return false
+End Function
+
+Function getMediaStream(mediaStreams, streamType, optionIndex, defaultIndex) as Object
+
+	if optionIndex <> invalid then
+		for each stream in mediaStreams
+			if stream.Index = optionIndex and stream.Type = streamType then return stream
+		end for
+	end if
+
+	if defaultIndex <> invalid then
+		for each stream in mediaStreams
+			if stream.Index = defaultIndex and stream.Type = streamType then return stream
+		end for
+	end if
+
+	' We have to return something
+	if streamType = "Video" or streamType = "Audio" then
+		for each stream in mediaStreams
+			if stream.Type = streamType then return stream
+		end for
+	end if
+
+	return invalid
+
+End Function
+
+Function shouldUseSoftSubs(stream) As Boolean
+
+	' TODO: Revisit when the server ouptuts subs directly
+	return false
+    if RegRead("softsubtitles", "preferences", "1") = "0" then return false
+    if stream.codec <> "srt" or stream.key = invalid then return false
+
+    ' TODO(schuyler) If Roku adds support for non-Latin characters, remove
+    ' this hackery. To the extent that we continue using this hackery, it
+    ' seems that the Roku requires UTF-8 subtitles but only supports characters
+    ' from Windows-1252. This should be the full set of languages that are
+    ' completely representable in Windows-1252. PMS should specifically be
+    ' returning ISO 639-2/B language codes.
+
+    if m.SoftSubLanguages = invalid then
+        m.SoftSubLanguages = {
+            afr: 1,
+            alb: 1,
+            baq: 1,
+            bre: 1,
+            cat: 1,
+            dan: 1,
+            eng: 1,
+            fao: 1,
+            glg: 1,
+            ger: 1,
+            ice: 1,
+            may: 1,
+            gle: 1,
+            ita: 1,
+            lat: 1,
+            ltz: 1,
+            nor: 1,
+            oci: 1,
+            por: 1,
+            roh: 1,
+            gla: 1,
+            spa: 1,
+            swa: 1,
+            swe: 1,
+            wln: 1,
+            est: 1,
+            fin: 1,
+            fre: 1,
+            dut: 1
+        }
+    end if
+
+    if stream.languageCode = invalid OR m.SoftSubLanguages.DoesExist(stream.languageCode) then return true
+
+    return false
 End Function
 
 
 '**********************************************************
-'** Setup Video Playback
+'** reportPlayback
 '**********************************************************
 
-Function setupVideoPlayback(metadata As Object, options = invalid As Object) As Object
-
-    ' Setup Video Playback
-    videoType     = metadata.VideoType
-    locationType  = metadata.LocationType
-    rokuVersion   = getGlobalVar("rokuVersion")
-    audioOutput51 = getGlobalVar("audioOutput51")
-    supportsSurroundSound = getGlobalVar("surroundSound")
-
-    ' Set Playback Options
-    if options <> invalid
-        audioStream    = firstOf(options.audio, false)
-        subtitleStream = firstOf(options.subtitle, false)
-        playStart      = firstOf(options.playstart, false)
-    else
-        audioStream    = false
-        subtitleStream = false
-        playStart      = false
-    end if
-
-    ' Setup Defaults
-    metadata.IsAppleTrailer = false
-
-    Print "Play Start: "; playStart
-    Print "Audio Stream: "; audioStream
-    Print "Subtitle Stream: "; subtitleStream
-
-    if videoType = "videofile"
-        extension = getFileExtension(metaData.VideoPath)
-
-        if locationType = "remote"
-
-            ' If Apple trailer, direct play
-            regex = CreateObject("roRegex", "trailers.apple.com", "i")
-            if regex.IsMatch(metaData.VideoPath)
-                action = "direct"
-                metadata.IsAppleTrailer = true
-            else
-                action = "transcode"
-            end if
-
-        else if locationType = "filesystem"
-
-            if metadata.CompatibleVideo And ( (extension = "mp4" Or extension = "mpv") Or (extension = "mkv" And (rokuVersion[0] > 5 Or (rokuVersion[0] = 5 And rokuVersion[1] >= 1) ) ) )
-                if (Not audioOutput51 And metaData.DefaultAudioChannels > 2) Or (audioStream Or subtitleStream)
-                    if subtitleStream
-                        action = "transcode"
-                    else
-                        action = "streamcopy"
-                    end if
-                else
-                    if metadata.CompatibleAudio
-                        action = "direct"
-                    else
-                        action = "streamcopy"
-                    end if
-                end if
-
-            else
-                if metadata.CompatibleVideo
-                    action = "streamcopy"
-                else
-                    action = "transcode"
-                end if
-            end if
-
-        else
-            action = "transcode"
-        end if
-
-    else
-        action = "transcode"
-    end if
-
-    Debug("Action For Video (" + metadata.Title + "): " + action)
-
-    ' Get Video Bitrate
-    videoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
-    videoBitrate = videoBitrate.ToInt()
-
-    streamParams = {}
-
-    ' Direct Stream
-    if action = "direct"
-        streamParams.url = GetServerBaseUrl() + "/Videos/" + metadata.Id + "/stream." + extension + "?static=true"
-        streamParams.bitrate = metadata.streamBitrate
-        streamParams.contentid = "x-direct"
-
-        ' Set Video Quality Depending Upon Display Type
-        if getGlobalVar("displayType") = "HDTV"
-            streamParams.quality = true
-        else
-            streamParams.quality = false
-        end if
-
-        if extension = "mkv"
-            metaData.StreamFormat = "mkv"
-        else
-            metaData.StreamFormat = "mp4"
-        end if
-        metaData.Stream = streamParams
-
-        ' Add Play Start
-        if playStart
-            metaData.PlayStart = playStart
-        end if
-
-        ' Set Direct Play Flag
-        metaData.DirectPlay = true
-
-        ' Setup Playback Method in Rating area
-        metaData.Rating = "Direct Play (" + extension + ")"
-
-    ' Stream Copy
-    else if action = "streamcopy"
-        ' Base URL
-        url = GetServerBaseUrl() + "/Videos/" + HttpEncode(metadata.Id) + "/stream.m3u8"
-
-        ' Default Settings
-        query = {
-            VideoCodec: "copy"
-            TimeStampOffsetMs: "0"
-            DeviceId: getGlobalVar("rokuUniqueId", "Unknown")
-        }
-
-        ' Set playback method for info box
-        playbackInfo = "Copy Video;"
-
-        ' Add Audio Settings
-        if audioStream
-            ' If the selected stream is compatible, then stream copy the audio
-            if metaData.CompatibleAudioStreams.DoesExist(itostr(audioStream))
-                audioSettings = {
-                    AudioCodec: "copy"
-                    AudioStreamIndex: itostr(audioStream)
-                }
-
-                playbackInfo = playbackInfo + " Copy Audio"
-            else
-                audioSettings = {
-                    AudioCodec: "aac"
-                    AudioBitRate: "128000"
-                    AudioChannels: "2"
-                    AudioStreamIndex: itostr(audioStream)
-                }
-
-                playbackInfo = playbackInfo + " Convert Audio"
-            end if
-        else
-            audioSettings = {
-                AudioCodec: "aac"
-                AudioBitRate: "128000"
-                AudioChannels: "2"
-            }
-
-            playbackInfo = playbackInfo + " Convert Audio"
-        end if
-
-        ' Add Audio Params to Query
-        query = AddToQuery(query, audioSettings)
-
-        ' Prepare Url
-        request = HttpRequest(url)
-        request.BuildQuery(query)
-
-        ' Add Play Start
-        if playStart
-            playStartTicks = itostr(playStart) + "0000000"
-            request.AddParam("StartTimeTicks", playStartTicks)
-            metaData.PlayStart = playStart
-        end if
-
-        ' Add Subtitle Stream
-        if subtitleStream then request.AddParam("SubtitleStreamIndex", itostr(subtitleStream))
-
-        ' Prepare Stream
-        streamParams.url = request.GetUrl()
-        streamParams.bitrate = metadata.streamBitrate
-        streamParams.contentid = "x-streamcopy"
-
-        ' Set Video Quality Depending Upon Display Type
-        if getGlobalVar("displayType") = "HDTV"
-            streamParams.quality = true
-        else
-            streamParams.quality = false
-        end if
-
-        metaData.StreamFormat = "hls"
-        metaData.SwitchingStrategy = "no-adaptation"
-        metaData.Stream = streamParams
-
-        ' Setup Playback Method in Rating area
-        metaData.Rating = playbackInfo
-
-    ' Transcode
-    else
-        ' Base URL
-        url = GetServerBaseUrl() + "/Videos/" + HttpEncode(metadata.Id) + "/stream.m3u8"
-
-        ' Default Settings
-        query = {
-            VideoCodec: "h264"
-            TimeStampOffsetMs: "0"
-            DeviceId: getGlobalVar("rokuUniqueId", "Unknown")
-        }
-
-        ' Add Video Settings
-        videoSettings = getVideoBitrateSettings(videoBitrate)
-        query = AddToQuery(query, videoSettings)
-
-        ' Add Audio Settings
-        if audioStream
-            ' If the selected stream is compatible, then stream copy the audio
-            if metaData.CompatibleAudioStreams.DoesExist(itostr(audioStream))
-                audioSettings = {
-                    AudioCodec: "copy"
-                    AudioStreamIndex: itostr(audioStream)
-                }
-            else
-                audioSettings = {
-                    AudioCodec: "aac"
-                    AudioBitRate: "128000"
-                    AudioChannels: "2"
-                    AudioStreamIndex: itostr(audioStream)
-                }
-            end if
-        else
-            audioSettings = {
-                AudioCodec: "aac"
-                AudioBitRate: "128000"
-                AudioChannels: "2"
-            }
-        end if
-
-        ' Add Audio Settings to Query
-        query = AddToQuery(query, audioSettings)
-
-        ' Prepare Url
-        request = HttpRequest(url)
-        request.BuildQuery(query)
-
-        ' Add Play Start
-        if playStart
-            playStartTicks = itostr(playStart) + "0000000"
-            request.AddParam("StartTimeTicks", playStartTicks)
-            metaData.PlayStart = playStart
-        end if
-
-        ' Add Subtitle Stream
-        if subtitleStream then request.AddParam("SubtitleStreamIndex", itostr(subtitleStream))
-
-        ' Prepare Stream
-        streamParams.url = request.GetUrl()
-        streamParams.bitrate = videoBitrate
-
-        ' Set Video Quality Depending Upon Display Type and Bitrate
-        if videoBitrate > 700 And getGlobalVar("displayType") = "HDTV"
-            streamParams.quality = true
-        else
-            streamParams.quality = false
-        end if
-
-        streamParams.contentid = "x-transcode"
-
-        metaData.StreamFormat = "hls"
-        metaData.SwitchingStrategy = "no-adaptation"
-        metaData.Stream = streamParams
-
-        ' Setup Playback Method in Rating area
-        metaData.Rating = "Convert Video and Audio"
-
-    end if
-
-    Print streamParams.url
-
-    return metaData
-End Function
-
-
-'**********************************************************
-'** Post Video Playback
-'**********************************************************
-
-Function postVideoPlayback(videoId As String, action As String, position = invalid) As Boolean
+Sub reportPlayback(id As String, action As String, playMethod as String, isPaused as Boolean, canSeek as Boolean, position as Integer, mediaSourceId as String, audioStreamIndex = invalid, subtitleStreamIndex = invalid)
 
     ' Format Position Seconds into Ticks
+	positionTicks = invalid
+	
     if position <> invalid
         positionTicks =  itostr(position) + "0000000"
     end if
 
+	url = ""
+	
     if action = "start"
         ' URL
-        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId)
-
-        ' Prepare Request
-        request = HttpRequest(url)
-        request.AddAuthorization()
-        request.AddParam("CanSeek", "true")
+        url = GetServerBaseUrl() + "/Sessions/Playing"
+		
     else if action = "progress"
+	
         ' URL
-        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId) + "/Progress?PositionTicks=" + positionTicks
-
-        ' Prepare Request
-        request = HttpRequest(url)
-        request.AddAuthorization()
-    else if action = "pause"
-        ' URL
-        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId) + "/Progress?IsPaused=true&PositionTicks=" + positionTicks
-
-        ' Prepare Request
-        request = HttpRequest(url)
-        request.AddAuthorization()
-    else if action = "resume"
-        ' URL
-        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId) + "/Progress?IsPaused=false&PositionTicks=" + positionTicks
-
-        ' Prepare Request
-        request = HttpRequest(url)
-        request.AddAuthorization()
+        url = GetServerBaseUrl() + "/Sessions/Playing/Progress"
+		
     else if action = "stop"
+	
         ' URL
-        url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/PlayingItems/" + HttpEncode(videoId) + "?PositionTicks=" + positionTicks
-
-        ' Prepare Request
-        request = HttpRequest(url)
-        request.AddAuthorization()
-        request.SetRequest("DELETE")
+        url = GetServerBaseUrl() + "/Sessions/Playing/Stopped"
+		
     end if
 
-    ' Execute Request
-    response = request.PostFromStringWithTimeout("", 5)
-    if response <> invalid
-        return true
-    else
-        Debug("Failed to Post Video Playback Progress")
+	url = url + "?itemId=" + id
+
+    if positionTicks <> invalid
+		url = url + "&PositionTicks=" + tostr(positionTicks)
     end if
 
-    return false
-End Function
+	url = url + "&isPaused=" + tostr(isPaused)
+	url = url + "&canSeek=" + tostr(canSeek)
+	url = url + "&PlayMethod=" + playMethod
+	url = url + "&MediaSourceId=" + tostr(mediaSourceId)
+	
+    if audioStreamIndex <> invalid
+		url = url + "&AudioStreamIndex=" + tostr(audioStreamIndex)
+    end if
 
+    if subtitleStreamIndex <> invalid
+		url = url + "&SubtitleStreamIndex=" + tostr(subtitleStreamIndex)
+    end if
 
-'**********************************************************
-'** Post Stop Transcode
-'**********************************************************
-
-Function postStopTranscode() As Boolean
-    ' URL
-    url = GetServerBaseUrl() + "/Videos/ActiveEncodings"
-
-    ' Prepare Request
+	' Prepare Request
     request = HttpRequest(url)
     request.AddAuthorization()
-    request.AddParam("DeviceId", getGlobalVar("rokuUniqueId", "Unknown"))
-    request.SetRequest("DELETE")
 
-    ' Execute Request
-    response = request.PostFromStringWithTimeout("", 5)
-    if response <> invalid
-        return true
-    else
-        Debug("Failed to Post Stop Transcode")
-    end if
+	context = CreateObject("roAssociativeArray")
+	GetViewController().StartRequest(request.Http, invalid, context, "", "post")
 
-    return false
-End Function
+End Sub
 
 
 '**********************************************************
@@ -883,6 +763,22 @@ Function getLocalTrailers(videoId As String) As Object
     ' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items/" + HttpEncode(videoId) + "/LocalTrailers"
 
+    return getSpecialFeaturesFromUrl(url)
+End Function
+
+
+'**********************************************************
+'** Get Special Features
+'**********************************************************
+
+Function getSpecialFeatures(videoId As String) As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items/" + HttpEncode(videoId) + "/SpecialFeatures"
+
+    return getSpecialFeaturesFromUrl(url)
+End Function
+
+Function getSpecialFeaturesFromUrl(url As String) As Object
     ' Prepare Request
     request = HttpRequest(url)
     request.ContentType("json")
@@ -892,24 +788,52 @@ Function getLocalTrailers(videoId As String) As Object
     response = request.GetToStringWithTimeout(10)
     if response <> invalid
 
-        items = ParseJSON(response)
+        fixedResponse = normalizeJson(response)
 
-        if items = invalid
-            Debug("Error while parsing JSON response for Local Trailers")
+        contentList = CreateObject("roArray", 25, true)
+        jsonObj     = ParseJSON(fixedResponse)
+
+        if jsonObj = invalid
+            Debug("Error while parsing JSON response")
             return invalid
         end if
 
-        ' Only Get First Trailer
-        i = items[0]
-        
-        metaData = {}
+        for each i in jsonObj
+            
+			metaData = getMetadataFromServerItem(i, 0, "flat-episodic-16x9")
 
-        ' Fetch Full Video Metadata
-        metaData = getVideoMetadata(i.Id)
+            contentList.push( metaData )
+        end for
 
-        return metaData
+        return contentList
     else
         Debug("Failed to Get Local Trailers")
+    end if
+
+    return invalid
+End Function
+
+
+'**********************************************************
+'** Get Video Intros
+'**********************************************************
+
+Function getVideoIntros(videoId As String) As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items/" + HttpEncode(videoId) + "/Intros"
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+		return parseItemsResponse(response, 0, "flat-episodic-16x9")
+    else
+        Debug("Failed to Get Video Intros")
     end if
 
     return invalid

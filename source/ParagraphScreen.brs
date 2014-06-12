@@ -1,64 +1,71 @@
-'**********************************************************
-'**  Media Browser Roku Client - Paragraph Screen
-'**********************************************************
+'*
+'* A very simple wrapper around a paragraph screen.
+'*
+'** Credit: Plex Roku https://github.com/plexinc/roku-client-public
 
+Function createParagraphScreen(header, paragraphs, viewController)
+  obj = CreateObject("roAssociativeArray")
+  initBaseScreen(obj, viewController)
 
-Function CreateParagraphScreen(title As String) As Object
+  obj.Show = paragraphShow
 
-    ' Setup Screen
-    o = CreateObject("roAssociativeArray")
+  screen = CreateObject("roParagraphScreen")
+  screen.SetMessagePort(obj.Port)
 
-    port      = CreateObject("roMessagePort")
-    paragraph = CreateObject("roParagraphScreen")
-    paragraph.SetMessagePort(port)
+  screen.AddHeaderText(header)
 
-    ' Setup Common Items
-    o.Screen         = paragraph
-    o.Port           = Port
-    o.Show           = ShowParagraphScreen
-    o.AddHeaderText  = paragraphAddHeaderText
-    o.AddParagraph   = paragraphAddParagraph
-    o.AddButton      = paragraphAddButton
+  for each paragraph in paragraphs
+    screen.AddParagraph(paragraph)
+  next
 
-    ' Set Title
-    o.Screen.SetTitle(title)
+  ' Allow callers to add buttons just like on our dialogs
+  obj.SetButton = dialogSetButton
+  obj.Buttons = []
+  obj.HandleButton = invalid
 
-    Return o
+  obj.Screen = screen
+  obj.HandleMessage = paragraphHandleMessage
+
+  return obj
 End Function
 
+Function paragraphShow()
+  ' If the caller didn't add any buttons, add a simple close button
+  if m.Buttons.Count() = 0 then
+    m.Buttons.Push({close: "close"})
+  end if
 
-'**********************************************************
-'** Show Paragraph Screen
-'**********************************************************
+  buttonCount = 0
+  m.ButtonCommands = []
+  for each button in m.Buttons
+    button.Reset()
+    cmd = button.Next()
+    m.ButtonCommands[buttonCount] = cmd
+    m.Screen.AddButton(buttonCount, button[cmd])
+    buttonCount = buttonCount + 1
+  next
 
-Function ShowParagraphScreen()
-    m.screen.Show()
+  m.Screen.Show()
 End Function
 
+Function paragraphHandleMessage(msg) As Boolean
+  handled = false
 
-'**********************************************************
-'** Add Header Text on Paragraph Screen
-'**********************************************************
+  if type(msg) = "roParagraphScreenEvent" then
+    handled = true
 
-Function paragraphAddHeaderText(text as String)
-    m.screen.AddHeaderText(text)
+    if msg.isScreenClosed() then
+      m.ViewController.PopScreen(m)
+    else if msg.isButtonPressed() then
+      command = m.ButtonCommands[msg.GetIndex()]
+      Debug("Button pressed: " + tostr(command))
+      done = true
+      if m.HandleButton <> invalid then
+        done = m.HandleButton(command, msg.GetData())
+      end if
+      if done then m.Screen.Close()
+    end if
+  end if
+
+  return handled
 End Function
-
-
-'**********************************************************
-'** Add Paragraph on Paragraph Screen
-'**********************************************************
-
-Function paragraphAddParagraph(text as String)
-    m.screen.AddParagraph(text)
-End Function
-
-
-'**********************************************************
-'** Add Button on Paragraph Screen
-'**********************************************************
-
-Function paragraphAddButton(buttonId as Integer, title as String)
-    m.screen.AddButton(buttonId, title)
-End Function
-
