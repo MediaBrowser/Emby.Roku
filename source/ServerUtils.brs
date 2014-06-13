@@ -248,7 +248,7 @@ Function postCapabilities() As Boolean
     url = GetServerBaseUrl() + "/Sessions/Capabilities"
 	
 	url = url + "?PlayableMediaTypes=Audio,Video"
-	url = url + "&SupportedCommands=MoveUp,MoveDown,MoveLeft,MoveRight,Select,Back,GoHome,SendString,GoToSearch,GoToSettings"
+	url = url + "&SupportedCommands=MoveUp,MoveDown,MoveLeft,MoveRight,Select,Back,GoHome,SendString,GoToSearch,GoToSettings,DisplayContent"
 	url = url + "&MessageCallbackUrl=" + HttpEncode(":8324/mediabrowser/message")
 
 	' Prepare Request

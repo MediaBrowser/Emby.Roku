@@ -487,6 +487,7 @@ Sub InitWebServer(vc)
 	ClassReply().AddHandler("/mediabrowser/message/Seek", ProcessPlaybackSeekTo)
 	ClassReply().AddHandler("/mediabrowser/message/Rewind", ProcessPlaybackStepBack)
 	ClassReply().AddHandler("/mediabrowser/message/FastForward", ProcessPlaybackStepForward)
+	ClassReply().AddHandler("/mediabrowser/message/DisplayContent", ProcessDisplayContent)
 
 	ClassReply().AddHandler("/mediabrowser/message/PlayNow", ProcessPlaybackPlayMedia)
 
@@ -500,7 +501,34 @@ Function ProcessPingRequest() As Boolean
 
 End Function
 
+Function ProcessDisplayContent() As Boolean
+	
+	itemId = m.request.query["ItemId"]
+	
+	item = getVideoMetadata(itemId)
+	
+	GetViewController().CreateScreenForItem([item], 0, [item.Title], true)
+	
+	m.simpleOK("")
+	return true
+
+End Function
+
+Function ProcessDisplayMessage() As Boolean
+	
+	m.simpleOK("")
+	return true
+
+End Function
+
 Function ProcessNavigationSettings() As Boolean
+   	
+	item = {
+		Title: "Preferences"
+		ContentType: "Preferences"
+	}
+	
+	GetViewController().CreateScreenForItem([item], 0, [item.Title], true)
 	
 	m.simpleOK("")
 	return true
@@ -509,6 +537,13 @@ End Function
 
 Function ProcessNavigationSearch() As Boolean
    	
+	item = {
+		Title: "Search"
+		ContentType: "Search"
+	}
+	
+	GetViewController().CreateScreenForItem([item], 0, [item.Title], true)
+	
 	m.simpleOK("")
 	return true
 
@@ -516,17 +551,31 @@ End Function
 
 Function ProcessPlaybackPlayMedia() As Boolean
 
-	ids = m.request.query["ItemIds"]
+	ids = m.request.query["ItemIds"].tokenize(",")
 
-    r = CreateObject("roRegex", ",", "")
-    idArray = r.Split(ids)
-
-	item = getVideoMetadata(idArray[0])
-
-	items = []
-	items.push(item)
-
-	GetViewController().CreatePlayerForItem(items, 0)
+	context = []
+	index = 0
+	
+	for each i in ids
+	
+		if index = 0 then
+		
+			item = getVideoMetadata(ids[index])
+			context.push(item)
+			
+		else
+			item = {
+				Id: ids[index]
+			}
+			
+			context.push(item)
+			
+		end if
+		
+		index = index + 1
+	end for
+	
+    GetViewController().CreatePlayerForItem(context, 0, {})
 
     m.simpleOK("")
     return true
