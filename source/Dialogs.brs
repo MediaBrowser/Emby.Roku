@@ -95,7 +95,7 @@ Sub createContextMenuDialog(menuType As String, useFacade = true)
         filterByOptions  = ["None", "Continuing", "Ended"]
         sortByOptions    = ["Name", "Date Added", "Premiere Date"]
         sortOrderOptions = ["Ascending", "Descending"]
-    else if menuType = "mediaFolders"
+    else if menuType = "folders"
         filterByOptions  = ["None", "Unplayed", "Played"]
         sortByOptions    = ["Name", "Date Added", "Date Played", "Release Date"]
         sortOrderOptions = ["Ascending", "Descending"]
@@ -107,38 +107,38 @@ Sub createContextMenuDialog(menuType As String, useFacade = true)
     sortOrder = (firstOf(RegUserRead(menuType + "SortOrder"), "0")).ToInt()
 
     ' Setup Buttons
-    dlg.SetButton("1", "Filter by: " + filterByOptions[filterBy])
-    dlg.SetButton("2", "Sort by: " + sortByOptions[sortBy])
-    dlg.SetButton("3", "Sort order: " + sortOrderOptions[sortOrder])
-    dlg.SetButton("4", "View Menu")
-    dlg.SetButton("7", "Close")
+    dlg.SetButton("filter", "Filter by: " + filterByOptions[filterBy])
+    dlg.SetButton("sortby", "Sort by: " + sortByOptions[sortBy])
+    dlg.SetButton("sortorder", "Sort order: " + sortOrderOptions[sortOrder])
+    dlg.SetButton("view", "View Menu")
+    dlg.SetButton("close", "Close")
 
     dlg.Show(true)
 
 	returned = dlg.Result
 
-    if returned = "1"
+    if returned = "filter"
         returned = createContextFilterByOptionsDialog(menuType)
         if returned <> invalid then RegUserWrite(menuType + "FilterBy", returned)
 
         createContextMenuDialog(menuType, false)
 		return
 
-    else if returned = "2"
+    else if returned = "sortby"
         returned = createContextSortByOptionsDialog(menuType)
         if returned <> invalid then RegUserWrite(menuType + "SortBy", returned)
 
         createContextMenuDialog(menuType, false)
 		return
 
-    else if returned = "3"
+    else if returned = "sortorder"
         returned = createContextSortOrderOptionsDialog()
         if returned <> invalid then RegUserWrite(menuType + "SortOrder", returned)
 
         createContextMenuDialog(menuType, false)
 		return
 
-    else if returned = "4"
+    else if returned = "view"
         createContextViewMenuDialog(menuType)
 
         createContextMenuDialog(menuType, false)
@@ -160,15 +160,12 @@ Function createContextFilterByOptionsDialog(menuType As String)
     ' Setup Buttons
     dlg.SetButton("0", "None")
 
-    if menuType = "movie"
-        dlg.SetButton("1", "Unwatched")
-        dlg.SetButton("2", "Watched")
+    if menuType = "movie" or menuType = "folders"
+        dlg.SetButton("1", "Unplayed")
+        dlg.SetButton("2", "Played")
     else if menuType = "tv"
         dlg.SetButton("1", "Continuing")
         dlg.SetButton("2", "Ended")
-    else if menuType = "mediaFolders"
-        dlg.SetButton("1", "Unplayed")
-        dlg.SetButton("2", "Played")
     end if
 
     dlg.Show(true)
@@ -182,18 +179,13 @@ Function createContextSortByOptionsDialog(menuType As String)
 
     ' Setup Buttons
     dlg.SetButton("0", "Name")
-
-    if menuType = "movie"
-        dlg.SetButton("1", "Date Added")
+	dlg.SetButton("1", "Date Added")
+	
+    if menuType = "movie" or menuType = "folders"
         dlg.SetButton("2", "Date Played")
         dlg.SetButton("3", "Release Date")
     else if menuType = "tv"
-        dlg.SetButton("1", "Date Added")
         dlg.SetButton("2", "Premiere Date")
-    else if menuType = "mediaFolders"
-        dlg.SetButton("1", "Date Added")
-        dlg.SetButton("2", "Date Played")
-        dlg.SetButton("3", "Release Date")
     end if
 
     dlg.Show(true)
@@ -219,35 +211,29 @@ Sub createContextViewMenuDialog(menuType As String)
     imageStyleOptions = ["Poster", "Thumb", "Backdrop"]
     displayOptions    = ["No", "Yes"]
     imageType         = (firstOf(RegUserRead(menuType + "ImageType"), "0")).ToInt()
-    displayLabel      = (firstOf(RegUserRead(menuType + "Label"), "1")).ToInt()
-    displayInfoBox    = (firstOf(RegUserRead(menuType + "InfoBox"), "0")).ToInt()
+	displayInfoBox    = (firstOf(RegUserRead(menuType + "InfoBox"), "0")).ToInt()
 
     ' Setup Buttons
-    dlg.SetButton("1", "Image Style: " + imageStyleOptions[imageType])
-    dlg.SetButton("2", "Display Label: " + displayOptions[displayLabel])
-    dlg.SetButton("3", "Display Info Box: " + displayOptions[displayInfoBox])
+    dlg.SetButton("image", "Image Style: " + imageStyleOptions[imageType])
+    dlg.SetButton("info", "Display Info Box: " + displayOptions[displayInfoBox])
 
-    dlg.SetButton("7", "Close")
+    dlg.SetButton("close", "Close")
 
     dlg.Show(true)
 
 	returned = dlg.Result
 
-    if returned = "1"
+    if returned = "image"
         returned = createContextViewMenuImageStyleDialog()
         if returned <> invalid then RegUserWrite(menuType + "ImageType", returned)
 
-        createContextViewMenuDialog(menuType) ' Re-create self
-    else if returned = "2"
-        returned = showContextViewMenuYesNoDialog("Display Labels")
-        if returned <> invalid then RegUserWrite(menuType + "Label", returned)
-
-        createContextViewMenuDialog(menuType) ' Re-create self
-    else if returned = "3"
+        createContextViewMenuDialog(menuType)
+		
+    else if returned = "info"
         returned = showContextViewMenuYesNoDialog("Display Info Box")
         if returned <> invalid then RegUserWrite(menuType + "InfoBox", returned)
 
-        createContextViewMenuDialog(menuType) ' Re-create self
+        createContextViewMenuDialog(menuType)
     end if
 End Sub
 

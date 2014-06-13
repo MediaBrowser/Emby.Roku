@@ -11,8 +11,8 @@ Function createFolderScreen(viewController as Object, item as Object) As Object
 		settingsPrefix = "movie"
 		contextMenuType = invalid
 	else
-		settingsPrefix = "mediaFolders"
-		contextMenuType = "mediaFolders"
+		settingsPrefix = "folders"
+		contextMenuType = "folders"
 	End if
 
     imageType      = (firstOf(RegUserRead(settingsPrefix + "ImageType"), "0")).ToInt()
@@ -128,7 +128,7 @@ End Function
 
 Function parseFolderItemsResult(row as Integer, json as String) as Object
 
-	imageType      = (firstOf(RegUserRead("mediaFoldersImageType"), "0")).ToInt()
+	imageType      = (firstOf(RegUserRead("foldersImageType"), "0")).ToInt()
 	
     return parseItemsResponse(json, imageType, "mixed-aspect-ratio-portrait")
 

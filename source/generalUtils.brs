@@ -59,7 +59,7 @@ Function RegUserRead(key)
 End Function
 
 Function RegUserWrite(key, val)
-    RegWrite(key, tostr(val), getGlobalVar("user").Id) ' Save Value
+    RegWrite(key, tostr(val), getGlobalVar("user").Id)
 End Function
 
 

@@ -72,7 +72,6 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
     sortBy         = (firstOf(RegUserRead("movieSortBy"), "0")).ToInt()
     sortOrder      = (firstOf(RegUserRead("movieSortOrder"), "0")).ToInt()
     imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
-    displayLabel   = (firstOf(RegUserRead("movieLabel"), "1")).ToInt()
 
     filterByOptions = ["None", "Unwatched", "Watched"]
     sortByOptions   = ["Name", "Date Added", "Date Played", "Release Date"]
