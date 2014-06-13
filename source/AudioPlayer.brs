@@ -417,6 +417,8 @@ End Function
 
 Sub audioPlayerPlayThemeMusic(item)
 
+	m.Stop()
+	
 	if item.Id = invalid or item.Id = "" then return
 	
 	result = getThemeMusic(item.Id)

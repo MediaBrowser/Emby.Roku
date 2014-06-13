@@ -24,6 +24,8 @@ Function createVideoSpringboardScreen(context, index, viewController) As Object
 	obj.RecordLiveTvProgram = springboardRecordProgram
 	obj.ShowStreamsDialog = springboardShowStreamsDialog
 	obj.ShowMoreDialog = springboardShowMoreDialog
+	
+	obj.PlayOptions = {}
 
     obj.Screen.SetDescriptionStyle("movie")
 
@@ -175,6 +177,14 @@ End Function
 Sub videoGetMediaDetails(content)
 
     m.metadata = GetFullItemMetadata(content, false, {})
+	
+	streamInfo = m.metadata.StreamInfo
+	
+	if streamInfo <> invalid then
+		m.PlayOptions.SubtitleStreamIndex = streamInfo.SubtitleStreamIndex
+		m.PlayOptions.AudioStreamIndex = streamInfo.AudioStreamIndex
+		m.PlayOptions.MediaSourceId = streamInfo.MediaSource.Id
+	end if
 
 End Sub
 
@@ -193,21 +203,6 @@ Sub videoActivate(priorScreen)
 
         m.checkChangesOnActivate = false
 
-        if priorScreen.Changes.DoesExist("quality") then
-            RegWrite("quality_override", priorScreen.Changes["quality"], "preferences")
-            m.metadata.PickMediaItem(m.metadata.HasDetails)
-        end if
-
-        if priorScreen.Changes.DoesExist("audio") then
-            m.media.canDirectPlay = invalid
-            m.Item.server.UpdateStreamSelection("audio", m.media.preferredPart.id, priorScreen.Changes["audio"])
-        end if
-
-        if priorScreen.Changes.DoesExist("subtitles") then
-            m.media.canDirectPlay = invalid
-            m.Item.server.UpdateStreamSelection("subtitle", m.media.preferredPart.id, priorScreen.Changes["subtitles"])
-        end if
-
         if priorScreen.Changes.DoesExist("continuous_play") then
             m.ContinuousPlay = (priorScreen.Changes["continuous_play"] = "1")
             priorScreen.Changes.Delete("continuous_play")
@@ -222,11 +217,9 @@ Sub videoActivate(priorScreen)
         if m.ContinuousPlay AND (priorScreen.isPlayed = true) then
             m.GotoNextItem()
 
-			playOptions = {
-				playstart: 0
-			}
+			m.PlayOptions.playstart = 0
             
-			m.ViewController.CreatePlayerForItem([m.metadata], 0, playOptions)
+			m.ViewController.CreatePlayerForItem([m.metadata], 0, m.PlayOptions)
         else
             m.Refresh(true)
 
@@ -257,25 +250,22 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
 
             if buttonCommand = "play" then
 
-                options = {
-					playstart: 0
-				}
-				m.ViewController.CreatePlayerForItem([item], 0, options)
+                m.PlayOptions.playstart = 0
+				m.ViewController.CreatePlayerForItem([item], 0, m.PlayOptions)
 
                 ' Refresh play data after playing.
                 m.refreshOnActivate = true
 
             else if buttonCommand = "resume" then
-                options = {
-					playstart: item.BookmarkPosition
-				}
-				m.ViewController.CreatePlayerForItem([item], 0, options)
+
+				m.PlayOptions.playstart = item.BookmarkPosition
+				m.ViewController.CreatePlayerForItem([item], 0, m.PlayOptions)
 
                 ' Refresh play data after playing.
                 m.refreshOnActivate = true
 
             else if buttonCommand = "scenes" then
-                newScreen = createVideoChaptersScreen(viewController, item)
+                newScreen = createVideoChaptersScreen(viewController, item, m.PlayOptions)
 				newScreen.ScreenName = "Chapters" + itemId
                 viewController.InitializeOtherScreen(newScreen, [item.Title, "Scenes"])
 				newScreen.Show()
@@ -323,7 +313,7 @@ End Function
 '** createVideoChaptersScreen
 '**********************************************************
 
-Function createVideoChaptersScreen(viewController as Object, video As Object) As Object
+Function createVideoChaptersScreen(viewController as Object, video As Object, playOptions) As Object
 
 	' Dummy up an item
     obj = CreatePosterScreen(viewController, video, "flat-episodic-16x9")
@@ -573,18 +563,18 @@ End Function
 
 Sub springboardShowStreamsDialog(item)
 
-    createAudioAndSubtitleDialog(m.audioStreams, m.subtitleStreams, item.StreamInfo)
+    createAudioAndSubtitleDialog(m.audioStreams, m.subtitleStreams, m.PlayOptions)
 End Sub
 
 '******************************************************
 ' createAudioAndSubtitleDialog
 '******************************************************
 
-Sub createAudioAndSubtitleDialog(audioStreams, subtitleStreams, streamInfo)
+Sub createAudioAndSubtitleDialog(audioStreams, subtitleStreams, playOptions)
 
     Debug ("createAudioAndSubtitleDialog")
-	Debug ("Current AudioStreamIndex: " + tostr(streamInfo.AudioStreamIndex))
-	Debug ("Current SubtitleStreamIndex: " + tostr(streamInfo.SubtitleStreamIndex))
+	Debug ("Current AudioStreamIndex: " + tostr(playOptions.AudioStreamIndex))
+	Debug ("Current SubtitleStreamIndex: " + tostr(playOptions.SubtitleStreamIndex))
 	
     if audioStreams.Count() > 1 and subtitleStreams.Count() > 0
 		dlg = createBaseDialog()
@@ -594,7 +584,7 @@ Sub createAudioAndSubtitleDialog(audioStreams, subtitleStreams, streamInfo)
 
 		dlg.audioStreams = audioStreams
 		dlg.subtitleStreams = subtitleStreams
-		dlg.streamInfo = streamInfo
+		dlg.playOptions = playOptions
 
 		dlg.SetButton("audio", "Audio")
 		dlg.SetButton("subtitles", "Subtitles")
@@ -603,9 +593,9 @@ Sub createAudioAndSubtitleDialog(audioStreams, subtitleStreams, streamInfo)
 		dlg.Show()
 
     else if audioStreams.Count() > 1
-        createStreamSelectionDialog("Audio", audioStreams, subtitleStreams, streamInfo, false)    
+        createStreamSelectionDialog("Audio", audioStreams, subtitleStreams, playOptions, false)    
     else if subtitleStreams.Count() > 0
-        createStreamSelectionDialog("Subtitle", audioStreams, subtitleStreams, streamInfo, false)
+        createStreamSelectionDialog("Subtitle", audioStreams, subtitleStreams, playOptions, false)
     end if
 
 End Sub
@@ -614,12 +604,12 @@ Function handleAudioAndSubtitlesButton(command, data) As Boolean
 
 	if command = "audio" then
 
-		createStreamSelectionDialog("Audio", m.audioStreams, m.subtitleStreams, m.streamInfo, true)
+		createStreamSelectionDialog("Audio", m.audioStreams, m.subtitleStreams, m.playOptions, true)
         return true
 
     else if command = "subtitles" then
 
-		createStreamSelectionDialog("Subtitle", m.audioStreams, m.subtitleStreams, m.streamInfo, true)
+		createStreamSelectionDialog("Subtitle", m.audioStreams, m.subtitleStreams, m.playOptions, true)
         return true
 
     end if
@@ -628,7 +618,7 @@ Function handleAudioAndSubtitlesButton(command, data) As Boolean
 End Function
 
 
-Sub createStreamSelectionDialog(streamType, audioStreams, subtitleStreams, streamInfo, openParentDialog)
+Sub createStreamSelectionDialog(streamType, audioStreams, subtitleStreams, playOptions, openParentDialog)
 
     dlg = createBaseDialog()
     dlg.Title = "Select " + streamType
@@ -638,22 +628,22 @@ Sub createStreamSelectionDialog(streamType, audioStreams, subtitleStreams, strea
 	dlg.streamType = streamType
 	dlg.audioStreams = audioStreams
 	dlg.subtitleStreams = subtitleStreams
-	dlg.streamInfo = streamInfo
+	dlg.playOptions = playOptions
 	dlg.openParentDialog = openParentDialog
 
     if streamType = "Subtitle" then 
 		streams = subtitleStreams
-		currentIndex = streamInfo.SubtitleStreamIndex
+		currentIndex = playOptions.SubtitleStreamIndex
 	else
 		streams = audioStreams
-		currentIndex = streamInfo.AudioStreamIndex
+		currentIndex = playOptions.AudioStreamIndex
 	end If
 	
 	if streamType = "Subtitle" then 
 	
 		title = "None"
 		
-		if currentIndex = invalid then title = title + " [Selected]"
+		if currentIndex = invalid or currentIndex = -1 then title = title + " [Selected]"
 		dlg.SetButton("none", title)
 	end If
 	
@@ -682,28 +672,28 @@ Function handleStreamSelectionButton(command, data) As Boolean
     if command = "none" then
 
 		if m.streamType = "Audio" then
-			m.streamInfo.AudioStreamIndex = invalid
+			m.playOptions.AudioStreamIndex = -1
 		else
-			m.streamInfo.SubtitleStreamIndex = invalid
+			m.playOptions.SubtitleStreamIndex = -1
 		end If
 
-		if m.openParentDialog = true then createAudioAndSubtitleDialog(m.audioStreams, m.subtitleStreams, m.streamInfo)
+		if m.openParentDialog = true then createAudioAndSubtitleDialog(m.audioStreams, m.subtitleStreams, m.playOptions)
 
         return true
     else if command = "close" or command = invalid then
 
-		if m.openParentDialog = true then createAudioAndSubtitleDialog(m.audioStreams, m.subtitleStreams, m.streamInfo)
+		if m.openParentDialog = true then createAudioAndSubtitleDialog(m.audioStreams, m.subtitleStreams, m.playOptions)
         return true
 
 	else if command <> invalid then
 
 		if m.streamType = "Audio" then
-			m.streamInfo.AudioStreamIndex = command.ToInt()
+			m.playOptions.AudioStreamIndex = command.ToInt()
 		else
-			m.streamInfo.SubtitleStreamIndex = command.ToInt()
+			m.playOptions.SubtitleStreamIndex = command.ToInt()
 		end If
 
-		if m.openParentDialog = true then createAudioAndSubtitleDialog(m.audioStreams, m.subtitleStreams, m.streamInfo)
+		if m.openParentDialog = true then createAudioAndSubtitleDialog(m.audioStreams, m.subtitleStreams, m.playOptions)
 
 		return true
     end if

@@ -214,7 +214,20 @@ Function getPlaybackStreamInfo(item, options) as Object
 	' If a specific media source was requested
 	if options.MediaSourceId <> invalid then
 		for each stream in streams
-			if stream.MediaSourceId = options.MediaSourceId then
+			if stream.MediaSource.Id = options.MediaSourceId then
+			
+				if options.AudioStreamIndex = -1 then
+					stream.AudioStreamIndex = invalid
+				else if options.AudioStreamIndex <> invalid then
+					stream.AudioStreamIndex = options.AudioStreamIndex
+				end if
+				
+				if options.SubtitleStreamIndex = -1 then
+					stream.SubtitleStreamIndex = invalid
+				else if options.SubtitleStreamIndex <> invalid then
+					stream.SubtitleStreamIndex = options.SubtitleStreamIndex
+				end if
+				
 				return stream
 			end if
 		end for

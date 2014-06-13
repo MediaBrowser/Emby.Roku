@@ -110,9 +110,11 @@ Function createGridScreenForItem(item, viewController, style) As Object
     obj.Loader = createPaginatedLoader(container, 8, 75)
     obj.Loader.Listener = obj
 
-    ' Don't play theme music on top of grid screens on the older Roku models.
+    versionArr = getGlobalVar("rokuVersion")
+	
+	' Don't play theme music on top of grid screens on the older Roku models.
     ' It's not worth the DestroyAndRecreate headache.
-    if GetGlobal("rokuVersionArr", [0])[0] >= 4 AND NOT AudioPlayer().IsPlaying AND firstOf(RegRead("prefThemeMusic", "preferences"), "yes") = "yes" then
+    if CheckMinimumVersion(versionArr, [4, 0]) AND NOT AudioPlayer().IsPlaying AND firstOf(RegRead("prefThemeMusic", "preferences"), "yes") = "yes" then
         AudioPlayer().PlayThemeMusic(item)
         obj.Cleanup = baseStopAudioPlayer
     end if
