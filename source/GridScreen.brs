@@ -43,7 +43,7 @@ Function CreateGridScreen(viewController as Object, style As String) As Object
     screen.Activate = gridActivate
     screen.OnTimerExpired = gridOnTimerExpired
 
-	screen.displayInfoBox = 0
+	screen.displayDescription = 0
 
     screen.timer = createTimer()
     screen.selectedRow = 0
@@ -385,7 +385,7 @@ Sub gridActivate(priorScreen)
         m.Screen.SetupLists(names.Count())
         m.Screen.SetListNames(names)
 
-		if m.displayInfoBox = 0 then
+		if m.displayDescription = 0 then
 			m.SetDescriptionVisible(false)
 		else
 			m.SetDescriptionVisible(true)
@@ -621,7 +621,7 @@ Function ShowGridScreen()
     m.Screen.SetupLists(names.Count())
     m.Screen.SetListNames(names)
 
-    if m.displayInfoBox = 0 then
+    if m.displayDescription = 0 then
         m.SetDescriptionVisible(false)
 	else
 		m.SetDescriptionVisible(true)

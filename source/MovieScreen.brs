@@ -25,7 +25,7 @@ Function createMovieLibraryScreen(viewController as Object) As Object
 
 	screen.recreateOnActivate = true
 
-    screen.displayInfoBox = (firstOf(RegUserRead("movieInfoBox"), "0")).ToInt()
+    screen.displayDescription = (firstOf(RegUserRead("movieDescription"), "0")).ToInt()
 
 	screen.createContextMenu = movieScreenCreateContextMenu
 
@@ -36,7 +36,7 @@ End Function
 Sub movieScreenActivate(priorScreen)
 
     imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
-	displayInfoBox = (firstOf(RegUserRead("movieInfoBox"), "0")).ToInt()
+	displayDescription = (firstOf(RegUserRead("movieDescription"), "0")).ToInt()
 	
     if imageType = 0 then
 		gridStyle = "mixed-aspect-ratio"
@@ -46,9 +46,9 @@ Sub movieScreenActivate(priorScreen)
 
 	m.baseActivate(priorScreen)
 
-	if gridStyle <> m.gridStyle or displayInfoBox <> m.displayInfoBox then
+	if gridStyle <> m.gridStyle or displayDescription <> m.displayDescription then
 		
-		m.displayInfoBox = displayInfoBox
+		m.displayDescription = displayDescription
 		m.gridStyle = gridStyle
 		m.DestroyAndRecreate()
 
@@ -179,9 +179,9 @@ Function createMovieAlphabetScreen(viewController as Object, letter As String) A
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
     End If
 
-	screen.displayInfoBox = (firstOf(RegUserRead("movieInfoBox"), "0")).ToInt()
+	screen.displayDescription = (firstOf(RegUserRead("movieDescription"), "0")).ToInt()
 
-    if screen.displayInfoBox = 0 then
+    if screen.displayDescription = 0 then
         screen.SetDescriptionVisible(false)
     end if
 
@@ -256,9 +256,9 @@ Function createMovieGenreScreen(viewController as Object, genre As String) As Ob
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
     End If
 
-    screen.displayInfoBox = (firstOf(RegUserRead("movieInfoBox"), "0")).ToInt()
+    screen.displayDescription = (firstOf(RegUserRead("movieDescription"), "0")).ToInt()
 
-    if screen.displayInfoBox = 0 then
+    if screen.displayDescription = 0 then
         screen.SetDescriptionVisible(false)
     end if
 

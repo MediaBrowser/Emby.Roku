@@ -23,7 +23,7 @@ Function createTvLibraryScreen(viewController as Object) As Object
 	screen.baseActivate = screen.Activate
 	screen.Activate = tvScreenActivate
 
-    screen.displayInfoBox = (firstOf(RegUserRead("tvInfoBox"), "0")).ToInt()
+    screen.displayDescription = (firstOf(RegUserRead("tvDescription"), "0")).ToInt()
 
 	screen.createContextMenu = tvScreenCreateContextMenu
 
@@ -34,7 +34,7 @@ End Function
 Sub tvScreenActivate(priorScreen)
 
     imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
-	displayInfoBox = (firstOf(RegUserRead("tvInfoBox"), "0")).ToInt()
+	displayDescription = (firstOf(RegUserRead("tvDescription"), "0")).ToInt()
 	
     if imageType = 0 then
 		gridStyle = "mixed-aspect-ratio"
@@ -44,9 +44,9 @@ Sub tvScreenActivate(priorScreen)
 
 	m.baseActivate(priorScreen)
 
-	if gridStyle <> m.gridStyle or displayInfoBox <> m.displayInfoBox then
+	if gridStyle <> m.gridStyle or displayDescription <> m.displayDescription then
 		
-		m.displayInfoBox = displayInfoBox
+		m.displayDescription = displayDescription
 		m.gridStyle = gridStyle
 		m.DestroyAndRecreate()
 
@@ -273,7 +273,7 @@ Function createTvGenreScreen(viewController as Object, genre As String) As Objec
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
     End If
 
-    screen.displayInfoBox = (firstOf(RegUserRead("tvInfoBox"), "0")).ToInt()
+    screen.displayDescription = (firstOf(RegUserRead("tvDescription"), "0")).ToInt()
 
     return screen
 
@@ -332,7 +332,7 @@ Function createTvAlphabetScreen(viewController as Object, letter As String) As O
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
     End If
 
-	screen.displayInfoBox = (firstOf(RegUserRead("tvInfoBox"), "0")).ToInt()
+	screen.displayDescription = (firstOf(RegUserRead("tvDescription"), "0")).ToInt()
 
     return screen
 

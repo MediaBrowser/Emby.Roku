@@ -36,13 +36,10 @@ End Function
 
 Function createServerSelectionDialog()
 
-    dlg = createBaseDialog()
-    dlg.Title = "Select Action"
-    dlg.SetButton("1", "Connect to Server")
-    dlg.SetButton("2", "Remove Server")
-    dlg.Show(true)
-
-	return dlg.Result
+    options = ["Connect to Server", "Remove Server"]
+	
+	return createOptionsDialog("Select Action", options, 1)
+	
 End Function
 
 
@@ -62,12 +59,10 @@ End Function
 
 Function createServerAddDialog()
 
-    dlg = createBaseDialog()
-    dlg.Title = "Select Action"
-    dlg.SetButton("1", "Scan Network")
-    dlg.SetButton("2", "Manually Add Server")
-    dlg.Show(true)
-	return dlg.Result
+    options = ["Scan Network", "Manually Add Server"]
+	
+	return createOptionsDialog("Select Action", options, 1)
+	
 End Function
 
 '******************************************************
@@ -86,20 +81,15 @@ Sub createContextMenuDialog(menuType As String, useFacade = true)
     dlg = createBaseDialog()
     dlg.Title = "Options"
 
-    ' Option Arrays
-    if menuType = "movie"
-        filterByOptions  = ["None", "Unwatched", "Watched"]
-        sortByOptions    = ["Name", "Date Added", "Date Played", "Release Date"]
-        sortOrderOptions = ["Ascending", "Descending"]
-    else if menuType = "tv"
+    if menuType = "tv"
         filterByOptions  = ["None", "Continuing", "Ended"]
         sortByOptions    = ["Name", "Date Added", "Premiere Date"]
-        sortOrderOptions = ["Ascending", "Descending"]
-    else if menuType = "folders"
+    else 
         filterByOptions  = ["None", "Unplayed", "Played"]
         sortByOptions    = ["Name", "Date Added", "Date Played", "Release Date"]
-        sortOrderOptions = ["Ascending", "Descending"]
     end if
+	
+	sortOrderOptions = ["Ascending", "Descending"]
 
     ' Get Saved Options
     filterBy  = (firstOf(RegUserRead(menuType + "FilterBy"), "0")).ToInt()
@@ -118,21 +108,21 @@ Sub createContextMenuDialog(menuType As String, useFacade = true)
 	returned = dlg.Result
 
     if returned = "filter"
-        returned = createContextFilterByOptionsDialog(menuType)
+        returned = createOptionsDialog("Filter Options", filterByOptions)
         if returned <> invalid then RegUserWrite(menuType + "FilterBy", returned)
 
         createContextMenuDialog(menuType, false)
 		return
 
     else if returned = "sortby"
-        returned = createContextSortByOptionsDialog(menuType)
+        returned = createOptionsDialog("Sort By", sortByOptions)
         if returned <> invalid then RegUserWrite(menuType + "SortBy", returned)
 
         createContextMenuDialog(menuType, false)
 		return
 
     else if returned = "sortorder"
-        returned = createContextSortOrderOptionsDialog()
+        returned = createOptionsDialog("Sort Order", sortOrderOptions)
         if returned <> invalid then RegUserWrite(menuType + "SortOrder", returned)
 
         createContextMenuDialog(menuType, false)
@@ -153,55 +143,20 @@ Sub createContextMenuDialog(menuType As String, useFacade = true)
 End Sub
 
 
-Function createContextFilterByOptionsDialog(menuType As String)
+Function createOptionsDialog(title, options, startIndex = 0)
+
     dlg = createBaseDialog()
-    dlg.Title = "Filter Options"
+    dlg.Title = title
 
-    ' Setup Buttons
-    dlg.SetButton("0", "None")
-
-    if menuType = "movie" or menuType = "folders"
-        dlg.SetButton("1", "Unplayed")
-        dlg.SetButton("2", "Played")
-    else if menuType = "tv"
-        dlg.SetButton("1", "Continuing")
-        dlg.SetButton("2", "Ended")
-    end if
+    index = startIndex
+	for each option in options
+		dlg.SetButton(tostr(index), option)
+		index = index + 1
+	end for
 
     dlg.Show(true)
 	return dlg.Result
 End Function
-
-
-Function createContextSortByOptionsDialog(menuType As String)
-    dlg = createBaseDialog()
-    dlg.Title = "Sort By"
-
-    ' Setup Buttons
-    dlg.SetButton("0", "Name")
-	dlg.SetButton("1", "Date Added")
-	
-    if menuType = "movie" or menuType = "folders"
-        dlg.SetButton("2", "Date Played")
-        dlg.SetButton("3", "Release Date")
-    else if menuType = "tv"
-        dlg.SetButton("2", "Premiere Date")
-    end if
-
-    dlg.Show(true)
-	return dlg.Result
-End Function
-
-
-Function createContextSortOrderOptionsDialog()
-    dlg = createBaseDialog()
-    dlg.Title = "Sort Order"
-    dlg.SetButton("0", "Ascending")
-    dlg.SetButton("1", "Descending")
-    dlg.Show(true)
-	return dlg.Result
-End Function
-
 
 Sub createContextViewMenuDialog(menuType As String)
     dlg = createBaseDialog()
@@ -211,45 +166,31 @@ Sub createContextViewMenuDialog(menuType As String)
     imageStyleOptions = ["Poster", "Thumb", "Backdrop"]
     displayOptions    = ["No", "Yes"]
     imageType         = (firstOf(RegUserRead(menuType + "ImageType"), "0")).ToInt()
-	displayInfoBox    = (firstOf(RegUserRead(menuType + "InfoBox"), "0")).ToInt()
+	displayDescription    = (firstOf(RegUserRead(menuType + "Description"), "0")).ToInt()
 
     ' Setup Buttons
     dlg.SetButton("image", "Image Style: " + imageStyleOptions[imageType])
-    dlg.SetButton("info", "Display Info Box: " + displayOptions[displayInfoBox])
+    dlg.SetButton("info", "Display Info Box: " + displayOptions[displayDescription])
 
     dlg.SetButton("close", "Close")
 
     dlg.Show(true)
 
-	returned = dlg.Result
+	result = dlg.Result
 
-    if returned = "image"
-        returned = createContextViewMenuImageStyleDialog()
-        if returned <> invalid then RegUserWrite(menuType + "ImageType", returned)
+    if result = "image"
+        result = createOptionsDialog("Image Style", imageStyleOptions)
+        if result <> invalid then RegUserWrite(menuType + "ImageType", result)
 
         createContextViewMenuDialog(menuType)
 		
-    else if returned = "info"
-        returned = showContextViewMenuYesNoDialog("Display Info Box")
-        if returned <> invalid then RegUserWrite(menuType + "InfoBox", returned)
+    else if result = "info"
+        result = showContextViewMenuYesNoDialog("Display Info Box")
+        if result <> invalid then RegUserWrite(menuType + "Description", result)
 
         createContextViewMenuDialog(menuType)
     end if
 End Sub
-
-
-Function createContextViewMenuImageStyleDialog()
-
-    dlg = createBaseDialog()
-	dlg.enableOverlay = false
-    dlg.Title = "Image Style"
-    dlg.SetButton("0", "Poster")
-    dlg.SetButton("1", "Thumb")
-    dlg.SetButton("2", "Backdrop")
-    dlg.Show(true)
-	return dlg.Result
-End Function
-
 
 Function createContextViewMenuYesNoDialog(title As String, text = "" as String)
 

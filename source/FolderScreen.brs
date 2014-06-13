@@ -38,7 +38,7 @@ Function createFolderScreen(viewController as Object, item as Object) As Object
 	screen.settingsPrefix = settingsPrefix
 
 	screen.contextMenuType = contextMenuType
-    screen.displayInfoBox = (firstOf(RegUserRead(settingsPrefix + "InfoBox"), "0")).ToInt()
+    screen.displayDescription = (firstOf(RegUserRead(settingsPrefix + "Description"), "0")).ToInt()
 
 	screen.createContextMenu = folderScreenCreateContextMenu
 
@@ -48,7 +48,7 @@ End Function
 Sub folderScreenActivate(priorScreen)
 
     imageType      = (firstOf(RegUserRead(m.settingsPrefix + "ImageType"), "0")).ToInt()
-	displayInfoBox = (firstOf(RegUserRead(m.settingsPrefix + "InfoBox"), "0")).ToInt()
+	displayDescription = (firstOf(RegUserRead(m.settingsPrefix + "Description"), "0")).ToInt()
 	
     if imageType = 0 then
 		gridStyle = "mixed-aspect-ratio"
@@ -58,9 +58,9 @@ Sub folderScreenActivate(priorScreen)
 
 	m.baseActivate(priorScreen)
 
-	if gridStyle <> m.gridStyle or displayInfoBox <> m.displayInfoBox then
+	if gridStyle <> m.gridStyle or displayDescription <> m.displayDescription then
 		
-		m.displayInfoBox = displayInfoBox
+		m.displayDescription = displayDescription
 		m.gridStyle = gridStyle
 		m.DestroyAndRecreate()
 
