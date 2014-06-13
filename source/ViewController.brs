@@ -1137,6 +1137,10 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		screen = createMusicArtistsAlphabetScreen(m, itemId)
 		screenName = "MusicArtistAlphabet " + itemId
 
+    else if contentType = "Channel" or contentType = "ChannelFolderItem" then
+        screen = createChannelScreen(m, item)
+        screenName = "Channel " + itemId
+
     else if contentType = "MediaFolder" or contentType = "PhotoFolder" or contentType = "Folder" or contentType = "BoxSet" or item.IsFolder = true then
 		screen = createFolderScreen(m, item)
 		screenName = "Folder " + itemId
