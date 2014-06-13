@@ -152,7 +152,13 @@ End Function
 
 Function movieScreenCreateContextMenu()
 	
-	createContextMenuDialog("movie")
+	options = {
+		settingsPrefix: "movie"
+		sortOptions: ["Name", "Date Added", "Date Played", "Release Date"]
+		filterOptions: ["None", "Unplayed", "Played"]
+		showSortOrder: true
+	}
+	createContextMenuDialog(options)
 
 	return true
 

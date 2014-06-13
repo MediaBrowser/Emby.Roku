@@ -56,7 +56,13 @@ End Sub
 
 Function tvScreenCreateContextMenu()
 	
-	createContextMenuDialog("tv")
+	options = {
+		settingsPrefix: "tv"
+		sortOptions: ["Name", "Date Added", "Premiere Date"]
+		filterOptions: ["None", "Continuing", "Ended"]
+		showSortOrder: true
+	}
+	createContextMenuDialog(options)
 
 	return true
 

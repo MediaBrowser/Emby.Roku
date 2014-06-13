@@ -69,7 +69,7 @@ End Function
 ' Create Context Menu Dialog
 '******************************************************
 
-Sub createContextMenuDialog(menuType As String, useFacade = true) 
+Sub createContextMenuDialog(options as Object, useFacade = true) 
 
 	facade = invalid
 
@@ -81,25 +81,26 @@ Sub createContextMenuDialog(menuType As String, useFacade = true)
     dlg = createBaseDialog()
     dlg.Title = "Options"
 
-    if menuType = "tv"
-        filterByOptions  = ["None", "Continuing", "Ended"]
-        sortByOptions    = ["Name", "Date Added", "Premiere Date"]
-    else 
-        filterByOptions  = ["None", "Unplayed", "Played"]
-        sortByOptions    = ["Name", "Date Added", "Date Played", "Release Date"]
-    end if
-	
-	sortOrderOptions = ["Ascending", "Descending"]
+    sortOrderOptions = ["Ascending", "Descending"]
 
     ' Get Saved Options
-    filterBy  = (firstOf(RegUserRead(menuType + "FilterBy"), "0")).ToInt()
-    sortBy    = (firstOf(RegUserRead(menuType + "SortBy"), "0")).ToInt()
-    sortOrder = (firstOf(RegUserRead(menuType + "SortOrder"), "0")).ToInt()
+    filterBy  = (firstOf(RegUserRead(options.settingsPrefix + "FilterBy"), "0")).ToInt()
+    sortBy    = (firstOf(RegUserRead(options.settingsPrefix + "SortBy"), "0")).ToInt()
+    sortOrder = (firstOf(RegUserRead(options.settingsPrefix + "SortOrder"), "0")).ToInt()
 
     ' Setup Buttons
-    dlg.SetButton("filter", "Filter by: " + filterByOptions[filterBy])
-    dlg.SetButton("sortby", "Sort by: " + sortByOptions[sortBy])
-    dlg.SetButton("sortorder", "Sort order: " + sortOrderOptions[sortOrder])
+	if options.filterOptions <> invalid then
+		dlg.SetButton("filter", "Filter by: " + options.filterOptions[filterBy])
+	end if
+	
+	if options.sortOptions <> invalid then
+		dlg.SetButton("sortby", "Sort by: " + options.sortOptions[sortBy])
+	end if
+	
+	if options.showSortOrder = true then
+		dlg.SetButton("sortorder", "Sort order: " + sortOrderOptions[sortOrder])
+	end if
+    
     dlg.SetButton("view", "View Menu")
     dlg.SetButton("close", "Close")
 
@@ -108,30 +109,30 @@ Sub createContextMenuDialog(menuType As String, useFacade = true)
 	returned = dlg.Result
 
     if returned = "filter"
-        returned = createOptionsDialog("Filter Options", filterByOptions)
-        if returned <> invalid then RegUserWrite(menuType + "FilterBy", returned)
+        returned = createOptionsDialog("Filter Options", options.filterOptions)
+        if returned <> invalid then RegUserWrite(options.settingsPrefix + "FilterBy", returned)
 
-        createContextMenuDialog(menuType, false)
+        createContextMenuDialog(options, false)
 		return
 
     else if returned = "sortby"
-        returned = createOptionsDialog("Sort By", sortByOptions)
-        if returned <> invalid then RegUserWrite(menuType + "SortBy", returned)
+        returned = createOptionsDialog("Sort By", options.sortOptions)
+        if returned <> invalid then RegUserWrite(options.settingsPrefix + "SortBy", returned)
 
-        createContextMenuDialog(menuType, false)
+        createContextMenuDialog(options, false)
 		return
 
     else if returned = "sortorder"
         returned = createOptionsDialog("Sort Order", sortOrderOptions)
-        if returned <> invalid then RegUserWrite(menuType + "SortOrder", returned)
+        if returned <> invalid then RegUserWrite(options.settingsPrefix + "SortOrder", returned)
 
-        createContextMenuDialog(menuType, false)
+        createContextMenuDialog(options, false)
 		return
 
     else if returned = "view"
-        createContextViewMenuDialog(menuType)
+        createContextViewMenuDialog(options)
 
-        createContextMenuDialog(menuType, false)
+        createContextMenuDialog(options, false)
 		return
 
     end if
@@ -158,15 +159,15 @@ Function createOptionsDialog(title, options, startIndex = 0)
 	return dlg.Result
 End Function
 
-Sub createContextViewMenuDialog(menuType As String)
+Sub createContextViewMenuDialog(options as Object)
     dlg = createBaseDialog()
     dlg.Title = "View Menu"
 
     ' Get Saved Options
     imageStyleOptions = ["Poster", "Thumb", "Backdrop"]
     displayOptions    = ["No", "Yes"]
-    imageType         = (firstOf(RegUserRead(menuType + "ImageType"), "0")).ToInt()
-	displayDescription    = (firstOf(RegUserRead(menuType + "Description"), "0")).ToInt()
+    imageType         = (firstOf(RegUserRead(options.settingsPrefix + "ImageType"), "0")).ToInt()
+	displayDescription    = (firstOf(RegUserRead(options.settingsPrefix + "Description"), "0")).ToInt()
 
     ' Setup Buttons
     dlg.SetButton("image", "Image Style: " + imageStyleOptions[imageType])
@@ -180,15 +181,15 @@ Sub createContextViewMenuDialog(menuType As String)
 
     if result = "image"
         result = createOptionsDialog("Image Style", imageStyleOptions)
-        if result <> invalid then RegUserWrite(menuType + "ImageType", result)
+        if result <> invalid then RegUserWrite(options.settingsPrefix + "ImageType", result)
 
-        createContextViewMenuDialog(menuType)
+        createContextViewMenuDialog(options)
 		
     else if result = "info"
         result = showContextViewMenuYesNoDialog("Display Info Box")
-        if result <> invalid then RegUserWrite(menuType + "Description", result)
+        if result <> invalid then RegUserWrite(options.settingsPrefix + "Description", result)
 
-        createContextViewMenuDialog(menuType)
+        createContextViewMenuDialog(options)
     end if
 End Sub
 

@@ -68,38 +68,38 @@ Sub folderScreenActivate(priorScreen)
 
 End Sub
 
-Function getFolderItemsFilter(settingsPrefix as String, contentType as String) as Object
+Function getFolderItemsQuery(settingsPrefix as String, contentType as String) as Object
 
     filterBy       = (firstOf(RegUserRead(settingsPrefix + "FilterBy"), "0")).ToInt()
     sortBy         = (firstOf(RegUserRead(settingsPrefix + "SortBy"), "0")).ToInt()
     sortOrder      = (firstOf(RegUserRead(settingsPrefix + "SortOrder"), "0")).ToInt()
 
-    mediaFoldersFilter = {}
+    query = {}
 
     if filterBy = 1
-        mediaFoldersFilter.AddReplace("Filters", "IsUnPlayed")
+        query.AddReplace("Filters", "IsUnPlayed")
     else if filterBy = 2
-        mediaFoldersFilter.AddReplace("Filters", "IsPlayed")
+        query.AddReplace("Filters", "IsPlayed")
     end if
 
 	' Just take the default sort order for collections
 	if contentType <> "BoxSet" then
 		if sortBy = 1
-			mediaFoldersFilter.AddReplace("SortBy", "DateCreated,SortName")
+			query.AddReplace("SortBy", "DateCreated,SortName")
 		else if sortBy = 2
-			mediaFoldersFilter.AddReplace("SortBy", "DatePlayed,SortName")
+			query.AddReplace("SortBy", "DatePlayed,SortName")
 		else if sortBy = 3
-			mediaFoldersFilter.AddReplace("SortBy", "PremiereDate,SortName")
+			query.AddReplace("SortBy", "PremiereDate,SortName")
 		else
-			mediaFoldersFilter.AddReplace("SortBy", "SortName")
+			query.AddReplace("SortBy", "SortName")
 		end if
 
 		if sortOrder = 1
-			mediaFoldersFilter.AddReplace("SortOrder", "Descending")
+			query.AddReplace("SortOrder", "Descending")
 		end if
 	end if
 
-	return mediaFoldersFilter
+	return query
 
 End Function
 
@@ -112,7 +112,7 @@ Function getFolderItemsUrl(row as Integer, id as String) as String
         fields: "Overview,UserData"
     }
 
-	filters = getFolderItemsFilter(m.settingsPrefix, m.contentType)
+	filters = getFolderItemsQuery(m.settingsPrefix, m.contentType)
 
     if filters <> invalid
         query = AddToQuery(query, filters)
@@ -137,7 +137,14 @@ End Function
 Function folderScreenCreateContextMenu()
 	
 	if m.contextMenuType <> invalid then
-		createContextMenuDialog(m.contextMenuType)
+	
+		options = {
+			settingsPrefix: m.contextMenuType
+			sortOptions: ["Name", "Date Added", "Date Played", "Release Date"]
+			filterOptions: ["None", "Unplayed", "Played"]
+			showSortOrder: true
+		}
+		createContextMenuDialog(options)
 	end if
 
 	return true
