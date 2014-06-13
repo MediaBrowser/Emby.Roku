@@ -1,124 +1,79 @@
 '**********************************************************
 '** Show Channel List Page
 '**********************************************************
+Function createChannelScreen(viewController as Object, channel As Object) As Object
 
-Function ShowChannelPage(viewController as Object, parentId As String, title As String, index As Integer) As Integer
+    imageType      = (firstOf(RegUserRead("channelImageType"), "0")).ToInt()
 
-    ' Create Facade Screen
-    facade = CreateObject("roGridScreen")
-	facade.Show()
+    names = [channel.title]
+    keys = [channel.id]
+  
+    loader = CreateObject("roAssociativeArray")
+    loader.getUrl = getChannelScreenUrl
+    loader.parsePagedResult = parseChannelScreenResult
+    loader.channel = channel
+    
+    if imageType = 0 then
+        screen = createPaginatedGridScreen(viewController, names, keys, loader, "mixed-aspect-ratio")
+    Else
+        screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
+    End If
 
-    ' Create Grid Screen
-    screen = CreateGridScreen(viewController, "mixed-aspect-ratio")
+    screen.displayInfoBox = (firstOf(RegUserRead("channelInfoBox"), "0")).ToInt()
 
-    screen.AddRow(title, "portrait")
-
-    ' Get Data
-    channelItems = GetChannelItems(parentId, 0, screen.rowPageSize)
-
-    ' Check to see if Data Loaded
-    if channelItems = invalid
-        createErrorDialog()
-        return -1
-    end if
-
-    ' Check to see if there are entries
-    if channelItems.TotalCount = 0
-        createDialog("No Items", "There were no items found in this channel.", "Back")
-        return -1
-    end if
-
-    ' Setup Row Names
-    screen.ShowNames()
-
-    ' Setup Row Styles
-    screen.SetListPosterStyles(screen.rowStyles)
-
-    ' Set total count
-    screen.TotalCounts[0] = channelItems.TotalCount
-
-    ' Load Paginated Data
-    screen.LoadRowContent(0, channelItems, 0, screen.rowPageSize)
-
-    ' Show Screen
-    screen.Show()
-
-    ' Close Facade Screen
-    facade.Close()
-
-    if index <> 0
-        recreateIndex = index
-    else
-        recreateIndex = 0
-    end if
-
-    ' Show/Hide Description Popup
-    if RegRead("prefChannelPopup") = "no" Or RegRead("prefChannelPopup") = invalid then
+    if screen.displayInfoBox = 0 then
         screen.SetDescriptionVisible(false)
     end if
 
-    ' Remote key id's for navigation
-    remoteKeyStar = 10
+    return screen
 
-    ' Refocus Item
-    screen.SetFocusedListItem(0, recreateIndex)
+End Function
 
-    while true
-        msg = wait(0, screen.Port)
 
-        if type(msg) = "roGridScreenEvent" then
-            if msg.isListItemFocused() then
-                ' Load More Content
-                row = msg.GetIndex()
-                selection = msg.getData()
+Function parseChannelScreenResult(row as Integer, json as String) as Object
 
-                if screen.rowFinishedLoading[row] <> invalid
+    imageType      = (firstOf(RegUserRead("channelImageType"), "0")).ToInt()
 
-                    if Not screen.rowFinishedLoading[row]
+    return parseItemsResponse(json, imageType, "mixed-aspect-ratio-portrait")
 
-                        if selection > screen.rowLoadedCount[row] - screen.rowPageEdge
-                            ' Queue multiple loads to Catch up to Current Selection
-                            if selection > screen.rowLoadedCount[row] + screen.rowPageSize
-                                queue = Int((selection - screen.rowLoadedCount[row]) / screen.rowPageSize) + 1
+End Function
 
-                                for i = 1 to queue
+Function getChannelScreenUrl(row as Integer, id as String) as String
 
-                                    channelItems = GetChannelItems(parentId, screen.rowLoadedCount[row], screen.rowPageSize)
-                                    screen.LoadRowContent(row, channelItems, screen.rowLoadedCount[row], screen.rowPageSize)
+    channel = m.channel
 
-                                end for
+     ' URL
+    url = GetServerBaseUrl()
 
-                            ' Otherwise Load As Selection Reaches Edge
-                            else
+    ' Query
+    query = {}
 
-                                channelItems = GetChannelItems(parentId, screen.rowLoadedCount[row], screen.rowPageSize)
-                                screen.LoadRowContent(row, channelItems, screen.rowLoadedCount[row], screen.rowPageSize)
-
-                            end if
-
-                        end if
-
-                    end if
-
-                    ' Show/Hide Description Popup
-                    if RegRead("prefChannelPopup") = "yes" then
-                        screen.SetDescriptionVisible(true) ' Work around for bug in mixed-aspect-ratio
-                    end if
-
-                end if
-
-            else if msg.isRemoteKeyPressed() then
-                index = msg.GetIndex()
-
-                if index = remoteKeyStar then
-                    ' Context Menu
-                end if
-
-            else if msg.isScreenClosed() then
-                return -1
-            end if
+    if row = 0
+        if channel.channelid <> invalid
+            url = url  + "/Channels/" + HttpEncode(channel.channelid) + "/Items?userId=" + getGlobalVar("user").Id
+        else
+            url = url  + "/Channels/" + HttpEncode(channel.id) + "/Items?userId=" + getGlobalVar("user").Id
         end if
-    end while
+        
+        ' Query
+        query = {
+            fields: "Overview,UserData,ItemCounts"
+            sortby: "SortName"
+            sortorder: "Ascending"
+        }
 
-    return -1
+        if channel.channelid <> invalid
+            q = { folderid: channel.id }
+            query.Append(q)
+        end if
+    end If
+    
+    for each key in query
+        url = url + "&" + key +"=" + HttpEncode(query[key])
+    end for
+    
+    print "Channel url: " + url
+
+    return url
+
 End Function
