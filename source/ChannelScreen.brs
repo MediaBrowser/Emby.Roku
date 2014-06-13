@@ -3,8 +3,6 @@
 '**********************************************************
 Function createChannelScreen(viewController as Object, channel As Object) As Object
 
-    imageType      = (firstOf(RegUserRead("channelImageType"), "0")).ToInt()
-
     names = [channel.title]
     keys = [channel.id]
   
@@ -13,11 +11,7 @@ Function createChannelScreen(viewController as Object, channel As Object) As Obj
     loader.parsePagedResult = parseChannelScreenResult
     loader.channel = channel
     
-    if imageType = 0 then
-        screen = createPaginatedGridScreen(viewController, names, keys, loader, "mixed-aspect-ratio")
-    Else
-        screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
-    End If
+    screen = createPaginatedGridScreen(viewController, names, keys, loader, "mixed-aspect-ratio")
 
     screen.displayInfoBox = (firstOf(RegUserRead("channelInfoBox"), "0")).ToInt()
 
@@ -32,9 +26,7 @@ End Function
 
 Function parseChannelScreenResult(row as Integer, json as String) as Object
 
-    imageType      = (firstOf(RegUserRead("channelImageType"), "0")).ToInt()
-
-    return parseItemsResponse(json, imageType, "mixed-aspect-ratio-portrait")
+    return parseItemsResponse(json, 0, "mixed-aspect-ratio-portrait")
 
 End Function
 
@@ -57,9 +49,7 @@ Function getChannelScreenUrl(row as Integer, id as String) as String
         
         ' Query
         query = {
-            fields: "Overview,UserData,ItemCounts"
-            sortby: "SortName"
-            sortorder: "Ascending"
+            fields: "Overview,PrimaryImageAspectRatio"
         }
 
         if channel.channelid <> invalid
