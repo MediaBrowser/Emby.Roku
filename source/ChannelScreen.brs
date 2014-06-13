@@ -13,11 +13,7 @@ Function createChannelScreen(viewController as Object, channel As Object) As Obj
     
     screen = createPaginatedGridScreen(viewController, names, keys, loader, "mixed-aspect-ratio")
 
-    screen.displayInfoBox = (firstOf(RegUserRead("channelInfoBox"), "0")).ToInt()
-
-    if screen.displayInfoBox = 0 then
-        screen.SetDescriptionVisible(false)
-    end if
+    screen.displayDescription = (firstOf(RegUserRead("channelDescription"), "0")).ToInt()
 
     return screen
 
