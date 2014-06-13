@@ -83,42 +83,35 @@ Function getTvLibraryRowScreenUrl(row as Integer, id as String) as String
     filterBy       = (firstOf(RegUserRead("tvFilterBy"), "0")).ToInt()
     sortBy         = (firstOf(RegUserRead("tvSortBy"), "0")).ToInt()
     sortOrder      = (firstOf(RegUserRead("tvSortOrder"), "0")).ToInt()
-    imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
-
-    filterByOptions = ["None", "Continuing", "Ended"]
-    sortByOptions   = ["Name", "Date Added", "Premiere Date"]
-
-    tvFilter = {}
 
     ' URL
     url = GetServerBaseUrl()
 
-    ' Query
     query = {}
 
 	if row = 0
 		' Tv genres
 		url = url  + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?recursive=true"
 
-		tvFilter.AddReplace("IncludeItemTypes", "Series")
-		tvFilter.AddReplace("fields", "Overview")
+		query.AddReplace("IncludeItemTypes", "Series")
+		query.AddReplace("fields", "Overview")
 
 		if filterBy = 1
-			tvFilter.AddReplace("SeriesStatus", "Continuing")
+			query.AddReplace("SeriesStatus", "Continuing")
 		else if filterBy = 2
-			tvFilter.AddReplace("SeriesStatus", "Ended")
+			query.AddReplace("SeriesStatus", "Ended")
 		end if
 
 		if sortBy = 1
-			tvFilter.AddReplace("SortBy", "DateCreated,SortName")
+			query.AddReplace("SortBy", "DateCreated,SortName")
 		else if sortBy = 2
-			tvFilter.AddReplace("SortBy", "PremiereDate,SortName")
+			query.AddReplace("SortBy", "PremiereDate,SortName")
 		else
-			tvFilter.AddReplace("SortBy", "SortName")
+			query.AddReplace("SortBy", "SortName")
 		end if
 
 		if sortOrder = 1
-			tvFilter.AddReplace("SortOrder", "Descending")
+			query.AddReplace("SortOrder", "Descending")
 		end if
 
 
@@ -129,19 +122,19 @@ Function getTvLibraryRowScreenUrl(row as Integer, id as String) as String
 		' Tv next up
 		url = url  + "/Shows/NextUp?fields=Overview"
 
-		tvFilter.AddReplace("userid", getGlobalVar("user").Id)
-		tvFilter.AddReplace("SortBy", "SortName")
+		query.AddReplace("userid", getGlobalVar("user").Id)
+		query.AddReplace("SortBy", "SortName")
 	else if row = 3
 		' Tv genres
 		url = url  + "/Genres?recursive=true"
 
-		tvFilter.AddReplace("userid", getGlobalVar("user").Id)
-		tvFilter.AddReplace("IncludeItemTypes", "Series")
-		tvFilter.AddReplace("SortBy", "SortName")
+		query.AddReplace("userid", getGlobalVar("user").Id)
+		query.AddReplace("IncludeItemTypes", "Series")
+		query.AddReplace("SortBy", "SortName")
 	end If
 
-	for each key in tvFilter
-		url = url + "&" + key +"=" + HttpEncode(tvFilter[key])
+	for each key in query
+		url = url + "&" + key +"=" + HttpEncode(query[key])
 	end for
 
     return url

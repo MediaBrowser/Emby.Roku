@@ -71,44 +71,36 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
     filterBy       = (firstOf(RegUserRead("movieFilterBy"), "0")).ToInt()
     sortBy         = (firstOf(RegUserRead("movieSortBy"), "0")).ToInt()
     sortOrder      = (firstOf(RegUserRead("movieSortOrder"), "0")).ToInt()
-    imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
-    filterByOptions = ["None", "Unwatched", "Watched"]
-    sortByOptions   = ["Name", "Date Added", "Date Played", "Release Date"]
-
-    movieFilter = {}
-
-    ' URL
     url = GetServerBaseUrl()
 
-    ' Query
     query = {}
 
 	if row = 0
 		url = url  + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?recursive=true"
 
 		if filterBy = 1
-			movieFilter.AddReplace("Filters", "IsUnPlayed")
+			query.AddReplace("Filters", "IsUnPlayed")
 		else if filterBy = 2
-			movieFilter.AddReplace("Filters", "IsPlayed")
+			query.AddReplace("Filters", "IsPlayed")
 		end if
 
 		if sortBy = 1
-			movieFilter.AddReplace("SortBy", "DateCreated,SortName")
+			query.AddReplace("SortBy", "DateCreated,SortName")
 		else if sortBy = 2
-			movieFilter.AddReplace("SortBy", "DatePlayed,SortName")
+			query.AddReplace("SortBy", "DatePlayed,SortName")
 		else if sortBy = 3
-			movieFilter.AddReplace("SortBy", "PremiereDate,SortName")
+			query.AddReplace("SortBy", "PremiereDate,SortName")
 		else
-			movieFilter.AddReplace("SortBy", "SortName")
+			query.AddReplace("SortBy", "SortName")
 		end if
 
 		if sortOrder = 1
-			movieFilter.AddReplace("SortOrder", "Descending")
+			query.AddReplace("SortOrder", "Descending")
 		end if
 
-		movieFilter.AddReplace("IncludeItemTypes", "Movie")
-		movieFilter.AddReplace("Fields", "Overview")
+		query.AddReplace("IncludeItemTypes", "Movie")
+		query.AddReplace("Fields", "Overview")
 
 	else if row = 1
 		' Alphabet - should never get in here
@@ -116,20 +108,20 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
 	else if row = 2
 		url = url  + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?recursive=true"
 
-		movieFilter.AddReplace("IncludeItemTypes", "BoxSet")
-		movieFilter.AddReplace("Fields", "Overview")
-		movieFilter.AddReplace("SortBy", "SortName")
+		query.AddReplace("IncludeItemTypes", "BoxSet")
+		query.AddReplace("Fields", "Overview")
+		query.AddReplace("SortBy", "SortName")
 
 	else if row = 3
 		url = url  + "/Genres?recursive=true"
 
-		movieFilter.AddReplace("SortBy", "SortName")
-		movieFilter.AddReplace("userid", getGlobalVar("user").Id)
-		movieFilter.AddReplace("IncludeItemTypes", "Movie")
+		query.AddReplace("SortBy", "SortName")
+		query.AddReplace("userid", getGlobalVar("user").Id)
+		query.AddReplace("IncludeItemTypes", "Movie")
 	end If
 
-	for each key in movieFilter
-		url = url + "&" + key +"=" + HttpEncode(movieFilter[key])
+	for each key in query
+		url = url + "&" + key +"=" + HttpEncode(query[key])
 	end for
 
     return url

@@ -109,7 +109,7 @@ Function getFolderItemsUrl(row as Integer, id as String) as String
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?parentid=" + id
 
     query = {
-        fields: "Overview,UserData"
+        fields: "Overview,PrimaryImageAspectRatio"
     }
 
 	filters = getFolderItemsQuery(m.settingsPrefix, m.contentType)

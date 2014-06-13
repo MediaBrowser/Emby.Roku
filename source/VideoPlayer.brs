@@ -5,32 +5,43 @@
 '** Credit: Plex Roku https://github.com/plexinc/roku-client-public
 
 '**********************************************************
-'** Play video
+'** getPlayConfiguration
 '**********************************************************
 
-Function getListWithIntros(context, contextIndex, playOptions) 
+Function getPlayConfiguration(context, contextIndex, playOptions) 
 
     list = []
+	
+	initialItem = context[contextIndex]
+	
+	initialItem.PlayOptions = playOptions
 
+	while contextIndex > 0
+		context.Shift()
+		contextIndex = contextIndex - 1
+	end while
+	
     if playOptions.playstart = 0 and playOptions.intros <> false
 
-        intros = getVideoIntros(video.Id)
-
+        intros = getVideoIntros(initialItem.Id)
+		'intros = getLocalTrailers(initialItem.Id)
+		
         if intros <> invalid
 		
             for each i in intros.Items	
+			'for each i in intros	
 
-				i.playOptions = {}
-				list.push(i)
+				i.PlayOptions = {}
+				context.Unshift(i)
             end for
 			
         end if
 
     end if
-
+	
 	return {
-		context: context
-		contextIndex: contextIndex
+		Context: context
+		CurIndex: contextIndex
 	}
 	
 End Function
@@ -40,13 +51,15 @@ Function createVideoPlayerScreen(context, contextIndex, playOptions, viewControl
 	obj = CreateObject("roAssociativeArray")
     initBaseScreen(obj, viewController)
 
-    obj.Item = context[contextIndex]
+	playConfig = getPlayConfiguration(context, contextIndex, playOptions)
+	
+    obj.Context = playConfig.Context
+    obj.CurIndex = playConfig.CurIndex
 
     obj.Show = videoPlayerShow
     obj.HandleMessage = videoPlayerHandleMessage
     obj.OnTimerExpired = videoPlayerOnTimerExpired
 
-    obj.PlayOptions = playOptions
     obj.CreateVideoPlayer = videoPlayerCreateVideoPlayer
 
 	obj.StartTranscodeSessionRequest = videoPlayerStartTranscodeSessionRequest
@@ -54,6 +67,7 @@ Function createVideoPlayerScreen(context, contextIndex, playOptions, viewControl
 
     obj.pingTimer = invalid
     obj.lastPosition = 0
+	obj.isPlayed = false
     obj.playbackError = false
     obj.underrunCount = 0
     obj.playbackTimer = createTimer()
@@ -99,7 +113,12 @@ Sub videoPlayerShow()
     ' a shot.
 
     if NOT m.playbackError then
-        m.Screen = m.CreateVideoPlayer()
+	
+		item = m.Context[m.CurIndex]
+		
+		m.PlayOptions = item.PlayOptions
+		
+        m.Screen = m.CreateVideoPlayer(item, m.PlayOptions)
 
     else
         Debug("Error while playing video, nothing left to fall back to")
@@ -134,11 +153,11 @@ Sub videoPlayerShow()
     end if
 End Sub
 
-Function videoPlayerCreateVideoPlayer()
+Function videoPlayerCreateVideoPlayer(item, playOptions)
 
-    Debug("MediaPlayer::playVideo: Displaying video: " + tostr(m.Item.title))
+    Debug("MediaPlayer::playVideo: Displaying video: " + tostr(item.title))
 
-    videoItem = m.ConstructVideoItem(m.Item, m.PlayOptions)
+    videoItem = m.ConstructVideoItem(item, playOptions)
 
     player = CreateObject("roVideoScreen")
     player.SetMessagePort(m.Port)
@@ -153,7 +172,7 @@ Function videoPlayerCreateVideoPlayer()
 	if m.IsTranscoded then
 		m.playMethod = "Transcode"
 		m.canSeek = false
-		videoItem.StreamStartTimeOffset = m.PlayOptions.playstart
+		videoItem.StreamStartTimeOffset = playOptions.playstart
 	else
 		m.playMethod = "DirectStream"
 		m.canSeek = true
@@ -191,7 +210,12 @@ Function videoPlayerHandleMessage(msg) As Boolean
             m.UpdateNowPlaying()
             if m.IsTranscoded then m.StopTranscoding()
 
-            m.ViewController.PopScreen(m)
+            if m.isPlayed = true AND m.Context.Count() > (m.CurIndex + 1) then
+				m.CurIndex = m.CurIndex + 1
+                m.Show()
+            else
+                m.ViewController.PopScreen(m)
+            end if
 
         else if msg.isStatusMessage() then
             print "Video status: "; msg.GetIndex(); " " msg.GetData()
@@ -217,7 +241,6 @@ Function videoPlayerHandleMessage(msg) As Boolean
         else if msg.isPlaybackPosition() then
 
             if m.bufferingTimer <> invalid then
-                'AnalyticsTracker().TrackTiming(m.bufferingTimer.GetElapsedMillis(), "buffering", tostr(m.IsTranscoded), m.Item.mediaContainerIdentifier)
                 m.bufferingTimer = invalid
             end if
 
@@ -262,6 +285,7 @@ Function videoPlayerHandleMessage(msg) As Boolean
             if m.IsTranscoded then m.StopTranscoding()
 			m.ReportPlayback("stop")
 			m.progressTimer.Active = false
+			m.isPlayed = true
 
         else if msg.GetType() = 31 then
             ' TODO(schuyler): DownloadDuration is completely incomprehensible to me.
@@ -292,7 +316,9 @@ Sub videoPlayerReportPlayback(action as String)
 	
 	position = m.lastPosition
 	
-	if m.IsTranscoded and m.PlayOptions.playstart <> invalid then position = position + m.PlayOptions.playstart
+	playOptions = m.PlayOptions
+	
+	if m.IsTranscoded and playOptions.playstart <> invalid then position = position + playOptions.playstart
 
 	reportPlayback(m.videoItem.Id, action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
 End Sub
@@ -423,7 +449,9 @@ Sub videoPlayerUpdateNowPlaying(force=false)
     m.lastTimelineState = m.playState
     m.timelineTimer.Mark()
 
-    NowPlayingManager().UpdatePlaybackState("video", m.Item, m.playState, m.lastPosition)
+	item = m.Context[m.CurIndex]
+	
+    NowPlayingManager().UpdatePlaybackState("video", item, m.playState, m.lastPosition)
 End Sub
 
 Function videoPlayerConstructVideoItem(item, options) as Object
