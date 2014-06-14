@@ -490,6 +490,8 @@ Sub InitWebServer(vc)
 	ClassReply().AddHandler("/mediabrowser/message/DisplayContent", ProcessDisplayContent)
 
 	ClassReply().AddHandler("/mediabrowser/message/PlayNow", ProcessPlaybackPlayMedia)
+	ClassReply().AddHandler("/mediabrowser/message/PlayNext", ProcessPingRequest)
+	ClassReply().AddHandler("/mediabrowser/message/PlayLast", ProcessPingRequest)
 
     vc.WebServer = InitServer({msgPort: vc.GlobalMessagePort, port: 8324})
 End Sub

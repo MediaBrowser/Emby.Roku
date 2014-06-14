@@ -13,13 +13,7 @@ Function getPlayConfiguration(context, contextIndex, playOptions)
     list = []
 	
 	initialItem = context[contextIndex]
-	
 	initialItem.PlayOptions = playOptions
-
-	while contextIndex > 0
-		context.Shift()
-		contextIndex = contextIndex - 1
-	end while
 	
     if playOptions.playstart = 0 and playOptions.intros <> false
 
@@ -32,16 +26,22 @@ Function getPlayConfiguration(context, contextIndex, playOptions)
 			'for each i in intros	
 
 				i.PlayOptions = {}
-				context.Unshift(i)
+				list.push(i)
             end for
 			
         end if
 
     end if
+
+	currentIndex = 0
+	for each i in context	
+		if currentIndex >= contextIndex then list.push(i)		
+		currentIndex = currentIndex + 1
+	end for
 	
 	return {
-		Context: context
-		CurIndex: contextIndex
+		Context: list
+		CurIndex: 0
 	}
 	
 End Function
