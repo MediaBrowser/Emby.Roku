@@ -52,6 +52,7 @@ Changelog
 * Display transcoding info in video screen OSD
 * Servers are saved using friendly name reported by the server
 * Support channels
+* Support video playlists
 
 
 1.17 - Added support for photos; Redesigned home screen toggles; Bug fixes; More bug fixes; Other minor features;

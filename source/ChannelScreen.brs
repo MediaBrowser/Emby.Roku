@@ -1,24 +1,23 @@
 '**********************************************************
 '** Show Channel List Page
 '**********************************************************
-Function createChannelScreen(viewController as Object, channel As Object) As Object
+Function createChannelScreen(viewController as Object, item As Object) As Object
 
-    names = [channel.title]
-    keys = [channel.id]
+    names = [item.Title]
+    keys = [item.Id]
   
     loader = CreateObject("roAssociativeArray")
     loader.getUrl = getChannelScreenUrl
     loader.parsePagedResult = parseChannelScreenResult
-    loader.channel = channel
+    loader.channel = item
     
     screen = createPaginatedGridScreen(viewController, names, keys, loader, "mixed-aspect-ratio")
 
-    screen.displayDescription = (firstOf(RegUserRead("channelDescription"), "0")).ToInt()
+    screen.displayDescription = 0
 
     return screen
 
 End Function
-
 
 Function parseChannelScreenResult(row as Integer, json as String) as Object
 
@@ -37,10 +36,10 @@ Function getChannelScreenUrl(row as Integer, id as String) as String
     query = {}
 
     if row = 0
-        if channel.channelid <> invalid
-            url = url  + "/Channels/" + HttpEncode(channel.channelid) + "/Items?userId=" + getGlobalVar("user").Id
+        if channel.ChannelId <> invalid
+            url = url  + "/Channels/" + HttpEncode(channel.ChannelId) + "/Items?userId=" + getGlobalVar("user").Id
         else
-            url = url  + "/Channels/" + HttpEncode(channel.id) + "/Items?userId=" + getGlobalVar("user").Id
+            url = url  + "/Channels/" + HttpEncode(channel.Id) + "/Items?userId=" + getGlobalVar("user").Id
         end if
         
         ' Query
@@ -48,8 +47,8 @@ Function getChannelScreenUrl(row as Integer, id as String) as String
             fields: "Overview,PrimaryImageAspectRatio"
         }
 
-        if channel.channelid <> invalid
-            q = { folderid: channel.id }
+        if channel.ChannelId <> invalid
+            q = { folderid: channel.Id }
             query.Append(q)
         end if
     end If
