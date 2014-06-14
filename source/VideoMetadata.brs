@@ -652,7 +652,7 @@ End Function
 '** reportPlayback
 '**********************************************************
 
-Sub reportPlayback(id As String, action As String, playMethod as String, isPaused as Boolean, canSeek as Boolean, position as Integer, mediaSourceId as String, audioStreamIndex = invalid, subtitleStreamIndex = invalid)
+Sub reportPlayback(id As String, mediaType as String, action As String, playMethod as String, isPaused as Boolean, canSeek as Boolean, position as Integer, mediaSourceId as String, audioStreamIndex = invalid, subtitleStreamIndex = invalid)
 
     ' Format Position Seconds into Ticks
 	positionTicks = invalid
@@ -688,6 +688,7 @@ Sub reportPlayback(id As String, action As String, playMethod as String, isPause
 	url = url + "&isPaused=" + tostr(isPaused)
 	url = url + "&canSeek=" + tostr(canSeek)
 	url = url + "&PlayMethod=" + playMethod
+	url = url + "&QueueableMediaTypes=" + mediaType
 	url = url + "&MediaSourceId=" + tostr(mediaSourceId)
 	
     if audioStreamIndex <> invalid

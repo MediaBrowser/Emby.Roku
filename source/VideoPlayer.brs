@@ -320,7 +320,7 @@ Sub videoPlayerReportPlayback(action as String)
 	
 	if m.IsTranscoded and playOptions.playstart <> invalid then position = position + playOptions.playstart
 
-	reportPlayback(m.videoItem.Id, action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
+	reportPlayback(m.videoItem.Id, "Video", action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
 End Sub
 
 Sub videoPlayerPause()
