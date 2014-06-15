@@ -19,13 +19,7 @@ Function getDefaultLiveTvTimer(programId As String) As Object
 	
     if response <> invalid
 	
-        metaData = ParseJSON(response)
-
-        if metaData = invalid
-            return invalid
-        end if
-
-        return metaData
+        return ParseJSON(response)
 		
     end if
 
@@ -49,11 +43,7 @@ Function cancelLiveTvTimer(timerId As String) As Boolean
 
     response = request.PostFromStringWithTimeout("", 5)
 	
-    if response <> invalid
-        return true
-    end if
-
-    return false
+    return response <> invalid
 	
 End Function
 
@@ -72,13 +62,7 @@ Function deleteLiveTvRecording(recordingId As String) As Boolean
 
     response = request.PostFromStringWithTimeout("", 5)
 	
-    if response <> invalid
-        
-		return true
-		
-    end if
-
-    return false
+    return response <> invalid
 	
 End Function
 
@@ -98,10 +82,6 @@ Function createLiveTvTimer(timerObj As Object) As Boolean
 	
     response = request.PostFromStringWithTimeout(json, 5)
 	
-    if response <> invalid
-        return true
-    end if
-
-    return false
+    return response <> invalid
 	
 End Function

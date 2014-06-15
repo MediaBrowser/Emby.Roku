@@ -492,12 +492,53 @@ Sub InitWebServer(vc)
 	ClassReply().AddHandler("/mediabrowser/message/PlayNow", ProcessPlaybackPlayMedia)
 	ClassReply().AddHandler("/mediabrowser/message/PlayNext", ProcessPingRequest)
 	ClassReply().AddHandler("/mediabrowser/message/PlayLast", ProcessPingRequest)
+	
+	ClassReply().AddHandler("/mediabrowser/message/SetAudioStreamIndex", ProcessSetAudioStreamIndexRequest)
+	ClassReply().AddHandler("/mediabrowser/message/SetSubtitleStreamIndex", ProcessSetSubtitleStreamIndexRequest)
 
     vc.WebServer = InitServer({msgPort: vc.GlobalMessagePort, port: 8324})
 End Sub
 
 Function ProcessPingRequest() As Boolean
    	
+	m.simpleOK("")
+	return true
+
+End Function
+
+Function ProcessSetAudioStreamIndexRequest() As Boolean
+   	
+	videoPlayer = VideoPlayer()
+
+	if videoPlayer <> invalid then
+	
+		index = m.request.query["Index"]
+		
+		if index <> invalid and index <> "" then
+			videoPlayer.SetAudioStreamIndex(index.ToInt())
+		end if
+        
+	end If
+
+	m.simpleOK("")
+	return true
+
+End Function
+
+Function ProcessSetSubtitleStreamIndexRequest() As Boolean
+   	
+	videoPlayer = VideoPlayer()
+
+	if videoPlayer <> invalid then
+	
+		index = m.request.query["Index"]
+		
+		if index <> invalid and index <> "" then
+			videoPlayer.SetSubtitleStreamIndex(index.ToInt())
+		end if
+        
+	end If
+
 	m.simpleOK("")
 	return true
 
@@ -595,7 +636,7 @@ Function ProcessPlaybackSeekTo() As Boolean
 		videoPlayer = VideoPlayer()
 
 		if videoPlayer <> invalid then
-            player.Seek(int(val(offset)))
+            videoPlayer.Seek(int(val(offset)))
 		else 
 			
 		end If

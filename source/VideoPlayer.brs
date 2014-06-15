@@ -69,6 +69,7 @@ Function createVideoPlayerScreen(context, contextIndex, playOptions, viewControl
     obj.lastPosition = 0
 	obj.isPlayed = false
     obj.playbackError = false
+	obj.changeStream = false
     obj.underrunCount = 0
     obj.playbackTimer = createTimer()
     obj.timelineTimer = invalid
@@ -85,6 +86,8 @@ Function createVideoPlayerScreen(context, contextIndex, playOptions, viewControl
     obj.Prev = videoPlayerPrev
     obj.Stop = videoPlayerStop
     obj.Seek = videoPlayerSeek
+	obj.SetAudioStreamIndex = videoPlayerSetAudioStreamIndex
+	obj.SetSubtitleStreamIndex = videoPlayerSetSubtitleStreamIndex
 
 	obj.ReportPlayback = videoPlayerReportPlayback
 
@@ -112,21 +115,21 @@ Sub videoPlayerShow()
     ' that the device can't handle, we at least give transcoding (from there)
     ' a shot.
 
-    if NOT m.playbackError then
+    if m.playbackError then
 	
-		item = m.Context[m.CurIndex]
-		
-		m.PlayOptions = item.PlayOptions
-		
-        m.Screen = m.CreateVideoPlayer(item, m.PlayOptions)
-
-    else
         Debug("Error while playing video, nothing left to fall back to")
         m.ShowPlaybackError()
         m.Screen = invalid
         m.popOnActivate = true
+
+	else
+		item = m.Context[m.CurIndex]		
+		m.PlayOptions = item.PlayOptions		
+        m.Screen = m.CreateVideoPlayer(item, m.PlayOptions)
     end if
 
+	m.changeStream = false
+	
     if m.Screen <> invalid then
         if m.IsTranscoded then
             Debug("Starting to play transcoded video")
@@ -172,7 +175,6 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 	if m.IsTranscoded then
 		m.playMethod = "Transcode"
 		m.canSeek = false
-		videoItem.StreamStartTimeOffset = playOptions.playstart
 	else
 		m.playMethod = "DirectStream"
 		m.canSeek = true
@@ -212,6 +214,9 @@ Function videoPlayerHandleMessage(msg) As Boolean
 
             if m.isPlayed = true AND m.Context.Count() > (m.CurIndex + 1) then
 				m.CurIndex = m.CurIndex + 1
+                m.Show()
+            else if m.changeStream
+				m.changeStream = false
                 m.Show()
             else
                 m.ViewController.PopScreen(m)
@@ -271,11 +276,16 @@ Function videoPlayerHandleMessage(msg) As Boolean
 			m.ReportPlayback("progress")
 
         else if msg.isPartialResult() then
+		
             Debug("MediaPlayer::playVideo::VideoScreenEvent::isPartialResult: position -> " + tostr(m.lastPosition))
-            m.playState = "stopped"
-            m.UpdateNowPlaying()
-            if m.IsTranscoded then m.StopTranscoding()
-			m.ReportPlayback("stop")
+			if m.IsTranscoded then m.StopTranscoding()
+			
+			if m.changeStream = false then 
+				m.playState = "stopped"
+				m.UpdateNowPlaying()
+				m.ReportPlayback("stop")
+			end if
+			
 			m.progressTimer.Active = false
 
         else if msg.isFullResult() then
@@ -315,9 +325,7 @@ Sub videoPlayerReportPlayback(action as String)
 	if m.playState = "paused" then isPaused = true
 	
 	position = m.lastPosition
-	
-	playOptions = m.PlayOptions
-	
+	playOptions = m.PlayOptions	
 	if m.IsTranscoded and playOptions.playstart <> invalid then position = position + playOptions.playstart
 
 	reportPlayback(m.videoItem.Id, "Video", action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
@@ -339,6 +347,40 @@ Sub videoPlayerNext()
 End Sub
 
 Sub videoPlayerPrev()
+End Sub
+
+Sub videoPlayerSetAudioStreamIndex(index)
+    if m.Screen <> invalid then
+        
+		item = m.Context[m.CurIndex]
+		item.PlayOptions.AudioStreamIndex = index
+		
+		position = m.lastPosition
+		playOptions = m.PlayOptions	
+		if m.IsTranscoded and playOptions.playstart <> invalid then position = position + playOptions.playstart
+
+		item.PlayOptions.playstart = position
+		
+		m.changeStream = true
+        m.Screen.Close()
+    end if
+End Sub
+
+Sub videoPlayerSetSubtitleStreamIndex(index)
+    if m.Screen <> invalid then
+	
+		item = m.Context[m.CurIndex]
+		item.PlayOptions.SubtitleStreamIndex = index
+		
+		position = m.lastPosition
+		playOptions = m.PlayOptions	
+		if m.IsTranscoded and playOptions.playstart <> invalid then position = position + playOptions.playstart
+
+		item.PlayOptions.playstart = position
+		
+		m.changeStream = true
+        m.Screen.Close()
+    end if
 End Sub
 
 Sub videoPlayerStop()
