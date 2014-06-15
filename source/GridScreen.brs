@@ -63,28 +63,19 @@ Function CreateGridScreen(viewController as Object, style As String) As Object
     screen.ShowNames             = ShowGridNames
     screen.AddRowContent         = AddGridRowContent
     screen.UpdateRowContent      = UpdateGridRowContent
-    screen.LoadRowContent        = LoadGridRowContent
     screen.SetDescriptionVisible = ShowGridDescriptionBox
-    screen.SetListPosterStyles   = SetGridPosterStyles
     screen.SetFocusedListItem    = SetGridFocusedItem
     screen.Close                 = CloseGridScreen
 
     screen.rowNames              = []
-    screen.rowStyles             = []
     screen.rowContent            = []
-    screen.loadedContent         = []
-    screen.rowLoadedCount        = []
-    screen.rowFinishedLoading    = []
-    screen.TotalCounts           = []
-    screen.rowPageSize           = 100
-    screen.rowPageEdge           = 25
 
     return screen
 
 End Function
 
 '* Convenience method to create a grid screen with a loader for the specified item
-Function createPaginatedGridScreen(viewController as Object, names as Object, keys as Object, dataLoaderHttpHandler as Object, style As String) As Object
+Function createPaginatedGridScreen(viewController as Object, names as Object, keys as Object, dataLoaderHttpHandler as Object, style As String, pageSize = 75) As Object
 
     obj = createGridScreen(viewController, style)
 
@@ -92,35 +83,13 @@ Function createPaginatedGridScreen(viewController as Object, names as Object, ke
 	container.names = names
 	container.keys = keys
 
-    obj.Loader = createPaginatedLoader(container, dataLoaderHttpHandler, 8, 75)
+    obj.Loader = createPaginatedLoader(container, dataLoaderHttpHandler, 8, pageSize)
     obj.Loader.Listener = obj
 
     return obj
 
 End Function
 
-'* Convenience method to create a grid screen with a loader for the specified item
-Function createGridScreenForItem(item, viewController, style) As Object
-    obj = createGridScreen(viewController, style)
-
-    obj.Item = item
-
-    container = createPlexContainerForUrl(item.server, item.sourceUrl, item.key)
-    container.SeparateSearchItems = true
-    obj.Loader = createPaginatedLoader(container, 8, 75)
-    obj.Loader.Listener = obj
-
-    versionArr = getGlobalVar("rokuVersion")
-	
-	' Don't play theme music on top of grid screens on the older Roku models.
-    ' It's not worth the DestroyAndRecreate headache.
-    if CheckMinimumVersion(versionArr, [4, 0]) AND NOT AudioPlayer().IsPlaying AND firstOf(RegRead("prefThemeMusic", "preferences"), "yes") = "yes" then
-        AudioPlayer().PlayThemeMusic(item)
-        obj.Cleanup = baseStopAudioPlayer
-    end if
-
-    return obj
-End Function
 
 Function gridHandleMessage(msg) As Boolean
     handled = false
@@ -440,14 +409,6 @@ Function AddGridRow(title As String, rowStyle As String) As Boolean
 
     m.rowNames.push(title)
 
-    If rowStyle = "portrait" Then
-        m.rowStyles.push( "portrait" )
-    Else If rowStyle = "square" Then
-        m.rowStyles.push( "square" )
-    Else
-        m.rowStyles.push( "landscape" )
-    End If
-
     Return true
 End Function
 
@@ -500,67 +461,6 @@ Function UpdateGridRowContent(rowIndex As Integer, rowData As Object) As Boolean
     Return true
 End Function
 
-
-'**********************************************************
-'** Load Grid Row Content (Hide if no content)
-'**********************************************************
-
-Function LoadGridRowContent(rowIndex, rowData, offset, limit, reload = false) As Boolean
-    if rowData = invalid then
-        rowData = {}
-        rowData.Items = []
-        rowData.TotalCount = 0
-    end if
-
-    ' Fill In Missing Items If Not 0
-    if offset <> 0 then
-        for i = 0 to rowData.Items.Count() - 1
-            m.rowContent[rowIndex][offset + i] = rowData.Items[i]
-        end for
-    else
-        m.rowContent.push(rowData.Items)
-		
-    end if
-
-
-    ' Setup Row Loaded count
-    if m.rowLoadedCount[rowIndex] = invalid then m.rowLoadedCount[rowIndex] = 0
-
-    Debug("Loading On Row " + itostr(rowIndex) + ": " + itostr(offset+1) + " - " + itostr(offset+limit) + " of " + itostr(rowData.TotalCount) + "; Currently Loaded: " + itostr(m.rowLoadedCount[rowIndex]))
-
-    ' Add Current Row Size
-    m.rowLoadedCount[rowIndex] = m.rowLoadedCount[rowIndex] + rowData.Items.Count()
-
-    ' Hide Row if No Data
-    if m.rowLoadedCount[rowIndex] = 0
-        Print "No Data For Row: "; rowIndex
-        m.screen.SetListVisible(rowIndex, false)
-        m.rowFinishedLoading[rowIndex] = true
-        return true
-    end if
-
-    ' Handle Size of Row Counter
-    if m.rowContent[rowIndex].Count() < rowData.TotalCount And offset = 0
-        lastIndex = rowData.TotalCount - 1
-        m.rowContent[rowIndex][lastIndex] = {title: "Loading..."}
-    end if
-
-    if m.rowLoadedCount[rowIndex] >= rowData.TotalCount
-        m.screen.SetContentList(rowIndex, m.rowContent[rowIndex])
-        m.rowFinishedLoading[rowIndex] = true
-        Print "Loading All Data For Row: "; rowIndex
-
-    else
-        m.screen.SetContentListSubset(rowIndex, m.rowContent[rowIndex], offset, limit)
-        m.rowFinishedLoading[rowIndex] = false
-        Print "Loading Partial Data For Row: "; rowIndex
-
-    end if
-
-    Return true
-End Function
-
-
 '**********************************************************
 '** Show Grid Description Box
 '**********************************************************
@@ -568,16 +468,6 @@ End Function
 Function ShowGridDescriptionBox(visible)
     m.screen.SetDescriptionVisible(visible)
 End Function
-
-
-'**********************************************************
-'** Set Grid Poster Styles
-'**********************************************************
-
-Function SetGridPosterStyles(styles As Object)
-    m.screen.SetListPosterStyles(styles)
-End Function
-
 
 '**********************************************************
 '** Set Grid Focused List Item
