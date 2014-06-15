@@ -239,6 +239,7 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 	metaData.ChannelId = i.ChannelId
 	metaData.StartDate = i.StartDate
 	metaData.EndDate = i.EndDate
+	metaData.TimerId = i.TimerId
 
 	line1 = getShortDescriptionLine1(i, mode)
 
@@ -367,7 +368,20 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 	' Primary Image
     if imageType = 0 then
 
-        sizes = GetImageSizes(style)
+		if mode = "autosize" then
+		
+			if i.PrimaryImageAspectRatio <> invalid and i.PrimaryImageAspectRatio >= 1.35 then
+				sizes = GetImageSizes("two-row-flat-landscape-custom")
+			else if i.PrimaryImageAspectRatio <> invalid and i.PrimaryImageAspectRatio >= .95 then
+				sizes = GetImageSizes("arced-square")
+			else
+				sizes = GetImageSizes("mixed-aspect-ratio-portrait")
+			end if
+			
+		else
+			sizes = GetImageSizes(style)
+		end if
+        
 
 		if mode = "seriesimageasprimary" And i.SeriesPrimaryImageTag <> "" And i.SeriesPrimaryImageTag <> invalid
 
@@ -518,6 +532,15 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 
 	if i.MediaType = "Audio" then SetAudioStreamProperties(metaData)
 
+	if i.SeriesTimerId <> invalid And i.SeriesTimerId <> ""
+        metaData.HDSmallIconUrl = GetViewController().getThemeImageUrl("SeriesRecording.png")
+        metaData.SDSmallIconUrl = GetViewController().getThemeImageUrl("SeriesRecording.png")
+    else if i.TimerId <> invalid And i.TimerId <> ""
+        metaData.HDSmallIconUrl = GetViewController().getThemeImageUrl("Recording.png")
+        metaData.SDSmallIconUrl = GetViewController().getThemeImageUrl("Recording.png")
+    end if
+   
+    
 	return metaData
 	
 End Function
@@ -655,10 +678,34 @@ Function getTitle(i as Object) as String
 
 		return firstOf(i.Number, "") + " " + firstOf(i.Name, "")
 
-		end If
+	else if i.Type = "Program" Then
+
+		programTitle = ""
+		if i.StartDate <> invalid And i.StartDate <> ""
+			programTitle = getProgramDisplayTime(i.StartDate) + " - "
+		end if
+
+		' Add the Program Name
+		programTitle = programTitle + firstOf(i.Name, "")
+
+		return firstOf(programTitle, "")
+
+	end If
 
 	return name
 
+End Function
+
+'**********************************************************
+'** getProgramDisplayTime
+'**********************************************************
+
+Function getProgramDisplayTime(dateString As String) As String
+
+    dateTime = CreateObject("roDateTime")
+    dateTime.FromISO8601String(dateString)
+    return GetTimeString(dateTime, true)
+	
 End Function
 
 Function getContentType(i as Object, mode as String) as String
@@ -790,6 +837,10 @@ Function getShortDescriptionLine2(i as Object, mode as String) as String
         end if
             
         return episodeInfo + firstOf(i.EpisodeTitle, "")
+
+	else if i.Type = "Program" Then
+
+        return firstOf(i.EpisodeTitle, "")
 
 	else if i.MediaType = "Video" Then
 

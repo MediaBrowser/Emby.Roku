@@ -48,104 +48,6 @@ Function getLiveTvChannel(id as String) As Object
     return invalid
 End Function
 
-
-'**********************************************************
-'** getMetadataFromLiveTvProgramItem
-'**********************************************************
-
-Function getMetadataFromLiveTvProgramItem(i as Object) As Object
-
-    metaData = {}
-
-    metaData.ContentType = i.Type
-	metaData.MediaType = i.MediaType
-    metaData.Id = i.Id
-    metaData.ProgramId = i.Id
-    metaData.ChannelId = i.ChannelId
-	metaData.PrimaryImageAspectRatio = i.PrimaryImageAspectRatio
-
-    programTitle = ""
-
-    if i.StartDate <> invalid And i.StartDate <> ""
-        programTitle = getProgramDisplayTime(i.StartDate) + " - "
-    end if
-
-    ' Add the Program Name
-    programTitle = programTitle + firstOf(i.Name, "")
-
-    metaData.Title = firstOf(programTitle, "")
-    metaData.ShortDescriptionLine1 = firstOf(i.Name, "")
-    metaData.ShortDescriptionLine2 = firstOf(i.EpisodeTitle, "")
-
-    if i.Overview <> invalid
-        metaData.Description = i.Overview
-    end if
-
-    if i.OfficialRating <> invalid
-        metaData.Rating = i.OfficialRating
-    end if
-
-    if i.CommunityRating <> invalid
-        metaData.StarRating = Int(i.CommunityRating) * 10
-    end if
-
-    if i.RunTimeTicks <> invalid and i.RunTimeTicks <> ""
-        metaData.Length = Int(((i.RunTimeTicks).ToFloat() / 10000) / 1000)
-    end if
-
-    metaData.PlayAccess = firstOf(i.PlayAccess, "Full")
-
-	metaData.StartDate = i.StartDate
-	metaData.EndDate = i.EndDate
-
-	metaData.TimerId = i.TimerId
-
-    if i.IsHD <> invalid
-        metaData.HDBranded = i.IsHD
-        metaData.IsHD = i.IsHD
-    end if
-
-    if i.SeriesTimerId <> invalid And i.SeriesTimerId <> ""
-        metaData.HDSmallIconUrl = GetViewController().getThemeImageUrl("SeriesRecording.png")
-        metaData.SDSmallIconUrl = GetViewController().getThemeImageUrl("SeriesRecording.png")
-    else if i.TimerId <> invalid And i.TimerId <> ""
-        metaData.HDSmallIconUrl = GetViewController().getThemeImageUrl("Recording.png")
-        metaData.SDSmallIconUrl = GetViewController().getThemeImageUrl("Recording.png")
-    end if
-   
-    if i.IsSeries = true Or i.IsSports = true
-        sizes = GetImageSizes("two-row-flat-landscape-custom")
-    else
-        sizes = GetImageSizes("mixed-aspect-ratio-portrait")
-    end if
-        
-    if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
-        imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
-
-        metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, i.UserData.Played, 0)
-        metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, i.UserData.Played, 0)
-
-    else 
-        if i.IsSeries = true Or i.IsSports = true
-            metaData.HDPosterUrl = GetViewController().getThemeImageUrl("hd-landscape.jpg")
-            metaData.SDPosterUrl = GetViewController().getThemeImageUrl("sd-landscape.jpg")
-        else
-            metaData.HDPosterUrl = GetViewController().getThemeImageUrl("hd-poster.jpg")
-            metaData.SDPosterUrl = GetViewController().getThemeImageUrl("sd-poster.jpg")
-        end if
-
-    end if
-	
-    FillUserDataFromItem(metaData, i)
-	FillActorsFromItem(metaData, i)
-	FillCategoriesFromGenres(metaData, i)
-
-	addVideoDisplayInfo(metaData, i)
-
-    return metaData
-
-End Function
-
 Function getCurrentLiveTvPrograms() As Object
     ' URL
     url = GetServerBaseUrl() + "/LiveTv/Programs/Recommended"
@@ -179,7 +81,7 @@ Function getCurrentLiveTvPrograms() As Object
         totalRecordCount = jsonObj.TotalRecordCount
 
         for each i in jsonObj.Items
-            metaData = getMetadataFromLiveTvProgramItem(i)
+            metaData = getMetadataFromServerItem(i, 0, "two-row-flat-landscape-custom", "autosize")
 
             contentList.push( metaData )
         end for
@@ -220,7 +122,7 @@ Function getLiveTvProgramMetadata(programId As String) As Object
         fixedResponse = normalizeJson(response)
         i = ParseJSON(fixedResponse)
 
-        return getMetadataFromLiveTvProgramItem(i)
+        return getMetadataFromServerItem(i, 0, "two-row-flat-landscape-custom", "autosize")
 
     end if
 
@@ -269,7 +171,7 @@ Function getLiveTvPrograms(channelId As String, filters = invalid As Object) As 
         totalRecordCount  = jsonObj.TotalRecordCount
 
         for each i in jsonObj.Items
-            metaData = getMetadataFromLiveTvProgramItem(i)
+            metaData = getMetadataFromServerItem(i, 0, "two-row-flat-landscape-custom", "autosize")
 
             contentList.push( metaData )
         end for
@@ -465,16 +367,4 @@ Function parseLiveTvChannelsResult(response) As Object
     end if
 
     return invalid
-End Function
-
-'**********************************************************
-'** getProgramDisplayTime
-'**********************************************************
-
-Function getProgramDisplayTime(dateString As String) As String
-
-    dateTime = CreateObject("roDateTime")
-    dateTime.FromISO8601String(dateString)
-    return GetTimeString(dateTime, true)
-	
 End Function
