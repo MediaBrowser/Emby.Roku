@@ -205,7 +205,7 @@ Sub loaderOnUrlEvent(msg, requestContext)
 			return
 		end if
 
-		container = handler.parsePagedResult(requestContext.row, msg.GetString())
+		container = handler.parsePagedResult(requestContext.row, status.key, msg.GetString())
 	end if
 
     totalSize = container.TotalCount

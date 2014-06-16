@@ -128,7 +128,7 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseMovieLibraryScreenResult(row as Integer, json as String) as Object
+Function parseMovieLibraryScreenResult(row as Integer, id as string, json as String) as Object
 
 	imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 	primaryImageStyle = "mixed-aspect-ratio-portrait"
@@ -224,7 +224,7 @@ Function getMovieAlphabetScreenUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseMovieAlphabetScreenResult(row as Integer, json as String) as Object
+Function parseMovieAlphabetScreenResult(row as Integer, id as string, json as String) as Object
 
 	imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
@@ -288,7 +288,7 @@ Function getMovieGenreScreenUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseMovieGenreScreenResult(row as Integer, json as String) as Object
+Function parseMovieGenreScreenResult(row as Integer, id as string, json as String) as Object
 
 	imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 

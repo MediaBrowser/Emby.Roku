@@ -27,7 +27,7 @@ Function getLiveTvChannelsScreenUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseLiveTvChannelsScreenResult(row as Integer, json as String) as Object
+Function parseLiveTvChannelsScreenResult(row as Integer, id as string, json as String) as Object
 
     return parseLiveTvChannelsResult(json)
 
@@ -133,7 +133,7 @@ Function getLiveTvRecordingGroupsScreenUrl(row as Integer, id as String) as Stri
 
 End Function
 
-Function parseLiveTvRecordingGroupsScreenResult(row as Integer, json as String) as Object
+Function parseLiveTvRecordingGroupsScreenResult(row as Integer, id as string, json as String) as Object
 
     return parseLiveTvRecordingsResponse(json, "recordinggroup")
 
@@ -190,7 +190,7 @@ Function getLiveTvRecordingsScreenUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseLiveTvRecordingsScreenResult(row as Integer, json as String) as Object
+Function parseLiveTvRecordingsScreenResult(row as Integer, id as string, json as String) as Object
 
 	if row = 0 then
 

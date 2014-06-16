@@ -126,7 +126,7 @@ Function getFolderItemsUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseFolderItemsResult(row as Integer, json as String) as Object
+Function parseFolderItemsResult(row as Integer, id as string, json as String) as Object
 
 	imageType      = (firstOf(RegUserRead("foldersImageType"), "0")).ToInt()
 	

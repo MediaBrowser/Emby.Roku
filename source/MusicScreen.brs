@@ -78,7 +78,7 @@ Function getMusicLibraryRowScreenUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseMusicLibraryScreenResult(row as Integer, json as String) as Object
+Function parseMusicLibraryScreenResult(row as Integer, id as string, json as String) as Object
 
 	imageType      = 1
 	primaryImageStyle = "two-row-flat-landscape-custom"

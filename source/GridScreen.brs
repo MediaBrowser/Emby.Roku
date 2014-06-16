@@ -59,16 +59,9 @@ Function CreateGridScreen(viewController as Object, style As String) As Object
 
     screen.OnDataLoaded = gridOnDataLoaded
 
-    screen.AddRow                = AddGridRow
-    screen.ShowNames             = ShowGridNames
-    screen.AddRowContent         = AddGridRowContent
-    screen.UpdateRowContent      = UpdateGridRowContent
     screen.SetDescriptionVisible = ShowGridDescriptionBox
     screen.SetFocusedListItem    = SetGridFocusedItem
     screen.Close                 = CloseGridScreen
-
-    screen.rowNames              = []
-    screen.rowContent            = []
 
     return screen
 
@@ -98,12 +91,7 @@ Function gridHandleMessage(msg) As Boolean
         handled = true
         if msg.isListItemSelected() then
 
-			' TODO: Remove this check once all screens have loaders
-			if m.Loader <> invalid then
-				context = m.contentArray[msg.GetIndex()]
-			else
-				context = m.rowContent[msg.GetIndex()]
-			end if
+			context = m.contentArray[msg.GetIndex()]
             
             index = msg.GetData()
 
@@ -115,12 +103,7 @@ Function gridHandleMessage(msg) As Boolean
                     breadcrumbs = [item.Title]
                 else
 
-					' TODO: Remove this check once all screens have loaders
-					if m.Loader <> invalid then
-						breadcrumbs = [m.Loader.GetNames()[msg.GetIndex()], item.Title]
-					else
-						breadcrumbs = [m.rowNames[msg.GetIndex()], item.Title]
-					end if
+					breadcrumbs = [m.Loader.GetNames()[msg.GetIndex()], item.Title]
                 end if
 
                 m.Facade = CreateObject("roGridScreen")
@@ -162,7 +145,7 @@ Function gridHandleMessage(msg) As Boolean
 
             if msg.GetIndex() = 13 then
                 Debug("Playing item directly from grid")
-                context = m.rowContent[m.selectedRow]
+                context = m.contentArray[m.selectedRow]
                 m.ViewController.CreatePlayerForItem(context, m.focusedIndex)
 
             end if
@@ -399,67 +382,6 @@ Sub gridOnTimerExpired(timer)
         m.Activate(invalid)
     end if
 End Sub
-
-
-'**********************************************************
-'** Add Grid Row Titles
-'**********************************************************
-
-Function AddGridRow(title As String, rowStyle As String) As Boolean
-
-    m.rowNames.push(title)
-
-    Return true
-End Function
-
-
-'**********************************************************
-'** Show Grid Row Titles
-'**********************************************************
-
-Function ShowGridNames()
-    m.screen.SetupLists(m.rowNames.Count())
-    m.screen.SetListNames(m.rowNames)
-End Function
-
-
-'**********************************************************
-'** Add Grid Row Content (Hide if no content)
-'**********************************************************
-
-Function AddGridRowContent(rowData) As Boolean
-    if rowData = invalid then rowData = []
-
-    m.rowContent.push(rowData)
-
-    rowIndex = m.rowContent.Count() - 1
-
-    m.screen.SetContentList(rowIndex, rowData)
-
-    if rowData.Count() = 0 then
-        m.screen.SetListVisible(rowIndex, false)
-    end if
-
-    return true
-End Function
-
-
-'**********************************************************
-'** Update Grid Row Content (Hide if no content)
-'**********************************************************
-
-Function UpdateGridRowContent(rowIndex As Integer, rowData As Object) As Boolean
-
-    m.rowContent[rowIndex] = rowData
-
-    m.screen.SetContentList(rowIndex, rowData)
-
-    If rowData.Count() = 0 Then
-        m.screen.SetListVisible(rowIndex, false)
-    End If
-
-    Return true
-End Function
 
 '**********************************************************
 '** Show Grid Description Box
