@@ -2,55 +2,6 @@
 '**  Media Browser Roku Client - TV Metadata
 '*****************************************************************
 
-
-'**********************************************************
-'** Get All TV Shows
-'**********************************************************
-
-Function getTvShowList(offset = invalid As Dynamic, limit = invalid As Dynamic, filters = invalid As Object) As Object
-
-    ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
-
-    ' Query
-    query = {
-        recursive: "true"
-        IncludeItemTypes: "Series"
-        fields: "Overview,PrimaryImageAspectRatio"
-        sortby: "SortName"
-        sortorder: "Ascending"
-    }
-
-    ' Filter/Sort Query
-    if filters <> invalid
-        query = AddToQuery(query, filters)
-    end if
-
-    ' Paging
-    if limit <> invalid And offset <> invalid
-        query.AddReplace("startindex", itostr(offset))
-        query.AddReplace("limit", itostr(limit))
-    end if    
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-    request.BuildQuery(query)
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-
-		imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
-
-        return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
-    end if
-
-    return invalid
-End Function
-
-
 '**********************************************************
 '** Get TV Seasons for Show
 '**********************************************************
@@ -108,54 +59,6 @@ Function getTvSeasons(seriesId As String) As Object
         end for
         
         return [listIds, listNames, listNumbers]
-    end if
-
-    return invalid
-End Function
-
-
-'**********************************************************
-'** Get TV Shows in a Genre
-'**********************************************************
-
-Function getTvGenreShowList(genreName As String, offset = invalid As Dynamic, limit = invalid As Dynamic, searchPage = false) As Object
-    ' Validate Parameter
-    if validateParam(genreName, "roString", "GetTvGenreShowList") = false return invalid
-
-    ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
-
-    ' Query
-    query = {
-        genres: genreName
-        recursive: "true"
-        includeitemtypes: "Series"
-        fields: "PrimaryImageAspectRatio,Overview"
-        sortby: "SortName"
-        sortorder: "Ascending"
-    }
-
-    ' Paging
-    if limit <> invalid And offset <> invalid
-        query.AddReplace("StartIndex", itostr(offset))
-        query.AddReplace("Limit", itostr(limit))
-    end if    
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-    request.BuildQuery(query)
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-
-		imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
-
-		if searchPage = true then imageType = 1
-
-        return parseItemsResponse(response, imageType, "mixed-aspect-ratio-portrait")
     end if
 
     return invalid
