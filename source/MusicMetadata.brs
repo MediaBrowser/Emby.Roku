@@ -270,38 +270,3 @@ Function musicmetadata_album_songs(albumId As String) As Object
 
     return invalid
 End Function
-
-
-'**********************************************************
-'** Get Latest Albums
-'**********************************************************
-
-Function getMusicLatest() As Object
-    ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items"
-
-    ' Query
-    query = {
-        limit: "20"
-        recursive: "true"
-        includeitemtypes: "MusicAlbum"
-        fields: "PrimaryImageAspectRatio"
-        sortby: "DateCreated"
-        sortorder: "Descending"
-    }
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-    request.BuildQuery(query)
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-        return parseItemsResponse(response, 0, "mixed-aspect-ratio-square")
-    end if
-	
-	Debug ("Error getting latest music")
-    return invalid
-End Function

@@ -246,7 +246,7 @@ Function getSearchResultRowUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseSearchResultScreenResult(row as Integer, json as String) as Object
+Function parseSearchResultScreenResult(row as Integer, id as string, startIndex as Integer, json as String) as Object
 
 	imageType      = 0
 	primaryImageStyle = "mixed-aspect-ratio-portrait"
@@ -327,7 +327,7 @@ Function getGenreRowScreenUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseGenreScreenResult(row as Integer, json as String) as Object
+Function parseGenreScreenResult(row as Integer, id as string, startIndex as Integer, json as String) as Object
 
 	imageType      = 0
 	primaryImageStyle = "mixed-aspect-ratio-portrait"

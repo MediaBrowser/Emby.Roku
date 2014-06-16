@@ -141,7 +141,7 @@ Function getTvLibraryRowScreenUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseTvLibraryScreenResult(row as Integer, id as string, json as String) as Object
+Function parseTvLibraryScreenResult(row as Integer, id as string, startIndex as Integer, json as String) as Object
 
 	imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
 	primaryImageStyle = "mixed-aspect-ratio-portrait"
@@ -189,7 +189,7 @@ End Function
 '**********************************************************
 '** parseTvEpisodesResponse
 '**********************************************************
-Function parseTvEpisodesResponse(row as Integer, id as string, json as String) As Object
+Function parseTvEpisodesResponse(row as Integer, id as string, startIndex as Integer, json as String) as Object
 
 	return parseItemsResponse(json, 0, "flat-episodic-16x9", "episodedetails")
 
@@ -302,7 +302,7 @@ Function getTvGenreScreenUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseTvGenreScreenResult(row as Integer, id as string, json as String) as Object
+Function parseTvGenreScreenResult(row as Integer, id as string, startIndex as Integer, json as String) as Object
 
 	imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
 
@@ -374,7 +374,7 @@ Function getTvAlphabetScreenUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseTvAlphabetScreenResult(row as Integer, id as string, json as String) as Object
+Function parseTvAlphabetScreenResult(row as Integer, id as string, startIndex as Integer, json as String) as Object
 
 	imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
 

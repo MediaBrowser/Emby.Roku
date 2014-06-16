@@ -77,7 +77,15 @@ Function getHomeScreenLocalData(row as Integer, id as String, startItem as Integ
 	else if id = "tv" 
 		return GetTVButtons(viewController)
 	else if id = "music" 
-		return GetMusicButtons(viewController)
+	
+		musicToggle  = (firstOf(RegUserRead("musicToggle"), "1")).ToInt()
+
+		if musicToggle <> 1 then
+		
+			' 1 is Latest and will be background loaded from the server
+			return GetMusicButtons(viewController, musicToggle)
+		end if
+		
 	else if id = "livetv" 
 		return GetLiveTVButtons(viewController)
 	end If
@@ -101,6 +109,23 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 	
 		url = url  + "/Channels?userid=" + HttpEncode(getGlobalVar("user").Id)
 
+	else if id = "music"
+	
+		musicToggle  = (firstOf(RegUserRead("musicToggle"), "1")).ToInt()
+
+		' Latest
+		if musicToggle = 1 then
+			
+			url = url + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?includeitemtypes=MusicAlbum"		
+			query = {
+				recursive: "true"
+				fields: "PrimaryImageAspectRatio"
+				sortby: "DateCreated"
+				sortorder: "Descending"
+			}
+			
+		end if		
+		
 	end If
 
 	for each key in query
@@ -111,12 +136,30 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 
 End Function
 
-Function parseHomeScreenResult(row as Integer, id as string, json as String) as Object
+Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integer, json as String) as Object
 
+	viewController = GetViewController()
+	maxListSize = 30
+	
 	if id = "folders" then
 		return parseItemsResponse(json, 0, "two-row-flat-landscape-custom")
 	else if id = "channels" then
 		return parseItemsResponse(json, 1, "two-row-flat-landscape-custom")
+		
+	else if id = "music" then
+	
+		response = parseItemsResponse(json, 0, "mixed-aspect-ratio-square")
+		
+		' Only insert buttons if startIndex = 0
+		if startIndex = 0 then
+			musicToggle  = (firstOf(RegUserRead("musicToggle"), "1")).ToInt()		
+			buttons = GetBaseMusicButtons(viewController, musicToggle)
+			buttons.Append(response.Items)		
+			response.Items = buttons
+		end if
+		
+		if response.TotalCount > maxListSize response.TotalCount = maxListSize	
+		return response
 		
 	end if
 
@@ -609,7 +652,7 @@ End Function
 '** GetMusicButtons
 '**********************************************************
 
-Function GetMusicButtons(viewController as Object) As Object
+Function GetBaseMusicButtons(viewController as Object, musicToggle as Integer) As Object
 
     buttons = [
         {
@@ -621,46 +664,50 @@ Function GetMusicButtons(viewController as Object) As Object
         }
     ]
 
-    switchButton = [
-        {
+	switchButton = {
             ContentType: "MusicToggle"
         }
-    ]
-	
-	musicToggle  = (firstOf(RegUserRead("musicToggle"), "1")).ToInt()
 
     ' Latest
     if musicToggle = 1 then
-        switchButton[0].HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-7.jpg")
-        switchButton[0].SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-7.jpg")
-
-        buttons.Append( switchButton )
-
-        latestMusic = getMusicLatest()
-        if latestMusic <> invalid
-            buttons.Append( latestMusic.Items )
-        end if
+	
+        switchButton.HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-7.jpg")
+        switchButton.SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-7.jpg")
 
     ' Jump In Album
     else if musicToggle = 2 then
-        switchButton[0].HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-8.jpg")
-        switchButton[0].SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-8.jpg")
+	
+        switchButton.HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-8.jpg")
+        switchButton.SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-8.jpg")
 
-        buttons.Append( switchButton )
+    ' Jump In Artist
+    else if musicToggle = 3 then
+        switchButton.HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-9.jpg")
+        switchButton.SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-9.jpg")
 
-        alphaMusicAlbum = getAlphabetList("MusicAlbumAlphabet")
+    end if
+
+    buttons.Push( switchButton )
+	
+	return buttons
+End Function
+
+Function GetMusicButtons(viewController as Object, musicToggle as Integer) As Object
+
+	buttons = GetBaseMusicButtons(viewController, musicToggle)
+
+    ' Jump In Album
+    if musicToggle = 2 then
+        
+		alphaMusicAlbum = getAlphabetList("MusicAlbumAlphabet")
         if alphaMusicAlbum <> invalid
             buttons.Append( alphaMusicAlbum.Items )
         end if
 
     ' Jump In Artist
     else if musicToggle = 3 then
-        switchButton[0].HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-9.jpg")
-        switchButton[0].SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-9.jpg")
-
-        buttons.Append( switchButton )
-
-        alphaMusicArtist = getAlphabetList("MusicArtistAlphabet")
+        
+		alphaMusicArtist = getAlphabetList("MusicArtistAlphabet")
         if alphaMusicArtist <> invalid
             buttons.Append( alphaMusicArtist.Items )
         end if

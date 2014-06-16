@@ -68,7 +68,7 @@ Function CreateGridScreen(viewController as Object, style As String) As Object
 End Function
 
 '* Convenience method to create a grid screen with a loader for the specified item
-Function createPaginatedGridScreen(viewController as Object, names as Object, keys as Object, dataLoaderHttpHandler as Object, style As String, pageSize = 75) As Object
+Function createPaginatedGridScreen(viewController as Object, names as Object, keys as Object, dataLoaderHttpHandler as Object, style As String, initialCount = 8, pageSize = 75) As Object
 
     obj = createGridScreen(viewController, style)
 
@@ -76,7 +76,7 @@ Function createPaginatedGridScreen(viewController as Object, names as Object, ke
 	container.names = names
 	container.keys = keys
 
-    obj.Loader = createPaginatedLoader(container, dataLoaderHttpHandler, 8, pageSize)
+    obj.Loader = createPaginatedLoader(container, dataLoaderHttpHandler, initialCount, pageSize)
     obj.Loader.Listener = obj
 
     return obj
