@@ -181,7 +181,8 @@ Function handleHomeScreenMessage(msg) as Boolean
 
         if msg.isListItemSelected() Then
 			
-			context = m.contentArray[msg.GetIndex()]           
+			rowIndex = msg.GetIndex()
+			context = m.contentArray[rowIndex]           
             index = msg.GetData()
             item = context[index]
 
@@ -191,33 +192,33 @@ Function handleHomeScreenMessage(msg) as Boolean
 
 				handled = true
                 GetNextMovieToggle()
-                m.loader.RefreshData()
+                m.loader.RefreshRow(rowIndex)
 
             Else If item.ContentType = "MovieRefreshSuggested" Then
 				
                 handled = true
-                m.loader.RefreshData()
+                m.loader.RefreshRow(rowIndex)
 
             Else If item.ContentType = "TVToggle" Then
 				
                 handled = true
 
                 GetNextTVToggle()
-                m.loader.RefreshData()
+                m.loader.RefreshRow(rowIndex)
 
             Else If item.ContentType = "LiveTVToggle" Then
 				
                 handled = true
 
                 GetNextLiveTVToggle()
-                m.loader.RefreshData()
+                m.loader.RefreshRow(rowIndex)
 
             Else If item.ContentType = "MusicToggle" Then
 				
                 handled = true
 
                 GetNextMusicToggle()
-                m.loader.RefreshData()
+                m.loader.RefreshRow(rowIndex)
 
             End If
 				

@@ -58,6 +58,7 @@ Function createPaginatedLoader(container, httpHandler, initialLoadSize, pageSize
     loader.LoadMoreContent = loaderLoadMoreContent
     loader.GetLoadStatus = loaderGetLoadStatus
     loader.RefreshData = loaderRefreshData
+    loader.RefreshRow = loaderRefreshRow
     loader.StartRequest = loaderStartRequest
     loader.OnUrlEvent = loaderOnUrlEvent
     loader.GetPendingRequestCount = loaderGetPendingRequestCount
@@ -125,6 +126,15 @@ Sub loaderRefreshData()
     for row = 0 to m.contentArray.Count() - 1
         status = m.contentArray[row]
         if status.key <> invalid AND status.loadStatus <> 0 then
+            m.StartRequest(row, 0, m.pageSize)
+        end if
+    next
+End Sub
+
+Sub loaderRefreshRow(index as Integer)
+    for row = 0 to m.contentArray.Count() - 1
+        status = m.contentArray[row]
+        if index = row and status.key <> invalid AND status.loadStatus <> 0 then
             m.StartRequest(row, 0, m.pageSize)
         end if
     next
