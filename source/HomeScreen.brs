@@ -73,7 +73,15 @@ Function getHomeScreenLocalData(row as Integer, id as String, startItem as Integ
 	if id = "options" then
 		return GetOptionButtons(viewController)
 	else if id = "movies" 
-		return GetMovieButtons(viewController)
+	
+		movieToggle  = (firstOf(RegUserRead("movieToggle"), "2")).ToInt()
+		
+		' Jump list
+		if movieToggle = 3 then
+		
+			return GetMovieButtons(viewController, movieToggle)
+		end if
+		
 	else if id = "tv" 
 	
 		tvToggle  = (firstOf(RegUserRead("tvToggle"), "1")).ToInt()
@@ -117,6 +125,72 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 	
 		url = url  + "/Channels?userid=" + HttpEncode(getGlobalVar("user").Id)
 
+	else if id = "movies"
+	
+		movieToggle  = (firstOf(RegUserRead("movieToggle"), "1")).ToInt()
+
+		' Next Up
+		if movieToggle = 1 then
+			
+			url = url + "/Movies/Recommendations?userId=" + HttpEncode(getGlobalVar("user").Id)
+			
+			query = {
+				ItemLimit: "20"
+				CategoryLimit: "1"
+				fields: "PrimaryImageAspectRatio"
+			}
+			
+		' Latest
+		else if movieToggle = 2 then
+			
+			url = url + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Movie"
+			query = {
+				recursive: "true"
+				ExcludeLocationTypes: "Virtual"
+				fields: "PrimaryImageAspectRatio"
+				sortby: "DateCreated"
+				sortorder: "Descending"
+				filters: "IsUnplayed"
+			}
+			
+		' Resume
+		else if movieToggle = 4 then
+			
+			url = url + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?includeitemtypes=Movie"
+			query = {
+				recursive: "true"
+				fields: "PrimaryImageAspectRatio"
+				sortby: "DatePlayed"
+				sortorder: "Descending"
+				filters: "IsResumable"
+			}
+			
+		' Favorites
+		else if movieToggle = 5 then
+			
+			url = url + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?includeitemtypes=Movie"
+			query = {
+				recursive: "true"
+				fields: "PrimaryImageAspectRatio"
+				sortby: "SortName"
+				sortorder: "Ascending"
+				filters: "IsFavorite"
+			}
+			
+		' Genres
+		else if movieToggle = 6 then
+			
+			url = url + "/Genres?Recursive=true"
+			query = {
+				userid: getGlobalVar("user").Id
+				includeitemtypes: "Movie"
+				fields: "PrimaryImageAspectRatio"
+				sortby: "SortName"
+				sortorder: "Ascending"
+			}
+			
+		end if		
+		
 	else if id = "tv"
 	
 		tvToggle  = (firstOf(RegUserRead("tvToggle"), "1")).ToInt()
@@ -217,6 +291,30 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 		return parseItemsResponse(json, 0, "two-row-flat-landscape-custom")
 	else if id = "channels" then
 		return parseItemsResponse(json, 1, "two-row-flat-landscape-custom")
+		
+	else if id = "movies" then
+	
+		movieToggle  = (firstOf(RegUserRead("movieToggle"), "1")).ToInt()		
+		
+		if movieToggle = 1 then
+			response = parseSuggestedMoviesResponse(json)
+		else if movieToggle = 6 then
+			response = parseItemsResponse(json, 1, "mixed-aspect-ratio-portrait", "moviegenre")
+		else
+			response = parseItemsResponse(json, 1, "two-row-flat-landscape-custom")
+		end if
+		
+		buttons = GetBaseMovieButtons(viewController, movieToggle, response)
+		
+		' Only insert buttons if startIndex = 0
+		if startIndex = 0 then						
+			buttons.Append(response.Items)		
+			response.Items = buttons
+		end if
+		
+		if response.TotalCount > maxListSize response.TotalCount = maxListSize	
+		response.TotalCount = response.TotalCount + buttons.Count()
+		return response
 		
 	else if id = "tv" then
 	
@@ -393,9 +491,9 @@ End Function
 '** Get GetMovieButtons
 '**********************************************************
 
-Function GetMovieButtons(viewController as Object) As Object
+Function GetBaseMovieButtons(viewController as Object, movieToggle as Integer, movieResponse = invalid) As Object
 
-    buttons = [
+	buttons = [
         {
             Title: "Movie Library"
             ContentType: "MovieLibrary"
@@ -410,93 +508,70 @@ Function GetMovieButtons(viewController as Object) As Object
             ContentType: "MovieToggle"
         }
     ]
-	
-	movieToggle  = (firstOf(RegUserRead("movieToggle"), "2")).ToInt()
 
     if movieToggle = 1 then
 	
         switchButton[0].HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-1.jpg")
         switchButton[0].SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-1.jpg")
-
         buttons.Append( switchButton )
 
-        suggestedMovies = getSuggestedMovies()
-		
-        if suggestedMovies <> invalid
-
-            suggestedButton = [
+        suggestedButton = [
                 {
                     ContentType: "MovieRefreshSuggested"
                     ShortDescriptionLine1: "Similar To"
-                    ShortDescriptionLine2: suggestedMovies.BaselineItemName
+                    ShortDescriptionLine2: movieResponse.BaselineItemName
                     HDPosterUrl: viewController.getThemeImageUrl("hd-similar-to.jpg")
                     SDPosterUrl: viewController.getThemeImageUrl("hd-similar-to.jpg")
                 }
             ]
 
-            buttons.Append( suggestedButton )
-            buttons.Append( suggestedMovies.Items )
-        end if
+        buttons.Append( suggestedButton )
 
     else if movieToggle = 2 then
 	
         switchButton[0].HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-2.jpg")
         switchButton[0].SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-2.jpg")
-
-        buttons.Append( switchButton )
-
-        recentMovies = getMovieLatest()
-		
-        if recentMovies <> invalid
-            buttons.Append( recentMovies.Items )
-        end if
+		buttons.Append( switchButton )
 
     else if movieToggle = 3 then
 	
         switchButton[0].HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-3.jpg")
         switchButton[0].SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-3.jpg")
-
-        buttons.Append( switchButton )
-
-        alphaMovies = getAlphabetList("MovieAlphabet")
-        if alphaMovies <> invalid
-            buttons.Append( alphaMovies.Items )
-        end if
+		buttons.Append( switchButton )
 
     else if movieToggle = 4 then
 	
         switchButton[0].HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-4.jpg")
         switchButton[0].SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-4.jpg")
-
-        buttons.Append( switchButton )
-
-        resumeMovies = getMovieResumable()
-        if resumeMovies <> invalid
-            buttons.Append( resumeMovies.Items )
-        end if
+		buttons.Append( switchButton )
 
     else if movieToggle = 5 then
 	
         switchButton[0].HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-5.jpg")
         switchButton[0].SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-5.jpg")
-
-        buttons.Append( switchButton )
-
-        favoriteMovies = getMovieFavorites()
-        if favoriteMovies <> invalid
-            buttons.Append( favoriteMovies.Items )
-        end if
+		buttons.Append( switchButton )
 
     else if movieToggle = 6 then
 	
         switchButton[0].HDPosterUrl = viewController.getThemeImageUrl("hd-toggle-6.jpg")
         switchButton[0].SDPosterUrl = viewController.getThemeImageUrl("hd-toggle-6.jpg")
+		buttons.Append( switchButton )
 
-        buttons.Append( switchButton )
+    end if
+	
+	return buttons
+    
+End Function
 
-        genresMovies = getMovieGenres(invalid, invalid, true)
-        if genresMovies <> invalid
-            buttons.Append( genresMovies.Items )
+Function GetMovieButtons(viewController as Object, movieToggle as Integer) As Object
+
+    buttons = GetBaseMovieButtons(viewController, movieToggle)
+
+    if movieToggle = 3 then
+	
+        alphaMovies = getAlphabetList("MovieAlphabet")
+        if alphaMovies <> invalid
+            buttons.Append( alphaMovies.Items )
         end if
 
     end if
