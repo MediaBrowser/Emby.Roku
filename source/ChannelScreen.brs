@@ -19,7 +19,7 @@ Function createChannelScreen(viewController as Object, item As Object) As Object
 
 End Function
 
-Function parseChannelScreenResult(row as Integer, id as string, json as String) as Object
+Function parseChannelScreenResult(row as Integer, id as string, startIndex as Integer, json as String) as Object
 
     return parseItemsResponse(json, 0, "mixed-aspect-ratio-portrait", "autosize")
 

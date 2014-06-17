@@ -48,26 +48,9 @@ Function getLiveTvChannel(id as String) As Object
     return invalid
 End Function
 
-Function getCurrentLiveTvPrograms() As Object
-    ' URL
-    url = GetServerBaseUrl() + "/LiveTv/Programs/Recommended"
-
-    ' Query
-    query = {
-        UserId: getGlobalVar("user").Id
-        limit: "30"
-        IsAiring: "true"
-    }
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-    request.BuildQuery(query)
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
+Function parseLiveTvProgramsResponse(response) As Object
+    
+	if response <> invalid
 
         contentList = CreateObject("roArray", 10, true)
         fixedResponse = normalizeJson(response)
@@ -157,66 +140,7 @@ Function getLiveTvPrograms(channelId As String, filters = invalid As Object) As 
 
     ' Execute Request
     response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-
-        contentList = CreateObject("roArray", 25, true)
-		
-		fixedResponse = normalizeJson(response)
-        jsonObj     = ParseJSON(fixedResponse)
-
-        if jsonObj = invalid
-            return invalid
-        end if
-
-        totalRecordCount  = jsonObj.TotalRecordCount
-
-        for each i in jsonObj.Items
-            metaData = getMetadataFromServerItem(i, 0, "two-row-flat-landscape-custom", "autosize")
-
-            contentList.push( metaData )
-        end for
-
-        return {
-            Items: contentList
-            TotalCount: totalRecordCount
-        }
-
-	end if
-
-    return invalid
-End Function
-
-'**********************************************************
-'** getLiveTvRecordings
-'**********************************************************
-
-Function getLiveTvRecordings() As Object
-
-    ' URL
-    url = GetServerBaseUrl() + "/LiveTv/Recordings"
-
-    ' Query
-    query = {
-        UserId: getGlobalVar("user").Id
-        IsInProgress: "false"
-    }
-
-    query.AddReplace("Limit", "20")
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-    request.BuildQuery(query)
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-
-        return parseLiveTvRecordingsResponse(response)
-    end if
-
-    return invalid
+    return parseLiveTvProgramsResponse(response)
 End Function
 
 Function parseLiveTvRecordingsResponse(response, mode = "") As Object
