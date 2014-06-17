@@ -72,6 +72,7 @@ Function getHomeScreenLocalData(row as Integer, id as String, startItem as Integ
 	
 	if id = "options" then
 		return GetOptionButtons(viewController)
+		
 	else if id = "movies" 
 	
 		movieToggle  = (firstOf(RegUserRead("movieToggle"), "2")).ToInt()
@@ -373,6 +374,13 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 		return response
 		
 	else if id = "livetv" then
+	
+		if isLiveTvEnabled() <> true then
+			Return {
+				Items: []
+				TotalCount: 0
+			}
+		end if    
 	
 		liveTvToggle = (firstOf(RegUserRead("liveTvToggle"), "1")).ToInt()
 		
@@ -764,10 +772,6 @@ End Function
 
 Function GetBaseLiveTVButtons(viewController as Object, liveTvToggle as Integer) As Object
 
-	if isLiveTvEnabled() <> true then
-		Return []
-	end if    
-	
 	buttons = [
         {
             Title: "Channels"
