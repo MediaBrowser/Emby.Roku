@@ -55,7 +55,8 @@ Function handlePreferencesScreenMessage(msg) as Boolean
 					GetPreferenceRememberUser,
 					GetPreferenceEnhancedImages,
 					GetPreferenceMediaIndicators,
-					GetPreferenceServerUpdates
+					GetPreferenceServerUpdates,
+                    GetPreferenceTimeFormat
 				]
 
 				if (prefType = "custom") then
@@ -343,6 +344,16 @@ Function GetPreferenceList() as Object
             ShortDescriptionLine1: "Check for Media Browser Server updates on start up.",
             HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-preferences-lg.png"),
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
+        },
+        {
+            Title: "Select Time Format: " + GetSelectedPreference(GetPreferenceTimeFormat(), RegRead("prefTimeFormat")),
+            ShortTitle: "Select Time Format",
+            ID: "prefTimeFormat",
+            ContentType: "pref",
+            PrefType: "list",
+            ShortDescriptionLine1: "Choose between 24h or 12h time format.",
+            HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-preferences-lg.png"),
+            SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
         }
     ]
 
@@ -554,6 +565,23 @@ Function GetPreferenceServerUpdates() as Object
             Title: "Yes [default]",
             Id: "yes",
             IsDefault: true
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceTimeFormat() as Object
+    prefOptions = [
+        {
+            Title: "12h [default]",
+            Id: "12h",
+            IsDefault: true
+        },
+        {
+            Title: "24h",
+            Id: "24h",
+            IsDefault: false
         }
     ]
 
