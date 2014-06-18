@@ -11,12 +11,20 @@ Function parseSuggestedMoviesResponse(response) As Object
         result     = ParseJSON(fixedResponse)
 
         if result = invalid
-            Debug("Error while parsing JSON response for Recently Added Movies")
+            Debug("Error in parseSuggestedMoviesResponse")
             return invalid
         end if
 
         ' Only Grab 1 Category
         category = result[0]
+		
+		' Results are empty
+		if category = invalid then
+            return {
+				Items: contentList
+				TotalCount: contentList.Count()
+			}
+		end if
 
         for each i in category.Items
             metaData = getMetadataFromServerItem(i, 1, "mixed-aspect-ratio-portrait")
