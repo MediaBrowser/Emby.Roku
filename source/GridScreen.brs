@@ -146,7 +146,7 @@ Function gridHandleMessage(msg) As Boolean
             if msg.GetIndex() = 13 then
                 Debug("Playing item directly from grid")
                 context = m.contentArray[m.selectedRow]
-                m.ViewController.CreatePlayerForItem(context, m.focusedIndex)
+                m.ViewController.CreatePlayerForItem(context, m.focusedIndex, {})
 
             end if
 

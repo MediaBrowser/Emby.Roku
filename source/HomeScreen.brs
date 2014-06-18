@@ -314,7 +314,7 @@ End Function
 Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integer, json as String) as Object
 
 	viewController = GetViewController()
-	maxListSize = 100
+	maxListSize = 60
 	
 	if id = "folders" then
 		return parseItemsResponse(json, 0, "two-row-flat-landscape-custom")
@@ -410,6 +410,13 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 	
 		response = parseItemsResponse(json, 0, "mixed-aspect-ratio-square")
 		
+		if response.TotalCount = 0 then
+			Return {
+				Items: []
+				TotalCount: 0
+			}
+		end if    
+	
 		musicToggle  = (firstOf(RegUserRead("musicToggle"), "1")).ToInt()		
 		buttons = GetBaseMusicButtons(viewController, musicToggle)
 		buttonCount = buttons.Count()

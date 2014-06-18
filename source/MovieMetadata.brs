@@ -22,10 +22,6 @@ Function parseSuggestedMoviesResponse(response) As Object
         ' Only Grab 1 Category
         jsonObj = jsonObj[0]
 
-        ' Recommended Because
-        recommendationType = jsonObj.RecommendationType
-        baselineItemName = jsonObj.BaselineItemName
-
         for each i in jsonObj.Items
             metaData = getMetadataFromServerItem(i, 1, "mixed-aspect-ratio-portrait")
 
@@ -34,8 +30,8 @@ Function parseSuggestedMoviesResponse(response) As Object
 
         return {
             Items: contentList
-            RecommendationType: recommendationType
-            BaselineItemName: baselineItemName
+            RecommendationType: jsonObj.RecommendationType
+            BaselineItemName: jsonObj.BaselineItemName
 			TotalCount: contentList.Count()
         }
     end if

@@ -346,12 +346,12 @@ Function GetPreferenceList() as Object
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
         },
         {
-            Title: "Select Time Format: " + GetSelectedPreference(GetPreferenceTimeFormat(), RegRead("prefTimeFormat")),
-            ShortTitle: "Select Time Format",
+            Title: "Time Format: " + GetSelectedPreference(GetPreferenceTimeFormat(), RegRead("prefTimeFormat")),
+            ShortTitle: "Time Format",
             ID: "prefTimeFormat",
             ContentType: "pref",
             PrefType: "list",
-            ShortDescriptionLine1: "Choose between 24h or 12h time format.",
+            ShortDescriptionLine1: "Select 12h or 24h time format.",
             HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-preferences-lg.png"),
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
         }

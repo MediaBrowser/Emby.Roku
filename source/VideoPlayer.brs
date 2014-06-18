@@ -178,6 +178,7 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 	else
 		m.playMethod = "DirectStream"
 		m.canSeek = true
+		videoItem.playstart = playOptions.playstart
 	end if
 
     return player

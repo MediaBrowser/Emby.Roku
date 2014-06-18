@@ -268,7 +268,7 @@ Function posterHandleMessage(msg) As Boolean
 
 				if m.playOnSelection = true then
 
-					m.ViewController.CreatePlayerForItem(content, index)
+					m.ViewController.CreatePlayerForItem(content, index, {})
 
 				else
 					if contentType = "Series" or m.names.Count() = 0 then

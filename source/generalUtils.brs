@@ -191,11 +191,6 @@ End Function
 
 Function CurrentTimeAsString(localized=true As Boolean) As String
 
-    'timeFormat = RegRead("home_clock_display", "preferences", "12h")
-	timeFormat = "12h"
-
-    if timeFormat = "off" then return ""
-
     time = CreateObject("roDateTime")
 
     return GetTimeString(time, localized)
@@ -204,8 +199,7 @@ End Function
 
 Function GetTimeString(time as Object, localized=true As Boolean) As String
 
-    timeFormat = RegRead("prefTimeFormat")
-	'timeFormat = "12h"
+    timeFormat = firstOf(RegRead("prefTimeFormat"), "12h")
 
     if localized then
         time.ToLocalTime()
