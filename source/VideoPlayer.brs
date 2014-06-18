@@ -15,7 +15,7 @@ Function getPlayConfiguration(context, contextIndex, playOptions)
 	initialItem = context[contextIndex]
 	initialItem.PlayOptions = playOptions
 	
-    if playOptions.playstart = 0 and playOptions.intros <> false
+    if playOptions.PlayStart = 0 and playOptions.intros <> false
 
         intros = getVideoIntros(initialItem.Id)
 		'intros = getLocalTrailers(initialItem.Id)
@@ -170,16 +170,16 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
     m.IsTranscoded = videoItem.StreamInfo.IsDirectStream <> true
     m.videoItem = videoItem
 
-	player.SetContent(videoItem)
-
 	if m.IsTranscoded then
 		m.playMethod = "Transcode"
 		m.canSeek = false
 	else
 		m.playMethod = "DirectStream"
 		m.canSeek = true
-		videoItem.playstart = playOptions.playstart
+		videoItem.PlayStart = playOptions.PlayStart
 	end if
+
+	player.SetContent(videoItem)
 
     return player
 End Function
@@ -327,7 +327,7 @@ Sub videoPlayerReportPlayback(action as String)
 	
 	position = m.lastPosition
 	playOptions = m.PlayOptions	
-	if m.IsTranscoded and playOptions.playstart <> invalid then position = position + playOptions.playstart
+	if m.IsTranscoded and playOptions.PlayStart <> invalid then position = position + playOptions.PlayStart
 
 	reportPlayback(m.videoItem.Id, "Video", action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
 End Sub
@@ -358,9 +358,9 @@ Sub videoPlayerSetAudioStreamIndex(index)
 		
 		position = m.lastPosition
 		playOptions = m.PlayOptions	
-		if m.IsTranscoded and playOptions.playstart <> invalid then position = position + playOptions.playstart
+		if m.IsTranscoded and playOptions.PlayStart <> invalid then position = position + playOptions.PlayStart
 
-		item.PlayOptions.playstart = position
+		item.PlayOptions.PlayStart = position
 		
 		m.changeStream = true
         m.Screen.Close()
@@ -375,9 +375,9 @@ Sub videoPlayerSetSubtitleStreamIndex(index)
 		
 		position = m.lastPosition
 		playOptions = m.PlayOptions	
-		if m.IsTranscoded and playOptions.playstart <> invalid then position = position + playOptions.playstart
+		if m.IsTranscoded and playOptions.PlayStart <> invalid then position = position + playOptions.PlayStart
 
-		item.PlayOptions.playstart = position
+		item.PlayOptions.PlayStart = position
 		
 		m.changeStream = true
         m.Screen.Close()

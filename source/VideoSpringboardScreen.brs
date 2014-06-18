@@ -217,7 +217,7 @@ Sub videoActivate(priorScreen)
         if m.ContinuousPlay AND (priorScreen.isPlayed = true) then
             m.GotoNextItem()
 
-			m.PlayOptions.playstart = 0
+			m.PlayOptions.PlayStart = 0
             
 			m.ViewController.CreatePlayerForItem([m.metadata], 0, m.PlayOptions)
         else
@@ -250,7 +250,7 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
 
             if buttonCommand = "play" then
 
-                m.PlayOptions.playstart = 0
+                m.PlayOptions.PlayStart = 0
 				m.ViewController.CreatePlayerForItem([item], 0, m.PlayOptions)
 
                 ' Refresh play data after playing.
@@ -258,7 +258,7 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
 
             else if buttonCommand = "resume" then
 
-				m.PlayOptions.playstart = item.BookmarkPosition
+				m.PlayOptions.PlayStart = item.BookmarkPosition
 				m.ViewController.CreatePlayerForItem([item], 0, m.PlayOptions)
 
                 ' Refresh play data after playing.
@@ -272,7 +272,7 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
 
             else if buttonCommand = "trailer" then
                 options = {
-					playstart: 0
+					PlayStart: 0
 					intros: false
 				}
 				m.ViewController.CreatePlayerForItem(getLocalTrailers(item.Id), 0, options)
@@ -343,7 +343,7 @@ Function handleChaptersScreenMessage(msg) as Boolean
 			startPosition = selected.StartPosition
 
 			playOptions = {
-				playstart: startPosition,
+				PlayStart: startPosition,
 				intros: false
 			}
 

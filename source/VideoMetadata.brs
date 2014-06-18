@@ -158,8 +158,8 @@ Sub addVideoPlaybackInfo(item, options)
 		url = url + "&AudioCodec=" + streamInfo.AudioCodec
 		url = url + "&MaxAudioChannels=" + tostr(streamInfo.MaxAudioChannels)
 
-		if options.playstart <> invalid then
-			url = url + "&StartTimeTicks="+ tostr(options.playstart) + "0000000"
+		if options.PlayStart <> invalid then
+			url = url + "&StartTimeTicks="+ tostr(options.PlayStart) + "0000000"
 		end if
 
 		if streamInfo.AudioStreamIndex <> invalid then
