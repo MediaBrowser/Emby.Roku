@@ -895,7 +895,10 @@ Sub SetAudioStreamProperties(item as Object)
 	
 	item.MediaSourceId = mediaSource.Id
 
-    ' Direct Playback mp3 and wma
+	' Get the version number for checkminimumversion
+	versionArr = getGlobalVar("rokuVersion")
+	
+    ' Direct Playback mp3 and wma(plus flac for firmware 5.3 and above)
     If (container = "mp3") 
         item.Url = GetServerBaseUrl() + "/Audio/" + itemId + "/stream.mp3?static=true"
         item.StreamFormat = "mp3"
@@ -907,7 +910,13 @@ Sub SetAudioStreamProperties(item as Object)
         item.StreamFormat = "wma"
 		item.playMethod = "DirectStream"
 		item.canSeek = true
-    Else
+		
+    Else If (container = "flac") And CheckMinimumVersion(versionArr, [5, 3])
+        item.Url = GetServerBaseUrl() + "/Audio/" + itemId + "/stream.flac?static=true"
+        item.StreamFormat = "flac"
+		item.playMethod = "DirectStream"
+		item.canSeek = true
+	Else
         ' Transcode Play
         item.Url = GetServerBaseUrl() + "/Audio/" + itemId + "/stream.mp3?audioBitrate=128000&deviceId=" + getGlobalVar("rokuUniqueId", "Unknown")
         item.StreamFormat = "mp3"
