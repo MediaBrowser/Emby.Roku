@@ -436,7 +436,7 @@ Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStrea
     end if
 
 	' TODO: Add this information to server output, along with RefFrames
-    if (videoStream <> invalid AND videoStream.IsAnamorphic = true) AND NOT firstOf(GetGlobalAA("playsAnamorphic"), false) then
+    if (videoStream <> invalid AND videoStream.IsAnamorphic = true) AND NOT firstOf(getGlobalVar("playsAnamorphic"), false) then
         Debug("videoCanDirectPlay: anamorphic videos not supported")
         return false
     end if
