@@ -269,6 +269,8 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
     if i.CommunityRating <> invalid
         metaData.StarRating = Int(i.CommunityRating) * 10
     end if
+	
+	metaData.Director = getDirector(i, mode)
 
     ' Set the Play Access
     metaData.PlayAccess = firstOf(i.PlayAccess, "Full")
@@ -880,6 +882,23 @@ Function getDescription(i as Object, mode as String) as String
 
 End Function
 
+function getDirector(i as Object, mode as String) as String
+
+	if i.People <> invalid then
+		for each person in i.People
+			if person.Type = "Director" or person.Role = "Director" then
+				
+				return person.Name
+			end if
+		end for
+	end if
+	
+	directorValue = ""
+	
+	return directorValue
+
+End Function
+
 Sub SetAudioStreamProperties(item as Object)
 
     ' Get Extension
@@ -991,7 +1010,7 @@ Function convertItemPeopleToMetadata(people as Object) as Object
             metaData.SDPosterUrl = GetViewController().getThemeImageUrl("sd-poster.jpg")
 		end If
 
-		if i.Role <> invalid then
+		if i.Role <> invalid and i.Role <> "" then
 			metaData.ShortDescriptionLine2 = "as " + i.Role
 		else if i.Type <> invalid then
 			metaData.ShortDescriptionLine2 = i.Type

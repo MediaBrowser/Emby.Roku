@@ -205,6 +205,7 @@ Function getTvSeasonUrl(row as Integer, seasonId as String) as String
 	userId = getGlobalVar("user").Id
 
 	url = url + "&userId=" + userId
+	url = url + "&fields=PrimaryImageAspectRatio,Overview"
 
 	return url
 
