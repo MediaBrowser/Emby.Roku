@@ -47,8 +47,8 @@ Sub videoSetupButtons()
     m.ClearButtons()
 
 	video = m.metadata
-
-    if (video.LocationType = "filesystem" Or video.LocationType = "remote") And video.PlayAccess = "Full" And video.IsPlaceHolder = false
+	' rewster: The LiveTV buttons were never added as the else if was never hit.
+    if (video.LocationType = "filesystem" Or video.LocationType = "remote") And video.PlayAccess = "Full" And video.IsPlaceHolder = false And video.ContentType <> "Program"
 
 		' This screen is also used for books and games, so don't show a play button
 		if video.MediaType = "Video" then
@@ -109,8 +109,11 @@ Sub videoSetupButtons()
         m.AddButton("Delete", "delete")
     end if
 
-    m.AddButton("More...", "more")
-
+    ' rewster: TV Program recording does not need a more button, and displaying it stops the back button from appearing on programmes that have past
+	if video.ContentType <> "Program"
+		m.AddButton("More...", "more")
+	end if
+	
     if m.buttonCount = 0
 		m.AddButton("Back", "back")
     end if
@@ -299,6 +302,11 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
             else if buttonCommand = "more" then
                 m.ShowMoreDialog(item)
 
+			' rewster: handle the back button
+			else if buttonCommand = "back" then
+				debug("### Handle Back in LiveTV")
+				m.ViewController.PopScreen(m)
+							
             else
                 handled = false
             end if
@@ -731,6 +739,8 @@ Sub springboardCancelTimer (item)
 	if showCancelLiveTvTimerDialog() = "1" then
         cancelLiveTvTimer(item.TimerId)
 	end if
+	' rewster: Did not seem to refreshOnActivate, maybe Roku 3 issue	
+	m.Refresh(true)
 End Sub
 
 Sub springboardRecordProgram(item)
@@ -738,4 +748,6 @@ Sub springboardRecordProgram(item)
 
     timerInfo = getDefaultLiveTvTimer(item.ProgramId)
     createLiveTvTimer(timerInfo)
+	' rewster: Did not seem to refreshOnActivate, maybe Roku 3 issue
+	m.Refresh(true)
 End Sub

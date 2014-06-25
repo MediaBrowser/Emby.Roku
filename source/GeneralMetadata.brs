@@ -240,6 +240,8 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 	metaData.StartDate = i.StartDate
 	metaData.EndDate = i.EndDate
 	metaData.TimerId = i.TimerId
+	' rewster: ProgramId required for LiveTV Recording	
+	metaData.ProgramId = i.Id
 
 	line1 = getShortDescriptionLine1(i, mode)
 
