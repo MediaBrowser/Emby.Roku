@@ -173,6 +173,7 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 	if m.IsTranscoded then
 		m.playMethod = "Transcode"
 		m.canSeek = false
+		'videoItem.PlayStart = playOptions.PlayStart
 	else
 		m.playMethod = "DirectStream"
 		m.canSeek = true
@@ -289,6 +290,9 @@ Function videoPlayerHandleMessage(msg) As Boolean
 			
 			m.progressTimer.Active = false
 
+        else if msg.isStreamSegmentInfo() then
+            Debug("HLS Segment info: " + tostr(msg.GetType()) + " msg: " + tostr(msg.GetMessage()))
+
         else if msg.isFullResult() then
             Debug("MediaPlayer::playVideo::VideoScreenEvent::isFullResult: position -> " + tostr(m.lastPosition))
             m.playState = "stopped"
@@ -309,6 +313,7 @@ Function videoPlayerHandleMessage(msg) As Boolean
             ' This is an HLS Segment Info event. We don't really need to do
             ' anything with it. It includes info like the stream bandwidth,
             ' sequence, URL, and start time.
+			Debug("HLS Segment info: " + tostr(msg.GetType()) + " msg: " + tostr(msg.GetMessage()))
         else
             Debug("Unknown event: " + tostr(msg.GetType()) + " msg: " + tostr(msg.GetMessage()))
         end if

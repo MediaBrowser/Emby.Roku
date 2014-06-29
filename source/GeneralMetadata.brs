@@ -940,7 +940,7 @@ Sub SetAudioStreamProperties(item as Object)
         item.Url = GetServerBaseUrl() + "/Audio/" + itemId + "/stream.mp3?audioBitrate=128000&deviceId=" + getGlobalVar("rokuUniqueId", "Unknown")
         item.StreamFormat = "mp3"
 		item.playMethod = "Transcode"
-		item.canSeek = false
+		item.canSeek = item.Length <> invalid
     End If
 
 End Sub
