@@ -92,17 +92,27 @@ Sub videoSetupButtons()
 
     else if (video.ContentType = "Program") And video.PlayAccess = "Full"
 	
-        if canPlayProgram(video)
+        IsCurrentlyRecording = IsProgramIdRecording(video.ProgramId)
+        if canPlayProgram(video) And IsCurrentlyRecording = true then
+			m.AddButton("Play - Currently Recording", "play")
+		else if canPlayProgram(video)
 			m.AddButton("Play", "play")
         end if
 
-        if video.TimerId <> invalid
-			m.AddButton("Cancel recording", "cancelrecording")
+		if IsCurrentlyRecording = false then
+		
+        	if video.TimerId <> invalid
+				m.AddButton("Cancel recording", "cancelrecording")
 			
-        else if canRecordProgram(video)
-			m.AddButton("Schedule recording", "record")
-        end if
+			else if canPlayProgram(video)
+				m.AddButton("Record", "record")
+			
+        	else if canRecordProgram(video)
+				m.AddButton("Schedule recording", "record")
+        	end if
 
+    	end if
+		
     end if
 
     if video.ContentType = "Recording"
@@ -304,7 +314,6 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
 
 			' rewster: handle the back button
 			else if buttonCommand = "back" then
-				debug("### Handle Back in LiveTV")
 				m.ViewController.PopScreen(m)
 							
             else
@@ -748,6 +757,16 @@ Sub springboardRecordProgram(item)
 
     timerInfo = getDefaultLiveTvTimer(item.ProgramId)
     createLiveTvTimer(timerInfo)
+
+	' Check if the currently program is on now, if so check the recording has been set as the TimerId is not set for the buttons
+	if canPlayProgram(timerInfo) = true 
+		counter = 0
+		While IsProgramIdRecording(item.ProgramId) = false And counter < 5
+			sleep(1000)
+			counter = counter + 1
+		End While
+	End If	
+
 	' rewster: Did not seem to refreshOnActivate, maybe Roku 3 issue
 	m.Refresh(true)
 End Sub
