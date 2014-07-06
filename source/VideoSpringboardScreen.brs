@@ -29,7 +29,7 @@ Function createVideoSpringboardScreen(context, index, viewController) As Object
 
     obj.Screen.SetDescriptionStyle("movie")
 
-    if NOT AudioPlayer().IsPlaying AND firstOf(RegRead("prefThemeMusic", "preferences"), "yes") = "yes" then
+    if NOT AudioPlayer().IsPlaying AND firstOf(RegRead("prefThemeMusic"), "yes") = "yes" then
         AudioPlayer().PlayThemeMusic(obj.Item)
         obj.Cleanup = baseStopAudioPlayer
 

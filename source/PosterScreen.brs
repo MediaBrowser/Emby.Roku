@@ -49,7 +49,7 @@ Function CreatePosterScreen(viewController as Object, item as Object, style As S
     obj.Screen.SetListStyle(style)
     obj.Screen.SetDisplayMode("scale-to-fit")
 
-    if NOT AudioPlayer().IsPlaying AND firstOf(RegRead("prefThemeMusic", "preferences"), "yes") = "yes" then
+    if NOT AudioPlayer().IsPlaying AND firstOf(RegRead("prefThemeMusic"), "yes") = "yes" then
         AudioPlayer().PlayThemeMusic(item)
         obj.Cleanup = baseStopAudioPlayer
 
