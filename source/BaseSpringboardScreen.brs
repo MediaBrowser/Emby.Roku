@@ -212,6 +212,13 @@ Function sbGotoNextItem() As Boolean
     end if
 
     if index <> newIndex then
+	
+		newItem = m.Context[newIndex]
+		
+		if newItem = invalid or newItem.Id = invalid then
+			return false
+		end if
+		
         m.CurIndex = newIndex
         m.Item = m.Context[newIndex]
         m.Refresh()
@@ -235,6 +242,13 @@ Function sbGotoPrevItem() As Boolean
     end if
 
     if index <> newIndex then
+        
+		newItem = m.Context[newIndex]
+		
+		if newItem = invalid or newItem.Id = invalid then
+			return false
+		end if
+		
         m.CurIndex = newIndex
         m.Item = m.Context[newIndex]
         m.Refresh()
