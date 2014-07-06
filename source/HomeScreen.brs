@@ -929,6 +929,13 @@ Function GetOptionButtons(viewController as Object) As Object
     
 	buttons = [
         {
+            Title: "Now Playing"
+            ContentType: "NowPlaying"
+            ShortDescriptionLine1: "Now Playing"
+            HDPosterUrl: viewController.getThemeImageUrl("hd-music.jpg")
+            SDPosterUrl: viewController.getThemeImageUrl("hd-music.jpg")
+        },
+        {
             Title: "Search"
             ContentType: "Search"
             ShortDescriptionLine1: "Search"
