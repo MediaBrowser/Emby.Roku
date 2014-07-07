@@ -934,37 +934,42 @@ End Function
 
 Function GetOptionButtons(viewController as Object) As Object
     
-	buttons = [
-        {
-            Title: "Now Playing"
-            ContentType: "NowPlaying"
-            ShortDescriptionLine1: "Now Playing"
-            HDPosterUrl: viewController.getThemeImageUrl("hd-music.jpg")
-            SDPosterUrl: viewController.getThemeImageUrl("hd-music.jpg")
-        },
-        {
+	buttons = []
+	
+	if AudioPlayer().IsPlaying then
+		buttons.push({
+				Title: "Now Playing"
+				ContentType: "NowPlaying"
+				ShortDescriptionLine1: "Now Playing"
+				HDPosterUrl: viewController.getThemeImageUrl("hd-music.jpg")
+				SDPosterUrl: viewController.getThemeImageUrl("hd-music.jpg")
+			})
+	end if
+	
+	buttons.push({
             Title: "Search"
             ContentType: "Search"
             ShortDescriptionLine1: "Search"
             HDPosterUrl: viewController.getThemeImageUrl("hd-search.jpg")
             SDPosterUrl: viewController.getThemeImageUrl("hd-search.jpg")
-        },
-        {
+        })
+	
+	buttons.push({
             Title: "Switch User"
             ContentType: "SwitchUser"
             ShortDescriptionLine1: "Switch User"
             HDPosterUrl: viewController.getThemeImageUrl("hd-switch-user.jpg")
             SDPosterUrl: viewController.getThemeImageUrl("hd-switch-user.jpg")
-        },
-        {
+        })
+	
+	buttons.push({
             Title: "Preferences"
             ContentType: "Preferences"
             ShortDescriptionLine1: "Preferences"
             ShortDescriptionLine2: "Version " + getGlobalVar("channelVersion", "Unknown")
             HDPosterUrl: viewController.getThemeImageUrl("hd-preferences.jpg")
             SDPosterUrl: viewController.getThemeImageUrl("hd-preferences.jpg")
-        }
-    ]
+        })
 
     Return {
 		Items: buttons

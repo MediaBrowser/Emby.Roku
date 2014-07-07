@@ -138,10 +138,13 @@ Sub addVideoPlaybackInfo(item, options)
 		else
 			item.StreamFormat = mediaSource.Container
 		end if
-
+		
+		'item.HDBifUrl = GetServerBaseUrl() + "/Videos/" + item.Id + "/index.bif?maxWidth=320&mediaSourceId=" + mediaSourceId
+		'item.SDBifUrl = GetServerBaseUrl() + "/Videos/" + item.Id + "/index.bif?maxWidth=240&mediaSourceId=" + mediaSourceId
+		
 	else
 
-		url = GetServerBaseUrl() + "/Videos/" + item.Id + "/stream.m3u8?mediaSourceId=" + mediaSourceId
+		url = GetServerBaseUrl() + "/Videos/" + item.Id + "/master.m3u8?mediaSourceId=" + mediaSourceId
 
 		if isDisplayHd then
 			url = url + "&maxWidth=1920"
@@ -155,13 +158,12 @@ Sub addVideoPlaybackInfo(item, options)
 		url = url + "&profile=high"
 		url = url + "&level=41"
 		url = url + "&deviceId=" + getGlobalVar("rokuUniqueId", "Unknown")
-		url = url + "&TimeStampOffsetMs=0"
 
 		url = url + "&AudioCodec=" + streamInfo.AudioCodec
 		url = url + "&MaxAudioChannels=" + tostr(streamInfo.MaxAudioChannels)
 
 		if options.PlayStart <> invalid then
-			url = url + "&StartTimeTicks="+ tostr(options.PlayStart) + "0000000"
+			'url = url + "&StartTimeTicks="+ tostr(options.PlayStart) + "0000000"
 		end if
 
 		if streamInfo.AudioStreamIndex <> invalid then
@@ -177,7 +179,7 @@ Sub addVideoPlaybackInfo(item, options)
 				item.SubtitleUrl = GetServerBaseUrl()  + "/Videos/" + item.Id + "/" + mediaSourceId + "/Subtitles/" + tostr(streamInfo.SubtitleStreamIndex) + "/Stream.srt"
 								
 				if options.PlayStart <> invalid then
-					item.SubtitleUrl = item.SubtitleUrl + "?StartPositionTicks="+ tostr(options.PlayStart) + "0000000"
+					'item.SubtitleUrl = item.SubtitleUrl + "?StartPositionTicks="+ tostr(options.PlayStart) + "0000000"
 				end if
 					
 				item.SubtitleConfig = {
@@ -207,7 +209,7 @@ Sub addVideoPlaybackInfo(item, options)
 		}
 
         item.StreamFormat = "hls"
-        item.SwitchingStrategy = "no-adaptation"
+        item.SwitchingStrategy = "full-adaptation"
 
 	end If
 
