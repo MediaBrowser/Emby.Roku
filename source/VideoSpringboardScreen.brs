@@ -48,7 +48,20 @@ Sub videoSetupButtons()
 
 	video = m.metadata
 
-    if (video.LocationType = "filesystem" Or video.LocationType = "remote") And video.PlayAccess = "Full" And video.IsPlaceHolder = false
+    if (video.ContentType = "Program") And video.PlayAccess = "Full"
+	
+        if canPlayProgram(video)
+			m.AddButton("Play", "play")
+        end if
+
+        if video.TimerId <> invalid
+			m.AddButton("Cancel recording", "cancelrecording")
+			
+        else if canRecordProgram(video)
+			m.AddButton("Schedule recording", "record")
+        end if
+
+    else if (video.LocationType = "filesystem" Or video.LocationType = "remote") And video.PlayAccess = "Full" And video.IsPlaceHolder = false
 
 		' This screen is also used for books and games, so don't show a play button
 		if video.MediaType = "Video" then
@@ -90,26 +103,16 @@ Sub videoSetupButtons()
 		m.audioStreams = audioStreams
 		m.subtitleStreams = subtitleStreams
 
-    else if (video.ContentType = "Program") And video.PlayAccess = "Full"
-	
-        if canPlayProgram(video)
-			m.AddButton("Play", "play")
-        end if
-
-        if video.TimerId <> invalid
-			m.AddButton("Cancel recording", "cancelrecording")
-			
-        else if canRecordProgram(video)
-			m.AddButton("Schedule recording", "record")
-        end if
-
     end if
 
     if video.ContentType = "Recording"
         m.AddButton("Delete", "delete")
     end if
 
-    m.AddButton("More...", "more")
+    ' rewster: TV Program recording does not need a more button, and displaying it stops the back button from appearing on programmes that have past
+	if video.ContentType <> "Program"
+		m.AddButton("More...", "more")
+	end if
 
     if m.buttonCount = 0
 		m.AddButton("Back", "back")
@@ -298,6 +301,10 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
 
             else if buttonCommand = "more" then
                 m.ShowMoreDialog(item)
+
+			' rewster: handle the back button
+			else if buttonCommand = "back" then
+				m.ViewController.PopScreen(m)
 
             else
                 handled = false
@@ -730,12 +737,15 @@ Sub springboardCancelTimer (item)
 
 	if showCancelLiveTvTimerDialog() = "1" then
         cancelLiveTvTimer(item.TimerId)
+		m.Refresh(true)
 	end if
 End Sub
 
 Sub springboardRecordProgram(item)
 	m.refreshOnActivate = true
 
-    timerInfo = getDefaultLiveTvTimer(item.ProgramId)
+    timerInfo = getDefaultLiveTvTimer(item.Id)
     createLiveTvTimer(timerInfo)
+	
+	m.Refresh(true)
 End Sub

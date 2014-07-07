@@ -8,13 +8,15 @@ Function SimpleJSONAssociativeArray( jsonArray As Object ) As String
     For Each key in jsonArray
         jsonString = jsonString + Chr(34) + key + Chr(34) + ":"
         value = jsonArray[ key ]
-        If Type( value ) = "roString" Then
+
+		' rewster: The type values are not roString. roInt etc just String, Int.  Added a check for either as this break the LiveTV schedule recording
+		If Type( value ) = "roString" or Type( value ) = "String" Then
             jsonString = jsonString + Chr(34) + value + Chr(34)
-        Else If Type( value ) = "roInt" Or Type( value ) = "roFloat" Then
+        Else If Type( value ) = "roInt" Or Type( value ) = "roFloat" Or Type( value ) = "Int" Or Type( value ) = "Float" Then
             jsonString = jsonString + value.ToStr()
-        Else If Type( value ) = "roBoolean" Then
+        Else If Type( value ) = "roBoolean"  Or Type( value ) = "Boolean" Then
             jsonString = jsonString + IIf( value, "true", "false" )
-        Else If Type( value ) = "roArray" Then
+        Else If Type( value ) = "roArray" Or Type( value ) = "Array" Then
             jsonString = jsonString + SimpleJSONArray( value )
         Else If Type( value ) = "roAssociativeArray" Then
             jsonString = jsonString + SimpleJSONBuilder( value )

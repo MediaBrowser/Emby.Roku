@@ -240,6 +240,8 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 	metaData.StartDate = i.StartDate
 	metaData.EndDate = i.EndDate
 	metaData.TimerId = i.TimerId
+	metaData.SeriesTimerId = i.SeriesTimerId
+	metaData.ProgramId = i.ProgramId
 
 	line1 = getShortDescriptionLine1(i, mode)
 
