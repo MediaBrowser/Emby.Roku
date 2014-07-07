@@ -93,16 +93,6 @@ Function getHomeScreenLocalData(row as Integer, id as String, startItem as Integ
 			return GetTVButtons(viewController, tvToggle)
 		end if
 		
-	else if id = "music" 
-	
-		musicToggle  = (firstOf(RegUserRead("musicToggle"), "1")).ToInt()
-
-		if musicToggle <> 1 then
-		
-			' 1 is Latest and will be background loaded from the server
-			return GetMusicButtons(viewController, musicToggle)
-		end if
-		
 	end If
 	
 	return invalid
@@ -298,6 +288,18 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 				sortby: "DateCreated"
 				sortorder: "Descending"
 			}
+		
+		else
+		
+			' Not going to use the output, just checking to see if the user has music in their library
+			url = url + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?includeitemtypes=Audio"		
+			query = {
+				recursive: "true"
+				fields: "PrimaryImageAspectRatio"
+				sortby: "DateCreated"
+				sortorder: "Descending"
+			}
+		
 			
 		end if		
 		
@@ -418,6 +420,11 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 		end if    
 	
 		musicToggle  = (firstOf(RegUserRead("musicToggle"), "1")).ToInt()		
+		
+		if musicToggle <> 1 then
+			return GetMusicButtons(viewController, musicToggle)
+		end if
+		
 		buttons = GetBaseMusicButtons(viewController, musicToggle)
 		buttonCount = buttons.Count()
 		minTotalRecordCount = buttonCount + response.Items.Count()
