@@ -223,7 +223,7 @@ Sub addVideoPlaybackInfo(item, options)
 			subUrl = GetServerBaseUrl()  + "/Videos/" + item.Id + "/" + mediaSourceId + "/Subtitles/" + tostr(stream.Index) + "/Stream.srt"
 								
 			if options.PlayStart <> invalid then
-				subUrl = subUrl + "?StartPositionTicks="+ tostr(options.PlayStart) + "0000000"
+				'subUrl = subUrl + "?StartPositionTicks="+ tostr(options.PlayStart) + "0000000"
 			end if
 			
 			subtitleInfo = {
@@ -304,7 +304,8 @@ Function getStreamInfo(mediaSource as Object, options as Object) as Object
 		MediaSource: mediaSource,
 		VideoStream: videoStream,
 		AudioStream: audioStream,
-		SubtitleStream: subtitleStream
+		SubtitleStream: subtitleStream,
+		CanSeek: mediaSource.RunTimeTicks <> "" And mediaSource.RunTimeTicks <> invalid
 	}
 
 	if audioStream <> invalid then streamInfo.AudioStreamIndex = audioStream.Index

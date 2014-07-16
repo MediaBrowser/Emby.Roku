@@ -171,14 +171,13 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
     m.videoItem = videoItem
 
 	if m.IsTranscoded then
-		m.playMethod = "Transcode"
-		m.canSeek = false
-		'videoItem.PlayStart = playOptions.PlayStart
+		m.playMethod = "Transcode"	
 	else
 		m.playMethod = "DirectStream"
-		m.canSeek = true
-		videoItem.PlayStart = playOptions.PlayStart
 	end if
+	
+	m.canSeek = videoItem.StreamInfo.CanSeek
+	videoItem.PlayStart = playOptions.PlayStart
 
 	player.SetContent(videoItem)
 
