@@ -63,23 +63,7 @@ Function parseLiveTvProgramsResponse(response) As Object
 
         totalRecordCount = jsonObj.TotalRecordCount
 
-		' Get the ProgramId of the currently recording program
-		if totalRecordCount > 0 
-			ProgramId = getProgramIdChannelIdIsRecording(jsonObj.Items[0].channelId)
-        
-		else
-			ProgramId = ""
-		
-		end if
-		
         for each i in jsonObj.Items
-
-			' This allows the red dot to appear next to the current recording program
-			' There is no .TimerID for a currently recording show
-			if i.Id = ProgramId 
-				i.TimerId = "FakeTimerId"
-			end if
-			
             metaData = getMetadataFromServerItem(i, 0, "two-row-flat-landscape-custom", "autosize")
 
             contentList.push( metaData )
@@ -307,93 +291,4 @@ Function parseLiveTvChannelsResult(response) As Object
     end if
 
     return invalid
-End Function
-
-'**********************************************************
-'** getProgramIdChannelIdIsRecording
-'**********************************************************
-' This is called before the TV Guide is displayed to find the Currently recording show
-' and is used to add the recording dot to the show.
-Function getProgramIdChannelIdIsRecording(ChannelId As String) As string
-    
-	' URL
-	url = GetServerBaseUrl() + "/LiveTv/Recordings/"
-	   
-   ' Query
-    query = {
-      ChannelId: channelId
-	  IsInProgress: "true"
-    } 
-	
-	' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-	request.BuildQuery(query)
-	 
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-		
-		fixedResponse = normalizeJson(response)
-        i = ParseJSON(fixedResponse)
-
-		if i.TotalRecordCount > 0
-			return i.items[0].ProgramId
-		else
-			return ""
-		end if 
-    
-	else
-		return ""
-	
-	end if
-    
-End Function
-
-
-'**********************************************************
-'** IsProgramIdRecording
-'**********************************************************
-' This function is used is used to check if the programId is currently recording
-' as there is no TimerId to check. This then displays 'Play - Currently Recording'
-' instead of just 'Play'
-Function IsProgramIdRecording(ProgramId As String) As Boolean
-
-	' URL
-	url = GetServerBaseUrl() + "/LiveTv/Recordings/"
-	   
-   ' Query
-    query = {
-      ProgramId: ProgramId
-	  IsInProgress: "true"
-    } 
-	
-	' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-	request.BuildQuery(query)
-	 
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-		
-		fixedResponse = normalizeJson(response)
-        i = ParseJSON(fixedResponse)
-
-		if i.TotalRecordCount > 0
-						
-			for each rec in i.items
-			
-			if ProgramId = rec.ProgramId then return true
-			
-			next
-						
-		else
-			return false
-		end if 
-    	
-	end if
-	return false
 End Function
