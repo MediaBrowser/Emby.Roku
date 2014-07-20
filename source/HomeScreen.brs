@@ -18,11 +18,15 @@ Function createHomeScreen(viewController as Object) as Object
 	names.push("TV")
 	keys.push("tv")
 	
-	names.push("Live TV")
-	keys.push("livetv")
-	
-	names.push("Music")
-	keys.push("music")
+	if isLiveTvEnabled() then
+		names.push("Live TV")
+		keys.push("livetv")
+	end if    
+		
+	if isMusicEnabled() then
+		names.push("Music")
+		keys.push("music")
+	end if    		
 	
 	names.push("Channels")
 	keys.push("channels")
@@ -465,6 +469,15 @@ Function isLiveTvEnabled() as Boolean
     end if
 	
 	return false
+End Function
+
+Function isMusicEnabled() as Boolean
+    
+	result = getMusicAlbums(0, 0)
+	
+	
+	
+	return result.TotalCount > 0
 End Function
 
 '**********************************************************
