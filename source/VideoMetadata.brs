@@ -120,6 +120,8 @@ Sub addVideoPlaybackInfo(item, options)
 	mediaSourceId = mediaSource.Id
 	
 	isDisplayHd = getGlobalVar("displayType") = "HDTV"
+	
+	enableSelectableSubtitleTracks = true
 
 	if streamInfo.IsDirectStream Then
 
@@ -136,10 +138,13 @@ Sub addVideoPlaybackInfo(item, options)
 		else
 			item.StreamFormat = mediaSource.Container
 		end if
-
+		
+		'item.HDBifUrl = GetServerBaseUrl() + "/Videos/" + item.Id + "/index.bif?maxWidth=320&mediaSourceId=" + mediaSourceId
+		'item.SDBifUrl = GetServerBaseUrl() + "/Videos/" + item.Id + "/index.bif?maxWidth=240&mediaSourceId=" + mediaSourceId
+		
 	else
 
-		url = GetServerBaseUrl() + "/Videos/" + item.Id + "/stream.m3u8?mediaSourceId=" + mediaSourceId
+		url = GetServerBaseUrl() + "/Videos/" + item.Id + "/master.m3u8?mediaSourceId=" + mediaSourceId
 
 		if isDisplayHd then
 			url = url + "&maxWidth=1920"
@@ -153,21 +158,35 @@ Sub addVideoPlaybackInfo(item, options)
 		url = url + "&profile=high"
 		url = url + "&level=41"
 		url = url + "&deviceId=" + getGlobalVar("rokuUniqueId", "Unknown")
-		url = url + "&TimeStampOffsetMs=0"
 
 		url = url + "&AudioCodec=" + streamInfo.AudioCodec
 		url = url + "&MaxAudioChannels=" + tostr(streamInfo.MaxAudioChannels)
 
 		if options.PlayStart <> invalid then
-			url = url + "&StartTimeTicks="+ tostr(options.PlayStart) + "0000000"
+			'url = url + "&StartTimeTicks="+ tostr(options.PlayStart) + "0000000"
 		end if
 
 		if streamInfo.AudioStreamIndex <> invalid then
 			url = url + "&AudioStreamIndex=" + tostr(streamInfo.AudioStreamIndex)
 		end if
 
-		if streamInfo.SubtitleStreamIndex <> invalid then
-			url = url + "&SubtitleStreamIndex=" + tostr(streamInfo.SubtitleStreamIndex)
+		if streamInfo.SubtitleStream <> invalid then
+		
+			if streamInfo.SubtitleStream.IsTextSubtitleStream <> true OR shouldUseSoftSubs(streamInfo.SubtitleStream) <> true then
+				url = url + "&SubtitleStreamIndex=" + tostr(streamInfo.SubtitleStreamIndex)
+				enableSelectableSubtitleTracks = false
+			else
+				item.SubtitleUrl = GetServerBaseUrl()  + "/Videos/" + item.Id + "/" + mediaSourceId + "/Subtitles/" + tostr(streamInfo.SubtitleStreamIndex) + "/Stream.srt"
+								
+				if options.PlayStart <> invalid then
+					'item.SubtitleUrl = item.SubtitleUrl + "?StartPositionTicks="+ tostr(options.PlayStart) + "0000000"
+				end if
+					
+				item.SubtitleConfig = {
+					ShowSubtitle: 1
+					TrackName: item.SubtitleUrl
+				}
+			end if
 		end if
 
 		if streamInfo.AudioBitrate <> invalid then
@@ -190,11 +209,35 @@ Sub addVideoPlaybackInfo(item, options)
 		}
 
         item.StreamFormat = "hls"
-        item.SwitchingStrategy = "no-adaptation"
+        item.SwitchingStrategy = "full-adaptation"
 
 	end If
 
 	if item.IsHD = true And isDisplayHd then item.Stream.quality = true
+	
+	item.SubtitleTracks = []
+	
+	for each stream in mediaSource.MediaStreams
+		if enableSelectableSubtitleTracks AND stream.IsTextSubtitleStream = true AND shouldUseSoftSubs(stream) = true then
+		
+			subUrl = GetServerBaseUrl()  + "/Videos/" + item.Id + "/" + mediaSourceId + "/Subtitles/" + tostr(stream.Index) + "/Stream.srt"
+								
+			if options.PlayStart <> invalid then
+				'subUrl = subUrl + "?StartPositionTicks="+ tostr(options.PlayStart) + "0000000"
+			end if
+			
+			subtitleInfo = {
+				Language: stream.Language
+				TrackName: subUrl
+				Description: stream.Codec
+			}
+			
+			if subtitleInfo.Language = invalid then subtitleInfo.Language = "Unknown language"
+			
+			item.SubtitleTracks.push(subtitleInfo)
+			
+		end if
+	end for
 
 End Sub
 
@@ -261,7 +304,8 @@ Function getStreamInfo(mediaSource as Object, options as Object) as Object
 		MediaSource: mediaSource,
 		VideoStream: videoStream,
 		AudioStream: audioStream,
-		SubtitleStream: subtitleStream
+		SubtitleStream: subtitleStream,
+		CanSeek: mediaSource.RunTimeTicks <> "" And mediaSource.RunTimeTicks <> invalid
 	}
 
 	if audioStream <> invalid then streamInfo.AudioStreamIndex = audioStream.Index
@@ -425,9 +469,11 @@ Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStrea
     versionArr = getGlobalVar("rokuVersion")
     major = versionArr[0]
 
-    if subtitleStream <> invalid AND NOT shouldUseSoftSubs(subtitleStream) then
-        Debug("videoCanDirectPlay: need to burn in subtitles")
-        return false
+    if subtitleStream <> invalid then
+		if subtitleStream.IsTextSubtitleStream <> true OR shouldUseSoftSubs(subtitleStream) <> true then
+			Debug("videoCanDirectPlay: need to burn in subtitles")
+			return false
+		end if
     end if
 
     if secondaryStreamSelected then
@@ -436,7 +482,7 @@ Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStrea
     end if
 
 	' TODO: Add this information to server output, along with RefFrames
-    if (videoStream <> invalid AND videoStream.IsAnamorphic = true) AND NOT firstOf(GetGlobalAA("playsAnamorphic"), false) then
+    if (videoStream <> invalid AND videoStream.IsAnamorphic = true) AND NOT firstOf(getGlobalVar("playsAnamorphic"), false) then
         Debug("videoCanDirectPlay: anamorphic videos not supported")
         return false
     end if
@@ -596,10 +642,8 @@ End Function
 
 Function shouldUseSoftSubs(stream) As Boolean
 
-	' TODO: Revisit when the server ouptuts subs directly
-	return false
-    if RegRead("softsubtitles", "preferences", "1") = "0" then return false
-    if stream.codec <> "srt" or stream.key = invalid then return false
+	'if RegRead("softsubtitles", "preferences", "1") = "0" then return false
+    'if stream.codec <> "srt" or stream.key = invalid then return false
 
     ' TODO(schuyler) If Roku adds support for non-Latin characters, remove
     ' this hackery. To the extent that we continue using this hackery, it
@@ -642,7 +686,7 @@ Function shouldUseSoftSubs(stream) As Boolean
         }
     end if
 
-    if stream.languageCode = invalid OR m.SoftSubLanguages.DoesExist(stream.languageCode) then return true
+    if stream.Language = invalid OR m.SoftSubLanguages.DoesExist(stream.Language) then return true
 
     return false
 End Function

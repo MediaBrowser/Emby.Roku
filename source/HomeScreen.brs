@@ -18,11 +18,15 @@ Function createHomeScreen(viewController as Object) as Object
 	names.push("TV")
 	keys.push("tv")
 	
-	names.push("Live TV")
-	keys.push("livetv")
-	
-	names.push("Music")
-	keys.push("music")
+	if isLiveTvEnabled() then
+		names.push("Live TV")
+		keys.push("livetv")
+	end if    
+		
+	if isMusicEnabled() then
+		names.push("Music")
+		keys.push("music")
+	end if    		
 	
 	names.push("Channels")
 	keys.push("channels")
@@ -91,16 +95,6 @@ Function getHomeScreenLocalData(row as Integer, id as String, startItem as Integ
 		if tvToggle = 3 then
 		
 			return GetTVButtons(viewController, tvToggle)
-		end if
-		
-	else if id = "music" 
-	
-		musicToggle  = (firstOf(RegUserRead("musicToggle"), "1")).ToInt()
-
-		if musicToggle <> 1 then
-		
-			' 1 is Latest and will be background loaded from the server
-			return GetMusicButtons(viewController, musicToggle)
 		end if
 		
 	end If
@@ -298,6 +292,18 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 				sortby: "DateCreated"
 				sortorder: "Descending"
 			}
+		
+		else
+		
+			' Not going to use the output, just checking to see if the user has music in their library
+			url = url + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?includeitemtypes=Audio"		
+			query = {
+				recursive: "true"
+				fields: "PrimaryImageAspectRatio"
+				sortby: "DateCreated"
+				sortorder: "Descending"
+			}
+		
 			
 		end if		
 		
@@ -418,6 +424,11 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 		end if    
 	
 		musicToggle  = (firstOf(RegUserRead("musicToggle"), "1")).ToInt()		
+		
+		if musicToggle <> 1 then
+			return GetMusicButtons(viewController, musicToggle)
+		end if
+		
 		buttons = GetBaseMusicButtons(viewController, musicToggle)
 		buttonCount = buttons.Count()
 		minTotalRecordCount = buttonCount + response.Items.Count()
@@ -458,6 +469,15 @@ Function isLiveTvEnabled() as Boolean
     end if
 	
 	return false
+End Function
+
+Function isMusicEnabled() as Boolean
+    
+	result = getMusicAlbums(0, 0)
+	
+	
+	
+	return result.TotalCount > 0
 End Function
 
 '**********************************************************
@@ -927,30 +947,42 @@ End Function
 
 Function GetOptionButtons(viewController as Object) As Object
     
-	buttons = [
-        {
+	buttons = []
+	
+	if AudioPlayer().IsPlaying then
+		buttons.push({
+				Title: "Now Playing"
+				ContentType: "NowPlaying"
+				ShortDescriptionLine1: "Now Playing"
+				HDPosterUrl: viewController.getThemeImageUrl("hd-music.jpg")
+				SDPosterUrl: viewController.getThemeImageUrl("hd-music.jpg")
+			})
+	end if
+	
+	buttons.push({
             Title: "Search"
             ContentType: "Search"
             ShortDescriptionLine1: "Search"
             HDPosterUrl: viewController.getThemeImageUrl("hd-search.jpg")
             SDPosterUrl: viewController.getThemeImageUrl("hd-search.jpg")
-        },
-        {
+        })
+	
+	buttons.push({
             Title: "Switch User"
             ContentType: "SwitchUser"
             ShortDescriptionLine1: "Switch User"
             HDPosterUrl: viewController.getThemeImageUrl("hd-switch-user.jpg")
             SDPosterUrl: viewController.getThemeImageUrl("hd-switch-user.jpg")
-        },
-        {
+        })
+	
+	buttons.push({
             Title: "Preferences"
             ContentType: "Preferences"
             ShortDescriptionLine1: "Preferences"
             ShortDescriptionLine2: "Version " + getGlobalVar("channelVersion", "Unknown")
             HDPosterUrl: viewController.getThemeImageUrl("hd-preferences.jpg")
             SDPosterUrl: viewController.getThemeImageUrl("hd-preferences.jpg")
-        }
-    ]
+        })
 
     Return {
 		Items: buttons

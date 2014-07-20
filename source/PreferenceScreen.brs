@@ -383,6 +383,11 @@ Function GetPreferenceVideoQuality() as Object
             IsDefault: false
         },
         {
+            Title: "2.0 Mbps HD",
+            Id: "2000",
+            IsDefault: false
+        },
+        {
             Title: "2.6 Mbps HD",
             Id: "2600",
             IsDefault: false

@@ -240,8 +240,8 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 	metaData.StartDate = i.StartDate
 	metaData.EndDate = i.EndDate
 	metaData.TimerId = i.TimerId
-	' rewster: ProgramId required for LiveTV Recording	
-	metaData.ProgramId = i.Id
+	metaData.SeriesTimerId = i.SeriesTimerId
+	metaData.ProgramId = i.ProgramId
 
 	line1 = getShortDescriptionLine1(i, mode)
 
@@ -271,6 +271,8 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
     if i.CommunityRating <> invalid
         metaData.StarRating = Int(i.CommunityRating) * 10
     end if
+	
+	metaData.Director = getDirector(i, mode)
 
     ' Set the Play Access
     metaData.PlayAccess = firstOf(i.PlayAccess, "Full")
@@ -346,15 +348,11 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
     end if
 
     ' Set Unplayed Count
-    UnplayedCount = 0
+    UnplayedCount = i.UserData.UnplayedItemCount
+	
+	if UnplayedCount = invalid then UnplayedCount = 0
 
 	isPlayed = i.UserData.Played
-
-    if i.RecursiveUnplayedItemCount <> invalid
-        if i.RecursiveUnplayedItemCount <> 0
-            UnplayedCount = i.RecursiveUnplayedItemCount
-        end if
-    end if
 
 	if UnplayedCount > 0 then
 		PlayedPercentage = 0
@@ -363,8 +361,12 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 	' Don't show progress bars for these
 	if i.Type = "MusicAlbum" or i.Type = "MusicArtist" then
 		PlayedPercentage = 0
-		UnplayedCount = 0
 		isPlayed = false
+	end if
+	
+	' Only display for these types
+	if i.Type <> "Season" and i.Type <> "Series" and i.Type <> "BoxSet" then
+		UnplayedCount = 0
 	end if
 
 	' Primary Image
@@ -882,6 +884,23 @@ Function getDescription(i as Object, mode as String) as String
 
 End Function
 
+function getDirector(i as Object, mode as String) as String
+
+	if i.People <> invalid then
+		for each person in i.People
+			if person.Type = "Director" or person.Role = "Director" then
+				
+				return person.Name
+			end if
+		end for
+	end if
+	
+	directorValue = ""
+	
+	return directorValue
+
+End Function
+
 Sub SetAudioStreamProperties(item as Object)
 
     ' Get Extension
@@ -923,7 +942,7 @@ Sub SetAudioStreamProperties(item as Object)
         item.Url = GetServerBaseUrl() + "/Audio/" + itemId + "/stream.mp3?audioBitrate=128000&deviceId=" + getGlobalVar("rokuUniqueId", "Unknown")
         item.StreamFormat = "mp3"
 		item.playMethod = "Transcode"
-		item.canSeek = false
+		item.canSeek = item.Length <> invalid
     End If
 
 End Sub
@@ -993,7 +1012,7 @@ Function convertItemPeopleToMetadata(people as Object) as Object
             metaData.SDPosterUrl = GetViewController().getThemeImageUrl("sd-poster.jpg")
 		end If
 
-		if i.Role <> invalid then
+		if i.Role <> invalid and i.Role <> "" then
 			metaData.ShortDescriptionLine2 = "as " + i.Role
 		else if i.Type <> invalid then
 			metaData.ShortDescriptionLine2 = i.Type

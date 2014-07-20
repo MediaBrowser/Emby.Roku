@@ -29,7 +29,7 @@ Function createVideoSpringboardScreen(context, index, viewController) As Object
 
     obj.Screen.SetDescriptionStyle("movie")
 
-    if NOT AudioPlayer().IsPlaying AND firstOf(RegRead("prefThemeMusic", "preferences"), "yes") = "yes" then
+    if NOT AudioPlayer().IsPlaying AND firstOf(RegRead("prefThemeMusic"), "yes") = "yes" then
         AudioPlayer().PlayThemeMusic(obj.Item)
         obj.Cleanup = baseStopAudioPlayer
 
@@ -47,8 +47,21 @@ Sub videoSetupButtons()
     m.ClearButtons()
 
 	video = m.metadata
-	' rewster: The LiveTV buttons were never added as the else if was never hit.
-    if (video.LocationType = "filesystem" Or video.LocationType = "remote") And video.PlayAccess = "Full" And video.IsPlaceHolder = false And video.ContentType <> "Program"
+
+    if (video.ContentType = "Program") And video.PlayAccess = "Full"
+	
+        if canPlayProgram(video)
+			m.AddButton("Play", "play")
+        end if
+
+        if video.TimerId <> invalid
+			m.AddButton("Cancel recording", "cancelrecording")
+			
+        else if canRecordProgram(video)
+			m.AddButton("Schedule recording", "record")
+        end if
+
+    else if (video.LocationType = "filesystem" Or video.LocationType = "remote") And video.PlayAccess = "Full" And video.IsPlaceHolder = false
 
 		' This screen is also used for books and games, so don't show a play button
 		if video.MediaType = "Video" then
@@ -90,29 +103,6 @@ Sub videoSetupButtons()
 		m.audioStreams = audioStreams
 		m.subtitleStreams = subtitleStreams
 
-    else if (video.ContentType = "Program") And video.PlayAccess = "Full"
-	
-        IsCurrentlyRecording = IsProgramIdRecording(video.ProgramId)
-        if canPlayProgram(video) And IsCurrentlyRecording = true then
-			m.AddButton("Play - Currently Recording", "play")
-		else if canPlayProgram(video)
-			m.AddButton("Play", "play")
-        end if
-
-		if IsCurrentlyRecording = false then
-		
-        	if video.TimerId <> invalid
-				m.AddButton("Cancel recording", "cancelrecording")
-			
-			else if canPlayProgram(video)
-				m.AddButton("Record", "record")
-			
-        	else if canRecordProgram(video)
-				m.AddButton("Schedule recording", "record")
-        	end if
-
-    	end if
-		
     end if
 
     if video.ContentType = "Recording"
@@ -123,7 +113,7 @@ Sub videoSetupButtons()
 	if video.ContentType <> "Program"
 		m.AddButton("More...", "more")
 	end if
-	
+
     if m.buttonCount = 0
 		m.AddButton("Back", "back")
     end if
@@ -315,7 +305,7 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
 			' rewster: handle the back button
 			else if buttonCommand = "back" then
 				m.ViewController.PopScreen(m)
-							
+
             else
                 handled = false
             end if
@@ -747,26 +737,15 @@ Sub springboardCancelTimer (item)
 
 	if showCancelLiveTvTimerDialog() = "1" then
         cancelLiveTvTimer(item.TimerId)
+		m.Refresh(true)
 	end if
-	' rewster: Did not seem to refreshOnActivate, maybe Roku 3 issue	
-	m.Refresh(true)
 End Sub
 
 Sub springboardRecordProgram(item)
 	m.refreshOnActivate = true
 
-    timerInfo = getDefaultLiveTvTimer(item.ProgramId)
+    timerInfo = getDefaultLiveTvTimer(item.Id)
     createLiveTvTimer(timerInfo)
-
-	' Check if the currently program is on now, if so check the recording has been set as the TimerId is not set for the buttons
-	if canPlayProgram(timerInfo) = true 
-		counter = 0
-		While IsProgramIdRecording(item.ProgramId) = false And counter < 5
-			sleep(1000)
-			counter = counter + 1
-		End While
-	End If	
-
-	' rewster: Did not seem to refreshOnActivate, maybe Roku 3 issue
+	
 	m.Refresh(true)
 End Sub

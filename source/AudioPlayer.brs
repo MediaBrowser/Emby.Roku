@@ -294,13 +294,13 @@ Sub audioPlayerSetContext(context, contextIndex, screen, startPlayer)
     end if
 
     if screen = invalid then
-        if firstOf(RegRead("theme_music", "preferences"), "loop") = "loop" then
+        if firstOf(RegRead("prefThemeMusicLoop"), "no") = "yes" then
             m.Repeat = 1
         else
             m.Repeat = 0
         end if
     else
-        pref = firstOf(RegRead("loopalbums", "preferences"), "sometimes")
+        pref = firstOf(RegRead("loopalbums"), "sometimes")
         if pref = "sometimes" then
             loop = (context.Count() > 1)
         else

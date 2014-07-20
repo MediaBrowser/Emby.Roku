@@ -132,6 +132,10 @@ Sub initGlobals()
     GetGlobalAA().AddReplace("displayMode", device.GetDisplayMode())
     GetGlobalAA().AddReplace("displayType", device.GetDisplayType())
 
+    playsAnamorphic = major > 4 OR (major = 4 AND (minor >= 8 OR device.GetDisplayType() = "HDTV"))
+    Debug("Anamorphic support: " + tostr(playsAnamorphic))
+    GetGlobalAA().AddReplace("playsAnamorphic", playsAnamorphic)
+
 	SupportsSurroundSound()
 
 End Sub
