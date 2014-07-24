@@ -1046,6 +1046,12 @@ Sub homeRefreshBreadcrumb()
 
 	if user <> invalid then username = user.Title
 
-    m.Screen.SetBreadcrumbText(username, CurrentTimeAsString())
+	showClock = firstOf(RegRead("prefShowClock"), "yes")
+
+	if showClock = "yes" then
+		m.Screen.SetBreadcrumbText(username, CurrentTimeAsString())
+	else
+		m.Screen.SetBreadcrumbText(username, "")
+	end if
 
 End Sub

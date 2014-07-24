@@ -56,6 +56,7 @@ Function handlePreferencesScreenMessage(msg) as Boolean
 					GetPreferenceEnhancedImages,
 					GetPreferenceMediaIndicators,
 					GetPreferenceServerUpdates,
+                    GetPreferenceShowClock,
                     GetPreferenceTimeFormat
 				]
 
@@ -346,16 +347,32 @@ Function GetPreferenceList() as Object
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
         },
         {
-            Title: "Time Format: " + GetSelectedPreference(GetPreferenceTimeFormat(), RegRead("prefTimeFormat")),
-            ShortTitle: "Time Format",
-            ID: "prefTimeFormat",
+            Title: "Show Clock: " + GetSelectedPreference(GetPreferenceShowClock(), RegRead("prefShowClock")),
+            ShortTitle: "Show Clock",
+            ID: "prefShowClock",
             ContentType: "pref",
             PrefType: "list",
-            ShortDescriptionLine1: "Select 12h or 24h time format.",
+            ShortDescriptionLine1: "Show or hide clock on Home Screen.",
             HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-preferences-lg.png"),
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
         }
+
     ]
+
+    if firstOf(RegRead("prefShowClock"), "yes") = "yes" then
+         timeFormat = {
+                Title: "Time Format: " + GetSelectedPreference(GetPreferenceTimeFormat(), RegRead("prefTimeFormat")),
+                ShortTitle: "Time Format",
+                ID: "prefTimeFormat",
+                ContentType: "pref",
+                PrefType: "list",
+                ShortDescriptionLine1: "Select 12h or 24h time format.",
+                HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-preferences-lg.png"),
+                SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
+            }
+
+        preferenceList.push(timeFormat)
+    end if
 
     return preferenceList
 End Function
@@ -570,6 +587,23 @@ Function GetPreferenceServerUpdates() as Object
             Title: "Yes [default]",
             Id: "yes",
             IsDefault: true
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceShowClock() as Object
+    prefOptions = [
+        {
+            Title: "Yes [default]",
+            Id: "yes", 
+            IsDefault: true
+        },
+        {
+            Title: "No",
+            Id: "no",
+            IsDefault: false
         }
     ]
 
