@@ -2,8 +2,15 @@
 ' Get the Base Url of the MB Server
 '******************************************************
 
-Function GetServerBaseUrl()
-    return "http://" + m.serverURL + "/mediabrowser"
+Function GetServerBaseUrl(baseUrl = "")
+
+	if baseUrl = "" then baseUrl = m.serverUrl
+	
+	if Instr(0, baseUrl, "://") = 0 then 
+		baseUrl = "http://" + baseUrl
+	end if
+	
+    return baseUrl + "/mediabrowser"
 End Function
 
 
@@ -34,7 +41,7 @@ End Function
 Function scanLocalNetwork() As Dynamic
 
     ' Setup Broadcast message and port
-    broadcastMessage = "who is MediaBrowserServer?"
+    broadcastMessage = "who is MediaBrowserServer_v2?"
     broadcastPort = 7359
 
     success = false
@@ -120,8 +127,7 @@ Function scanLocalNetwork() As Dynamic
                 receivedMessage = udp.receiveStr(512) ' max 512 characters
                 Debug("Received Message: " + receivedMessage)
                 udp.close()
-                token = receivedMessage.tokenize("|")
-                return token[1]
+                return ParseJSON(receivedMessage)
             else if msg = invalid
                 Debug("Cancel UDP Broadcast")
                 udp.close()
@@ -139,13 +145,9 @@ End Function
 ' Get Server Info
 '******************************************************
 
-Function getServerInfo(baseUrl = "") As Object
+Function getServerInfo() As Object
     ' URL
-    if baseUrl <> ""
-        url = "http://" + baseUrl + "/mediabrowser/System/Info"
-    else
-        url = GetServerBaseUrl() + "/System/Info"
-    end if
+    url = GetServerBaseUrl() + "/System/Info"
     
     ' Prepare Request
     request = HttpRequest(url)
@@ -162,7 +164,7 @@ Function getServerInfo(baseUrl = "") As Object
             return invalid
         end if
 
-		SetServerData(metaData.Id, "mac", metaData.MacAddress)
+		SetServerData(metaData.Id, "Mac", metaData.MacAddress)
 		
         return metaData
     else
@@ -172,7 +174,33 @@ Function getServerInfo(baseUrl = "") As Object
     return invalid
 End Function
 
+Function getPublicServerInfo(baseUrl = "") As Object
+    
+	' URL
+    url = GetServerBaseUrl(baseUrl) + "/System/Info/Public"
+    
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
 
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+        metaData = ParseJSON(response)
+
+        if metaData = invalid
+            Debug("Error Parsing Server Info")
+            return invalid
+        end if
+		
+        return metaData
+    else
+        Debug("Failed to get public server info")
+    end if
+
+    return invalid
+End Function
 '******************************************************
 ' Post Server Restart
 '******************************************************

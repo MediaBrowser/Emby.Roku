@@ -369,6 +369,11 @@ End Function
 
 Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStream, options) As Boolean
 
+	if videoStream = invalid then 
+		Debug("videoCanDirectPlay: Unknown videoStream")
+		return false
+	end if
+
 	if mediaSource.Bitrate = invalid then
 		Debug("videoCanDirectPlay: Unknown source bitrate")
 		return false
@@ -438,7 +443,7 @@ Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStrea
             numVideoStreams = numVideoStreams + 1
         end if
     next
-
+	
 	container = mediaSource.Container
 	videoCodec = invalid
 	if videoStream <> invalid then videoCodec = videoStream.Codec

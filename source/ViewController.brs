@@ -134,6 +134,7 @@ Sub vcShowInitialScreen()
 
 			if RegRead("prefRememberUser") = "no"
 				RegDelete("userId")
+				DeleteAllAccessTokens()
 				showLoginScreen(m)
 
 			else
@@ -158,11 +159,14 @@ End Sub
 
 Sub vcChangeUser(userId as String)
 
+	postCapabilities()
+			
     userProfile = getUserProfile(RegRead("userId"))
 
     ' If unable to get user profile, delete saved user and redirect to login
     if userProfile = invalid
         RegDelete("userId")
+		DeleteAllAccessTokens()
         m.ShowInitialScreen()
     end if
 
@@ -1102,6 +1106,8 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 	else if contentType = "SwitchUser" then
 
         RegDelete("userId")
+		DeleteAllAccessTokens()
+					
         Debug("Switch User")
 
 		' For now, until there's a chance to break the initial screen workflow into separate pieces

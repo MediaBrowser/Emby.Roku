@@ -47,8 +47,9 @@ Function handleLoginScreenMessage(msg) as Boolean
 					m.showPasswordInput(selectedProfile.Title)
 
                 else
-                    RegWrite("userId", selectedProfile.Id)
-                    viewController.changeUser(selectedProfile.Id)
+				
+					OnPasswordEntered(selectedProfile.Title, "")
+					
                 end if
 
             else if selectedProfile.ContentType = "manual"
@@ -108,22 +109,27 @@ Sub onLoginScreenUserInput(value, screen)
 		
 		Debug ("onLoginScreenUserInput - password")
 
-		passwordText = value
-
-		' If they filled it out, check it
-		If passwordText <> invalid
-			' Check password
-			validUser = authenticateUser(m.usernameText, passwordText)
-
-			If validUser <> invalid
-				RegWrite("userId", validUser.User.Id)
-				m.ViewController.changeUser(validUser.User.Id)
-			Else
-				ShowPasswordFailed()
-			End If
-		End if
+		OnPasswordEntered(m.usernameText, firstOf(value, ""))
 
 	end if
+
+End Sub
+
+Sub OnPasswordEntered(usernameText, passwordText)
+
+	Debug ("onLoginScreenUserInput")
+
+	' Check password
+	authResult = authenticateUser(usernameText, passwordText)
+
+	If authResult <> invalid
+		RegWrite("userId", authResult.User.Id)
+		SetServerData(authResult.ServerId, "AccessToken", authResult.AccessToken)
+		RegWrite("activeServerId", authResult.ServerId)
+		GetViewController().changeUser(authResult.User.Id)
+	Else
+		ShowPasswordFailed()
+	End If
 
 End Sub
 

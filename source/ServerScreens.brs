@@ -11,18 +11,17 @@
 Function serverStartUp() As Integer
 
     ' Get Active Server
-    activeServer = RegRead("serverActive")
+    activeServerId = RegRead("activeServerId")
 	
     ' If active server, check to see if it is currently running
-    if activeServer <> invalid And activeServer <> ""
-        activeServer = (activeServer).ToInt()
-        serverList   = getServerList(activeServer)
+    if activeServerId <> invalid And activeServerId <> ""
+        
+        serverAddress = GetServerData(activeServerId, "Address")
 
-        if serverList <> invalid
-            server = serverList[0]
-
+        if serverAddress <> invalid
+            
             ' Check Server Connection
-            serverInfo = getServerInfo(server.address)
+            serverInfo = getPublicServerInfo(serverAddress)
 
             if serverInfo = invalid
                 createDialog("Unable To Connect", "We were unable to connect to that media browser server. Please make sure your server is running.", "Back")
@@ -30,9 +29,7 @@ Function serverStartUp() As Integer
             end if
 
             ' Setup Server URL
-            m.serverURL = server.address
-			
-			postCapabilities()
+            m.serverURL = serverAddress
 
             return 2
 
@@ -149,10 +146,10 @@ Function createServerListScreen(viewController as Object)
     ' Build Server List
     for i = 0 to serverList.Count()-1
         entry = {
-            Title: serverList[i].name,
-            ShortDescriptionLine1: serverList[i].address,
+            Title: serverList[i].Name,
+            ShortDescriptionLine1: serverList[i].Address,
             Action: "select",
-            Id: serverList[i].id,
+            Id: serverList[i].Id,
             HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-server-lg.png"),
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-server-lg.png")
         }
@@ -160,19 +157,15 @@ Function createServerListScreen(viewController as Object)
         contentList.push( entry )
     end for
 
-    ' Check For Open Save Slots
-    if serverList.Count() < 3
-        entry = {
+    entry = {
             Title: ">> Add Server",
             ShortDescriptionLine1: "Add a new server.",
-            ShortDescriptionLine2: "You may have up to three.",
             Action: "add",
             HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-server-lg.png"),
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-server-lg.png")
         }
 
-        contentList.push( entry )
-    end if
+    contentList.push( entry )
 
     ' Set Content
     screen.SetContent(contentList)
@@ -209,10 +202,11 @@ Function serverListScreenHandleMessage(msg) As Boolean
 
                 if selection = "1"
                     
-					RegWrite("serverActive", itostr(serverId))
+					RegWrite("activeServerId", serverId)
 					
 					' Make them sign in again
 					RegDelete("userId")
+					DeleteServerData(serverId, "AccessToken")
 					
 					viewController.ShowInitialScreen()
 
@@ -221,7 +215,7 @@ Function serverListScreenHandleMessage(msg) As Boolean
                     selection = createServerRemoveDialog()
                     if selection = "1"
 					
-                        removeServer(serverId)
+                        DeleteServer(serverId)
                         Debug("Remove Server")
 						
 						viewController.ShowInitialScreen()
@@ -326,22 +320,17 @@ End Sub
 Sub onServerAddressDiscovered(viewController as Object, serverAddress As String) 
 
 	' Check Server Connection
-    serverInfo = getServerInfo(serverAddress)
+    serverInfo = getPublicServerInfo(serverAddress)
 
     if serverInfo = invalid
         createDialog("Unable To Connect", "We were unable to connect to this server. Please make sure it is running before attempting to add it to the server list.", "Back", true)
         return 
     end if
 
-    serverName = serverInfo.ServerName
-
-    ' Clean Server Name
-    regex      = CreateObject("roRegex", "[^a-z0-9 -]", "i")
-    serverName = regex.ReplaceAll(serverName, "")
-
-    ' Save Server Information
-    saveServerInfo(serverName, serverAddress, serverInfo)
-
+    SetServerData(serverInfo.Id, "Name", serverInfo.ServerName)
+	SetServerData(serverInfo.Id, "Address", serverAddress)
+	SetServerData(serverInfo.Id, "Id", serverInfo.Id)
+	
     viewController.ShowInitialScreen()
 End Sub
 
@@ -349,21 +338,21 @@ End Sub
 '** Create Server Screen
 '**********************************************************
 
-Sub showServerFoundScreen(viewController as Object, serverAddress As String)
+Sub showServerFoundScreen(viewController as Object, serverLocationInfo As Object)
 
-	screen = createServerFoundScreen(viewController, serverAddress)
+	screen = createServerFoundScreen(viewController, serverLocationInfo)
 	viewController.InitializeOtherScreen(screen, ["Server Found"])
 	screen.Show()
 
 End Sub
 
-Function createServerFoundScreen(viewController as Object, serverAddress As String)
+Function createServerFoundScreen(viewController as Object, serverLocationInfo As Object)
 
     header = "Server Found"
     paragraphs = []
     paragraphs.Push("We were able to find a local server running on your network at the following address:")
     paragraphs.Push("")
-    paragraphs.Push(serverAddress)
+    paragraphs.Push(serverLocationInfo.Address)
 
     screen = createParagraphScreen(header, paragraphs, viewController)
     screen.ScreenName = "ServerFound"
@@ -376,7 +365,7 @@ Function createServerFoundScreen(viewController as Object, serverAddress As Stri
     end if
 	
 	screen.HandleButton = serverFoundHandleButton
-	screen.serverAddress = serverAddress
+	screen.serverInfo = serverLocationInfo
 	
 	return screen
 End Function
@@ -389,170 +378,10 @@ Function serverFoundHandleButton(command, data) As Boolean
     m.ViewController.PopScreen(m)
 
 	' Show Server Configuration Screen
-	onServerAddressDiscovered(m.ViewController, m.serverAddress)
+	onServerAddressDiscovered(m.ViewController, m.serverInfo.Address)
 	return false
 	
   end if
 
   return true
-End Function
-
-'******************************************************
-' Save Server Information
-'******************************************************
-
-Sub saveServerInfo(serverName As String, serverAddress As String, serverInfo As Object)
-
-    ' Print Debug Information
-    Debug("Server Name: " + serverName)
-    Debug("Server Address: " + serverAddress)
-    Debug("Mac Address: " + serverInfo.MacAddress)
-
-    ' Format Server Info (name, address, mac)
-    serverItem = serverName + "|" + serverAddress + "|"
-    
-    ' Check for mac address
-    if serverInfo.MacAddress <> ""
-        serverItem = serverItem + serverInfo.MacAddress
-    end if
-
-    ' Find first empty slot and save
-    if RegRead("serverInfo1") = invalid Or RegRead("serverInfo1") = ""
-        RegWrite("serverInfo1", serverItem)
-
-    else if RegRead("serverInfo2") = invalid Or RegRead("serverInfo2") = ""
-        RegWrite("serverInfo2", serverItem)
-
-    else
-        RegWrite("serverInfo3", serverItem)
-
-    end if
-
-    return
-End Sub
-
-
-'******************************************************
-' Remove Server
-'******************************************************
-
-Function removeServer(serverId As Integer) As Boolean
-    ' Remove the saved server info
-    if serverId = 1
-        RegDelete("serverInfo1")
-    else if serverId = 2
-        RegDelete("serverInfo2")
-    else if serverId = 3
-        RegDelete("serverInfo3")
-    else
-        return false
-    end if
-
-    return true
-End Function
-
-
-'******************************************************
-' Get Server List
-'******************************************************
-
-Function getServerList(activeServer = 0 As Integer) As Object
-
-    ' Setup Server List
-    serverList = CreateObject("roArray", 3, true)
-
-    ' Find specific server or return server list
-    if activeServer = 1
-        serverString = RegRead("serverInfo1")
-
-        if serverString <> invalid
-            serverInfo = serverString.tokenize("|")
-            serverData = {}
-            serverData.name       = serverInfo[0]
-            serverData.address    = serverInfo[1]
-            serverData.macAddress = serverInfo[2]
-            serverData.id         = 1
-
-            serverList.push( serverData )
-        else
-            return invalid
-        end if
-
-    else if activeServer = 2
-        serverString = RegRead("serverInfo2")
-
-        if serverString <> invalid
-            serverInfo = serverString.tokenize("|")
-            serverData = {}
-            serverData.name       = serverInfo[0]
-            serverData.address    = serverInfo[1]
-            serverData.macAddress = serverInfo[2]
-            serverData.id         = 2
-
-            serverList.push( serverData )
-
-        else
-            return invalid
-        end if
-
-    else if activeServer = 3
-        serverString = RegRead("serverInfo3")
-
-        if serverString <> invalid
-            serverInfo = serverString.tokenize("|")
-            serverData = {}
-            serverData.name       = serverInfo[0]
-            serverData.address    = serverInfo[1]
-            serverData.macAddress = serverInfo[2]
-            serverData.id         = 3
-
-            serverList.push( serverData )
-
-        else
-            return invalid
-        end if
-
-    else
-
-        ' Build Server List
-        serverString1 = RegRead("serverInfo1")
-        serverString2 = RegRead("serverInfo2")
-        serverString3 = RegRead("serverInfo3")
-
-        if serverString1 <> invalid
-            serverInfo = serverString1.tokenize("|")
-            serverData = {}
-            serverData.name       = serverInfo[0]
-            serverData.address    = serverInfo[1]
-            serverData.macAddress = serverInfo[2]
-            serverData.id         = 1
-
-            serverList.push( serverData )
-        end if
-
-        if serverString2 <> invalid
-            serverInfo = serverString2.tokenize("|")
-            serverData = {}
-            serverData.name       = serverInfo[0]
-            serverData.address    = serverInfo[1]
-            serverData.macAddress = serverInfo[2]
-            serverData.id         = 2
-
-            serverList.push( serverData )
-        end if
-
-        if serverString3 <> invalid
-            serverInfo = serverString3.tokenize("|")
-            serverData = {}
-            serverData.name       = serverInfo[0]
-            serverData.address    = serverInfo[1]
-            serverData.macAddress = serverInfo[2]
-            serverData.id         = 3
-
-            serverList.push( serverData )
-        end if
-
-    end if
-
-    return serverList
 End Function

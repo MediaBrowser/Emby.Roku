@@ -119,15 +119,30 @@ Function InitServerData (machineID=invalid)
     end if
 End Function
 
+Function GetServerList () as Object
+    InitServerData()
+	servers = []
+	data = GetGlobalAA().serverData
+	
+	for each serverId in data
+	
+		server = data[serverId]		
+		if server <> invalid and server.Name <> invalid then servers.push(server)
+	end for
+	
+	return servers
+End Function
+
 Function GetServerData ( machineID, dataName ) As Dynamic  
     InitServerData(machineID)
-    return GetGlobalAA().serverData[machineID][dataName]
+    
+	return GetGlobalAA().serverData[machineID][dataName]
 End Function
 
 Function SetServerData ( machineID, dataName, value ) As Boolean
     InitServerData(machineID)
     GetGlobalAA().serverData[machineID][dataName] = value
-    RegWrite("serverList", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
+    RegWrite("serverList1", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
     return true
 End Function
 
@@ -135,6 +150,26 @@ Function DeleteServerData ( machineID, dataName ) As Boolean
     InitServerData(machineID)
     data = GetGlobalAA().serverData[machineID]
     data.delete(dataName)
-    RegWrite("serverList", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
+    RegWrite("serverList1", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
+    return true
+End Function
+
+Sub DeleteAllAccessTokens()
+
+	data = GetGlobalAA().serverData
+	
+	for each serverId in data
+	
+		DeleteServerData(serverId, "AccessToken")
+	end for
+
+End Sub
+
+Function DeleteServer ( machineID ) As Boolean
+    InitServerData()
+	
+    GetGlobalAA().serverData[machineID] = invalid
+	
+    RegWrite("serverList1", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
     return true
 End Function
