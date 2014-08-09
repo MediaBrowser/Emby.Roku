@@ -119,10 +119,14 @@ Function http_authorization() As Void
     m.Http.AddHeader("Authorization", authString)
 	
 	activeServerId = RegRead("activeServerId")
-	accessToken = GetServerData(activeServerId, "AccessToken")
 	
-	if accessToken <> invalid and accessToken <> "" then
-		m.Http.AddHeader("X-MediaBrowser-Token", accessToken)
+	if activeServerId <> invalid and activeServerId <> "" then
+	
+		accessToken = GetServerData(activeServerId, "AccessToken")
+		
+		if accessToken <> invalid and accessToken <> "" then
+			m.Http.AddHeader("X-MediaBrowser-Token", accessToken)
+		end if		
 	end if
 	
 End Function
