@@ -103,7 +103,7 @@ End Sub
 Function InitServerData (machineID=invalid)
     if GetGlobalAA().serverData = invalid then
         Debug("Creating server data cache")
-        dataString = RegRead("serverList", "serverData")
+        dataString = RegRead("serverList1", "serverData")
         GetGlobalAA().serverData = CreateObject("roAssociativeArray")
         if dataString <> invalid then
             Debug("Found string in the registry: " + dataString )
