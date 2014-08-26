@@ -86,7 +86,7 @@ End Function
 
 Function getMusicArtists(offset = invalid As Dynamic, limit = invalid As Dynamic, filters = invalid As Object) As Object
     ' URL
-    url = GetServerBaseUrl() + "/Items?IncludeItemTypes=MusicArtist"
+    url = GetServerBaseUrl() + "/Artists/AlbumArtists"
 
     ' Query
     query = {

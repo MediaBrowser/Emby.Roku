@@ -450,6 +450,9 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 End Function
 
 Function isLiveTvEnabled() as Boolean
+
+	if getGlobalVar("user") = invalid then return false
+	
     liveTvInfo = getLiveTvInfo()
 	
     if liveTvInfo <> invalid
