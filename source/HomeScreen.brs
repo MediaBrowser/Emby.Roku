@@ -7,29 +7,14 @@ Function createHomeScreen(viewController as Object) as Object
 	names = []
 	keys = []
 	
-	If RegRead("prefCollectionsFirstRow") = "yes"
-        names.push("Media Folders")
-		keys.push("folders")
-    End If
-    
-    names.push("Movies")
-	keys.push("movies")
+	views = getUserViews()
 	
-	names.push("TV")
-	keys.push("tv")
+	for each view in views
 	
-	if isLiveTvEnabled() then
-		names.push("Live TV")
-		keys.push("livetv")
-	end if    
+		names.push(view.Title)
+		keys.push(view.CollectionType + "|" + view.Id)
 		
-	if isMusicEnabled() then
-		names.push("Music")
-		keys.push("music")
-	end if    		
-	
-	names.push("Channels")
-	keys.push("channels")
+	end for
 	
 	If RegRead("prefCollectionsFirstRow") <> "yes"
         names.push("Media Folders")
@@ -70,9 +55,55 @@ Function createHomeScreen(viewController as Object) as Object
 	return screen
 End Function
 
+Function getUserViews() as Object
+
+	views = []
+	
+	if getGlobalVar("user") = invalid then return views
+	
+	url = GetServerBaseUrl() + "/Users/" + getGlobalVar("user").Id + "/Views?fields=PrimaryImageAspectRatio"
+	
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+	
+        result = parseItemsResponse(response, 0, "two-row-flat-landscape-custom")
+
+		for each i in result.Items
+		
+			viewType = firstOf(i.CollectionType, "")
+			
+			' Filter out unsupported views
+			if viewType = "movies" or viewType = "music" or viewType = "tvshows" or viewType = "livetv" or viewType = "channels" or viewType = "folders" then
+				views.push(i)
+			
+			' Treat all other types as folders for now
+			else if i.ContentType <> "Channel" then
+				viewType = "folders"
+				views.push(i)
+			end if
+		
+			' Normalize this
+			i.CollectionType = viewType
+			
+		end for
+		
+	end if	
+	
+	return views
+
+End Function
+
 Function getHomeScreenLocalData(row as Integer, id as String, startItem as Integer, count as Integer) as Object
 
 	viewController = GetViewController()
+	
+	parts = id.tokenize("|")
+	id = parts[0]
+	parentId = firstOf(parts[1], "")
 	
 	if id = "options" then
 		return GetOptionButtons(viewController)
@@ -87,7 +118,7 @@ Function getHomeScreenLocalData(row as Integer, id as String, startItem as Integ
 			return GetMovieButtons(viewController, movieToggle)
 		end if
 		
-	else if id = "tv" 
+	else if id = "tvshows" 
 	
 		tvToggle  = (firstOf(RegUserRead("tvToggle"), "1")).ToInt()
 		
@@ -105,7 +136,11 @@ End Function
 
 Function getHomeScreenRowUrl(row as Integer, id as String) as String
 
-    url = GetServerBaseUrl()
+    parts = id.tokenize("|")
+	id = parts[0]
+	parentId = firstOf(parts[1], "")
+	
+	url = GetServerBaseUrl()
 
     query = {}
 
@@ -113,7 +148,7 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 	
 		url = url  + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?sortby=sortname"
 		query.AddReplace("Fields", "PrimaryImageAspectRatio")
-
+		
 	else if id = "channels"
 	
 		url = url  + "/Channels?userid=" + HttpEncode(getGlobalVar("user").Id)
@@ -184,7 +219,7 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 			
 		end if		
 		
-	else if id = "tv"
+	else if id = "tvshows"
 	
 		tvToggle  = (firstOf(RegUserRead("tvToggle"), "1")).ToInt()
 
@@ -308,6 +343,11 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 		end if		
 		
 	end If
+	
+	if id <> "channels" and id <> "livetv" and parentId <> "" then
+		
+		query.AddReplace("ParentId", parentId)
+	end if
 
 	for each key in query
 		url = url + "&" + key +"=" + HttpEncode(query[key])
@@ -321,6 +361,10 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 
 	viewController = GetViewController()
 	maxListSize = 60
+	
+	parts = id.tokenize("|")
+	id = parts[0]
+	parentId = firstOf(parts[1], "")
 	
 	if id = "folders" then
 		return parseItemsResponse(json, 0, "two-row-flat-landscape-custom")
@@ -353,7 +397,7 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 		if response.TotalCount < minTotalRecordCount then response.TotalCount = minTotalRecordCount	
 		return response
 		
-	else if id = "tv" then
+	else if id = "tvshows" then
 	
 		tvToggle  = (firstOf(RegUserRead("tvToggle"), "1")).ToInt()		
 		
@@ -380,13 +424,6 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 		return response
 		
 	else if id = "livetv" then
-	
-		if isLiveTvEnabled() <> true then
-			Return {
-				Items: []
-				TotalCount: 0
-			}
-		end if    
 	
 		liveTvToggle = (firstOf(RegUserRead("liveTvToggle"), "1")).ToInt()
 		
@@ -447,40 +484,6 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 
 	return parseItemsResponse(json, 0, "two-row-flat-landscape-custom")
 	
-End Function
-
-Function isLiveTvEnabled() as Boolean
-
-	if getGlobalVar("user") = invalid then return false
-	
-    liveTvInfo = getLiveTvInfo()
-	
-    if liveTvInfo <> invalid
-	
-        if liveTvInfo.IsEnabled
-            if liveTvInfo.EnabledUsers <> invalid
-			
-                for each enabledUser in liveTvInfo.EnabledUsers
-                    if enabledUser = getGlobalVar("user").Id
-                        return true
-                    end if
-                end for
-            end if
-			
-        end if
-		
-    end if
-	
-	return false
-End Function
-
-Function isMusicEnabled() as Boolean
-    
-	result = getMusicAlbums(0, 0)
-	
-	
-	
-	return result.TotalCount > 0
 End Function
 
 '**********************************************************

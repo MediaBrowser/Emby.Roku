@@ -51,7 +51,6 @@ Function handlePreferencesScreenMessage(msg) as Boolean
 					GetPreferenceVideoQuality,
 					GetPreferenceTVThemeMusic,
 					GetPreferenceTVThemeMusicRepeat,
-					GetPreferenceCollectionsFirstRow,
 					GetPreferenceRememberUser,
 					GetPreferenceEnhancedImages,
 					GetPreferenceMediaIndicators,
@@ -297,16 +296,6 @@ Function GetPreferenceList() as Object
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
         },
         {
-            Title: "Show Media Folders First Row: " + GetSelectedPreference(GetPreferenceCollectionsFirstRow(), RegRead("prefCollectionsFirstRow")),
-            ShortTitle: "Show Media Folders First Row",
-            ID: "prefCollectionsFirstRow",
-            ContentType: "pref",
-			PrefType: "list",
-            ShortDescriptionLine1: "Show media folders on the first row of the home screen. (requires restart)",
-            HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-preferences-lg.png"),
-            SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
-        },
-        {
             Title: "Remember User: " + GetSelectedPreference(GetPreferenceRememberUser(), RegRead("prefRememberUser")),
             ShortTitle: "Remember User",
             ID: "prefRememberUser",
@@ -487,23 +476,6 @@ Function GetPreferenceTVThemeMusic() as Object
 End Function
 
 Function GetPreferenceTVThemeMusicRepeat() as Object
-    prefOptions = [
-        {
-            Title: "No [default]",
-            Id: "no",
-            IsDefault: true
-        },
-        {
-            Title: "Yes",
-            Id: "yes",
-            IsDefault: false
-        }
-    ]
-
-    return prefOptions
-End Function
-
-Function GetPreferenceCollectionsFirstRow() as Object
     prefOptions = [
         {
             Title: "No [default]",

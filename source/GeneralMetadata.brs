@@ -235,6 +235,7 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 	metaData.PrimaryImageAspectRatio = i.PrimaryImageAspectRatio
 	metaData.MediaSources = i.MediaSources
 	metaData.People = i.People
+	metaData.CollectionType = i.CollectionType
 	
 	metaData.ChannelId = i.ChannelId
 	metaData.StartDate = i.StartDate
