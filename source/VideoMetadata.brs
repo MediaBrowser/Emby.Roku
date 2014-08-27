@@ -162,10 +162,6 @@ Sub addVideoPlaybackInfo(item, options)
 		url = url + "&AudioCodec=" + streamInfo.AudioCodec
 		url = url + "&MaxAudioChannels=" + tostr(streamInfo.MaxAudioChannels)
 
-		if options.PlayStart <> invalid then
-			'url = url + "&StartTimeTicks="+ tostr(options.PlayStart) + "0000000"
-		end if
-
 		if streamInfo.AudioStreamIndex <> invalid then
 			url = url + "&AudioStreamIndex=" + tostr(streamInfo.AudioStreamIndex)
 		end if
@@ -178,10 +174,6 @@ Sub addVideoPlaybackInfo(item, options)
 			else
 				item.SubtitleUrl = GetServerBaseUrl()  + "/Videos/" + item.Id + "/" + mediaSourceId + "/Subtitles/" + tostr(streamInfo.SubtitleStreamIndex) + "/Stream.srt"
 								
-				if options.PlayStart <> invalid then
-					'item.SubtitleUrl = item.SubtitleUrl + "?StartPositionTicks="+ tostr(options.PlayStart) + "0000000"
-				end if
-					
 				item.SubtitleConfig = {
 					ShowSubtitle: 1
 					TrackName: item.SubtitleUrl
@@ -222,10 +214,6 @@ Sub addVideoPlaybackInfo(item, options)
 		
 			subUrl = GetServerBaseUrl()  + "/Videos/" + item.Id + "/" + mediaSourceId + "/Subtitles/" + tostr(stream.Index) + "/Stream.srt"
 								
-			if options.PlayStart <> invalid then
-				'subUrl = subUrl + "?StartPositionTicks="+ tostr(options.PlayStart) + "0000000"
-			end if
-			
 			subtitleInfo = {
 				Language: stream.Language
 				TrackName: subUrl

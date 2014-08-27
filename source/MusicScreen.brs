@@ -2,7 +2,7 @@
 '** createMusicLibraryScreen
 '**********************************************************
 
-Function createMusicLibraryScreen(viewController as Object) As Object
+Function createMusicLibraryScreen(viewController as Object, parentId as String) As Object
 
 	names = ["Albums", "Artists", "Jump Into Albums", "Jump Into Artists", "Genres"]
 	keys = ["0", "1", "2", "3", "4"]
@@ -11,6 +11,7 @@ Function createMusicLibraryScreen(viewController as Object) As Object
 	loader.getUrl = getMusicLibraryRowScreenUrl
 	loader.parsePagedResult = parseMusicLibraryScreenResult
 	loader.getLocalData = getMusicLibraryScreenLocalData
+	loader.parentId = parentId
 
     screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
 
@@ -44,16 +45,18 @@ Function getMusicLibraryRowScreenUrl(row as Integer, id as String) as String
 			IncludeItemTypes: "MusicAlbum"
 			fields: "Overview"
 			sortby: "AlbumArtist,SortName"
-			sortorder: "Ascending"
+			sortorder: "Ascending",
+			parentId: m.parentId
 		}
 	else if row = 1
-		url = url  + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?recursive=true"
+		url = url  + "/Artists/AlbumArtists?recursive=true"
 
 		query = {
-			IncludeItemTypes: "MusicArtist"
 			fields: "Overview"
 			sortby: "SortName"
-			sortorder: "Ascending"
+			sortorder: "Ascending",
+			parentId: m.parentId,
+			UserId: getGlobalVar("user").Id
 		}
 	else if row = 2
 		' Music album alphabet - should never get in here
@@ -66,7 +69,8 @@ Function getMusicLibraryRowScreenUrl(row as Integer, id as String) as String
 			userid: getGlobalVar("user").Id
 			recursive: "true"
 			sortby: "SortName"
-			sortorder: "Ascending"
+			sortorder: "Ascending",
+			parentId: m.parentId
 		}
 	end If
 

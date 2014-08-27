@@ -512,14 +512,14 @@ End Function
 
 Function ProcessSetAudioStreamIndexRequest() As Boolean
    	
-	videoPlayer = VideoPlayer()
+	player = VideoPlayer()
 
-	if videoPlayer <> invalid then
+	if player <> invalid then
 	
 		index = m.request.query["Index"]
 		
 		if index <> invalid and index <> "" then
-			videoPlayer.SetAudioStreamIndex(index.ToInt())
+			player.SetAudioStreamIndex(index.ToInt())
 		end if
         
 	end If
@@ -531,14 +531,14 @@ End Function
 
 Function ProcessSetSubtitleStreamIndexRequest() As Boolean
    	
-	videoPlayer = VideoPlayer()
+	player = VideoPlayer()
 
-	if videoPlayer <> invalid then
+	if player <> invalid then
 	
 		index = m.request.query["Index"]
 		
 		if index <> invalid and index <> "" then
-			videoPlayer.SetSubtitleStreamIndex(index.ToInt())
+			player.SetSubtitleStreamIndex(index.ToInt())
 		end if
         
 	end If
@@ -596,9 +596,28 @@ Function ProcessNavigationSearch() As Boolean
 
 End Function
 
+Function ConvertTicksParamToMs(ticks = invalid) as Integer
+
+	Debug ("Parsing seek param: " + tostr(ticks))
+	
+	ticks = firstOf(ticks, "0")
+	
+	' 1 second = 1000 ms = 10000 ticks
+	while ticks.Len() < 4
+		ticks = ticks + "0"
+	end while
+	
+	ms = ticks.Left(ticks.Len() - 4)
+	
+	return ms.ToInt()
+	
+End function
+
 Function ProcessPlaybackPlayMedia() As Boolean
 
 	ids = m.request.query["ItemIds"].tokenize(",")
+	
+	startPosition = ConvertTicksParamToMs(m.request.query["StartPositionTicks"])
 
 	context = []
 	index = 0
@@ -622,7 +641,15 @@ Function ProcessPlaybackPlayMedia() As Boolean
 		index = index + 1
 	end for
 	
-    GetViewController().CreatePlayerForItem(context, 0, {})
+	startPosition = startPosition / 1000
+	
+	playOptions = {
+		PlayStart: startPosition
+	}
+	
+	Debug("Passing PlayStart to VideoPlayer: " + tostr(playOptions.PlayStart))
+	
+    GetViewController().CreatePlayerForItem(context, 0, playOptions)
 
     m.simpleOK("")
     return true
@@ -631,16 +658,16 @@ End Function
 
 Function ProcessPlaybackSeekTo() As Boolean
 
-    offset = m.request.query["SeekPositionTicks"]
+    offset = ConvertTicksParamToMs(m.request.query["SeekPositionTicks"])
 
     if AudioPlayer().IsPlaying then
-        AudioPlayer().Seek(int(val(offset)))
+        AudioPlayer().Seek(offset)
     else
 
-		videoPlayer = VideoPlayer()
+		player = VideoPlayer()
 
-		if videoPlayer <> invalid then
-            videoPlayer.Seek(int(val(offset)))
+		if player <> invalid then
+            player.Seek(offset)
 		else 
 			
 		end If
@@ -657,14 +684,14 @@ Function ProcessPlaybackSkipNext() As Boolean
         AudioPlayer().Next()
     else
 
-		videoPlayer = VideoPlayer()
+		player = VideoPlayer()
 
-		if videoPlayer <> invalid then
-			videoPlayer.Next()
+		if player <> invalid then
+			player.Next()
 		else 
-			photoPlayer = PhotoPlayer()
-			if photoPlayer <> invalid then 
-				photoPlayer.Next()
+			player = PhotoPlayer()
+			if player <> invalid then 
+				player.Next()
 			else
 				SendEcpCommand("Fwd")
 			end if
@@ -682,14 +709,14 @@ Function ProcessPlaybackSkipPrevious() As Boolean
         AudioPlayer().Prev()
     else
 
-		videoPlayer = VideoPlayer()
+		player = VideoPlayer()
 
-		if videoPlayer <> invalid then
-			videoPlayer.Prev()
+		if player <> invalid then
+			player.Prev()
 		else 
-			photoPlayer = PhotoPlayer()
-			if photoPlayer <> invalid then 
-				photoPlayer.Prev()
+			player = PhotoPlayer()
+			if player <> invalid then 
+				player.Prev()
 			else
 				SendEcpCommand("Rev")
 			end if
@@ -707,9 +734,9 @@ Function ProcessPlaybackStepBack() As Boolean
         AudioPlayer().Seek(-15000, true)
     else
 
-		videoPlayer = VideoPlayer()
+		player = VideoPlayer()
 
-		if videoPlayer <> invalid then
+		if player <> invalid then
 			SendEcpCommand("InstantReplay")
 		else 
 			
@@ -732,7 +759,7 @@ Function ProcessPlaybackStepForward() As Boolean
     end if
 
     if player <> invalid then
-        player.Seek(30000, true)
+        player.Seek(15000, true)
     end if
 
     m.simpleOK("")
@@ -746,13 +773,13 @@ Function ProcessPlaybackPause() As Boolean
         AudioPlayer().Pause()
     else
 
-		videoPlayer = VideoPlayer()
+		player = VideoPlayer()
 
-		if videoPlayer <> invalid then
-			videoPlayer.Pause()
+		if player <> invalid then
+			player.Pause()
 		else 
-			photoPlayer = PhotoPlayer()
-			if photoPlayer <> invalid then photoPlayer.Pause()
+			player = PhotoPlayer()
+			if player <> invalid then player.Pause()
 
 		end If
     end if
@@ -768,14 +795,14 @@ Function ProcessPlaybackPlay() As Boolean
         AudioPlayer().Resume()
     else
 
-		videoPlayer = VideoPlayer()
+		player = VideoPlayer()
 
-		if videoPlayer <> invalid then
-			videoPlayer.Resume()
+		if player <> invalid then
+			player.Resume()
 		else 
-			photoPlayer = PhotoPlayer()
-			if photoPlayer <> invalid then 
-				photoPlayer.Resume()
+			player = PhotoPlayer()
+			if player <> invalid then 
+				player.Resume()
 			else
 				SendEcpCommand("Play")
 			end if
@@ -793,13 +820,13 @@ Function ProcessPlaybackStop() As Boolean
         AudioPlayer().Stop()
     else
 
-		videoPlayer = VideoPlayer()
+		player = VideoPlayer()
 
-		if videoPlayer <> invalid then
-			videoPlayer.Stop()
+		if player <> invalid then
+			player.Stop()
 		else 
-			photoPlayer = PhotoPlayer()
-			if photoPlayer <> invalid then photoPlayer.Stop()
+			player = PhotoPlayer()
+			if player <> invalid then player.Stop()
 
 		end If
     end if
@@ -1114,11 +1141,11 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		m.ShowInitialScreen()
 
     else if contentType = "TVLibrary" then
-		screen = createTvLibraryScreen(m)
+		screen = createTvLibraryScreen(m, itemId)
         screenName = "TVLibrary"
 
     else if contentType = "MovieLibrary" then
-		screen = createMovieLibraryScreen(m)
+		screen = createMovieLibraryScreen(m, itemId)
         screenName = "MovieLibrary"
 
     else if contentType = "TvChannel" then
@@ -1167,7 +1194,7 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		screenName = "LiveTVRecordings"
 
     else if contentType = "MusicLibrary" then
-		screen = createMusicLibraryScreen(m)
+		screen = createMusicLibraryScreen(m, itemId)
 		screenName = "MusicLibrary"
 
     else if contentType = "MusicArtist" then

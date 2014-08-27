@@ -395,7 +395,7 @@ Function BuildImage(url, w, h, tag = "", watched = false As Boolean, percentage 
     end if
 
     ' Use Enhanced Images
-    if RegRead("prefEnhancedImages") = "yes"
+    if RegRead("prefEnhancedImages") <> "no"
         query = query + "&EnableImageEnhancers=true&format=jpg&BackgroundColor=" + HttpEncode(getGlobalVar("backgroundColor"))
     else
         query = query + "&EnableImageEnhancers=false"

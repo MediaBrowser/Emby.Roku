@@ -12,7 +12,10 @@ Function createHomeScreen(viewController as Object) as Object
 	for each view in views
 	
 		names.push(view.Title)
-		keys.push(view.CollectionType + "|" + view.Id)
+		
+		key = view.CollectionType + "|" + view.Id + "|" + firstOf(view.HDPosterUrl, "")
+		
+		keys.push(key)
 		
 	end for
 	
@@ -77,7 +80,7 @@ Function getUserViews() as Object
 			viewType = firstOf(i.CollectionType, "")
 			
 			' Filter out unsupported views
-			if viewType = "movies" or viewType = "music" or viewType = "tvshows" or viewType = "livetv" or viewType = "channels" or viewType = "folders" then
+			if viewType = "movies" or viewType = "music" or viewType = "tvshows" or viewType = "livetv" or viewType = "channels" or viewType = "folders" or viewType = "playlists" then
 				views.push(i)
 			
 			' Treat all other types as folders for now
@@ -104,6 +107,7 @@ Function getHomeScreenLocalData(row as Integer, id as String, startItem as Integ
 	parts = id.tokenize("|")
 	id = parts[0]
 	parentId = firstOf(parts[1], "")
+	viewTileImageUrl = parts[2]
 	
 	if id = "options" then
 		return GetOptionButtons(viewController)
@@ -115,7 +119,7 @@ Function getHomeScreenLocalData(row as Integer, id as String, startItem as Integ
 		' Jump list
 		if movieToggle = 3 then
 		
-			return GetMovieButtons(viewController, movieToggle)
+			return GetMovieButtons(viewController, movieToggle, parentId, viewTileImageUrl)
 		end if
 		
 	else if id = "tvshows" 
@@ -125,7 +129,7 @@ Function getHomeScreenLocalData(row as Integer, id as String, startItem as Integ
 		' Jump list
 		if tvToggle = 3 then
 		
-			return GetTVButtons(viewController, tvToggle)
+			return GetTVButtons(viewController, tvToggle, parentId, viewTileImageUrl)
 		end if
 		
 	end If
@@ -148,6 +152,10 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 	
 		url = url  + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?sortby=sortname"
 		query.AddReplace("Fields", "PrimaryImageAspectRatio")
+		
+	else if id = "playlists"
+	
+		url = url  + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?sortby=sortname"
 		
 	else if id = "channels"
 	
@@ -365,9 +373,12 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 	parts = id.tokenize("|")
 	id = parts[0]
 	parentId = firstOf(parts[1], "")
+	viewTileImageUrl = parts[2]
 	
 	if id = "folders" then
 		return parseItemsResponse(json, 0, "two-row-flat-landscape-custom")
+	else if id = "playlists" then
+		return parseItemsResponse(json, 1, "two-row-flat-landscape-custom")
 	else if id = "channels" then
 		return parseItemsResponse(json, 1, "two-row-flat-landscape-custom")
 		
@@ -383,7 +394,7 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 			response = parseItemsResponse(json, 1, "two-row-flat-landscape-custom")
 		end if
 		
-		buttons = GetBaseMovieButtons(viewController, movieToggle, response)
+		buttons = GetBaseMovieButtons(viewController, movieToggle, parentId, viewTileImageUrl, response)
 		buttonCount = buttons.Count()
 		minTotalRecordCount = buttonCount + response.Items.Count()
 		
@@ -409,7 +420,7 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 			response = parseItemsResponse(json, 0, "two-row-flat-landscape-custom")
 		end if
 		
-		buttons = GetBaseTVButtons(viewController, tvToggle)
+		buttons = GetBaseTVButtons(viewController, tvToggle, parentId, viewTileImageUrl)
 		buttonCount = buttons.Count()
 		minTotalRecordCount = buttonCount + response.Items.Count()
 		
@@ -463,10 +474,10 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 		musicToggle  = (firstOf(RegUserRead("musicToggle"), "1")).ToInt()		
 		
 		if musicToggle <> 1 then
-			return GetMusicButtons(viewController, musicToggle)
+			return GetMusicButtons(viewController, musicToggle, parentId, viewTileImageUrl)
 		end if
 		
-		buttons = GetBaseMusicButtons(viewController, musicToggle)
+		buttons = GetBaseMusicButtons(viewController, musicToggle, parentId, viewTileImageUrl)
 		buttonCount = buttons.Count()
 		minTotalRecordCount = buttonCount + response.Items.Count()
 		
@@ -592,15 +603,20 @@ End Function
 '** Get GetMovieButtons
 '**********************************************************
 
-Function GetBaseMovieButtons(viewController as Object, movieToggle as Integer, movieResponse = invalid) As Object
+Function GetBaseMovieButtons(viewController as Object, movieToggle as Integer, parentId as String, allTileImageUrl = invalid, movieResponse = invalid) As Object
 
+	if firstOf(allTileImageUrl, "") = "" then
+		allTileImageUrl = viewController.getThemeImageUrl("hd-movies.jpg")
+	end if
+	
 	buttons = [
         {
             Title: "Movie Library"
             ContentType: "MovieLibrary"
-            ShortDescriptionLine1: "Movie Library"
-            HDPosterUrl: viewController.getThemeImageUrl("hd-movies.jpg")
-            SDPosterUrl: viewController.getThemeImageUrl("hd-movies.jpg")
+            ShortDescriptionLine1: "Library"
+            HDPosterUrl: allTileImageUrl
+            SDPosterUrl: allTileImageUrl,
+			Id: parentId
         }
     ]
 
@@ -664,9 +680,9 @@ Function GetBaseMovieButtons(viewController as Object, movieToggle as Integer, m
     
 End Function
 
-Function GetMovieButtons(viewController as Object, movieToggle as Integer) As Object
+Function GetMovieButtons(viewController as Object, movieToggle as Integer, parentId as String, allTileImageUrl = invalid) As Object
 
-    buttons = GetBaseMovieButtons(viewController, movieToggle)
+    buttons = GetBaseMovieButtons(viewController, movieToggle, parentId, allTileImageUrl)
 
     if movieToggle = 3 then
 	
@@ -706,15 +722,20 @@ End Function
 '** Get TV Buttons Row
 '**********************************************************
 
-Function GetBaseTVButtons(viewController as Object, tvToggle as Integer) As Object
+Function GetBaseTVButtons(viewController as Object, tvToggle as Integer, parentId as String, allTileImageUrl = invalid) As Object
 
-    buttons = [
+    if firstOf(allTileImageUrl, "") = "" then
+		allTileImageUrl = viewController.getThemeImageUrl("hd-tv.jpg")
+	end if
+	
+	buttons = [
         {
             Title: "TV Library"
             ContentType: "TVLibrary"
-            ShortDescriptionLine1: "TV Library"
-            HDPosterUrl: viewController.getThemeImageUrl("hd-tv.jpg")
-            SDPosterUrl: viewController.getThemeImageUrl("hd-tv.jpg")
+            ShortDescriptionLine1: "Library"
+            HDPosterUrl: allTileImageUrl
+            SDPosterUrl: allTileImageUrl,
+			Id: parentId
         }
     ]
 
@@ -762,9 +783,9 @@ Function GetBaseTVButtons(viewController as Object, tvToggle as Integer) As Obje
 	
 End Function
 
-Function GetTVButtons(viewController as Object, tvToggle as Integer) As Object
+Function GetTVButtons(viewController as Object, tvToggle as Integer, parentId as String, allTileImageUrl = invalid) As Object
 
-    buttons = GetBaseTVButtons(viewController, tvToggle)
+    buttons = GetBaseTVButtons(viewController, tvToggle, parentId, allTileImageUrl)
 
     if tvToggle = 3 then
 	
@@ -878,15 +899,20 @@ End Function
 '** GetMusicButtons
 '**********************************************************
 
-Function GetBaseMusicButtons(viewController as Object, musicToggle as Integer) As Object
+Function GetBaseMusicButtons(viewController as Object, musicToggle as Integer, parentId as String, allTileImageUrl = invalid) As Object
 
-    buttons = [
+    if firstOf(allTileImageUrl, "") = "" then
+		allTileImageUrl = viewController.getThemeImageUrl("hd-music.jpg")
+	end if
+	
+	buttons = [
         {
             Title: "Music Library"
             ContentType: "MusicLibrary"
-            ShortDescriptionLine1: "Music Library"
-            HDPosterUrl: viewController.getThemeImageUrl("hd-music.jpg")
-            SDPosterUrl: viewController.getThemeImageUrl("hd-music.jpg")
+            ShortDescriptionLine1: "Library"
+            HDPosterUrl: allTileImageUrl
+            SDPosterUrl: allTileImageUrl,
+			Id: parentId
         }
     ]
 
@@ -918,9 +944,9 @@ Function GetBaseMusicButtons(viewController as Object, musicToggle as Integer) A
 	return buttons
 End Function
 
-Function GetMusicButtons(viewController as Object, musicToggle as Integer) As Object
+Function GetMusicButtons(viewController as Object, musicToggle as Integer, parentId as String, allTileImageUrl = invalid) As Object
 
-	buttons = GetBaseMusicButtons(viewController, musicToggle)
+	buttons = GetBaseMusicButtons(viewController, musicToggle, parentId, allTileImageUrl)
 
     ' Jump In Album
     if musicToggle = 2 then

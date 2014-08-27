@@ -177,6 +177,8 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 	end if
 	
 	m.canSeek = videoItem.StreamInfo.CanSeek
+	
+	Debug ("Setting PlayStart to " + tostr(playOptions.PlayStart))
 	videoItem.PlayStart = playOptions.PlayStart
 
 	player.SetContent(videoItem)
@@ -331,7 +333,6 @@ Sub videoPlayerReportPlayback(action as String)
 	
 	position = m.lastPosition
 	playOptions = m.PlayOptions	
-	if m.IsTranscoded and playOptions.PlayStart <> invalid then position = position + playOptions.PlayStart
 
 	reportPlayback(m.videoItem.Id, "Video", action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
 End Sub
@@ -362,7 +363,6 @@ Sub videoPlayerSetAudioStreamIndex(index)
 		
 		position = m.lastPosition
 		playOptions = m.PlayOptions	
-		if m.IsTranscoded and playOptions.PlayStart <> invalid then position = position + playOptions.PlayStart
 
 		item.PlayOptions.PlayStart = position
 		
@@ -379,7 +379,6 @@ Sub videoPlayerSetSubtitleStreamIndex(index)
 		
 		position = m.lastPosition
 		playOptions = m.PlayOptions	
-		if m.IsTranscoded and playOptions.PlayStart <> invalid then position = position + playOptions.PlayStart
 
 		item.PlayOptions.PlayStart = position
 		
@@ -399,7 +398,7 @@ Sub videoPlayerSeek(offset, relative=false)
     if m.Screen <> invalid then
 
         if relative then
-            offset = offset + m.lastPosition
+            offset = offset + (1000 * m.lastPosition)
             if offset < 0 then offset = 0
         end if
 

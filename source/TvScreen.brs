@@ -2,7 +2,7 @@
 ' createTvLibraryScreen
 '******************************************************
 
-Function createTvLibraryScreen(viewController as Object) As Object
+Function createTvLibraryScreen(viewController as Object, parentId as String) As Object
 
     imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
 
@@ -13,6 +13,7 @@ Function createTvLibraryScreen(viewController as Object) As Object
 	loader.getUrl = getTvLibraryRowScreenUrl
 	loader.parsePagedResult = parseTvLibraryScreenResult
 	loader.getLocalData = getTvLibraryScreenLocalData
+	loader.parentId = parentId
 
     if imageType = 0 then
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "mixed-aspect-ratio")
@@ -95,6 +96,7 @@ Function getTvLibraryRowScreenUrl(row as Integer, id as String) as String
 
 		query.AddReplace("IncludeItemTypes", "Series")
 		query.AddReplace("fields", "Overview")
+		query.AddReplace("ParentId", m.parentId)
 
 		if filterBy = 1
 			query.AddReplace("SeriesStatus", "Continuing")
@@ -124,6 +126,7 @@ Function getTvLibraryRowScreenUrl(row as Integer, id as String) as String
 
 		query.AddReplace("userid", getGlobalVar("user").Id)
 		query.AddReplace("SortBy", "SortName")
+		query.AddReplace("ParentId", m.parentId)
 	else if row = 3
 		' Tv genres
 		url = url  + "/Genres?recursive=true"
@@ -131,6 +134,7 @@ Function getTvLibraryRowScreenUrl(row as Integer, id as String) as String
 		query.AddReplace("userid", getGlobalVar("user").Id)
 		query.AddReplace("IncludeItemTypes", "Series")
 		query.AddReplace("SortBy", "SortName")
+		query.AddReplace("ParentId", m.parentId)
 	end If
 
 	for each key in query

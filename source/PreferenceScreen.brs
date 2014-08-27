@@ -512,14 +512,14 @@ End Function
 Function GetPreferenceEnhancedImages() as Object
     prefOptions = [
         {
-            Title: "No [default]",
+            Title: "No",
             Id: "no",
-            IsDefault: true
+            IsDefault: false
         },
         {
-            Title: "Yes",
+            Title: "Yes [default]",
             Id: "yes",
-            IsDefault: false
+            IsDefault: true
         }
     ]
 

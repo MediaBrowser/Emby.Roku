@@ -2,7 +2,7 @@
 '** createMovieLibraryScreen
 '**********************************************************
 
-Function createMovieLibraryScreen(viewController as Object) As Object
+Function createMovieLibraryScreen(viewController as Object, parentId as String) As Object
 
     imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
@@ -13,6 +13,7 @@ Function createMovieLibraryScreen(viewController as Object) As Object
 	loader.getUrl = getMovieLibraryRowScreenUrl
 	loader.parsePagedResult = parseMovieLibraryScreenResult
 	loader.getLocalData = getMovieLibraryScreenLocalData
+	loader.parentId = parentId
 
     if imageType = 0 then
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "mixed-aspect-ratio")
@@ -101,6 +102,7 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
 
 		query.AddReplace("IncludeItemTypes", "Movie")
 		query.AddReplace("Fields", "Overview")
+		query.AddReplace("ParentId", m.parentId)
 
 	else if row = 1
 		' Alphabet - should never get in here
@@ -111,6 +113,7 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
 		query.AddReplace("IncludeItemTypes", "BoxSet")
 		query.AddReplace("Fields", "Overview")
 		query.AddReplace("SortBy", "SortName")
+		query.AddReplace("ParentId", m.parentId)
 
 	else if row = 3
 		url = url  + "/Genres?recursive=true"
@@ -118,6 +121,7 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
 		query.AddReplace("SortBy", "SortName")
 		query.AddReplace("userid", getGlobalVar("user").Id)
 		query.AddReplace("IncludeItemTypes", "Movie")
+		query.AddReplace("ParentId", m.parentId)
 	end If
 
 	for each key in query
