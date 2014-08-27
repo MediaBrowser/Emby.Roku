@@ -72,7 +72,7 @@ End Function
 Function getTvLibraryScreenLocalData(row as Integer, id as String, startItem as Integer, count as Integer) as Object
 
 	if row = 1 then
-		return getAlphabetList("TvAlphabet")
+		return getAlphabetList("TvAlphabet", m.parentId)
 	end If
 
     return invalid
@@ -319,7 +319,7 @@ End Function
 ' createTvAlphabetScreen
 '******************************************************
 
-Function createTvAlphabetScreen(viewController as Object, letter As String) As Object
+Function createTvAlphabetScreen(viewController as Object, letter As String, parentId = invalid) As Object
 
     imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
 
@@ -329,6 +329,7 @@ Function createTvAlphabetScreen(viewController as Object, letter As String) As O
 	loader = CreateObject("roAssociativeArray")
 	loader.getUrl = getTvAlphabetScreenUrl
 	loader.parsePagedResult = parseTvAlphabetScreenResult
+	loader.parentId = parentId
 
     if imageType = 0 then
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "mixed-aspect-ratio")
@@ -356,6 +357,8 @@ Function getTvAlphabetScreenUrl(row as Integer, id as String) as String
         sortby: "SortName"
         sortorder: "Ascending"
     }
+	
+	if m.parentId <> invalid then query.parentId = m.parentId
 
     if letter = "#" then
         filters = {

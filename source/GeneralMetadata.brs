@@ -153,7 +153,7 @@ End Function
 '** Get Alphabetical List
 '**********************************************************
 
-Function getAlphabetList(contentType As String) As Object
+Function getAlphabetList(contentType As String, parentId = invalid) As Object
 
     ' Set the buttons
     buttons = []
@@ -168,6 +168,10 @@ Function getAlphabetList(contentType As String) As Object
             HDPosterUrl: GetViewController().getThemeImageUrl("letter_" + cLetter + ".jpg")
             SDPosterUrl: GetViewController().getThemeImageUrl("letter_" + cLetter + ".jpg")
         }
+		
+		if parentId <> invalid then
+			letterButton.ParentId = parentId
+		end if
 
         buttons.Push( letterButton )
     end for

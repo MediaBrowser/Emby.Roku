@@ -686,7 +686,7 @@ Function GetMovieButtons(viewController as Object, movieToggle as Integer, paren
 
     if movieToggle = 3 then
 	
-        alphaMovies = getAlphabetList("MovieAlphabet")
+        alphaMovies = getAlphabetList("MovieAlphabet", parentId)
         if alphaMovies <> invalid
             buttons.Append( alphaMovies.Items )
         end if
@@ -789,7 +789,7 @@ Function GetTVButtons(viewController as Object, tvToggle as Integer, parentId as
 
     if tvToggle = 3 then
 	
-        alphaTV = getAlphabetList("TvAlphabet")
+        alphaTV = getAlphabetList("TvAlphabet", parentId)
         if alphaTV <> invalid
             buttons.Append( alphaTV.Items )
         end if
@@ -951,7 +951,7 @@ Function GetMusicButtons(viewController as Object, musicToggle as Integer, paren
     ' Jump In Album
     if musicToggle = 2 then
         
-		alphaMusicAlbum = getAlphabetList("MusicAlbumAlphabet")
+		alphaMusicAlbum = getAlphabetList("MusicAlbumAlphabet", parentId)
         if alphaMusicAlbum <> invalid
             buttons.Append( alphaMusicAlbum.Items )
         end if
@@ -959,7 +959,7 @@ Function GetMusicButtons(viewController as Object, musicToggle as Integer, paren
     ' Jump In Artist
     else if musicToggle = 3 then
         
-		alphaMusicArtist = getAlphabetList("MusicArtistAlphabet")
+		alphaMusicArtist = getAlphabetList("MusicArtistAlphabet", parentId)
         if alphaMusicArtist <> invalid
             buttons.Append( alphaMusicArtist.Items )
         end if

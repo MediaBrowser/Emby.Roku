@@ -21,9 +21,9 @@ End Function
 Function getMusicLibraryScreenLocalData(row as Integer, id as String, startItem as Integer, count as Integer) as Object
 
 	if row = 2 then
-		return getAlphabetList("MusicAlbumAlphabet")
+		return getAlphabetList("MusicAlbumAlphabet", m.parentId)
 	else if row = 3 then
-		return getAlphabetList("MusicArtistAlphabet")
+		return getAlphabetList("MusicArtistAlphabet", m.parentId)
 	end If
 
     return invalid
@@ -131,7 +131,7 @@ End Function
 '** createMusicArtistsAlphabetScreen
 '**********************************************************
 
-Function createMusicArtistsAlphabetScreen(viewController as Object, letter As String) As Object
+Function createMusicArtistsAlphabetScreen(viewController as Object, letter As String, parentId = invalid) As Object
 
 	' Dummy up an item
 	item = CreateObject("roAssociativeArray")
@@ -139,6 +139,7 @@ Function createMusicArtistsAlphabetScreen(viewController as Object, letter As St
 
     screen = CreatePosterScreen(viewController, item, "arced-square")
 
+	screen.ParentId = parentId
 	screen.GetDataContainer = getMusicArtistsAlphabetDataContainer
 
     return screen
@@ -157,6 +158,8 @@ Function getMusicArtistsAlphabetDataContainer(viewController as Object, item as 
             NameStartsWith: letter
         }
     end if
+	
+	if m.ParentId <> invalid then filters.ParentId = m.ParentId
 
     musicData = getMusicArtists(invalid, invalid, filters)
     if musicData = invalid
@@ -177,7 +180,7 @@ End Function
 '** createMusicAlbumsAlphabetScreen
 '**********************************************************
 
-Function createMusicAlbumsAlphabetScreen(viewController as Object, letter As String) As Object
+Function createMusicAlbumsAlphabetScreen(viewController as Object, letter As String, parentId = invalid) As Object
 
 	' Dummy up an item
 	item = CreateObject("roAssociativeArray")
@@ -185,6 +188,7 @@ Function createMusicAlbumsAlphabetScreen(viewController as Object, letter As Str
 
     screen = CreatePosterScreen(viewController, item, "arced-square")
 
+	screen.ParentId = parentId
 	screen.GetDataContainer = getMusicAlbumsAlphabetDataContainer
 
     return screen
@@ -204,6 +208,8 @@ Function getMusicAlbumsAlphabetDataContainer(viewController as Object, item as O
             NameStartsWith: letter
         }
     end if
+	
+	if m.ParentId <> invalid then filters.ParentId = m.ParentId
 
     musicData = getMusicAlbums(invalid, invalid, filters)
     if musicData = invalid

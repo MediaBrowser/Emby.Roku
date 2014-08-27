@@ -1170,7 +1170,7 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		screenName = "GenreSearch " + item.Title
 
     else if contentType = "MovieAlphabet" then
-		screen = createMovieAlphabetScreen(m, itemId)
+		screen = createMovieAlphabetScreen(m, itemId, item.ParentId)
         screenName = "MovieAlphabet " + itemId
 
     else if contentType = "TvGenre" then
@@ -1178,7 +1178,7 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		screenName = "TvGenre " + item.Title
 
     else if contentType = "TvAlphabet" then
-		screen = createTvAlphabetScreen(m, itemId)
+		screen = createTvAlphabetScreen(m, itemId, item.ParentId)
         screenName = "TvAlphabet " + itemId
 
     else if contentType = "Series" then
@@ -1206,11 +1206,11 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
         screenName = "MusicAlbum " + itemId
 		
     else if contentType = "MusicAlbumAlphabet" then
-		screen = createMusicAlbumsAlphabetScreen(m, itemId)
+		screen = createMusicAlbumsAlphabetScreen(m, itemId, item.ParentId)
 		screenName = "MusicAlbumAlphabet " + itemId
 
     else if contentType = "MusicArtistAlphabet" then
-		screen = createMusicArtistsAlphabetScreen(m, itemId)
+		screen = createMusicArtistsAlphabetScreen(m, itemId, item.ParentId)
 		screenName = "MusicArtistAlphabet " + itemId
 
     else if contentType = "Channel" or contentType = "ChannelFolderItem" then

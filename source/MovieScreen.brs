@@ -60,7 +60,7 @@ End Sub
 Function getMovieLibraryScreenLocalData(row as Integer, id as String, startItem as Integer, count as Integer) as Object
 
 	if row = 1 then
-		return getAlphabetList("MovieAlphabet")
+		return getAlphabetList("MovieAlphabet", m.parentId)
 	end If
 
     return invalid
@@ -164,7 +164,7 @@ End Function
 '** createMovieAlphabetScreen
 '**********************************************************
 
-Function createMovieAlphabetScreen(viewController as Object, letter As String) As Object
+Function createMovieAlphabetScreen(viewController as Object, letter As String, parentId = invalid) As Object
 
     imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
@@ -174,6 +174,7 @@ Function createMovieAlphabetScreen(viewController as Object, letter As String) A
 	loader = CreateObject("roAssociativeArray")
 	loader.getUrl = getMovieAlphabetScreenUrl
 	loader.parsePagedResult = parseMovieAlphabetScreenResult
+	loader.parentId = parentId
 
     if imageType = 0 then
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "mixed-aspect-ratio")
@@ -205,6 +206,8 @@ Function getMovieAlphabetScreenUrl(row as Integer, id as String) as String
         sortby: "SortName"
         sortorder: "Ascending"
     }
+	
+	if m.parentId <> invalid then query.parentId = m.parentId
 
     if letter = "#" then
         filters = {
