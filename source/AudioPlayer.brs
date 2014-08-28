@@ -214,6 +214,7 @@ End Sub
 Sub audioPlayerStop()
     if m.Context <> invalid then
         m.player.Stop()
+		m.reportPlayback("stop")
         m.player.SetNext(m.CurIndex)
         m.IsPlaying = false
         m.IsPaused = false

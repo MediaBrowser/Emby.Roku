@@ -304,10 +304,21 @@ Function createMusicSongsScreen(viewController as Object, artistInfo As Object) 
 	screen.audioItems = musicData.Items
 
 	screen.IsShuffled = false
+	
+	screen.playFromIndex = musicSongsPlayFromIndex
 
     return screen
 
 End Function
+
+Sub musicSongsPlayFromIndex(index)
+
+	player = AudioPlayer()
+	
+	player.SetContextFromItems(m.audioItems, index, m, true)
+	player.Play()
+				
+End Sub
 
 Function musicSongsHandleMessage(msg) As Boolean
     handled = false

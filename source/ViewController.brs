@@ -1205,6 +1205,10 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		screen = createMusicSongsScreen(m, item)
         screenName = "MusicAlbum " + itemId
 		
+    else if contentType = "Playlist" and item.MediaType = "Audio" then
+		screen = createMusicSongsScreen(m, item)
+        screenName = "Playlist " + itemId
+		
     else if contentType = "MusicAlbumAlphabet" then
 		screen = createMusicAlbumsAlphabetScreen(m, itemId, item.ParentId)
 		screenName = "MusicAlbumAlphabet " + itemId
@@ -1354,14 +1358,117 @@ Function vcCreateVideoPlayer(context, contextIndex, playOptions, show=true)
     return screen
 End Function
 
+Function createPlayerForMusicArtist(viewController, item, playOptions) As Object
+
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&Artists=" + HttpEncode(item.Name)
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+		result = parseItemsResponse(response, 0, "two-row-flat-landscape-custom")
+		
+		return viewController.CreatePlayerForItem(result.Items, 0, playOptions)
+    end if
+
+    return invalid
+
+End Function
+
+Function createPlayerForMusicAlbum(viewController, item, playOptions) As Object
+
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&ParentId=" + HttpEncode(item.Id)
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+		result = parseItemsResponse(response, 0, "two-row-flat-landscape-custom")
+		
+		return viewController.CreatePlayerForItem(result.Items, 0, playOptions)
+    end if
+
+    return invalid
+	
+End Function
+
+Function createPlayerForMusicGenre(viewController, item, playOptions) As Object
+
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&Genres=" + HttpEncode(item.Name)
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+		result = parseItemsResponse(response, 0, "two-row-flat-landscape-custom")
+		
+		return viewController.CreatePlayerForItem(result.Items, 0, playOptions)
+    end if
+
+    return invalid
+
+End Function
+
+Function createPlayerForPlaylist(viewController, item, playOptions) As Object
+
+    ' URL
+    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?ParentId=" + HttpEncode(item.Id)
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+		result = parseItemsResponse(response, 0, "two-row-flat-landscape-custom")
+		
+		return viewController.CreatePlayerForItem(result.Items, 0, playOptions)
+    end if
+
+    return invalid
+
+End Function
+
 Function vcCreatePlayerForItem(context, contextIndex, playOptions)
     item = context[contextIndex]
 
-    if item.MediaType = "Photo" then
+    if item.Type = "MusicArtist" then
+        return createPlayerForMusicArtist(m, item, playOptions)
+    else if item.Type = "MusicAlbum" then
+        return createPlayerForMusicAlbum(m, item, playOptions)
+    else if item.Type = "Playlist" then
+        return createPlayerForPlaylist(m, item, playOptions)
+    else if item.Type = "MusicGenre" then
+        return createPlayerForMusicGenre(m, item, playOptions)
+    else if item.MediaType = "Photo" then
         return m.CreatePhotoPlayer(context, contextIndex)
     else if item.MediaType = "Audio" then
         AudioPlayer().Stop()
-        return m.CreateScreenForItem(context, contextIndex, invalid)
+        screen = m.CreateScreenForItem(context, contextIndex, invalid)
+		
+		if screen <> invalid and screen.playFromIndex <> invalid then screen.playFromIndex(contextIndex)
+		return screen
     else if item.MediaType = "Video" then
 	
 		return m.CreateVideoPlayer(context, contextIndex, playOptions)
@@ -1445,6 +1552,8 @@ End Sub
 
 Sub vcUpdateScreenProperties(screen)
 
+	bread2 = invalid 
+	
     if screen.NumBreadcrumbs <> 0 then
         count = m.breadcrumbs.Count()
         if count >= 2 then
@@ -1479,7 +1588,7 @@ Sub vcUpdateScreenProperties(screen)
         if enableBreadcrumbs then
 			screen.Screen.SetBreadcrumbText(bread1, bread2)
 		else
-            screen.Screen.SetTitle(bread2)
+            if bread2 <> invalid then screen.Screen.SetTitle(bread2)
         end if
     else if screenType = "roListScreen" OR screenType = "roKeyboardScreen" OR screenType = "roParagraphScreen" then
         if enableBreadcrumbs then
