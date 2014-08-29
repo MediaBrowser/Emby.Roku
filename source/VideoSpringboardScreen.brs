@@ -217,6 +217,9 @@ Sub videoActivate(priorScreen)
     end if
 
     if m.refreshOnActivate then
+	
+		m.refreshOnActivate = false
+		
         if m.ContinuousPlay AND (priorScreen.isPlayed = true) then
             m.GotoNextItem()
 

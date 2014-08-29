@@ -1226,7 +1226,14 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		screenName = "Folder " + itemId
 
     else if item.MediaType = "Photo" then
-		ShowPhotoPage(m, itemId)
+	
+        'if right(item.key, 8) = "children" then
+            'screen = createPosterScreen(item, m)
+            'screenName = "Photo Poster"
+        'else
+            screen = createPhotoSpringboardScreen(context, contextIndex, m)
+            screenName = "Photo Springboard"
+        'end if
 
     else if contentType = "RecordingGroup" then
 		screen = createLiveTvRecordingGroupsScreen(m, item)
@@ -1239,6 +1246,7 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
             AudioPlayer().ContextScreenID = m.nextScreenId
             screen = createAudioSpringboardScreen(AudioPlayer().Context, AudioPlayer().CurIndex, m)
             screenName = "Now Playing"
+			breadcrumbs = [screenName, ""]
         end if
         if screen = invalid then return invalid
     else if item.MediaType = "Audio" then
@@ -1537,7 +1545,7 @@ Sub vcAddBreadcrumbs(screen, breadcrumbs)
         if count >= 2 then
             breadcrumbs = [m.breadcrumbs[count-2], m.breadcrumbs[count-1]]
         else
-            breadcrumbs = m.breadcrumbs[0]
+            breadcrumbs = [m.breadcrumbs[0]]
         end if
 
         m.breadcrumbs.Append(breadcrumbs)

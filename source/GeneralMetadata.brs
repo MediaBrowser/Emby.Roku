@@ -532,6 +532,10 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 	
 	FillChaptersFromItem(metaData, i)
 	FillCategoriesFromGenres(metaData, i)
+	
+	if i.MediaType = "Photo" then
+		FillPhotoInfo(metaData, i)
+	end if
 
     metaData.LocationType = LCase(firstOf(i.LocationType, "FileSystem"))
 
@@ -553,6 +557,27 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 	return metaData
 	
 End Function
+
+Sub FillPhotoInfo(metaData as Object, item as Object)
+
+	if item.ImageTags <> invalid And item.ImageTags.Primary <> "" And item.ImageTags.Primary <> invalid
+				
+		imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(item.Id) + "/Images/Primary/0"
+
+		metaData.Url = BuildImage(imageUrl, invalid, invalid, item.ImageTags.Primary, false, 0, 0)
+		
+		metaData.Url = imageUrl
+		
+	end if
+	
+	metaData.TextOverlayUL = firstOf(item.Album, "")
+	
+	' Handled in PhotoPlayer
+	'metaData.TextOverlayUR = "3 of 20"
+	
+	metaData.TextOverlayBody = metaData.Title
+
+End Sub
 
 Sub FillActorsFromItem(metaData as Object, item as Object)
 

@@ -369,8 +369,16 @@ End Function
 '** Build an Image URL
 '******************************************************
 
-Function BuildImage(url, w, h, tag = "", watched = false As Boolean, percentage = 0 As Integer, unplayed = 0 As Integer)   
+Function BuildImage(url, width = invalid, height = invalid, tag = "", watched = false As Boolean, percentage = 0 As Integer, unplayed = 0 As Integer)   
+
     query = ""
+
+    ' Use Enhanced Images
+    if RegRead("prefEnhancedImages") <> "no"
+        query = query + "?EnableImageEnhancers=true&format=jpg&BackgroundColor=" + HttpEncode(getGlobalVar("backgroundColor"))
+    else
+        query = query + "?EnableImageEnhancers=false"
+    end if
 
     ' Check for cache tag
     if tag <> ""
@@ -394,14 +402,16 @@ Function BuildImage(url, w, h, tag = "", watched = false As Boolean, percentage 
         end if
     end if
 
-    ' Use Enhanced Images
-    if RegRead("prefEnhancedImages") <> "no"
-        query = query + "&EnableImageEnhancers=true&format=jpg&BackgroundColor=" + HttpEncode(getGlobalVar("backgroundColor"))
-    else
-        query = query + "&EnableImageEnhancers=false"
-    end if
-
-    return url + "?height=" + itostr(h) + "&width=" + itostr(w) + query
+	if width <> invalid then
+		query = query + "&width=" + itostr(width)
+	end if
+	
+    if height <> invalid then
+		query = query + "&height=" + itostr(height)
+	end if
+	
+    return url + query
+	
 End Function
 
 

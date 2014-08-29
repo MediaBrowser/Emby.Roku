@@ -310,7 +310,16 @@ End Sub
 '**********************************************************
 
 Sub gridActivate(priorScreen)
-    if m.popOnActivate then
+
+    if m.ignoreOnActivate = true then
+        ' close any facades even though we are ignoring the rest.
+        if m.Facade <> invalid then
+            m.Facade.Close()
+            m.Facade = invalid
+        end if
+        m.ignoreOnActivate = false
+        return
+    else if m.popOnActivate then
         m.ViewController.PopScreen(m)
         return
     else if m.closeOnActivate then

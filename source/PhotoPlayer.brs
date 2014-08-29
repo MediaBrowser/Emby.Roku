@@ -13,23 +13,25 @@ Function createPhotoPlayerScreen(context, contextIndex, viewController, shuffled
     screen.SetUnderscan(2.5)
     screen.SetMaxUpscale(8.0)
     screen.SetDisplayMode("photo-fit")
-    screen.SetPeriod(RegRead("slideshow_period", "preferences", "6").toInt())
-    screen.SetTextOverlayHoldTime(RegRead("slideshow_overlay", "preferences", "2500").toInt())
+    screen.SetPeriod(firstOf(RegRead("slideshow_period"), "6").toInt())
+    screen.SetTextOverlayHoldTime(firstOf(RegRead("slideshow_overlay"), "2500").toInt())
 
+	UpdatePhotoIndexNumbers(context)
+	
     ' Standard screen properties
     obj.Screen = screen
     if type(context) = "roArray" then
         obj.Item = context[contextIndex]
-        AddAccountHeaders(screen, obj.Item.server.AccessToken)
-        screen.SetContentList(context)
+        
+		screen.SetContentList(context)
         screen.SetNext(contextIndex, true)
         obj.CurIndex = contextIndex
         obj.PhotoCount = context.count()
         obj.Context = context
     else
         obj.Item = context
-        AddAccountHeaders(screen, obj.Item.server.AccessToken)
-        screen.AddContent(context)
+        
+		screen.AddContent(context)
         screen.SetNext(0, true)
         obj.CurIndex = 0
         obj.PhotoCount = 1
@@ -60,6 +62,20 @@ Function createPhotoPlayerScreen(context, contextIndex, viewController, shuffled
 
     return obj
 End Function
+
+Sub UpdatePhotoIndexNumbers(context)
+
+	index = 1
+	count = context.Count()
+	
+	for each item in context
+	
+		item.TextOverlayUR = tostr(index) + " of " + tostr(count)
+	
+		index = index + 1
+	end for
+	
+End Sub
 
 Function PhotoPlayer()
     ' If the active screen is a slideshow, return it. Otherwise, invalid.
