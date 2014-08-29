@@ -19,11 +19,6 @@ Function createHomeScreen(viewController as Object) as Object
 		
 	end for
 	
-	If RegRead("prefCollectionsFirstRow") <> "yes"
-        names.push("Media Folders")
-		keys.push("folders")
-    End If
-	
 	names.push("Options")
 	keys.push("options")
 
