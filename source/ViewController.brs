@@ -1366,110 +1366,117 @@ Function vcCreateVideoPlayer(context, contextIndex, playOptions, show=true)
     return screen
 End Function
 
-Function createPlayerForMusicArtist(viewController, item, playOptions) As Object
+Function GetItemsForPlayback(item) as Object
 
-    ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&Artists=" + HttpEncode(item.Name)
+    if item.Type = "MusicArtist" then
+	
+		' URL
+		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&Artists=" + HttpEncode(item.Name)
 
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
+		' Prepare Request
+		request = HttpRequest(url)
+		request.ContentType("json")
+		request.AddAuthorization()
 
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-
-		result = parseItemsResponse(response, 0, "two-row-flat-landscape-custom")
+		' Execute Request
+		response = request.GetToStringWithTimeout(10)
+		if response <> invalid
+			return parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+		end if
+		return invalid
 		
-		return viewController.CreatePlayerForItem(result.Items, 0, playOptions)
-    end if
+    else if item.Type = "MusicAlbum" then
+	
+		' URL
+		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&ParentId=" + HttpEncode(item.Id)
 
-    return invalid
+		' Prepare Request
+		request = HttpRequest(url)
+		request.ContentType("json")
+		request.AddAuthorization()
 
-End Function
+		' Execute Request
+		response = request.GetToStringWithTimeout(10)
+		if response <> invalid
 
-Function createPlayerForMusicAlbum(viewController, item, playOptions) As Object
-
-    ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&ParentId=" + HttpEncode(item.Id)
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-
-		result = parseItemsResponse(response, 0, "two-row-flat-landscape-custom")
+			return parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+		end if
+		return invalid
 		
-		return viewController.CreatePlayerForItem(result.Items, 0, playOptions)
-    end if
+		
+    else if item.Type = "PhotoAlbum" then
+	
+		' URL
+		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Photo&SortBy=SortName&ParentId=" + HttpEncode(item.Id)
 
-    return invalid
+		' Prepare Request
+		request = HttpRequest(url)
+		request.ContentType("json")
+		request.AddAuthorization()
+
+		' Execute Request
+		response = request.GetToStringWithTimeout(10)
+		if response <> invalid
+
+			return parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+		end if
+		return invalid
+		
+		
+    else if item.Type = "Playlist" then
+	
+		' URL
+		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?ParentId=" + HttpEncode(item.Id)
+
+		' Prepare Request
+		request = HttpRequest(url)
+		request.ContentType("json")
+		request.AddAuthorization()
+
+		' Execute Request
+		response = request.GetToStringWithTimeout(10)
+		if response <> invalid
+
+			return parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+		end if
+		return invalid		
+		
+    else if item.Type = "MusicGenre" then
+	
+		' URL
+		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&Genres=" + HttpEncode(item.Name)
+
+		' Prepare Request
+		request = HttpRequest(url)
+		request.ContentType("json")
+		request.AddAuthorization()
+
+		' Execute Request
+		response = request.GetToStringWithTimeout(10)
+		if response <> invalid
+
+			return parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+		end if
+
+		return invalid
+	end if	
+		
+	items = []
+	items.push(item)
+	return items
 	
 End Function
 
-Function createPlayerForMusicGenre(viewController, item, playOptions) As Object
-
-    ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&Genres=" + HttpEncode(item.Name)
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-
-		result = parseItemsResponse(response, 0, "two-row-flat-landscape-custom")
-		
-		return viewController.CreatePlayerForItem(result.Items, 0, playOptions)
-    end if
-
-    return invalid
-
-End Function
-
-Function createPlayerForPlaylist(viewController, item, playOptions) As Object
-
-    ' URL
-    url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?ParentId=" + HttpEncode(item.Id)
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-
-		result = parseItemsResponse(response, 0, "two-row-flat-landscape-custom")
-		
-		return viewController.CreatePlayerForItem(result.Items, 0, playOptions)
-    end if
-
-    return invalid
-
-End Function
-
 Function vcCreatePlayerForItem(context, contextIndex, playOptions)
+
+	if context.Count() = 1 then
+		context = GetItemsForPlayback(context[0])
+		contextIndex = 0
+	end if
+	
     item = context[contextIndex]
 
-    if item.Type = "MusicArtist" then
-        return createPlayerForMusicArtist(m, item, playOptions)
-    else if item.Type = "MusicAlbum" then
-        return createPlayerForMusicAlbum(m, item, playOptions)
-    else if item.Type = "Playlist" then
-        return createPlayerForPlaylist(m, item, playOptions)
-    else if item.Type = "MusicGenre" then
-        return createPlayerForMusicGenre(m, item, playOptions)
-    else if item.MediaType = "Photo" then
+    if item.MediaType = "Photo" then
         return m.CreatePhotoPlayer(context, contextIndex)
     else if item.MediaType = "Audio" then
         AudioPlayer().Stop()
