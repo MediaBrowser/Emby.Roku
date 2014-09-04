@@ -266,12 +266,12 @@ Sub setGridTheme(viewController as Object, style as String)
 
     app = CreateObject("roAppManager")
     if style = "two-row-flat-landscape-custom" then
-        app.SetThemeAttribute("GridScreenFocusBorderHD", viewController.getThemeImageUrl("hd-border-flat-landscape.png"))
-        app.SetThemeAttribute("GridScreenBorderOffsetHD", "-34,-19")
+        'app.SetThemeAttribute("GridScreenFocusBorderHD", viewController.getThemeImageUrl("hd-border-flat-landscape.png"))
+        'app.SetThemeAttribute("GridScreenBorderOffsetHD", "-34,-19")
         app.SetThemeAttribute("GridScreenDescriptionOffsetHD", "270,140")
     else if style = "mixed-aspect-ratio" then
-        app.SetThemeAttribute("GridScreenFocusBorderHD", viewController.getThemeImageUrl("hd-border-portrait.png"))
-        app.SetThemeAttribute("GridScreenBorderOffsetHD", "-25,-35")
+        'app.SetThemeAttribute("GridScreenFocusBorderHD", viewController.getThemeImageUrl("hd-border-portrait.png"))
+        'app.SetThemeAttribute("GridScreenBorderOffsetHD", "-25,-35")
         app.SetThemeAttribute("GridScreenDescriptionOffsetHD", "210,260")
     end if
 End Sub

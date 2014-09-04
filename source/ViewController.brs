@@ -208,9 +208,8 @@ Function vcGetDefaultTheme() as Object
         GridScreenLogoOffsetHD_X: "80"
         GridScreenLogoOffsetHD_Y: "30"
         GridScreenOverhangHeightHD: "120"
-        GridScreenFocusBorderHD: vcGetDefaultThemeImageUrl("hd-border-flat-landscape.png")
-        GridScreenBorderOffsetHD: "(-34,-19)"
-        'GridScreenDescriptionImageHD: vcGetDefaultThemeImageUrl("hd-description-background.png")
+        'GridScreenFocusBorderHD: vcGetDefaultThemeImageUrl("hd-border-flat-landscape.png")
+        'GridScreenBorderOffsetHD: "(-34,-19)"
 
         '*** SD Styles ****
 
@@ -230,7 +229,7 @@ Function vcGetDefaultTheme() as Object
         GridScreenOverhangHeightSD: "83"
 		
 		DialogTitleText: "#000000"
-		DialogBodyText: "#444444"
+		DialogBodyText: "#333333"
 
         '*** Common Styles ****
 
