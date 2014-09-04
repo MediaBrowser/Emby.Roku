@@ -262,8 +262,8 @@ Function GetImageSizes(screenType)
     if screenType = "two-row-flat-landscape-custom"
         hdWidth  = 266
         hdHeight = 150
-        sdWidth  = 140
-        sdHeight = 94
+        sdWidth  = 138
+        sdHeight = 77
 
     else if screenType = "flat-movie"
         hdWidth  = 210
