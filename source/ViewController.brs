@@ -228,6 +228,9 @@ Function vcGetDefaultTheme() as Object
         GridScreenLogoOffsetSD_X: "20"
         GridScreenLogoOffsetSD_Y: "20"
         GridScreenOverhangHeightSD: "83"
+		
+		DialogTitleText: "#000000"
+		DialogBodyText: "#444444"
 
         '*** Common Styles ****
 

@@ -15,9 +15,14 @@ Function createPhotoPlayerScreen(context, contextIndex, viewController, shuffled
     screen.SetDisplayMode("photo-fit")
     screen.SetPeriod(firstOf(RegRead("slideshow_period"), "6").toInt())
     screen.SetTextOverlayHoldTime(firstOf(RegRead("slideshow_overlay"), "2500").toInt())
+	
+    if type(context) <> "roArray" then
+        context = [context]
+		contextIndex = 0
+    end if
 
 	UpdatePhotoIndexNumbers(context)
-	
+
     ' Standard screen properties
     obj.Screen = screen
     if type(context) = "roArray" then
