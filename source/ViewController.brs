@@ -1603,13 +1603,9 @@ Sub vcUpdateScreenProperties(screen)
         end if
     else if screenType = "roListScreen" then
 	
-		versionArr = getGlobalVar("rokuVersion")
+		' SetBreadcrumbText is not available on legacy devices
+		if bread2 <> invalid then screen.Screen.SetTitle(bread2)
 		
-        if enableBreadcrumbs and CheckMinimumVersion(versionArr, [3, 1]) then
-			screen.Screen.SetBreadcrumbText(bread1, bread2)
-		else
-            if bread2 <> invalid then screen.Screen.SetTitle(bread2)
-        end if
     else if screenType = "roListScreen" OR screenType = "roKeyboardScreen" OR screenType = "roParagraphScreen" then
         if enableBreadcrumbs then
             screen.Screen.SetTitle(bread2)
