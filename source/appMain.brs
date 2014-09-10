@@ -116,6 +116,18 @@ Sub initGlobals()
         GetGlobalAA().AddReplace("legacyDevice", false)
     end if
 
+    ' Support for ReFrames seems mixed. These numbers could be wrong, but
+    ' there are reports that the Roku 1 can't handle more than 5 ReFrames,
+    ' and testing has shown that the video is black beyond that point. The
+    ' Roku 2 has been observed to play all the way up to 16 ReFrames, but
+    ' on at least one test video there were noticeable artifacts as the
+    ' number increased, starting with 8.
+    if major >= 4 then
+        GetGlobalAA().AddReplace("maxRefFrames", 8)
+    else
+        GetGlobalAA().AddReplace("maxRefFrames", 5)
+    end if
+
     ' Check if HDTV screen
     If device.GetDisplayType() = "HDTV" Then
         GetGlobalAA().AddReplace("isHD", true)
