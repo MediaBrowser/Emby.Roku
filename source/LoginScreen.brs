@@ -85,7 +85,10 @@ Sub loginScreenShowUsernameInput()
 	screen.Show(true)
 
 	value = screen.Text
-	m.showPasswordInput(value)
+	
+	if value <> invalid and value <> "" then
+		m.showPasswordInput(value)
+	end if
 	
 End Sub
 
