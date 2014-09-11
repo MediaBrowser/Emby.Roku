@@ -86,6 +86,8 @@ End Function
 
 Function handleFirstRunSetupScreenButton(command, data) As Boolean
 
+	m.goHomeOnPop = true
+	
     if command = "1"
 	
         facade = CreateObject("roOneLineDialog")
@@ -112,6 +114,10 @@ Function handleFirstRunSetupScreenButton(command, data) As Boolean
 
         createServerConfigurationScreen(m)
 		return false
+		
+	else if command = "3"
+
+        m.goHomeOnPop = false
 		
 	end If
 
@@ -392,11 +398,6 @@ Function createServerFoundScreen(viewController as Object, serverLocationInfo As
     screen.ScreenName = "ServerFound"
 	
     screen.SetButton("1", "Continue")
-
-    ' Add exit button for legacy devices
-    if getGlobalVar("legacyDevice")
-        screen.SetButton("3", "Exit Channel")
-    end if
 	
 	screen.HandleButton = serverFoundHandleButton
 	screen.serverInfo = serverLocationInfo

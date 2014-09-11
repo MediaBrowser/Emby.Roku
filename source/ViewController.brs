@@ -49,7 +49,6 @@ Function createViewController() As Object
     controller.CloseScreen = vcCloseScreen
 
     controller.Show = vcShow
-    controller.OnInitialized = vcOnInitialized
     controller.UpdateScreenProperties = vcUpdateScreenProperties
     controller.AddBreadcrumbs = vcAddBreadcrumbs
 
@@ -101,11 +100,6 @@ End Sub
 Function GetViewController()
     return m.ViewController
 End Function
-
-Sub vcOnInitialized()
-
-	m.ShowInitialScreen()
-End Sub
 
 Sub vcShowInitialScreen()
 
@@ -373,7 +367,7 @@ Sub vcShow()
 
 	m.loadUserTheme()
 	
-	m.OnInitialized()
+	m.ShowInitialScreen()
 
     timeout = 0
     while m.screens.Count() > 0
@@ -1074,8 +1068,12 @@ Sub vcPopScreen(screen)
             m.PopScreen(m.screens.Peek())
         end while
         m.screens.Pop()
+		
     else if m.screens.Count() = 0 then
-        m.Home = m.CreateHomeScreen()
+		if screen.goHomeOnPop <> false then
+			m.Home = m.CreateHomeScreen()
+		end if
+		
     else if callActivate then
         newScreen = m.screens.Peek()
         screenName = firstOf(newScreen.ScreenName, type(newScreen.Screen))
