@@ -63,7 +63,8 @@ Function createServerFirstRunSetupScreen(viewController as Object)
     header = "Welcome"
     paragraphs = []
     paragraphs.Push("To begin, please make sure you media browser server is currently running.")
-    paragraphs.Push("Media Browser Server is available for download at http://www.mediabrowser.tv")
+    paragraphs.Push("Media Browser Server is available for download at:")
+    paragraphs.Push("http://www.mediabrowser.tv")
     paragraphs.Push("Below you may select to scan the network and attempt to automatically find your server or manually enter it's information.")
 
     screen = createParagraphScreen(header, paragraphs, viewController)
@@ -270,13 +271,13 @@ End Function
 Sub createServerConfigurationScreen(parentScreen as Object) 
 
 	screen = GetViewController().CreateTextInputScreen("Enter Server Address", "Server IP Address (ex. 192.168.1.100)", ["Server Setup"], "", false)
-	screen.ValidateText = OnRequiredTextValueEntered
+	screen.ValidateText = OnServerAddressTextValueEntered
 	screen.Show(true)
 
 	value = screen.Text
     
 	portScreen = GetViewController().CreateTextInputScreen("Enter Server Port", "Server Port #", ["Server Setup"], "8096", false)
-	portScreen.ValidateText = OnRequiredTextValueEntered
+	portScreen.ValidateText = OnPortTextValueEntered
 	portScreen.ipAddress = value
 	
 	parentScreen.OnUserInput = onServerConfigurationUserInput
@@ -289,7 +290,40 @@ End Sub
 
 Function OnRequiredTextValueEntered(value) As Boolean
 
-	return value <> invalid and value <> ""
+	if value <> invalid and value <> "" then
+		return true
+	else
+	
+		createDialog("Invalid Input", "Please enter a valid value.", "Back")
+	
+		return false
+	end if
+	
+End Function
+
+Function OnServerAddressTextValueEntered(value) As Boolean
+
+	if value <> invalid and value <> "" then
+		return true
+	else
+	
+		createDialog("Invalid Input", "Please enter a valid server address.", "Back")
+	
+		return false
+	end if
+	
+End Function
+
+Function OnPortTextValueEntered(value) As Boolean
+
+	if value <> invalid and value <> "" and toint(value) <> invalid then
+		return true
+	else
+	
+		createDialog("Invalid Input", "Please enter a valid port.", "Back")
+	
+		return false
+	end if
 	
 End Function
 
