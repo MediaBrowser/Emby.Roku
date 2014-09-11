@@ -148,6 +148,8 @@ End Sub
 
 Sub ssSetText(text, isComplete)
 
+	if text = invalid or text = "" then return
+	
     if isComplete then
 
         m.History.Push(text)
