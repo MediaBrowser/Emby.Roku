@@ -162,9 +162,14 @@ Sub vcChangeUser(userId as String)
         RegDelete("userId")
 		DeleteAllAccessTokens()
         m.ShowInitialScreen()
+		return
     end if
 
-    GetGlobalAA().AddReplace("user", userProfile)
+    GetGlobalAA().AddReplace("user", userProfile)	
+	
+	while m.screens.Count() > 0
+		m.PopScreen(m.screens[m.screens.Count() - 1])
+	end while
 
     m.Home = m.CreateHomeScreen()
 

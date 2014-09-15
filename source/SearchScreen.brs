@@ -105,6 +105,7 @@ Sub ssOnTimerExpired(timer)
 			SearchTerm: term
 			IncludePeople: "false"
 			IncludeStudios: "false"
+			IncludeItemTypes: "Movie,BoxSet,Series,Episode,Trailer,Video,AdultVideo,MusicVideo,Genre,MusicGenre,MusicArtist"
 		}
 
 		' Prepare Request
@@ -222,7 +223,7 @@ Function getSearchResultRowUrl(row as Integer, id as String) as String
 			SearchTerm: searchTerm
 			IncludePeople: "false"
 			IncludeStudios: "false"
-			IncludeItemTypes: "Video,AdultVideo"
+			IncludeItemTypes: "Video,AdultVideo,MusicVideo"
 		}
 	else if row = 4
 		query = {
