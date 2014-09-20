@@ -474,8 +474,7 @@ Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStrea
         return false
     end if
 
-	' TODO: Add this information to server output, along with RefFrames
-    if (videoStream <> invalid AND videoStream.IsAnamorphic = true) AND NOT firstOf(getGlobalVar("playsAnamorphic"), false) then
+	if (videoStream <> invalid AND videoStream.IsAnamorphic = true) AND NOT firstOf(getGlobalVar("playsAnamorphic"), false) then
         Debug("videoCanDirectPlay: anamorphic videos not supported")
         return false
     end if
@@ -492,14 +491,12 @@ Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStrea
             return false
         end if
 
-        if videoStream <> invalid and videoStream.RefFrames <> invalid then
-	    if firstOf(videoStream.RefFrames, "0") > GetGlobalVar("maxRefFrames") then
-                 ' Not only can we not Direct Play, but we want to make sure we
-                 ' don't try to Direct Stream.
-                 'mediaItem.forceTranscode = true
-                 Debug("videoCanDirectPlay: too many ReFrames: " + tostr(videoStream.RefFrames))
-                 return false
-            end if
+        if videoStream <> invalid and firstOf(videoStream.RefFrames, 0) > firstOf(getGlobalVar("maxRefFrames"), 0) then
+            ' Not only can we not Direct Play, but we want to make sure we
+            ' don't try to Direct Stream.
+            'mediaItem.forceTranscode = true
+            Debug("videoCanDirectPlay: too many ReFrames: " + tostr(videoStream.RefFrames))
+            return false
         end if
 
         if surroundSound AND (surroundCodec = "ac3" OR stereoCodec = "ac3") then
@@ -567,8 +564,8 @@ Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStrea
             return false
         end if
 
-        if videoStream <> invalid and videoStream.RefFrames <> invalid then
-            if firstOf(videoStream.RefFrames, "0") > GetGlobalVar("maxRefFrames") then
+        if videoStream <> invalid then
+            if firstOf(videoStream.RefFrames, 0) > firstOf(getGlobalVar("maxRefFrames"), 0) then
                 ' Not only can we not Direct Play, but we want to make sure we
                 ' don't try to Direct Stream.
                 'mediaItem.forceTranscode = true
