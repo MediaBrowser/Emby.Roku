@@ -1,14 +1,4 @@
 '******************************************************
-' createErrorDialog
-'******************************************************
-
-Sub createErrorDialog(button = "Back") As Object
-
-    createDialog("Error Loading Data", "There was an error loading data from the server. Please make sure your server is running and try again.", button)
-	
-End Sub
-
-'******************************************************
 ' Create Server Update Dialog
 '******************************************************
 

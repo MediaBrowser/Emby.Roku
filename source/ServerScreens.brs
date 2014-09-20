@@ -24,7 +24,7 @@ Function serverStartUp() As Integer
             serverInfo = getPublicServerInfo(serverAddress)
 
             if serverInfo = invalid
-                createDialog("Unable To Connect", "We were unable to connect to that media browser server. Please make sure your server is running.", "Back")
+                createDialog("Unable To Connect", "We were unable to connect to that media browser server. Please make sure your server is running.", "Back", true)
                 return 1
             end if
 
@@ -62,7 +62,7 @@ Function createServerFirstRunSetupScreen(viewController as Object)
 
     header = "Welcome"
     paragraphs = []
-    paragraphs.Push("To begin, please make sure you media browser server is currently running.")
+    paragraphs.Push("To begin, please make sure your media browser server is currently running.")
     paragraphs.Push("Media Browser Server is available for download at:")
     paragraphs.Push("http://www.mediabrowser.tv")
     paragraphs.Push("Below you may select to scan the network and attempt to automatically find your server or manually enter it's information.")
@@ -250,7 +250,7 @@ Function serverListScreenHandleMessage(msg) As Boolean
                         ' Show Found Server Screen
                         showServerFoundScreen(viewController, results)
                     else
-                        createDialog("No Server Found", "We were unable to find a server running on your local network. Please make sure your server is running or if you continue to have problems, manually add the server.", "Back")
+                        createDialog("No Server Found", "We were unable to find a server running on your local network. Please make sure your server is running or if you continue to have problems, manually add the server.", "Back", true)
                     end if
 
                 else if selection = "2"
@@ -300,7 +300,7 @@ Function OnRequiredTextValueEntered(value) As Boolean
 		return true
 	else
 	
-		createDialog("Invalid Input", "Please enter a valid value.", "Back")
+		createDialog("Invalid Input", "Please enter a valid value.", "Back", true)
 	
 		return false
 	end if
@@ -313,7 +313,7 @@ Function OnServerAddressTextValueEntered(value) As Boolean
 		return true
 	else
 	
-		createDialog("Invalid Input", "Please enter a valid server address.", "Back")
+		createDialog("Invalid Input", "Please enter a valid server address.", "Back", true)
 	
 		return false
 	end if
@@ -322,11 +322,11 @@ End Function
 
 Function OnPortTextValueEntered(value) As Boolean
 
-	if value <> invalid and value <> "" and toint(value) <> invalid then
+	if type(firstOf(value, "").toint()) = "Integer" then
 		return true
 	else
 	
-		createDialog("Invalid Input", "Please enter a valid port.", "Back")
+		createDialog("Invalid Input", "Please enter a valid port.", "Back", true)
 	
 		return false
 	end if

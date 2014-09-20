@@ -564,6 +564,7 @@ Function handleMoreOptionsButton(command, data) As Boolean
 		newScreen.Show()
         return true
     else if command = "close" then
+		m.Screen.Close()
         return true
     end if
 	
