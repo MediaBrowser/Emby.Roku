@@ -492,12 +492,14 @@ Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStrea
             return false
         end if
 
-        if videoStream <> invalid and videoStream.RefFrames <> invalid AND firstOf(videoStream.RefFrames, 0) > firstOf(GetGlobalAA("maxRefFrames"), 0) then
-            ' Not only can we not Direct Play, but we want to make sure we
-            ' don't try to Direct Stream.
-            'mediaItem.forceTranscode = true
-            Debug("videoCanDirectPlay: too many ReFrames: " + tostr(videoStream.RefFrames))
-            return false
+        if videoStream <> invalid and videoStream.RefFrames <> invalid then
+	    if firstOf(videoStream.RefFrames, "0") > GetGlobalVar("maxRefFrames") then
+                 ' Not only can we not Direct Play, but we want to make sure we
+                 ' don't try to Direct Stream.
+                 'mediaItem.forceTranscode = true
+                 Debug("videoCanDirectPlay: too many ReFrames: " + tostr(videoStream.RefFrames))
+                 return false
+            end if
         end if
 
         if surroundSound AND (surroundCodec = "ac3" OR stereoCodec = "ac3") then
@@ -566,7 +568,7 @@ Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStrea
         end if
 
         if videoStream <> invalid and videoStream.RefFrames <> invalid then
-            if firstOf(videoStream.RefFrames, 0) > firstOf(GetGlobalAA("maxRefFrames"), 0) then
+            if firstOf(videoStream.RefFrames, "0") > GetGlobalVar("maxRefFrames") then
                 ' Not only can we not Direct Play, but we want to make sure we
                 ' don't try to Direct Stream.
                 'mediaItem.forceTranscode = true
