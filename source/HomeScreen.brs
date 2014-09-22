@@ -37,9 +37,6 @@ Function createHomeScreen(viewController as Object) as Object
     screen.Activate = homeScreenActivate
 
 	screen.refreshBreadcrumb = homeRefreshBreadcrumb
-	
-	screen.baseShow = screen.Show
-	screen.Show = showHomeScreen
 
     screen.clockTimer = createTimer()
     screen.clockTimer.Name = "clock"
@@ -491,31 +488,6 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 	return parseItemsResponse(json, 0, "two-row-flat-landscape-custom")
 	
 End Function
-
-'**********************************************************
-'** handleHomeScreenMessage
-'**********************************************************
-
-Sub showHomeScreen()
-
-	m.baseShow()
-	
-	if firstOf(RegRead("prefServerUpdates"), "yes") = "yes" then
-	
-    serverInfo = getServerInfo()
-		if serverInfo <> invalid
-		
-			if serverInfo.HasPendingRestart And serverInfo.CanSelfRestart
-			
-				showServerUpdateDialog()
-				
-			end if
-			
-		end if
-	end if
-	
-	
-End Sub
 
 Function handleHomeScreenMessage(msg) as Boolean
 

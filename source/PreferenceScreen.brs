@@ -54,8 +54,7 @@ Function handlePreferencesScreenMessage(msg) as Boolean
 					GetPreferenceRememberUser,
 					GetPreferenceEnhancedImages,
 					GetPreferenceMediaIndicators,
-					GetPreferenceServerUpdates,
-                    GetPreferenceShowClock,
+					GetPreferenceShowClock,
                     GetPreferenceTimeFormat
 				]
 
@@ -326,16 +325,6 @@ Function GetPreferenceList() as Object
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
         },
         {
-            Title: "Check For Server Updates: " + GetSelectedPreference(GetPreferenceServerUpdates(), RegRead("prefServerUpdates")),
-            ShortTitle: "Check For Server Updates",
-            ID: "prefServerUpdates",
-            ContentType: "pref",
-			PrefType: "list",
-            ShortDescriptionLine1: "Check for Media Browser Server updates on start up.",
-            HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-preferences-lg.png"),
-            SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
-        },
-        {
             Title: "Show Clock: " + GetSelectedPreference(GetPreferenceShowClock(), RegRead("prefShowClock")),
             ShortTitle: "Show Clock",
             ID: "prefShowClock",
@@ -527,23 +516,6 @@ Function GetPreferenceEnhancedImages() as Object
 End Function
 
 Function GetPreferenceMediaIndicators() as Object
-    prefOptions = [
-        {
-            Title: "No",
-            Id: "no",
-            IsDefault: false
-        },
-        {
-            Title: "Yes [default]",
-            Id: "yes",
-            IsDefault: true
-        }
-    ]
-
-    return prefOptions
-End Function
-
-Function GetPreferenceServerUpdates() as Object
     prefOptions = [
         {
             Title: "No",

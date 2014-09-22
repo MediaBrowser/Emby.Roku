@@ -1,26 +1,4 @@
 '******************************************************
-' Create Server Update Dialog
-'******************************************************
-
-Sub showServerUpdateDialog()
-
-	dlg = createContextViewMenuYesNoDialog("Server Restart", "Media Browser Server needs to restart to apply updates. Restart now? Please note if restarting server, please wait a minute to relaunch channel.")
-	dlg.HandleButton = handleServerUpdateDialogButton
-	dlg.Show()
-	
-End Sub
-
-Function handleServerUpdateDialogButton(command, data) As Boolean
-
-    if command = "2" then
-		postServerRestart()
-        return true
-    end if
-	
-    return false
-End Function
-
-'******************************************************
 ' Create Server Selection Dialog
 '******************************************************
 

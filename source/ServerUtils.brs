@@ -201,28 +201,6 @@ Function getPublicServerInfo(baseUrl = "") As Object
 
     return invalid
 End Function
-'******************************************************
-' Post Server Restart
-'******************************************************
-
-Function postServerRestart() As Boolean
-    ' URL
-    url = GetServerBaseUrl() + "/System/Restart"
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.AddAuthorization()
-
-    ' Execute Request
-    response = request.PostFromStringWithTimeout("", 5)
-    if response <> invalid
-        return true
-    else
-        Debug("Failed to Post Server Restart")
-    end if
-
-    return false
-End Function
 
 
 '******************************************************
