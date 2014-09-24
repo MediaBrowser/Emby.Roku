@@ -158,7 +158,16 @@ Sub addVideoPlaybackInfo(item, options)
 		url = url + "&profile=high"
 		url = url + "&level=41"
 		url = url + "&deviceId=" + getGlobalVar("rokuUniqueId", "Unknown")
-
+		
+		url = url + "&ClientTime=" + CreateObject("roDateTime").asSeconds().tostr()
+		url = url + "&MaxVideoBitDepth=8"
+		
+		maxRefFrames = firstOf(getGlobalVar("maxRefFrames"), 0)
+		
+		if maxRefFrames > 0 then
+			url = url + "&MaxRefFrames=" + maxRefFrames.tostr()
+		end if
+		
 		url = url + "&AudioCodec=" + streamInfo.AudioCodec
 		url = url + "&MaxAudioChannels=" + tostr(streamInfo.MaxAudioChannels)
 
