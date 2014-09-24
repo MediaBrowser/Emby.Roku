@@ -359,10 +359,16 @@ End Sub
 
 Sub onServerAddressDiscovered(viewController as Object, serverAddress As String) 
 
+	facade = CreateObject("roOneLineDialog")
+	facade.SetTitle("Please wait...")
+	facade.ShowBusyAnimation()
+	facade.Show()
+                    
 	' Check Server Connection
     serverInfo = getPublicServerInfo(serverAddress)
 
     if serverInfo = invalid
+		facade.Close()
         createDialog("Unable To Connect", "We were unable to connect to this server. Please make sure it is running before attempting to add it to the server list.", "Back", true)
         return 
     end if
@@ -370,6 +376,8 @@ Sub onServerAddressDiscovered(viewController as Object, serverAddress As String)
     SetServerData(serverInfo.Id, "Name", serverInfo.ServerName)
 	SetServerData(serverInfo.Id, "Address", serverAddress)
 	SetServerData(serverInfo.Id, "Id", serverInfo.Id)
+	
+	facade.Close()
 	
     viewController.ShowInitialScreen()
 End Sub

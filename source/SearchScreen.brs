@@ -135,13 +135,17 @@ Sub ssOnUrlEvent(msg, requestContext)
 
     suggestions = processSearchHintsResponse(msg.GetString())
 
-	if suggestions = invalid then
-
-    else if suggestions.Count() > 0 then
+	if suggestions <> invalid then
 
         m.Screen.SetSearchTermHeaderText("Search Suggestions:")
         m.Screen.SetClearButtonEnabled(false)
-        m.Screen.SetSearchTerms(suggestions)
+		
+		if suggestions.Count() > 0 then
+			m.Screen.SetSearchTerms(suggestions)
+		else
+			m.Screen.ClearSearchTerms()
+		end if
+        
 
     end if
 
@@ -149,7 +153,12 @@ End Sub
 
 Sub ssSetText(text, isComplete)
 
-	if text = invalid or text = "" then return
+	if text = invalid or text = "" then 
+		m.Screen.SetSearchTermHeaderText("Recent Searches:")
+        m.Screen.SetSearchTerms(m.History)		
+		m.Screen.SetSearchText("")
+		return
+	end if
 	
     if isComplete then
 

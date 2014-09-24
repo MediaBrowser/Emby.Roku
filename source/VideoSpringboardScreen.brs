@@ -662,11 +662,8 @@ Sub createStreamSelectionDialog(streamType, audioStreams, subtitleStreams, playO
 
 		if dlg.Buttons.Count() < 5 then
 
-			title = "Und"
+			title = firstOf(stream.Language, "Unknown language")
 
-			if stream.Language <> invalid then title = stream.Language
-			'if stream.Codec <> invalid then title = title + " - " + stream.Codec
-			
 			if currentIndex = stream.Index then title = title + " [Selected]"
 
 			dlg.SetButton(tostr(stream.Index), title)
