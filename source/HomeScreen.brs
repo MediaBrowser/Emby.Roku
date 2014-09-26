@@ -802,6 +802,13 @@ Function GetBaseLiveTVButtons(viewController as Object, liveTvToggle as Integer)
             SDPosterUrl: viewController.getThemeImageUrl("hd-tv.jpg")
         },
         {
+            Title: "Guide"
+            ContentType: "LiveTVFavoriteGuide"
+            ShortDescriptionLine1: "Guide"
+            HDPosterUrl: viewController.getThemeImageUrl("hd-tv.jpg")
+            SDPosterUrl: viewController.getThemeImageUrl("hd-tv.jpg")
+        },
+        {
             Title: "Recordings"
             ContentType: "LiveTVRecordings"
             ShortDescriptionLine1: "Recordings"

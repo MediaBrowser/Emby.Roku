@@ -874,7 +874,13 @@ Function getShortDescriptionLine2(i as Object, mode as String) as String
 
 	else if i.Type = "Program" Then
 
-        return firstOf(i.EpisodeTitle, "")
+		programTime = ""
+		
+		if i.StartDate <> invalid And i.StartDate <> "" and i.EndDate <> invalid And i.EndDate <> ""
+			programTime = getProgramDisplayTime(i.StartDate) + " - " + getProgramDisplayTime(i.EndDate)
+		end if
+
+        return programTime
 
 	else if i.MediaType = "Video" Then
 

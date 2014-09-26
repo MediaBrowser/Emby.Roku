@@ -1194,6 +1194,10 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		screen = createLiveTvChannelsScreen(m)
 		screenName = "LiveTVChannels"
 
+    else if contentType = "LiveTVFavoriteGuide" then
+		screen = createLiveTvGuideScreen(m)
+		screenName = "LiveTVFavoriteGuide"
+
     else if contentType = "LiveTVRecordings" then
 		screen = createLiveTvRecordingsScreen(m)
 		screenName = "LiveTVRecordings"

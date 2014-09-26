@@ -62,6 +62,8 @@ Function CreateGridScreen(viewController as Object, style As String) As Object
     screen.SetDescriptionVisible = ShowGridDescriptionBox
     screen.SetFocusedListItem    = SetGridFocusedItem
     screen.Close                 = CloseGridScreen
+	
+	screen.emptyItemsText = "This section doesn't contain any items."
 
     return screen
 
@@ -206,7 +208,7 @@ Sub gridOnDataLoaded(row As Integer, data As Object, startItem As Integer, count
                 if m.Refreshing <> true then
                     dialog = createBaseDialog()
                     dialog.Title = "Section Empty"
-                    dialog.Text = "This section doesn't contain any items."
+                    dialog.Text = m.emptyItemsText
                     dialog.Show()
                     m.closeOnActivate = true
                 else

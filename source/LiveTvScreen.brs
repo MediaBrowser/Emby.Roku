@@ -94,6 +94,68 @@ Function isProgramOnAir(item as Object) As Boolean
 End Function
 
 '**********************************************************
+'** createLiveTvGuideScreen
+'**********************************************************
+
+Function createLiveTvGuideScreen(viewController as Object) as Object
+
+	limit = 3
+	supporterLimit = 80
+	
+	if IsActiveSupporter() then
+		limit = supporterLimit
+	else
+		createDialog("Support Media Browser", "Full use of the TV Guide requires an active supporter membership. Results will be limited to " + tostr(limit) + " channels. Become a supporter by visiting the server dashboard in the web interface.", "Back", true)
+	end if
+	
+	result = getFavoriteChannels(limit)
+	
+	if firstOf(RegUserRead("displayedGuideInfo"), "0") = "0" then
+	
+		createDialog("Guide Information", "This guide is limited to " + tostr(supporterLimit) + " channels and is sorted by channels that you've liked and marked as favorite. Use the server's web interface to mark your favorite channels.", "Back", true)
+		RegUserWrite("displayedGuideInfo", "1")
+		
+	end if
+	
+	names = []
+	keys = []
+	
+	for each channel in result.Items
+	
+		names.push(channel.Title)
+		keys.push(channel.Id)
+	end for
+
+	loader = CreateObject("roAssociativeArray")
+	loader.getUrl = getProgramsForChannelUrl
+	loader.parsePagedResult = parseProgramsForChannelResult
+
+    screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
+
+    screen.SetDescriptionVisible(true)
+
+	return screen
+End Function
+
+Function getProgramsForChannelUrl(row as Integer, id as String) as String
+
+    ' URL
+    url = GetServerBaseUrl() + "/LiveTv/Programs?ChannelIds=" + id + "&UserId=" + getGlobalVar("user").Id
+	
+	'url = GetServerBaseUrl() + "/Shows/NextUp?userId=" + HttpEncode(getGlobalVar("user").Id)
+
+    return url
+
+End Function
+
+Function parseProgramsForChannelResult(row as Integer, id as string, startIndex as Integer, json as String) as Object
+
+	'return parseItemsResponse(json, 0, "two-row-flat-landscape-custom")
+    return parseLiveTvProgramsResponse(json)
+
+End Function
+
+'**********************************************************
 '** createLiveTvRecordingGroupsScreen
 '**********************************************************
 

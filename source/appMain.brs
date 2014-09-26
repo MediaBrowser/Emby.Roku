@@ -149,9 +149,8 @@ Sub initGlobals()
     GetGlobalAA().AddReplace("playsAnamorphic", playsAnamorphic)
 
 	SupportsSurroundSound()
-
+	
 End Sub
-
 
 '*************************************************************
 '** Get a variable from the Global Array
@@ -203,4 +202,31 @@ Function CheckMinimumVersion(versionArr, requiredVersion) As Boolean
         index = index + 1
     next
     return true
+End Function
+
+Function IsActiveSupporter() as Boolean
+
+	' URL
+    url = GetServerBaseUrl() + "/Plugins/SecurityInfo"
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+	
+	if response <> invalid then
+		
+		userInfo = ParseJSON(response)
+		
+		if userInfo <> invalid then
+			return userInfo.IsMBSupporter
+		end if
+	
+	end if
+	
+	return false
+	
 End Function

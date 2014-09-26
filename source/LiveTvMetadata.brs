@@ -27,6 +27,21 @@ End Function
 ' getLiveTvChannel
 '******************************************************
 
+Function getFavoriteChannels(limit as Integer) As Object
+
+    ' URL
+    url = GetServerBaseUrl() + "/LiveTv/Channels?EnableFavoriteSorting=true&Limit=" + tostr(limit) + "&UserId=" + getGlobalVar("user").Id
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    return parseLiveTvChannelsResult(response)
+End Function
+
 Function getLiveTvChannel(id as String) As Object
     
 	url = GetServerBaseUrl() + "/LiveTv/Channels/" + id + "?userId=" + getGlobalVar("user").Id
