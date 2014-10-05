@@ -872,6 +872,12 @@ Function getShortDescriptionLine2(i as Object, mode as String) as String
             
         return episodeInfo + firstOf(i.EpisodeTitle, "")
 
+	else if i.Type = "TvChannel" Then
+
+        if i.CurrentProgram <> invalid and i.CurrentProgram.Name <> invalid
+            return i.CurrentProgram.Name
+        end if
+			
 	else if i.Type = "Program" Then
 
 		programTime = ""
