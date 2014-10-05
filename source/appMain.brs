@@ -104,7 +104,8 @@ Sub initGlobals()
     GetGlobalAA().AddReplace("rokuModelName", modelName)
 
     ' Check for DTS passthrough support
-    if left(modelNumber,4) = "4200"
+    ' roku 3 with firmware 5.1 and higher
+    if left(modelNumber,4) = "4200" and major >= 5 and minor >= 1
         GetGlobalAA().AddReplace("audioDTS", true)
     else
         GetGlobalAA().AddReplace("audioDTS", false)
