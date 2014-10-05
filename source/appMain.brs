@@ -91,6 +91,7 @@ Sub initGlobals()
         models["3420X"] = "Roku Streaming Stick"
         models["3500R"] = "Roku Streaming Stick (2014)"
         models["4200X"] = "Roku 3"
+        models["4200R"] = "Roku 3"
 
         If models.DoesExist(modelNumber) Then
             modelName = models[modelNumber]
@@ -103,7 +104,7 @@ Sub initGlobals()
     GetGlobalAA().AddReplace("rokuModelName", modelName)
 
     ' Check for DTS passthrough support
-    if modelNumber = "4200X"
+    if left(modelNumber,4) = "4200"
         GetGlobalAA().AddReplace("audioDTS", true)
     else
         GetGlobalAA().AddReplace("audioDTS", false)
@@ -122,7 +123,9 @@ Sub initGlobals()
     ' Roku 2 has been observed to play all the way up to 16 ReFrames, but
     ' on at least one test video there were noticeable artifacts as the
     ' number increased, starting with 8.
-    if major >= 4 then
+    if left(modelNumber,4) = "4200" and major >=5 then
+	GetGlobalAA().AddReplace("maxRefFrames", 12)
+    elseif major >= 4 then
         GetGlobalAA().AddReplace("maxRefFrames", 8)
     else
         GetGlobalAA().AddReplace("maxRefFrames", 5)
