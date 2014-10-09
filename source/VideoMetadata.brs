@@ -67,7 +67,7 @@ Sub addVideoDisplayInfo(metaData as Object, item as Object)
             foundVideo = true
 
             ' Determine Full 1080p
-            if stream.Height >= 1080
+            if firstOf(stream.Height, 0) >= 1080
                 metaData.FullHD = true
             end if
 
