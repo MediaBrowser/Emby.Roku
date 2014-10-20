@@ -26,11 +26,7 @@ Function createFolderScreen(viewController as Object, item as Object) As Object
 	loader.getUrl = getFolderItemsUrl
 	loader.parsePagedResult = parseFolderItemsResult
 
-    if imageType = 0 then
-        screen = createPaginatedGridScreen(viewController, names, keys, loader, "mixed-aspect-ratio")
-    else
-        screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
-    end if
+    screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
 
 	screen.baseActivate = screen.Activate
 	screen.Activate = folderScreenActivate
