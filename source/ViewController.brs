@@ -101,8 +101,18 @@ Function GetViewController()
     return m.ViewController
 End Function
 
+Sub doInitialConnection()
+
+	result = connectInitial()
+	
+	Debug ("connectInitial returned State of " + result.State)
+	
+End Sub
+
 Sub vcShowInitialScreen()
 
+	'doInitialConnection()
+	
 	sendWolToAllServers()
 	
     ' Server Start Up

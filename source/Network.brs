@@ -17,7 +17,7 @@ Sub sendWol(machineID as String, screen=invalid)
     if machineID <> invalid then
         numReqToSend = 5
 
-        mac = GetServerData(machineID, "Mac")
+        mac = GetServerData(machineID, "MacAddress")
 
         if mac = invalid then return
 
@@ -127,7 +127,9 @@ Function GetServerList () as Object
 	for each serverId in data
 	
 		server = data[serverId]		
-		if server <> invalid and server.Name <> invalid then servers.push(server)
+		if server <> invalid and firstOf(server.Id, "") <> "" and firstOf(server.Name, "") <> "" and (firstOf(server.LocalAddress, "") <> "" or firstOf(server.RemoteAddress, "") <> "") then 
+			servers.push(server)
+		end if
 	end for
 	
 	return servers

@@ -140,6 +140,27 @@ Function scanLocalNetwork() As Dynamic
     return invalid
 End Function
 
+function findServers() as Object
+
+	server = scanLocalNetwork()
+	
+	servers = CreateObject("roArray", 10, true)
+	
+	if server <> invalid then
+	
+		servers.push({
+		
+			LocalAddress: server.Address,
+			Name: server.Name,
+			Id: server.Id
+		})
+		
+	end if
+	
+	return servers
+
+End function
+
 
 '******************************************************
 ' Get Server Info
@@ -164,7 +185,9 @@ Function getServerInfo() As Object
             return invalid
         end if
 
-		SetServerData(metaData.Id, "Mac", metaData.MacAddress)
+		SetServerData(metaData.Id, "MacAddress", metaData.MacAddress)
+		SetServerData(metaData.Id, "LocalAddress", metaData.LocalAddress)
+		SetServerData(metaData.Id, "RemoteAddress", metaData.WanAddress)
 		
         return metaData
     else
@@ -193,6 +216,9 @@ Function getPublicServerInfo(baseUrl = "") As Object
             Debug("Error Parsing Server Info")
             return invalid
         end if
+		
+		SetServerData(metaData.Id, "LocalAddress", metaData.LocalAddress)
+		SetServerData(metaData.Id, "RemoteAddress", metaData.WanAddress)
 		
         return metaData
     else

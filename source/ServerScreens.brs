@@ -374,7 +374,7 @@ Sub onServerAddressDiscovered(viewController as Object, serverAddress As String)
     end if
 
     SetServerData(serverInfo.Id, "Name", serverInfo.ServerName)
-	SetServerData(serverInfo.Id, "Address", serverAddress)
+	SetServerData(serverInfo.Id, "LocalAddress", serverAddress)
 	SetServerData(serverInfo.Id, "Id", serverInfo.Id)
 	
 	facade.Close()
