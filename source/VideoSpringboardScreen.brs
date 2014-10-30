@@ -587,7 +587,7 @@ Sub createAudioAndSubtitleDialog(audioStreams, subtitleStreams, playOptions)
 	Debug ("Current AudioStreamIndex: " + tostr(playOptions.AudioStreamIndex))
 	Debug ("Current SubtitleStreamIndex: " + tostr(playOptions.SubtitleStreamIndex))
 	
-    if audioStreams.Count() > 1 and subtitleStreams.Count() > 0
+    if audioStreams.Count() > 1 or subtitleStreams.Count() > 0
 		dlg = createBaseDialog()
 		dlg.Title = "Audio & Subtitles"
 
@@ -601,12 +601,8 @@ Sub createAudioAndSubtitleDialog(audioStreams, subtitleStreams, playOptions)
 		dlg.SetButton("subtitles", "Subtitles")
 		dlg.SetButton("close", "Close")
 
-		dlg.Show()
+		dlg.Show(true)
 
-    else if audioStreams.Count() > 1
-        createStreamSelectionDialog("Audio", audioStreams, subtitleStreams, playOptions, false)    
-    else if subtitleStreams.Count() > 0
-        createStreamSelectionDialog("Subtitle", audioStreams, subtitleStreams, playOptions, false)
     end if
 
 End Sub
@@ -623,11 +619,14 @@ Function handleAudioAndSubtitlesButton(command, data) As Boolean
 		createStreamSelectionDialog("Subtitle", m.audioStreams, m.subtitleStreams, m.playOptions, true)
         return true
 
+    else if command = "close" then
+
+		return true
+
     end if
 
-    return false
+    return true
 End Function
-
 
 Sub createStreamSelectionDialog(streamType, audioStreams, subtitleStreams, playOptions, openParentDialog)
 
@@ -672,7 +671,7 @@ Sub createStreamSelectionDialog(streamType, audioStreams, subtitleStreams, playO
 	end For
 
     dlg.SetButton("close", "Cancel")
-    dlg.Show()
+    dlg.Show(true)
 End Sub
 
 Function handleStreamSelectionButton(command, data) As Boolean
