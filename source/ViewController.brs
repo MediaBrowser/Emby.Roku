@@ -29,7 +29,8 @@ Function createViewController() As Object
     controller.getDefaultTheme = vcGetDefaultTheme
 	controller.loadUserTheme = vcLoadUserTheme
 
-	controller.changeUser = vcChangeUser
+	controller.onSignedIn = vcOnSignedIn
+	controller.logout = vcLogout
 	
 	' An object containing information about the current custom theme (if any)
 	controller.themeMetadata = invalid
@@ -105,73 +106,92 @@ Sub doInitialConnection()
 
 	result = connectInitial()
 	
-	Debug ("connectInitial returned State of " + result.State)
+	Debug ("connectInitial returned State of " + firstOf(result.State, ""))
+	Debug ("connectInitial returned ConnectionMode of " + firstOf(result.ConnectionMode, ""))
+	navigateFromConnectionResult(result)
+	
+End Sub
+
+Sub navigateFromConnectionResult(result)
+
+	Debug ("Processing ConnectionResult State of " + result.State)
+	
+	if result.State = "ServerSignIn" then
+	
+		server = result.Servers[0]
+		
+		Debug ("ServerSignIn Id: " + firstOf(server.Id, ""))
+		Debug ("ServerSignIn Name: " + firstOf(server.Name, ""))
+		Debug ("ServerSignIn LocalAddress: " + firstOf(server.LocalAddress, ""))
+		Debug ("ServerSignIn RemoteAddress: " + firstOf(server.RemoteAddress, ""))
+		
+		serverUrl = server.LocalAddress
+	
+		if result.ConnectionMode = "Remote" then
+			serverUrl = server.RemoteAddress
+		end if
+		
+		showLoginScreen(GetViewController(), serverUrl)
+		
+	else if result.State = "ServerSelection" then
+	
+		showServerListScreen(GetViewController())
+		
+	else if result.State = "SignedIn" then
+	
+		server = result.Servers[0]
+		
+		Debug ("SignedIn Id: " + firstOf(server.Id, ""))
+		Debug ("SignedIn Name: " + firstOf(server.Name, ""))
+		Debug ("SignedIn LocalAddress: " + firstOf(server.LocalAddress, ""))
+		Debug ("SignedIn RemoteAddress: " + firstOf(server.RemoteAddress, ""))
+		
+		serverUrl = server.LocalAddress
+	
+		if result.ConnectionMode = "Remote" then
+			serverUrl = server.RemoteAddress
+		end if
+		
+		RegWrite("activeServerId", server.Id)
+		GetViewController().onSignedIn(serverUrl)
+		
+		
+	else if result.State = "ConnectSignIn" then
+	
+		
+		
+	end if
 	
 End Sub
 
 Sub vcShowInitialScreen()
 
-	'doInitialConnection()
-	
-	sendWolToAllServers()
-	
-    ' Server Start Up
-    serverStart = serverStartUp()
-	
-    '** 0 = First Run, 1 = Server List, 2 = Connect to Server
-    if serverStart = 0
-        Print "Server Setup"
-        screen = createServerFirstRunSetupScreen(m)
-		m.InitializeOtherScreen(screen, ["Setup"])
-		screen.Show()
-		
-    else if serverStart = 1
-        Print "Server List"
-        showServerListScreen(m)
-
-    else if serverStart = 2
-        Print "Connecting To Server"
-
-		' Check to see if they have already selected a User
-		' Show home page if so, otherwise show login page.
-		if RegRead("userId") <> invalid And RegRead("userId") <> ""
-
-			if RegRead("prefRememberUser") = "no"
-				RegDelete("userId")
-				DeleteAllAccessTokens()
-				showLoginScreen(m)
-
-			else
-				m.changeUser(RegRead("userId"))
-			end if
-		
-		else
-	
-			showLoginScreen(m)
-		end if
-    end if
+	doInitialConnection()
 
 End Sub
 
-Sub showLoginScreen(viewController as Object)
-	screen = CreateLoginScreen(viewController)
+Sub showLoginScreen(viewController as Object, serverUrl as String)
+	screen = CreateLoginScreen(viewController, serverUrl)
 	screen.ScreenName = "Login"
 	viewController.InitializeOtherScreen(screen, ["Please Sign In"])
 	screen.Screen.SetBreadcrumbEnabled(true)
 	screen.Show()
 End Sub
 
-Sub vcChangeUser(userId as String)
+Sub vcOnSignedIn(serverUrl)
 
+	serverId = RegRead("activeServerId")
+	
+	localUserId = GetServerData(serverId, "UserId")
+	
+	m.serverUrl = serverUrl
 	postCapabilities()
-			
-    userProfile = getUserProfile(RegRead("userId"))
+	
+    userProfile = getUserProfile(localUserId)
 
     ' If unable to get user profile, delete saved user and redirect to login
     if userProfile = invalid
-        RegDelete("userId")
-		DeleteAllAccessTokens()
-        m.ShowInitialScreen()
+        m.Logout()
 		return
     end if
 
@@ -183,6 +203,18 @@ Sub vcChangeUser(userId as String)
 
     m.Home = m.CreateHomeScreen()
 
+End Sub
+
+Sub vcLogout()
+
+		Debug("Logout")
+		
+		connectionManagerLogout()
+		
+		RegDelete("activeServerId")
+
+		' For now, until there's a chance to break the initial screen workflow into separate pieces
+		m.ShowInitialScreen()
 End Sub
 
 Function vcCreateHomeScreen()
@@ -1145,17 +1177,23 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
         screen = createSearchScreen(m)
         screenName = "Search"
 
-	else if contentType = "SwitchUser" then
+	else if contentType = "Logout" then
 
-        RegDelete("userId")
-		DeleteAllAccessTokens()
-					
-        Debug("Switch User")
+        m.Logout()
 
-		' For now, until there's a chance to break the initial screen workflow into separate pieces
-		m.ShowInitialScreen()
+    else if contentType = "ChangeServer" then
 
-    else if contentType = "TVLibrary" then
+        screen = createServerListScreen(m)
+		screen.ScreenName = "Server List"
+		m.InitializeOtherScreen(screen, ["Select Server"])
+		screen.Show()
+
+    else if contentType = "ConnectSignIn" then
+
+        screen = createServerFirstRunSetupScreen(m)
+        screenName = "ConnectSignIn"
+
+	else if contentType = "TVLibrary" then
 		screen = createTvLibraryScreen(m, itemId)
         screenName = "TVLibrary"
 

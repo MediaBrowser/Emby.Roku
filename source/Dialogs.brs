@@ -20,19 +20,6 @@ Function createServerRemoveDialog() as String
     return showContextViewMenuYesNoDialog("Confirm Action", "Are you sure you wish to remove this server from the list?")
 End Function
 
-
-'******************************************************
-' Create Server Add Dialog
-'******************************************************
-
-Function createServerAddDialog()
-
-    options = ["Scan Network", "Manually Add Server"]
-	
-	return createOptionsDialog("Select Action", options, 1)
-	
-End Function
-
 '******************************************************
 ' Create Context Menu Dialog
 '******************************************************

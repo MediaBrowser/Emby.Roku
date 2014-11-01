@@ -127,7 +127,8 @@ Function GetServerList () as Object
 	for each serverId in data
 	
 		server = data[serverId]		
-		if server <> invalid and firstOf(server.Id, "") <> "" and firstOf(server.Name, "") <> "" and (firstOf(server.LocalAddress, "") <> "" or firstOf(server.RemoteAddress, "") <> "") then 
+		if server <> invalid and firstOf(server.Name, "") <> "" and (firstOf(server.LocalAddress, "") <> "" or firstOf(server.RemoteAddress, "") <> "") then 
+			server.Id = serverId
 			servers.push(server)
 		end if
 	end for
@@ -155,17 +156,6 @@ Function DeleteServerData ( machineID, dataName ) As Boolean
     RegWrite("serverList1", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
     return true
 End Function
-
-Sub DeleteAllAccessTokens()
-
-	data = GetGlobalAA().serverData
-	
-	for each serverId in data
-	
-		DeleteServerData(serverId, "AccessToken")
-	end for
-
-End Sub
 
 Function DeleteServer ( machineID ) As Boolean
     InitServerData()

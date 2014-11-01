@@ -41,9 +41,12 @@ End Function
 ' getPublicUserProfiles
 '******************************************************
 
-Function getPublicUserProfiles() As Object
+Function getPublicUserProfiles(serverUrl as String) As Object
+
+	Debug("getPublicUserProfiles url: " + serverUrl)
+	
     ' URL
-    url = GetServerBaseUrl() + "/Users/Public"
+    url = GetServerBaseUrl(serverUrl) + "/Users/Public"
 
     ' Prepare Request
     request = HttpRequest(url)
@@ -63,7 +66,7 @@ Function getPublicUserProfiles() As Object
         end if
 
         for each i in jsonObj
-            metaData = parseUser(i)
+            metaData = parseUser(i, serverUrl)
 
             contentList.push( metaData )
         end for
@@ -111,7 +114,7 @@ Function getUserProfile(userId As String) As Object
     return invalid
 End Function
 
-Function parseUser(i as Object) as Object
+Function parseUser(i as Object, serverUrl = "") as Object
 
     metaData = {}
 
@@ -133,7 +136,7 @@ Function parseUser(i as Object) as Object
 
     ' Check if Item has Image, otherwise use default
     if i.PrimaryImageTag <> "" And i.PrimaryImageTag <> invalid
-        imageUrl = GetServerBaseUrl() + "/Users/" + HttpEncode(i.Id) + "/Images/Primary/0"
+        imageUrl = GetServerBaseUrl(serverUrl) + "/Users/" + HttpEncode(i.Id) + "/Images/Primary/0"
 
         metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.PrimaryImageTag, false, 0)
         metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.PrimaryImageTag, false, 0)

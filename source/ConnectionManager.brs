@@ -1,5 +1,13 @@
 function connectInitial() as Object
 
+	servers = connectionManagerGetServers()
+	
+	return connectToServers(servers)
+
+end function
+
+function connectionManagerGetServers() as Object
+
 	servers = findServers()	
 	Debug ("Found " + tostr(servers.Count()) + " servers")
 	
@@ -7,6 +15,10 @@ function connectInitial() as Object
 	
 		SetServerData(server.Id, "Name", server.Name)
 		SetServerData(server.Id, "LocalAddress", server.LocalAddress)
+		
+		' We know this server is on the local network.
+		' We don't want to waste time trying to talk to local addresses of servers we'll never be able to reach
+		SetServerData(server.Id, "Local", "1")
 		
 	end for
 	
@@ -20,6 +32,7 @@ function connectInitial() as Object
 		SetServerData(server.SystemId, "Name", server.Name)
 		
 		if firstOf(server.LocalAddress, "") <> "" then  SetServerData(server.SystemId, "LocalAddress", server.LocalAddress)
+
 		SetServerData(server.SystemId, "RemoteAddress", server.Url)
 		
 		SetServerData(server.SystemId, "ExchangeToken", server.AccessKey)
@@ -27,15 +40,15 @@ function connectInitial() as Object
 		
 	end for
 	
-	servers = getServerList()
-	
-	return connectToServers(servers)
+	return getServerList()
 
 end function
 
 function connectToServers(servers) as Object
 
 	count = servers.Count()
+	
+	Debug("connectToServers called with "+tostr(count)+" servers")
 	
 	if count = 1
 		
@@ -102,7 +115,8 @@ function connectToServer(url) as Object
 		Id: publicInfo.Id,
 		LocalAddress: publicInfo.LocalAddress,
 		RemoteAddress: publicInfo.WanAddress,
-		MacAddress: publicInfo.MacAddress
+		MacAddress: publicInfo.MacAddress,
+		Local: "-1"
 	}
 	
 	return connectToServerInfo(serverInfo)
@@ -112,13 +126,14 @@ End function
 function connectToServerInfo(server) as Object
 
 	result = {
-		State: "Unavailable"
+		State: "Unavailable",
+		ConnectionMode: "Local",
+		Servers: []
 	}
 	
-	connectionMode = "Local"
 	systemInfo = invalid 
 	
-	if firstOf(server.LocalAddress, "") <> "" then
+	if firstOf(server.Local, "0") <> "0" and firstOf(server.LocalAddress, "") <> "" then
 		
 		systemInfo = tryConnect(server.LocalAddress)
 		
@@ -135,21 +150,22 @@ function connectToServerInfo(server) as Object
 	if systemInfo = invalid and firstOf(server.RemoteAddress, "") <> "" then
 	
 		systemInfo = tryConnect(server.RemoteAddress)
-		connectionMode = "Remote"
+		result.ConnectionMode = "Remote"
 	end if
 	
 	if systemInfo = invalid then
 		result.ConnectUser = getCurrentConnectUser()
+		result.Servers.push(server)
 		return result
 	end if
 	
 	importSystemInfo(server, systemInfo)
 	
 	ensureConnectUser()
-	addAuthenticationInfoFromConnect(server, connectionMode)
+	addAuthenticationInfoFromConnect(server, result.ConnectionMode)
 	
 	if firstOf(server.AccessToken, "") <> "" then
-		validateLocalAuthentication(server, connectionMode)
+		validateLocalAuthentication(server, result.ConnectionMode)
 	end if
 	
 	if firstOf(server.AccessToken, "") = "" then
@@ -159,22 +175,30 @@ function connectToServerInfo(server) as Object
 	end if
 	
 	result.ConnectUser = getCurrentConnectUser()
+	result.Servers.push(server)
 	
 	return result
 
 End function
 
-function normalizeAddress(url) as Object
+function normalizeAddress(baseUrl) as Object
 
-	return url
+	if Instr(0, baseUrl, "://") = 0 then 
+		baseUrl = "http://" + baseUrl
+	end if
+	
+	return baseUrl
 	
 end function
 
 function tryConnect(url) as Object
 
+	url = url + "/mediabrowser/system/info/public?format=json"
+	
+	Debug("Attempting to connect to " + url)
+	
     ' Prepare Request
-    request = HttpRequest(url + "/mediabrowser/system/info/public")
-    request.ContentType("json")
+    request = HttpRequest(url)
 
     ' Execute Request
     response = request.GetToStringWithTimeout(5)
@@ -238,7 +262,9 @@ function getConnectServersFromService(connectUserId, connectAccessToken) as Obje
 
     ' Prepare Request
     request = HttpRequest("https://connect.mediabrowser.tv/service/servers?userId=" + tostr(connectUserId))
-    request.ContentType("json")
+	
+    request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    request.Http.InitClientCertificates()
 	
     request.Http.AddHeader("X-Connect-UserToken", connectAccessToken)
 
@@ -248,13 +274,13 @@ function getConnectServersFromService(connectUserId, connectAccessToken) as Obje
         metaData = ParseJSON(response)
 
         if metaData = invalid
-            Debug("Error Parsing connect user")
+            Debug("Error Parsing connect servers")
             return []
         end if
 
 		return metaData
     else
-        Debug("Failed to get connect user")
+        Debug("Failed to get connect servers")
     end if
 
     return []
@@ -265,7 +291,9 @@ function getConnectUser(id, accessToken) as Object
 
     ' Prepare Request
     request = HttpRequest("https://connect.mediabrowser.tv/service/user?id=" + tostr(id))
-    request.ContentType("json")
+	
+    request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    request.Http.InitClientCertificates()
 	
     request.Http.AddHeader("X-Connect-UserToken", accessToken)
 
@@ -381,8 +409,6 @@ Sub validateLocalAuthentication(server, connectionMode)
 			DeleteServerData(server.Id, "AccessToken")
 			return
         end if
-
-		importSystemInfo(server, metaData)
 		
     else
 		server.UserId = invalid
@@ -396,22 +422,55 @@ End Sub
 
 Sub importSystemInfo(server, systemInfo)
 
-	server.Name = systemInfo.Name
+	server.Name = systemInfo.ServerName
 	setServerData(server.Id, "Name", server.Name)
+	
+	updateLocalAddress = true
 
-	if firstOf(systemInfo.LocalAddress, "") <> "" then
-		server.LocalAddress = systemInfo.LocalAddress
-		setServerData(server.Id, "LocalAddress", server.LocalAddress)
+	if updateLocalAddress = true then
+		if firstOf(systemInfo.LocalAddress, "") <> "" then
+			server.LocalAddress = systemInfo.LocalAddress
+			setServerData(server.Id, "LocalAddress", server.LocalAddress)
+		end if
+		
+		if firstOf(systemInfo.MacAddress, "") <> "" then
+			server.MacAddress = systemInfo.MacAddress
+			setServerData(server.Id, "MacAddress", server.MacAddress)
+		end if
 	end if
 	
 	if firstOf(systemInfo.WanAddress, "") <> "" then
 		server.RemoteAddress = systemInfo.WanAddress
 		setServerData(server.Id, "RemoteAddress", server.RemoteAddress)
 	end if
-	
-	if firstOf(systemInfo.MacAddress, "") <> "" then
-		server.MacAddress = systemInfo.MacAddress
-		setServerData(server.Id, "MacAddress", server.MacAddress)
-	end if
 
+End Sub
+
+Sub connectionManagerLogout()
+
+	GetViewController().ConnectUser = invalid
+	RegDelete("connectUserId")
+	RegDelete("connectAccessToken")
+	
+	servers = GetServerList()
+	
+	for each server in servers
+	
+		if firstOf(server.UserType, "") = "Guest" then
+			DeleteServer(server.Id)
+		end if
+		
+	end for
+	
+	servers = GetServerList()
+	
+	for each server in servers
+	
+		DeleteServerData(server.Id, "AccessToken")
+		DeleteServerData(server.Id, "ExchangeToken")
+		DeleteServerData(server.Id, "UserId")
+		DeleteServerData(server.Id, "UserType")
+		
+	end for
+	
 End Sub

@@ -974,14 +974,6 @@ Function GetOptionButtons(viewController as Object) As Object
         })
 	
 	buttons.push({
-            Title: "Switch User"
-            ContentType: "SwitchUser"
-            ShortDescriptionLine1: "Switch User"
-            HDPosterUrl: viewController.getThemeImageUrl("hd-switch-user.jpg")
-            SDPosterUrl: viewController.getThemeImageUrl("hd-switch-user.jpg")
-        })
-	
-	buttons.push({
             Title: "Preferences"
             ContentType: "Preferences"
             ShortDescriptionLine1: "Preferences"
@@ -990,7 +982,23 @@ Function GetOptionButtons(viewController as Object) As Object
             SDPosterUrl: viewController.getThemeImageUrl("hd-preferences.jpg")
         })
 
-    Return {
+    buttons.push({
+            Title: "Change Server"
+            ContentType: "ChangeServer"
+            ShortDescriptionLine1: "Change Server"
+            HDPosterUrl: viewController.getThemeImageUrl("hd-landscape.jpg")
+            SDPosterUrl: viewController.getThemeImageUrl("hd-landscape.jpg")
+        })
+	
+	buttons.push({
+            Title: "Sign Out"
+            ContentType: "Logout"
+            ShortDescriptionLine1: "Sign Out"
+            HDPosterUrl: viewController.getThemeImageUrl("hd-switch-user.jpg")
+            SDPosterUrl: viewController.getThemeImageUrl("hd-switch-user.jpg")
+        })
+	
+	Return {
 		Items: buttons
 		TotalCount: buttons.Count()
 	}

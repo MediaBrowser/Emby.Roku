@@ -4,7 +4,7 @@
 
 Function GetServerBaseUrl(baseUrl = "")
 
-	if baseUrl = "" then baseUrl = m.serverUrl
+	if baseUrl = "" then baseUrl = GetViewController().serverUrl
 	
 	if Instr(0, baseUrl, "://") = 0 then 
 		baseUrl = "http://" + baseUrl
@@ -161,79 +161,11 @@ function findServers() as Object
 
 End function
 
-
-'******************************************************
-' Get Server Info
-'******************************************************
-
-Function getServerInfo() As Object
-    ' URL
-    url = GetServerBaseUrl() + "/System/Info"
-    
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-        metaData = ParseJSON(response)
-
-        if metaData = invalid
-            Debug("Error Parsing Server Info")
-            return invalid
-        end if
-
-		SetServerData(metaData.Id, "MacAddress", metaData.MacAddress)
-		SetServerData(metaData.Id, "LocalAddress", metaData.LocalAddress)
-		SetServerData(metaData.Id, "RemoteAddress", metaData.WanAddress)
-		
-        return metaData
-    else
-        Debug("Failed to get Server Info")
-    end if
-
-    return invalid
-End Function
-
-Function getPublicServerInfo(baseUrl = "") As Object
-    
-	' URL
-    url = GetServerBaseUrl(baseUrl) + "/System/Info/Public"
-    
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.ContentType("json")
-    request.AddAuthorization()
-
-    ' Execute Request
-    response = request.GetToStringWithTimeout(10)
-    if response <> invalid
-        metaData = ParseJSON(response)
-
-        if metaData = invalid
-            Debug("Error Parsing Server Info")
-            return invalid
-        end if
-		
-		SetServerData(metaData.Id, "LocalAddress", metaData.LocalAddress)
-		SetServerData(metaData.Id, "RemoteAddress", metaData.WanAddress)
-		
-        return metaData
-    else
-        Debug("Failed to get public server info")
-    end if
-
-    return invalid
-End Function
-
-
 '******************************************************
 ' Authenticates a user by name
 '******************************************************
 
-Function authenticateUser(userText As String, passwordText As String) As Object
+Function authenticateUser(serverUrl As String, userText As String, passwordText As String) As Object
 
     if passwordText <> "" then
         ba = CreateObject("roByteArray")
@@ -247,7 +179,7 @@ Function authenticateUser(userText As String, passwordText As String) As Object
     end if
 
     ' URL
-    url = GetServerBaseUrl() + "/Users/AuthenticateByName?format=json"
+    url = GetServerBaseUrl(serverUrl) + "/Users/AuthenticateByName?format=json"
 
     ' Prepare Request
     request = HttpRequest(url)
