@@ -11,15 +11,14 @@ Function createServerFirstRunSetupScreen(viewController as Object)
 
     header = "Welcome to Media Browser"
     paragraphs = []
-    paragraphs.Push("With Media Browser you can easily stream videos, music and photos to Roku and other devices from your media browser server.")
-    paragraphs.Push("To begin, please make sure your media browser server is currently running. For information on how to download and install media browser, visit:")
+    paragraphs.Push("With Media Browser you can easily stream videos, music and photos to Roku and other devices from your Media Browser server.")
+    paragraphs.Push("To begin, please make sure your Media Browser server is currently running. For information on how to download and install Media Browser, visit:")
     paragraphs.Push("http://www.mediabrowser.tv")
 
     screen = createParagraphScreen(header, paragraphs, viewController)
     screen.ScreenName = "FirstRun"
 	
-    screen.SetButton("connect", "Sign in with Media Browser Connect")
-    screen.SetButton("skip", "Skip")
+    screen.SetButton("gonext", "Next")
 
     ' Add exit button for legacy devices
     if getGlobalVar("legacyDevice")
@@ -36,7 +35,7 @@ Function handleFirstRunSetupScreenButton(command, data) As Boolean
 
 	m.goHomeOnPop = true
 	
-    if command = "connect"
+    if command = "gonext"
 	
         screen = createConnectSignInScreen(m.ViewController)
 		m.ViewController.InitializeOtherScreen(screen, ["Connect"])
@@ -44,25 +43,7 @@ Function handleFirstRunSetupScreenButton(command, data) As Boolean
 	
 		return false
 
-    else if command = "skip"
-
-        facade = CreateObject("roOneLineDialog")
-		facade.SetTitle("Please wait...")
-		facade.ShowBusyAnimation()
-		facade.Show()
-
-		result = connectInitial()
-
-        facade.Close()
-		
-		' Don't get stuck in a loop and keep coming back here
-		if result.State = "ConnectSignIn" then result.State = "ServerSelection"
-		
-		navigateFromConnectionResult(result)
-		
-        return false
-		
-	else if command = "exit"
+    else if command = "exit"
 
         m.goHomeOnPop = false
 		

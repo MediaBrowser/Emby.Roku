@@ -16,7 +16,7 @@ Function createConnectSignInScreen(viewController As Object) As Object
     screen.AddParagraph("This screen will automatically update once your Roku player has been linked to your Media Browser account.")
 
     screen.AddButton(0, "get a new code")
-    screen.AddButton(1, "back")
+    screen.AddButton(1, "skip (connect to server manually)")
 
     ' Set standard screen properties/methods
     obj.Screen = screen
@@ -65,6 +65,22 @@ Function pinHandleMessage(msg) As Boolean
 				context.requestType = "pin"
 
 				startPinHttpRequest(m, context)
+				
+            else if msg.GetIndex() = 1 then
+			
+				facade = CreateObject("roOneLineDialog")
+				facade.SetTitle("Please wait...")
+				facade.ShowBusyAnimation()
+				facade.Show()
+
+				result = connectInitial()
+
+				facade.Close()
+				
+				' Don't get stuck in a loop and keep coming back here
+				if result.State = "ConnectSignIn" then result.State = "ServerSelection"
+				
+				navigateFromConnectionResult(result)
 				
             else
                 m.Screen.Close()

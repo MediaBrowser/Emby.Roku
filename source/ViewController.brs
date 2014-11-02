@@ -166,7 +166,20 @@ End Sub
 
 Sub vcShowInitialScreen()
 
-	doInitialConnection()
+	wizardKey = "wizardcomplete"
+	wizardValue = "4"
+	
+	if firstOf(RegRead(wizardKey), "0") <> wizardValue then
+	
+		item = {
+			ContentType: "Welcome"
+		}
+		screen = m.createScreenForItem([item], 0, ["Welcome"])
+	
+		RegWrite(wizardKey, wizardValue)
+	else
+		doInitialConnection()
+	end if
 
 End Sub
 
@@ -1188,9 +1201,14 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		m.InitializeOtherScreen(screen, ["Select Server"])
 		screen.Show()
 
-    else if contentType = "ConnectSignIn" then
+    else if contentType = "Welcome" then
 
         screen = createServerFirstRunSetupScreen(m)
+        screenName = "Welcome"
+
+	else if contentType = "ConnectSignIn" then
+
+        screen = createConnectSignInScreen(m)
         screenName = "ConnectSignIn"
 
 	else if contentType = "TVLibrary" then
