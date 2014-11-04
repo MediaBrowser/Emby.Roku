@@ -103,7 +103,7 @@ End Sub
 Function InitServerData (machineID=invalid)
     if GetGlobalAA().serverData = invalid then
         Debug("Creating server data cache")
-        dataString = RegRead("serverList1", "serverData")
+        dataString = RegRead("serverList2", "serverData")
         GetGlobalAA().serverData = CreateObject("roAssociativeArray")
         if dataString <> invalid then
             Debug("Found string in the registry: " + dataString )
@@ -145,7 +145,7 @@ End Function
 Function SetServerData ( machineID, dataName, value ) As Boolean
     InitServerData(machineID)
     GetGlobalAA().serverData[machineID][dataName] = value
-    RegWrite("serverList1", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
+    RegWrite("serverList2", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
     return true
 End Function
 
@@ -153,7 +153,7 @@ Function DeleteServerData ( machineID, dataName ) As Boolean
     InitServerData(machineID)
     data = GetGlobalAA().serverData[machineID]
     data.delete(dataName)
-    RegWrite("serverList1", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
+    RegWrite("serverList2", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
     return true
 End Function
 
@@ -162,6 +162,6 @@ Function DeleteServer ( machineID ) As Boolean
 	
     GetGlobalAA().serverData[machineID] = invalid
 	
-    RegWrite("serverList1", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
+    RegWrite("serverList2", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
     return true
 End Function

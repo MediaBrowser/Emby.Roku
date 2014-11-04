@@ -141,6 +141,8 @@ function connectToServerInfo(server) as Object
 		
 			sendWol(server.Id)
 			
+			sleep (10000)
+			
 			systemInfo = tryConnect(server.LocalAddress)
 			
 		end if
@@ -474,3 +476,11 @@ Sub connectionManagerLogout()
 	end for
 	
 End Sub
+
+Function isLoggedIntoConnect()
+
+	ensureConnectUser()
+	
+	return getCurrentConnectUser() <> invalid
+
+End Function

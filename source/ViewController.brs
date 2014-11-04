@@ -152,13 +152,15 @@ Sub navigateFromConnectionResult(result)
 			serverUrl = server.RemoteAddress
 		end if
 		
-		RegWrite("activeServerId", server.Id)
-		GetViewController().onSignedIn(serverUrl)
+		GetViewController().onSignedIn(server.Id, serverUrl)
 		
 		
 	else if result.State = "ConnectSignIn" then
 	
-		
+		signInContext = {
+			ContentType: "ConnectSignIn"
+		}
+        GetViewController().createScreenForItem(signInContext, 0, ["Connect"], true)
 		
 	end if
 	
@@ -191,9 +193,9 @@ Sub showLoginScreen(viewController as Object, serverUrl as String)
 	screen.Show()
 End Sub
 
-Sub vcOnSignedIn(serverUrl)
+Sub vcOnSignedIn(serverId, serverUrl)
 
-	serverId = RegRead("activeServerId")
+	RegWrite("currentServerId", serverId)
 	
 	localUserId = GetServerData(serverId, "UserId")
 	
@@ -224,7 +226,7 @@ Sub vcLogout()
 		
 		connectionManagerLogout()
 		
-		RegDelete("activeServerId")
+		RegDelete("currentServerId")
 
 		' For now, until there's a chance to break the initial screen workflow into separate pieces
 		m.ShowInitialScreen()

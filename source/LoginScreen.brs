@@ -136,8 +136,8 @@ Sub OnPasswordEntered(serverUrl, usernameText, passwordText)
 		RegWrite("userId", authResult.User.Id)
 		SetServerData(authResult.ServerId, "AccessToken", authResult.AccessToken)
 		SetServerData(authResult.ServerId, "UserId", authResult.User.Id)
-		RegWrite("activeServerId", authResult.ServerId)
-		GetViewController().onSignedIn(serverUrl)
+		
+		GetViewController().onSignedIn(authResult.ServerId, serverUrl)
 	Else
 		ShowPasswordFailed()
 	End If
@@ -177,7 +177,8 @@ Function getLoginScreenDataContainer(viewController as Object, item as Object) a
         HDPosterUrl: viewController.getThemeImageUrl("hd-default-user.png"),
         SDPosterUrl: viewController.getThemeImageUrl("hd-default-user.png")
     }
-
+	profiles.Push( manualLogin )
+    
     ' Add Server Tile (eventually move this)
     switchServer = {
         Title: "Select Server"
@@ -186,19 +187,19 @@ Function getLoginScreenDataContainer(viewController as Object, item as Object) a
         HDPosterUrl: viewController.getThemeImageUrl("hd-switch-server.png"),
         SDPosterUrl: viewController.getThemeImageUrl("hd-switch-server.png")
     }
-
-    ' Add Server Tile (eventually move this)
-    connect = {
-        Title: "Sign in with Media Browser Connect"
-        ContentType: "ConnectSignIn"
-        ShortDescriptionLine1: "Sign in with Media Browser Connect"
-        HDPosterUrl: viewController.getThemeImageUrl("hd-connectsignin.jpg"),
-        SDPosterUrl: viewController.getThemeImageUrl("hd-connectsignin.jpg")
-    }
-
-    profiles.Push( manualLogin )
     profiles.Push( switchServer )
-	profiles.Push( connect )
+
+	if isLoggedIntoConnect() = false then
+		' Add Server Tile (eventually move this)
+		connect = {
+			Title: "Sign in with Media Browser Connect"
+			ContentType: "ConnectSignIn"
+			ShortDescriptionLine1: "Sign in with Media Browser Connect"
+			HDPosterUrl: viewController.getThemeImageUrl("hd-connectsignin.jpg"),
+			SDPosterUrl: viewController.getThemeImageUrl("hd-connectsignin.jpg")
+		}
+		profiles.Push( connect )
+	end if
 	
 	obj = CreateObject("roAssociativeArray")
 	obj.names = []

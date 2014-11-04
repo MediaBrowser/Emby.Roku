@@ -12,7 +12,8 @@ Sub Main()
     viewController = createViewController()
 	
 	' Uncomment this as needed to debug startup sequence
-	'RegDelete("serverActive")
+	RegDelete("activeServerId")
+	RegDelete("serverList1")
 
 	'RunScreenSaver()
 	viewController.Show()

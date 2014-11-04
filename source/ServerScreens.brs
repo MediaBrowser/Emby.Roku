@@ -69,8 +69,15 @@ End Sub
 
 Function createServerListScreen(viewController as Object)
 
-    ' Get Server List
+	facade = CreateObject("roOneLineDialog")
+	facade.SetTitle("Please wait...")
+	facade.ShowBusyAnimation()
+	facade.Show()
+
+	' Get Server List
     serverList = connectionManagerGetServers()
+					
+	facade.Close()
 
     ' Create List Screen
     screen = CreateListScreen(viewController)
@@ -94,13 +101,39 @@ Function createServerListScreen(viewController as Object)
 
     entry = {
             Title: ">> Add Server",
-            ShortDescriptionLine1: "Add a new server.",
+            ShortDescriptionLine1: "Add a new server",
             Action: "add",
             HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-server-lg.png"),
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-server-lg.png")
         }
 
     contentList.push( entry )
+	
+	if isLoggedIntoConnect() = true then
+	
+		entry = {
+            Title: ">> Sign out of Media Browser Connect",
+            ShortDescriptionLine1: "Sign out of Media Browser Connect",
+            Action: "signout",
+            HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-server-lg.png"),
+            SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-server-lg.png")
+        }
+
+		contentList.push( entry )
+
+	else
+	
+		entry = {
+            Title: ">> Sign in with Media Browser Connect",
+            ShortDescriptionLine1: "Sign in with Media Browser Connect",
+            Action: "signin",
+            HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-server-lg.png"),
+            SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-server-lg.png")
+        }
+
+		contentList.push( entry )
+
+	end if
 
     ' Set Content
     screen.SetContent(contentList)
@@ -178,6 +211,18 @@ Function serverListScreenHandleMessage(msg) As Boolean
 
                 ' Add Server Manually
                 createServerConfigurationScreen(m)
+
+            else if action = "signin"
+
+ 				signInContext = {
+					ContentType: "ConnectSignIn"
+				}
+                viewController.createScreenForItem(signInContext, 0, ["Connect"], true)
+               
+
+            else if action = "signout"
+
+				viewController.Logout()
 
             end if
 

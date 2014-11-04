@@ -118,7 +118,7 @@ Function http_authorization() As Void
 
     m.Http.AddHeader("Authorization", authString)
 	
-	activeServerId = RegRead("activeServerId")
+	activeServerId = RegRead("currentServerId")
 	
 	if activeServerId <> invalid and activeServerId <> "" then
 	
