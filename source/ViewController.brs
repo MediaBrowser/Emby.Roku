@@ -125,10 +125,10 @@ Sub navigateFromConnectionResult(result)
 		Debug ("ServerSignIn LocalAddress: " + firstOf(server.LocalAddress, ""))
 		Debug ("ServerSignIn RemoteAddress: " + firstOf(server.RemoteAddress, ""))
 		
-		serverUrl = server.LocalAddress
+		serverUrl = firstOf(server.LocalAddress, "")
 	
 		if result.ConnectionMode = "Remote" then
-			serverUrl = server.RemoteAddress
+			serverUrl = firstOf(server.RemoteAddress, "")
 		end if
 		
 		showLoginScreen(GetViewController(), serverUrl)
@@ -146,14 +146,13 @@ Sub navigateFromConnectionResult(result)
 		Debug ("SignedIn LocalAddress: " + firstOf(server.LocalAddress, ""))
 		Debug ("SignedIn RemoteAddress: " + firstOf(server.RemoteAddress, ""))
 		
-		serverUrl = server.LocalAddress
+		serverUrl = firstOf(server.LocalAddress, "")
 	
 		if result.ConnectionMode = "Remote" then
-			serverUrl = server.RemoteAddress
+			serverUrl = firstOf(server.RemoteAddress, "")
 		end if
 		
 		GetViewController().onSignedIn(server.Id, serverUrl)
-		
 		
 	else if result.State = "ConnectSignIn" then
 	
@@ -211,6 +210,10 @@ Sub vcOnSignedIn(serverId, serverUrl)
     end if
 
     GetGlobalAA().AddReplace("user", userProfile)	
+	
+	if firstOf(RegRead("prefRememberUser"), "yes") <> "yes" and isLoggedIntoConnect() = false then
+		DeleteServerData(serverId, "UserId")
+	end if
 	
 	while m.screens.Count() > 0
 		m.PopScreen(m.screens[m.screens.Count() - 1])

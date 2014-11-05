@@ -14,7 +14,8 @@ Sub Main()
 	' Uncomment this as needed to debug startup sequence
 	RegDelete("activeServerId")
 	RegDelete("serverList1")
-
+	RegDelete("userId")
+	
 	'RunScreenSaver()
 	viewController.Show()
 

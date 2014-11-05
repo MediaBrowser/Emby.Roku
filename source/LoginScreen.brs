@@ -133,7 +133,7 @@ Sub OnPasswordEntered(serverUrl, usernameText, passwordText)
 	authResult = authenticateUser(serverUrl, usernameText, passwordText)
 
 	If authResult <> invalid
-		RegWrite("userId", authResult.User.Id)
+		
 		SetServerData(authResult.ServerId, "AccessToken", authResult.AccessToken)
 		SetServerData(authResult.ServerId, "UserId", authResult.User.Id)
 		

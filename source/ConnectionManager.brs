@@ -262,7 +262,11 @@ end function
 
 function getConnectServersFromService(connectUserId, connectAccessToken) as Object
 
-    ' Prepare Request
+    if firstOf(connectUserId, "") = "" or firstOf(connectAccessToken, "") = "" then
+		return invalid
+	end if
+	
+	' Prepare Request
     request = HttpRequest("https://connect.mediabrowser.tv/service/servers?userId=" + tostr(connectUserId))
 	
     request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
@@ -291,7 +295,11 @@ End function
 
 function getConnectUser(id, accessToken) as Object
 
-    ' Prepare Request
+	if firstOf(accessToken, "") = "" then
+		return invalid
+	end if
+	
+	' Prepare Request
     request = HttpRequest("https://connect.mediabrowser.tv/service/user?id=" + tostr(id))
 	
     request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
@@ -378,7 +386,12 @@ Sub validateLocalAuthentication(server, connectionMode)
 
 	accessToken = firstOf(server.AccessToken, "")
 	
-	if accessToken = "" then				
+	if accessToken = "" or firstOf(server.UserId, "") = "" then				
+		server.UserId = invalid
+		server.AccessToken = invalid
+		
+		DeleteServerData(server.Id, "UserId")
+		DeleteServerData(server.Id, "AccessToken")
 		return 
 	end if
 	
