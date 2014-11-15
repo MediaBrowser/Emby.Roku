@@ -122,7 +122,7 @@ Function http_authorization() As Void
 	
 	if activeServerId <> invalid and activeServerId <> "" then
 	
-		accessToken = GetServerData(activeServerId, "AccessToken")
+		accessToken = ConnectionManager().GetServerData(activeServerId, "AccessToken")
 		
 		if accessToken <> invalid and accessToken <> "" then
 			m.Http.AddHeader("X-MediaBrowser-Token", accessToken)

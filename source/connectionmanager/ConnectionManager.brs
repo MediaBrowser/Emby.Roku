@@ -1,3 +1,28 @@
+Function ConnectionManager() As Object
+    if m.ConnectionManager = invalid then
+        
+		obj = CreateObject("roAssociativeArray")
+		
+		obj.isLoggedIntoConnect = mgrIsLoggedIntoConnect
+		obj.logout = mgrLogout
+		obj.connectToServerInfo = mgrConnectToServerInfo
+		obj.connectToServer = mgrConnectToServer
+		
+		obj.sendWolToAllServers = mgrSendWolToAllServers
+		obj.sendWol = mgrSendWol
+		obj.GetSavedServerList = mrgGetSavedServerList
+		obj.DeleteServerData = mgrDeleteServerData
+		obj.DeleteServer = mgrDeleteServer
+		obj.GetServerData = mgrGetServerData
+		obj.SetServerData = mgrSetServerData
+
+        ' Singleton
+        m.ConnectionManager = obj
+    end if
+
+    return m.ConnectionManager
+End Function
+
 function connectInitial() as Object
 
 	servers = connectionManagerGetServers()
@@ -13,12 +38,12 @@ function connectionManagerGetServers() as Object
 	
 	for each server in servers
 	
-		SetServerData(server.Id, "Name", server.Name)
-		SetServerData(server.Id, "LocalAddress", server.LocalAddress)
+		ConnectionManager().SetServerData(server.Id, "Name", server.Name)
+		ConnectionManager().SetServerData(server.Id, "LocalAddress", server.LocalAddress)
 		
 		' We know this server is on the local network.
 		' We don't want to waste time trying to talk to local addresses of servers we'll never be able to reach
-		SetServerData(server.Id, "Local", "1")
+		ConnectionManager().SetServerData(server.Id, "Local", "1")
 		
 	end for
 	
@@ -29,18 +54,18 @@ function connectionManagerGetServers() as Object
 	
 	for each server in servers
 	
-		SetServerData(server.SystemId, "Name", server.Name)
+		ConnectionManager().SetServerData(server.SystemId, "Name", server.Name)
 		
-		if firstOf(server.LocalAddress, "") <> "" then  SetServerData(server.SystemId, "LocalAddress", server.LocalAddress)
+		if firstOf(server.LocalAddress, "") <> "" then  ConnectionManager().SetServerData(server.SystemId, "LocalAddress", server.LocalAddress)
 
-		SetServerData(server.SystemId, "RemoteAddress", server.Url)
+		ConnectionManager().SetServerData(server.SystemId, "RemoteAddress", server.Url)
 		
-		SetServerData(server.SystemId, "ExchangeToken", server.AccessKey)
-		SetServerData(server.SystemId, "UserType", firstOf(server.UserType, ""))
+		ConnectionManager().SetServerData(server.SystemId, "ExchangeToken", server.AccessKey)
+		ConnectionManager().SetServerData(server.SystemId, "UserType", firstOf(server.UserType, ""))
 		
 	end for
 	
-	return getServerList()
+	return ConnectionManager().GetSavedServerList()
 
 end function
 
@@ -52,7 +77,7 @@ function connectToServers(servers) as Object
 	
 	if count = 1
 		
-		result = connectToServerInfo(servers[0])
+		result = ConnectionManager().connectToServerInfo(servers[0])
 		
 		if result.State = "Unavailable" then
 			
@@ -72,7 +97,7 @@ function connectToServers(servers) as Object
 	
 		if firstOf(server.AccessToken, "") <> "" then
 		
-			result = connectToServerInfo(server)
+			result = ConnectionManager().connectToServerInfo(server)
 			
 			if result.State = "SignedIn" then
 				return result
@@ -97,7 +122,7 @@ function connectToServers(servers) as Object
 
 End function
 
-function connectToServer(url) as Object
+function mgrConnectToServer(url) as Object
 
 	url = normalizeAddress(url)
 	
@@ -119,11 +144,11 @@ function connectToServer(url) as Object
 		Local: "-1"
 	}
 	
-	return connectToServerInfo(serverInfo)
+	return ConnectionManager().connectToServerInfo(serverInfo)
 
 End function
 
-function connectToServerInfo(server) as Object
+function mgrConnectToServerInfo(server) as Object
 
 	result = {
 		State: "Unavailable",
@@ -139,7 +164,7 @@ function connectToServerInfo(server) as Object
 		
 		if systemInfo = invalid and firstOf(server.MacAddress, "") <> "" then
 		
-			sendWol(server.Id)
+			m.sendWol(server.Id)
 			
 			sleep (10000)
 			
@@ -222,7 +247,7 @@ function tryConnect(url) as Object
 end function
 
 function getCurrentConnectUser() as Object
-	return GetViewController().ConnectUser
+	return ConnectionManager().ConnectUser
 End function
 
 Sub ensureConnectUser() 
@@ -236,13 +261,13 @@ Sub ensureConnectUser()
 		return
 	end if
 	
-	GetViewController().ConnectUser = invalid
+	ConnectionManager().ConnectUser = invalid
 	
 	if connectUserId = "" or connectAccessToken = "" then
 		return
 	end if
 	
-	GetViewController().ConnectUser = getConnectUser(connectUserId, connectAccessToken)
+	ConnectionManager().ConnectUser = getConnectUserFromServer(connectUserId, connectAccessToken)
 	
 end Sub
 
@@ -293,7 +318,7 @@ function getConnectServersFromService(connectUserId, connectAccessToken) as Obje
 	
 End function
 
-function getConnectUser(id, accessToken) as Object
+function getConnectUserFromServer(id, accessToken) as Object
 
 	if firstOf(accessToken, "") = "" then
 		return invalid
@@ -352,6 +377,8 @@ Sub addAuthenticationInfoFromConnect(server, connectionMode)
 	
     request.Http.AddHeader("X-MediaBrowser-Token", exchangeToken)
 
+	connectionManager = ConnectionManager()
+	
     ' Execute Request
     response = request.GetToStringWithTimeout(5)
     if response <> invalid
@@ -361,37 +388,39 @@ Sub addAuthenticationInfoFromConnect(server, connectionMode)
 			server.UserId = invalid
 			server.AccessToken = invalid
 		
-			DeleteServerData(server.Id, "UserId")
-			DeleteServerData(server.Id, "AccessToken")
+			connectionManager.DeleteServerData(server.Id, "UserId")
+			connectionManager.DeleteServerData(server.Id, "AccessToken")
 			return
         end if
 
 		server.UserId = metaData.LocalUserId
 		server.AccessToken = metaData.AccessToken
 		
-		SetServerData(server.Id, "UserId", metaData.LocalUserId)
-		SetServerData(server.Id, "AccessToken", metaData.AccessToken)
+		connectionManager.SetServerData(server.Id, "UserId", metaData.LocalUserId)
+		connectionManager.SetServerData(server.Id, "AccessToken", metaData.AccessToken)
 		
     else
 		server.UserId = invalid
 		server.AccessToken = invalid
 		
-		DeleteServerData(server.Id, "UserId")
-		DeleteServerData(server.Id, "AccessToken")
+		connectionManager.DeleteServerData(server.Id, "UserId")
+		connectionManager.DeleteServerData(server.Id, "AccessToken")
     end if
 	
 End Sub
 
 Sub validateLocalAuthentication(server, connectionMode)
 
+	connectionManager = ConnectionManager()
+	
 	accessToken = firstOf(server.AccessToken, "")
 	
 	if accessToken = "" or firstOf(server.UserId, "") = "" then				
 		server.UserId = invalid
 		server.AccessToken = invalid
 		
-		DeleteServerData(server.Id, "UserId")
-		DeleteServerData(server.Id, "AccessToken")
+		connectionManager.DeleteServerData(server.Id, "UserId")
+		connectionManager.DeleteServerData(server.Id, "AccessToken")
 		return 
 	end if
 	
@@ -420,8 +449,8 @@ Sub validateLocalAuthentication(server, connectionMode)
 			server.UserId = invalid
 			server.AccessToken = invalid
 		
-			DeleteServerData(server.Id, "UserId")
-			DeleteServerData(server.Id, "AccessToken")
+			connectionManager.DeleteServerData(server.Id, "UserId")
+			connectionManager.DeleteServerData(server.Id, "AccessToken")
 			return
         end if
 		
@@ -429,8 +458,8 @@ Sub validateLocalAuthentication(server, connectionMode)
 		server.UserId = invalid
 		server.AccessToken = invalid
 		
-		DeleteServerData(server.Id, "UserId")
-		DeleteServerData(server.Id, "AccessToken")
+		connectionManager.DeleteServerData(server.Id, "UserId")
+		connectionManager.DeleteServerData(server.Id, "AccessToken")
     end if
 	
 End Sub
@@ -438,59 +467,59 @@ End Sub
 Sub importSystemInfo(server, systemInfo)
 
 	server.Name = systemInfo.ServerName
-	setServerData(server.Id, "Name", server.Name)
+	ConnectionManager().SetServerData(server.Id, "Name", server.Name)
 	
 	updateLocalAddress = true
 
 	if updateLocalAddress = true then
 		if firstOf(systemInfo.LocalAddress, "") <> "" then
 			server.LocalAddress = systemInfo.LocalAddress
-			setServerData(server.Id, "LocalAddress", server.LocalAddress)
+			ConnectionManager().SetServerData(server.Id, "LocalAddress", server.LocalAddress)
 		end if
 		
 		if firstOf(systemInfo.MacAddress, "") <> "" then
 			server.MacAddress = systemInfo.MacAddress
-			setServerData(server.Id, "MacAddress", server.MacAddress)
+			ConnectionManager().SetServerData(server.Id, "MacAddress", server.MacAddress)
 		end if
 	end if
 	
 	if firstOf(systemInfo.WanAddress, "") <> "" then
 		server.RemoteAddress = systemInfo.WanAddress
-		setServerData(server.Id, "RemoteAddress", server.RemoteAddress)
+		ConnectionManager().SetServerData(server.Id, "RemoteAddress", server.RemoteAddress)
 	end if
 
 End Sub
 
-Sub connectionManagerLogout()
+Sub mgrLogout()
 
-	GetViewController().ConnectUser = invalid
+	ConnectionManager().ConnectUser = invalid
 	RegDelete("connectUserId")
 	RegDelete("connectAccessToken")
 	
-	servers = GetServerList()
+	servers = m.GetSavedServerList()
 	
 	for each server in servers
 	
 		if firstOf(server.UserType, "") = "Guest" then
-			DeleteServer(server.Id)
+			m.DeleteServer(server.Id)
 		end if
 		
 	end for
 	
-	servers = GetServerList()
+	servers = m.GetSavedServerList()
 	
 	for each server in servers
 	
-		DeleteServerData(server.Id, "AccessToken")
-		DeleteServerData(server.Id, "ExchangeToken")
-		DeleteServerData(server.Id, "UserId")
-		DeleteServerData(server.Id, "UserType")
+		m.DeleteServerData(server.Id, "AccessToken")
+		m.DeleteServerData(server.Id, "ExchangeToken")
+		m.DeleteServerData(server.Id, "UserId")
+		m.DeleteServerData(server.Id, "UserType")
 		
 	end for
 	
 End Sub
 
-Function isLoggedIntoConnect()
+Function mgrIsLoggedIntoConnect()
 
 	ensureConnectUser()
 	

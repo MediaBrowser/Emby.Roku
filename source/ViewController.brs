@@ -196,7 +196,7 @@ Sub vcOnSignedIn(serverId, serverUrl)
 
 	RegWrite("currentServerId", serverId)
 	
-	localUserId = GetServerData(serverId, "UserId")
+	localUserId = ConnectionManager().GetServerData(serverId, "UserId")
 	
 	m.serverUrl = serverUrl
 	postCapabilities()
@@ -211,8 +211,8 @@ Sub vcOnSignedIn(serverId, serverUrl)
 
     GetGlobalAA().AddReplace("user", userProfile)	
 	
-	if firstOf(RegRead("prefRememberUser"), "yes") <> "yes" and isLoggedIntoConnect() = false then
-		DeleteServerData(serverId, "UserId")
+	if firstOf(RegRead("prefRememberUser"), "yes") <> "yes" and ConnectionManager().isLoggedIntoConnect() = false then
+		ConnectionManager().DeleteServerData(serverId, "UserId")
 	end if
 	
 	while m.screens.Count() > 0
@@ -227,7 +227,7 @@ Sub vcLogout()
 
 		Debug("Logout")
 		
-		connectionManagerLogout()
+		ConnectionManager().logout()
 		
 		RegDelete("currentServerId")
 

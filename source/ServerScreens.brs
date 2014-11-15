@@ -109,7 +109,7 @@ Function createServerListScreen(viewController as Object)
 
     contentList.push( entry )
 	
-	if isLoggedIntoConnect() = true then
+	if ConnectionManager().isLoggedIntoConnect() = true then
 	
 		entry = {
             Title: ">> Sign out of Media Browser Connect",
@@ -184,7 +184,7 @@ Function serverListScreenHandleMessage(msg) As Boolean
 					facade.ShowBusyAnimation()
 					facade.Show()
 
-					result = connectToServerInfo(server)
+					result = ConnectionManager().connectToServerInfo(server)
 					
 					facade.Close()
 					
@@ -199,7 +199,7 @@ Function serverListScreenHandleMessage(msg) As Boolean
                     selection = createServerRemoveDialog()
                     if selection = "1"
 					
-                        DeleteServer(serverId)
+                        ConnectionManager().DeleteServer(serverId)
                         Debug("Remove Server")
 						
 						viewController.ShowInitialScreen()
@@ -329,7 +329,7 @@ Sub onServerAddressDiscovered(viewController as Object, serverAddress As String)
 	facade.Show()
                     
 	' Check Server Connection
-    result = connectToServer(serverAddress)
+    result = ConnectionManager().connectToServer(serverAddress)
 
 	facade.Close()
 	

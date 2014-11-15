@@ -134,8 +134,8 @@ Sub OnPasswordEntered(serverUrl, usernameText, passwordText)
 
 	If authResult <> invalid
 		
-		SetServerData(authResult.ServerId, "AccessToken", authResult.AccessToken)
-		SetServerData(authResult.ServerId, "UserId", authResult.User.Id)
+		ConnectionManager().SetServerData(authResult.ServerId, "AccessToken", authResult.AccessToken)
+		ConnectionManager().SetServerData(authResult.ServerId, "UserId", authResult.User.Id)
 		
 		GetViewController().onSignedIn(authResult.ServerId, serverUrl)
 	Else
@@ -189,7 +189,7 @@ Function getLoginScreenDataContainer(viewController as Object, item as Object) a
     }
     profiles.Push( switchServer )
 
-	if isLoggedIntoConnect() = false then
+	if ConnectionManager().isLoggedIntoConnect() = false then
 		' Add Server Tile (eventually move this)
 		connect = {
 			Title: "Sign in with Media Browser Connect"

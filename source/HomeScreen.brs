@@ -43,7 +43,7 @@ Function createHomeScreen(viewController as Object) as Object
     screen.clockTimer.SetDuration(20000, true) ' A little lag is fine here
     viewController.AddTimer(screen.clockTimer, screen)
 	
-	sendWolToAllServers(m)
+	ConnectionManager().sendWolToAllServers(m)
 
     screen.SetDescriptionVisible(false)
 
@@ -1019,7 +1019,7 @@ Sub homeScreenOnTimerExpired(timer)
                 Debug("roku is idle: NOT sending keepalive WOL packets")
             else 
                 Debug("keepalive WOL packets being sent.")
-                sendWolToAllServers(m)
+                ConnectionManager().sendWolToAllServers(m)
             end if
         'else if server.online and timer.keepAlive = invalid then 
             'Debug("WOL " + tostr(server.name) + " is already online")

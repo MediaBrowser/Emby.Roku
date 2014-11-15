@@ -1,23 +1,21 @@
 '** Credit: Rarflix https://github.com/ljunkie/rarflix
 
-Sub sendWolToAllServers(screen = invalid)
+Sub mgrSendWolToAllServers(screen = invalid)
 
-	InitServerData()
+	for each server in m.GetSavedServerList()
 	
-	for each id in GetGlobalAA().serverData
-	
-		sendWol(id, screen)
+		m.SendWol(server.Id, screen)
 		
 	end for
 	
 End Sub
 
-Sub sendWol(machineID as String, screen=invalid)
+Sub mgrSendWol(machineID as String, screen=invalid)
 
     if machineID <> invalid then
         numReqToSend = 5
 
-        mac = GetServerData(machineID, "MacAddress")
+        mac = m.GetServerData(machineID, "MacAddress")
 
         if mac = invalid then return
 
@@ -52,7 +50,7 @@ Sub sendWol(machineID as String, screen=invalid)
         end if
 
         ' Get our secure on pass
-        pass = GetServerData(machineID, "WOLPass")
+        pass = m.GetServerData(machineID, "WOLPass")
         if pass = invalid or Len(pass) <> 12 then pass = "ffffffffffff"
                
         header = "ffffffffffff"
@@ -82,7 +80,7 @@ Sub sendWol(machineID as String, screen=invalid)
         udp.close()
         
         ' no more need for sleeping 'Sleep(100) -- timer will take care re-requesting the data
-        if GetGlobalAA()[WOLcounterKey] <= numReqToSend then sendWOL(machineID, screen)
+        if GetGlobalAA()[WOLcounterKey] <= numReqToSend then m.SendWol(machineID, screen)
 
         ' add timer to create requests again (only if we made this request from the Home Screen)
         if screen <> invalid and screen.ScreenName = "Home" then 
@@ -99,69 +97,3 @@ Sub sendWol(machineID as String, screen=invalid)
 
     end if
 End Sub
-
-Function InitServerData (machineID=invalid)
-    if GetGlobalAA().serverData = invalid then
-        Debug("Creating server data cache")
-        dataString = RegRead("serverList2", "serverData")
-        GetGlobalAA().serverData = CreateObject("roAssociativeArray")
-        if dataString <> invalid then
-            Debug("Found string in the registry: " + dataString )
-            GetGlobalAA().serverData = ParseJson(dataString) 
-            Debug("Parsed as: " + tostr(GetGlobalAA().serverData) )
-            if GetGlobalAA().serverData = invalid then
-                GetGlobalAA().serverData = createObject("roAssociativeArray")
-            end if
-         end if
-    end if
-    if machineID <> invalid and GetGlobalAA().serverData[machineID] = invalid then
-        GetGlobalAA().serverData[machineID] = createObject("roAssociativeArray")
-    end if
-End Function
-
-Function GetServerList () as Object
-    InitServerData()
-	servers = []
-	data = GetGlobalAA().serverData
-	
-	for each serverId in data
-	
-		server = data[serverId]		
-		if server <> invalid and firstOf(server.Name, "") <> "" and (firstOf(server.LocalAddress, "") <> "" or firstOf(server.RemoteAddress, "") <> "") then 
-			server.Id = serverId
-			servers.push(server)
-		end if
-	end for
-	
-	return servers
-End Function
-
-Function GetServerData ( machineID, dataName ) As Dynamic  
-    InitServerData(machineID)
-    
-	return GetGlobalAA().serverData[machineID][dataName]
-End Function
-
-Function SetServerData ( machineID, dataName, value ) As Boolean
-    InitServerData(machineID)
-    GetGlobalAA().serverData[machineID][dataName] = value
-    RegWrite("serverList2", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
-    return true
-End Function
-
-Function DeleteServerData ( machineID, dataName ) As Boolean
-    InitServerData(machineID)
-    data = GetGlobalAA().serverData[machineID]
-    data.delete(dataName)
-    RegWrite("serverList2", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
-    return true
-End Function
-
-Function DeleteServer ( machineID ) As Boolean
-    InitServerData()
-	
-    GetGlobalAA().serverData[machineID] = invalid
-	
-    RegWrite("serverList2", SimpleJSONBuilder(GetGlobalAA().serverData), "serverData")
-    return true
-End Function
