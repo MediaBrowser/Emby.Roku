@@ -15,6 +15,7 @@ Function ConnectionManager() As Object
 		obj.DeleteServer = mgrDeleteServer
 		obj.GetServerData = mgrGetServerData
 		obj.SetServerData = mgrSetServerData
+		obj.connectInitial = mrgConnectInitial
 
         ' Singleton
         m.ConnectionManager = obj
@@ -23,7 +24,7 @@ Function ConnectionManager() As Object
     return m.ConnectionManager
 End Function
 
-function connectInitial() as Object
+function mrgConnectInitial() as Object
 
 	servers = connectionManagerGetServers()
 	
@@ -95,7 +96,7 @@ function connectToServers(servers) as Object
 	
 	for each server in servers
 	
-		if firstOf(server.AccessToken, "") <> "" then
+		if firstOf(server.AccessToken, "") <> "" and firstOf(server.UserId, "") <> "" then
 		
 			result = ConnectionManager().connectToServerInfo(server)
 			
@@ -191,11 +192,11 @@ function mgrConnectToServerInfo(server) as Object
 	ensureConnectUser()
 	addAuthenticationInfoFromConnect(server, result.ConnectionMode)
 	
-	if firstOf(server.AccessToken, "") <> "" then
+	if firstOf(server.AccessToken, "") <> "" and firstOf(server.UserId, "") <> "" then
 		validateLocalAuthentication(server, result.ConnectionMode)
 	end if
 	
-	if firstOf(server.AccessToken, "") = "" then
+	if firstOf(server.AccessToken, "") = "" or firstOf(server.UserId, "") = "" then
 		result.State = "ServerSignIn"
 	else
 		result.State = "SignedIn"
@@ -445,7 +446,10 @@ Sub validateLocalAuthentication(server, connectionMode)
     if response <> invalid
         metaData = ParseJSON(response)
 
-        if metaData = invalid            
+        if metaData = invalid      
+
+			Debug ("Local authentication info invalid, deleting saved userId and accessToke")
+			
 			server.UserId = invalid
 			server.AccessToken = invalid
 		

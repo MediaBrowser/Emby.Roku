@@ -73,7 +73,7 @@ Function pinHandleMessage(msg) As Boolean
 				facade.ShowBusyAnimation()
 				facade.Show()
 
-				result = connectInitial()
+				result = ConnectionManager().connectInitial()
 
 				facade.Close()
 				
@@ -170,7 +170,7 @@ Sub onPinExchanged(connectScreen)
 	facade.ShowBusyAnimation()
 	facade.Show()
 
-	result = connectInitial()
+	result = ConnectionManager().connectInitial()
 	
 	' Don't get stuck in a loop and keep coming back here
 	if result.State = "ConnectSignIn" then

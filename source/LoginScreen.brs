@@ -137,7 +137,7 @@ Sub OnPasswordEntered(serverUrl, usernameText, passwordText)
 		ConnectionManager().SetServerData(authResult.ServerId, "AccessToken", authResult.AccessToken)
 		ConnectionManager().SetServerData(authResult.ServerId, "UserId", authResult.User.Id)
 		
-		GetViewController().onSignedIn(authResult.ServerId, serverUrl)
+		GetViewController().onSignedIn(authResult.ServerId, serverUrl, authResult.User.Id)
 	Else
 		ShowPasswordFailed()
 	End If

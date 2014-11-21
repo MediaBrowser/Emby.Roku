@@ -104,7 +104,7 @@ End Function
 
 Sub doInitialConnection()
 
-	result = connectInitial()
+	result = ConnectionManager().connectInitial()
 	
 	Debug ("connectInitial returned State of " + firstOf(result.State, ""))
 	Debug ("connectInitial returned ConnectionMode of " + firstOf(result.ConnectionMode, ""))
@@ -142,6 +142,8 @@ Sub navigateFromConnectionResult(result)
 		server = result.Servers[0]
 		
 		Debug ("SignedIn Id: " + firstOf(server.Id, ""))
+		Debug ("SignedIn UserId: " + firstOf(server.UserId, ""))
+		Debug ("SignedIn AccessToken: " + firstOf(server.AccessToken, ""))
 		Debug ("SignedIn Name: " + firstOf(server.Name, ""))
 		Debug ("SignedIn LocalAddress: " + firstOf(server.LocalAddress, ""))
 		Debug ("SignedIn RemoteAddress: " + firstOf(server.RemoteAddress, ""))
@@ -152,7 +154,7 @@ Sub navigateFromConnectionResult(result)
 			serverUrl = firstOf(server.RemoteAddress, "")
 		end if
 		
-		GetViewController().onSignedIn(server.Id, serverUrl)
+		GetViewController().onSignedIn(server.Id, serverUrl, server.UserId)
 		
 	else if result.State = "ConnectSignIn" then
 	
@@ -192,11 +194,9 @@ Sub showLoginScreen(viewController as Object, serverUrl as String)
 	screen.Show()
 End Sub
 
-Sub vcOnSignedIn(serverId, serverUrl)
+Sub vcOnSignedIn(serverId, serverUrl, localUserId)
 
 	RegWrite("currentServerId", serverId)
-	
-	localUserId = ConnectionManager().GetServerData(serverId, "UserId")
 	
 	m.serverUrl = serverUrl
 	postCapabilities()
