@@ -94,19 +94,17 @@ function connectToServers(servers) as Object
 		
 	end if
 	
-	for each server in servers
+	firstServer = servers[0]
 	
-		if firstOf(server.AccessToken, "") <> "" and firstOf(server.UserId, "") <> "" then
+	if firstServer <> invalid and firstOf(firstServer.AccessToken, "") <> "" and firstOf(firstServer.UserId, "") <> "" then
 		
-			result = ConnectionManager().connectToServerInfo(server)
+		result = ConnectionManager().connectToServerInfo(firstServer)
 			
-			if result.State = "SignedIn" then
-				return result
-			end if
-			
+		if result.State = "SignedIn" then
+			return result
 		end if
-		
-	end for
+			
+	end if
 	
 	finalResult = {
 		Servers: servers,

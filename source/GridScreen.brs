@@ -93,7 +93,9 @@ Function gridHandleMessage(msg) As Boolean
         handled = true
         if msg.isListItemSelected() then
 
-			context = m.contentArray[msg.GetIndex()]
+			rows = m.contentArray
+			rowIndex = msg.GetIndex()
+			context = rows[rowIndex]
             
             index = msg.GetData()
 
