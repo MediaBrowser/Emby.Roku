@@ -16,6 +16,10 @@ Function ConnectionManager() As Object
 		obj.GetServerData = mgrGetServerData
 		obj.SetServerData = mgrSetServerData
 		obj.connectInitial = mrgConnectInitial
+		obj.getPinCreationHttpRequest = mgrGetPinCreationHttpRequest
+		obj.getPinStatusHttpRequest = mgrGetPinStatusHttpRequest
+		obj.getPinExchangeHttpRequest = mgrGetPinExchangeHttpRequest
+		obj.setAppInfo = mgrSetAppInfo
 
         ' Singleton
         m.ConnectionManager = obj
@@ -139,6 +143,7 @@ function mgrConnectToServer(url) as Object
 		Id: publicInfo.Id,
 		LocalAddress: publicInfo.LocalAddress,
 		RemoteAddress: publicInfo.WanAddress,
+		ManualAddress: url,
 		MacAddress: publicInfo.MacAddress,
 		Local: "-1"
 	}
@@ -151,13 +156,20 @@ function mgrConnectToServerInfo(server) as Object
 
 	result = {
 		State: "Unavailable",
-		ConnectionMode: "Local",
+		ConnectionMode: "Manual",
 		Servers: []
 	}
 	
 	systemInfo = invalid 
 	
-	if firstOf(server.Local, "0") <> "0" and firstOf(server.LocalAddress, "") <> "" then
+	if systemInfo = invalid and firstOf(server.ManualAddress, "") <> "" and server.ManualAddress <> firstOf(server.LocalAddress, "") and server.ManualAddress <> firstOf(server.RemoteAddress, "") then
+	
+		systemInfo = tryConnect(server.ManualAddress)
+		
+		if systemInfo <> invalid then result.ConnectionMode = "Manual"
+	end if
+	
+	if systemInfo = invalid and firstOf(server.Local, "0") <> "0" and firstOf(server.LocalAddress, "") <> "" then
 		
 		systemInfo = tryConnect(server.LocalAddress)
 		
@@ -171,12 +183,14 @@ function mgrConnectToServerInfo(server) as Object
 			
 		end if
 	
+		if systemInfo <> invalid then result.ConnectionMode = "Local"
 	end if
 	
 	if systemInfo = invalid and firstOf(server.RemoteAddress, "") <> "" then
 	
 		systemInfo = tryConnect(server.RemoteAddress)
-		result.ConnectionMode = "Remote"
+		
+		if systemInfo <> invalid then result.ConnectionMode = "Remote"
 	end if
 	
 	if systemInfo = invalid then
@@ -297,6 +311,7 @@ function getConnectServersFromService(connectUserId, connectAccessToken) as Obje
     request.Http.InitClientCertificates()
 	
     request.Http.AddHeader("X-Connect-UserToken", connectAccessToken)
+	addXApplicationHeader(request.Http)
 
     ' Execute Request
     response = request.GetToStringWithTimeout(5)
@@ -330,6 +345,7 @@ function getConnectUserFromServer(id, accessToken) as Object
     request.Http.InitClientCertificates()
 	
     request.Http.AddHeader("X-Connect-UserToken", accessToken)
+	addXApplicationHeader(request.Http)
 
     ' Execute Request
     response = request.GetToStringWithTimeout(5)
@@ -364,6 +380,8 @@ Sub addAuthenticationInfoFromConnect(server, connectionMode)
 	
 	if connectionMode = "Local" then
 		url = server.LocalAddress
+	else if connectionMode = "Manual" then
+		url = server.ManualAddress
 	else
 		url = server.RemoteAddress
 	end if
@@ -427,6 +445,8 @@ Sub validateLocalAuthentication(server, connectionMode)
 	
 	if connectionMode = "Local" then
 		url = server.LocalAddress
+	else if connectionMode = "Manual" then
+		url = server.ManualAddress
 	else
 		url = server.RemoteAddress
 	end if
@@ -527,4 +547,68 @@ Function mgrIsLoggedIntoConnect()
 	
 	return getCurrentConnectUser() <> invalid
 
+End Function
+
+Sub addXApplicationHeader(http)
+
+	http.AddHeader("X-Application", ConnectionManager().appName + "/" + HttpEncode(ConnectionManager().appVersion))
+	
+End Sub
+
+Sub mgrSetAppInfo(appName, appVersion)
+	m.AppName = appName
+	m.appVersion = appVersion
+End Sub
+
+Function mgrGetPinCreationHttpRequest()
+
+	url = "https://connect.mediabrowser.tv/service/pin"
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.Http.AddHeader("Content-Type", "application/x-www-form-urlencoded")
+	
+	addXApplicationHeader(request.Http)
+	
+    request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    request.Http.InitClientCertificates()
+	
+	return request.Http
+	
+End Function
+
+Function mgrGetPinStatusHttpRequest(pinResult)
+
+	url = "https://connect.mediabrowser.tv/service/pin?pin=" + pinResult.Pin + "&deviceId=" + pinResult.DeviceId
+
+    ' Kick off a polling request
+    Debug("Sending pin poll request to " + url)
+        
+	' Prepare Request
+    request = HttpRequest(url)
+	
+	addXApplicationHeader(request.Http)
+	
+    request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    request.Http.InitClientCertificates()
+	
+	return request.Http
+	
+End Function
+
+Function mgrGetPinExchangeHttpRequest(pinResult)
+
+	url = "https://connect.mediabrowser.tv/service/pin/authenticate"
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.Http.AddHeader("Content-Type", "application/x-www-form-urlencoded")
+	
+	addXApplicationHeader(request.Http)
+	
+    request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    request.Http.InitClientCertificates()
+	
+	return request.Http
+	
 End Function

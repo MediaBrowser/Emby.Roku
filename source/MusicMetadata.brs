@@ -49,7 +49,8 @@ Function getMusicAlbums(offset = invalid As Dynamic, limit = invalid As Dynamic,
         includeitemtypes: "MusicAlbum"
         fields: "Overview,PrimaryImageAspectRatio"
         sortby: "AlbumArtist,SortName"
-        sortorder: "Ascending"
+        sortorder: "Ascending",
+		ImageTypeLimit: "1"
     }
 
     ' Filter/Sort Query
@@ -94,7 +95,8 @@ Function getMusicArtists(offset = invalid As Dynamic, limit = invalid As Dynamic
         recursive: "true"
         fields: "PrimaryImageAspectRatio"
         sortby: "SortName"
-        sortorder: "Ascending"
+        sortorder: "Ascending",
+		ImageTypeLimit: "1"
     }
 
     if filters <> invalid
@@ -177,7 +179,8 @@ Function musicmetadata_artist_albums(artistName As String) As Object
         includeitemtypes: "MusicAlbum"
         fields: "PrimaryImageAspectRatio,DateCreated"
         sortby: "SortName"
-        sortorder: "Ascending"
+        sortorder: "Ascending",
+		ImageTypeLimit: "1"
     }
 
     ' Prepare Request
@@ -215,7 +218,8 @@ Function musicmetadata_genre_albums(genreName As String) As Object
         includeitemtypes: "MusicAlbum"
         fields: "PrimaryImageAspectRatio,DateCreated"
         sortby: "SortName"
-        sortorder: "Ascending"
+        sortorder: "Ascending",
+		ImageTypeLimit: "1"
     }
 
     ' Prepare Request
@@ -253,7 +257,8 @@ Function musicmetadata_album_songs(albumId As String) As Object
         includeitemtypes: "Audio"
         fields: "PrimaryImageAspectRatio,MediaSources"
         sortby: "SortName"
-        sortorder: "Ascending"
+        sortorder: "Ascending",
+		ImageTypeLimit: "1"
     }
 
     ' Prepare Request

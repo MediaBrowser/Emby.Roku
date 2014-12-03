@@ -97,7 +97,8 @@ Function getTvLibraryRowScreenUrl(row as Integer, id as String) as String
 		query.AddReplace("IncludeItemTypes", "Series")
 		query.AddReplace("fields", "Overview")
 		query.AddReplace("ParentId", m.parentId)
-
+		query.AddReplace("ImageTypeLimit", "1")
+		
 		if filterBy = 1
 			query.AddReplace("SeriesStatus", "Continuing")
 		else if filterBy = 2
@@ -127,6 +128,7 @@ Function getTvLibraryRowScreenUrl(row as Integer, id as String) as String
 		query.AddReplace("userid", getGlobalVar("user").Id)
 		query.AddReplace("SortBy", "SortName")
 		query.AddReplace("ParentId", m.parentId)
+		query.AddReplace("ImageTypeLimit", "1")
 	else if row = 3
 		' Tv genres
 		url = url  + "/Genres?recursive=true"
@@ -296,7 +298,8 @@ Function getTvGenreScreenUrl(row as Integer, id as String) as String
         fields: "Overview"
         sortby: "SortName"
         sortorder: "Ascending",
-		genres: genre
+		genres: genre,
+		ImageTypeLimit: "1"
     }
 
 	for each key in query
@@ -355,7 +358,8 @@ Function getTvAlphabetScreenUrl(row as Integer, id as String) as String
         IncludeItemTypes: "Series"
         fields: "Overview"
         sortby: "SortName"
-        sortorder: "Ascending"
+        sortorder: "Ascending",
+		ImageTypeLimit: "1"
     }
 	
 	if m.parentId <> invalid then query.parentId = m.parentId

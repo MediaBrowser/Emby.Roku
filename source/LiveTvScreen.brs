@@ -141,8 +141,6 @@ Function getProgramsForChannelUrl(row as Integer, id as String) as String
 
     ' URL
     url = GetServerBaseUrl() + "/LiveTv/Programs?ChannelIds=" + id + "&UserId=" + getGlobalVar("user").Id
-	
-	'url = GetServerBaseUrl() + "/Shows/NextUp?userId=" + HttpEncode(getGlobalVar("user").Id)
 
     return url
 

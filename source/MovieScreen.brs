@@ -114,6 +114,7 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
 		query.AddReplace("Fields", "Overview")
 		query.AddReplace("SortBy", "SortName")
 		query.AddReplace("ParentId", m.parentId)
+		query.AddReplace("ImageTypeLimit", "1")
 
 	else if row = 3
 		url = url  + "/Genres?recursive=true"
@@ -122,6 +123,7 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
 		query.AddReplace("userid", getGlobalVar("user").Id)
 		query.AddReplace("IncludeItemTypes", "Movie")
 		query.AddReplace("ParentId", m.parentId)
+		query.AddReplace("ImageTypeLimit", "1")
 	end If
 
 	for each key in query
@@ -204,7 +206,8 @@ Function getMovieAlphabetScreenUrl(row as Integer, id as String) as String
         IncludeItemTypes: "Movie"
         fields: "Overview"
         sortby: "SortName"
-        sortorder: "Ascending"
+        sortorder: "Ascending",
+		ImageTypeLimit: "1"
     }
 	
 	if m.parentId <> invalid then query.parentId = m.parentId
@@ -284,7 +287,8 @@ Function getMovieGenreScreenUrl(row as Integer, id as String) as String
         fields: "Overview"
         sortby: "SortName"
         sortorder: "Ascending",
-		genres: genre
+		genres: genre,
+		ImageTypeLimit: "1"
     }
 
 	for each key in query

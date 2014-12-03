@@ -165,7 +165,8 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 			query = {
 				ItemLimit: "20"
 				CategoryLimit: "1"
-				fields: "PrimaryImageAspectRatio"
+				fields: "PrimaryImageAspectRatio",
+				ImageTypeLimit: "1"
 			}
 			
 		' Latest
@@ -178,7 +179,8 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 				fields: "PrimaryImageAspectRatio"
 				sortby: "DateCreated"
 				sortorder: "Descending"
-				filters: "IsUnplayed"
+				filters: "IsUnplayed",
+				ImageTypeLimit: "1"
 			}
 			
 		' Resume
@@ -190,7 +192,8 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 				fields: "PrimaryImageAspectRatio"
 				sortby: "DatePlayed"
 				sortorder: "Descending"
-				filters: "IsResumable"
+				filters: "IsResumable",
+				ImageTypeLimit: "1"
 			}
 			
 		' Favorites
@@ -202,7 +205,8 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 				fields: "PrimaryImageAspectRatio"
 				sortby: "SortName"
 				sortorder: "Ascending"
-				filters: "IsFavorite"
+				filters: "IsFavorite",
+				ImageTypeLimit: "1"
 			}
 			
 		' Genres
@@ -229,7 +233,8 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 			url = url + "/Shows/NextUp?userId=" + HttpEncode(getGlobalVar("user").Id)
 			
 			query = {
-				fields: "PrimaryImageAspectRatio,Overview"
+				fields: "PrimaryImageAspectRatio,Overview",
+				ImageTypeLimit: "1"
 			}
 			
 		' Latest
@@ -242,7 +247,8 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 				fields: "PrimaryImageAspectRatio"
 				sortby: "DateCreated"
 				sortorder: "Descending"
-				filters: "IsUnplayed"
+				filters: "IsUnplayed",
+				ImageTypeLimit: "1"
 			}
 			
 		' Resume
@@ -254,7 +260,8 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 				fields: "PrimaryImageAspectRatio"
 				sortby: "DatePlayed"
 				sortorder: "Descending"
-				filters: "IsResumable"
+				filters: "IsResumable",
+				ImageTypeLimit: "1"
 			}
 			
 		' Favorites
@@ -266,7 +273,8 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 				fields: "PrimaryImageAspectRatio"
 				sortby: "SortName"
 				sortorder: "Ascending"
-				filters: "IsFavorite"
+				filters: "IsFavorite",
+				ImageTypeLimit: "1"
 			}
 			
 		' Genres
@@ -278,7 +286,8 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 				includeitemtypes: "Series"
 				fields: "PrimaryImageAspectRatio"
 				sortby: "SortName"
-				sortorder: "Ascending"
+				sortorder: "Ascending",
+				ImageTypeLimit: "1"
 			}
 			
 		end if		
@@ -325,7 +334,8 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 				recursive: "true"
 				fields: "PrimaryImageAspectRatio"
 				sortby: "DateCreated"
-				sortorder: "Descending"
+				sortorder: "Descending",
+				ImageTypeLimit: "1"
 			}
 		
 		else
@@ -336,7 +346,8 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 				recursive: "true"
 				fields: "PrimaryImageAspectRatio"
 				sortby: "DateCreated"
-				sortorder: "Descending"
+				sortorder: "Descending",
+				ImageTypeLimit: "1"
 			}
 		
 			

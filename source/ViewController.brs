@@ -104,6 +104,8 @@ End Function
 
 Sub doInitialConnection()
 
+	ConnectionManager().setAppInfo("Roku", getGlobalVar("channelVersion", "Unknown"))
+	
 	result = ConnectionManager().connectInitial()
 	
 	Debug ("connectInitial returned State of " + firstOf(result.State, ""))
@@ -124,11 +126,14 @@ Sub navigateFromConnectionResult(result)
 		Debug ("ServerSignIn Name: " + firstOf(server.Name, ""))
 		Debug ("ServerSignIn LocalAddress: " + firstOf(server.LocalAddress, ""))
 		Debug ("ServerSignIn RemoteAddress: " + firstOf(server.RemoteAddress, ""))
+		Debug ("ServerSignIn ManualAddress: " + firstOf(server.ManualAddress, ""))
 		
 		serverUrl = firstOf(server.LocalAddress, "")
 	
 		if result.ConnectionMode = "Remote" then
 			serverUrl = firstOf(server.RemoteAddress, "")
+		else if result.ConnectionMode = "Manual" then
+			serverUrl = firstOf(server.ManualAddress, "")
 		end if
 		
 		showLoginScreen(GetViewController(), serverUrl)
@@ -147,11 +152,14 @@ Sub navigateFromConnectionResult(result)
 		Debug ("SignedIn Name: " + firstOf(server.Name, ""))
 		Debug ("SignedIn LocalAddress: " + firstOf(server.LocalAddress, ""))
 		Debug ("SignedIn RemoteAddress: " + firstOf(server.RemoteAddress, ""))
+		Debug ("ServerSignIn ManualAddress: " + firstOf(server.ManualAddress, ""))
 		
 		serverUrl = firstOf(server.LocalAddress, "")
 	
 		if result.ConnectionMode = "Remote" then
 			serverUrl = firstOf(server.RemoteAddress, "")
+		else if result.ConnectionMode = "Manual" then
+			serverUrl = firstOf(server.ManualAddress, "")
 		end if
 		
 		GetViewController().onSignedIn(server.Id, serverUrl, server.UserId)
@@ -1447,7 +1455,7 @@ Function GetItemsForPlayback(item) as Object
     if item.Type = "MusicArtist" then
 	
 		' URL
-		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&Artists=" + HttpEncode(item.Name)
+		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&Artists=" + HttpEncode(item.Name) + "&ImageTypeLimit=1"
 
 		' Prepare Request
 		request = HttpRequest(url)
@@ -1464,7 +1472,7 @@ Function GetItemsForPlayback(item) as Object
     else if item.Type = "MusicAlbum" then
 	
 		' URL
-		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&ParentId=" + HttpEncode(item.Id)
+		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&ParentId=" + HttpEncode(item.Id) + "&ImageTypeLimit=1"
 
 		' Prepare Request
 		request = HttpRequest(url)
@@ -1483,7 +1491,7 @@ Function GetItemsForPlayback(item) as Object
     else if item.Type = "PhotoAlbum" then
 	
 		' URL
-		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Photo&SortBy=SortName&ParentId=" + HttpEncode(item.Id)
+		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Photo&SortBy=SortName&ParentId=" + HttpEncode(item.Id) + "&ImageTypeLimit=1"
 
 		' Prepare Request
 		request = HttpRequest(url)
@@ -1502,7 +1510,7 @@ Function GetItemsForPlayback(item) as Object
     else if item.Type = "Playlist" then
 	
 		' URL
-		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?ParentId=" + HttpEncode(item.Id)
+		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?ParentId=" + HttpEncode(item.Id) + "&ImageTypeLimit=1"
 
 		' Prepare Request
 		request = HttpRequest(url)

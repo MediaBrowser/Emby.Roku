@@ -25,7 +25,7 @@ Function mrgGetSavedServerList () as Object
 	for each serverId in data
 	
 		server = data[serverId]		
-		if server <> invalid and firstOf(server.Name, "") <> "" and (firstOf(server.LocalAddress, "") <> "" or firstOf(server.RemoteAddress, "") <> "") then 
+		if server <> invalid and firstOf(server.Name, "") <> "" and (firstOf(server.LocalAddress, "") <> "" or firstOf(server.ManualAddress, "") <> "" or firstOf(server.RemoteAddress, "") <> "") then 
 			server.Id = serverId
 			servers.push(server)
 		end if

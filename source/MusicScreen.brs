@@ -46,7 +46,8 @@ Function getMusicLibraryRowScreenUrl(row as Integer, id as String) as String
 			fields: "Overview"
 			sortby: "AlbumArtist,SortName"
 			sortorder: "Ascending",
-			parentId: m.parentId
+			parentId: m.parentId,
+			ImageTypeLimit: "1"
 		}
 	else if row = 1
 		url = url  + "/Artists/AlbumArtists?recursive=true"
@@ -56,7 +57,8 @@ Function getMusicLibraryRowScreenUrl(row as Integer, id as String) as String
 			sortby: "SortName"
 			sortorder: "Ascending",
 			parentId: m.parentId,
-			UserId: getGlobalVar("user").Id
+			UserId: getGlobalVar("user").Id,
+			ImageTypeLimit: "1"
 		}
 	else if row = 2
 		' Music album alphabet - should never get in here

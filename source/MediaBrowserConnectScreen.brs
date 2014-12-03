@@ -189,21 +189,14 @@ Sub onPinConfirmed(pinResult, listener, timer)
 
 	timer.Active = false
 	
-	url = "https://connect.mediabrowser.tv/service/pin/authenticate"
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.Http.AddHeader("Content-Type", "application/x-www-form-urlencoded")
+	request = ConnectionManager().getPinExchangeHttpRequest(pinResult)
 	
 	body = "deviceId=" + getGlobalVar("rokuUniqueId", "Unknown") + "&pin=" + pinResult.Pin
-	
-    request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
-    request.Http.InitClientCertificates()
 	
 	context = CreateObject("roAssociativeArray")
 	context.requestType = "exchange"
 
-	GetViewController().StartRequest(request.Http, listener, context, body, "post")
+	GetViewController().StartRequest(request, listener, context, body, "post")
 
 End Sub
 
@@ -220,34 +213,18 @@ End Sub
 
 Sub startPinHttpRequest(listener, context)
 
-	url = "https://connect.mediabrowser.tv/service/pin"
-
-    ' Prepare Request
-    request = HttpRequest(url)
-    request.Http.AddHeader("Content-Type", "application/x-www-form-urlencoded")
+	request = ConnectionManager().getPinCreationHttpRequest()
 	
 	body = "deviceId=" + getGlobalVar("rokuUniqueId", "Unknown")
 	
-    request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
-    request.Http.InitClientCertificates()
-	
-	GetViewController().StartRequest(request.Http, listener, context, body, "post")
+	GetViewController().StartRequest(request, listener, context, body, "post")
 
 End Sub
 
 Sub startPinPollHttpRequest(pinResult, listener, context)
 
-	url = "https://connect.mediabrowser.tv/service/pin?pin=" + pinResult.Pin + "&deviceId=" + pinResult.DeviceId
-
-    ' Kick off a polling request
-    Debug("Sending pin poll request to " + url)
-        
-	' Prepare Request
-    request = HttpRequest(url)
+	request = ConnectionManager().getPinStatusHttpRequest(pinResult)
 	
-    request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
-    request.Http.InitClientCertificates()
-	
-	GetViewController().StartRequest(request.Http, listener, context, invalid, "get")
+	GetViewController().StartRequest(request, listener, context, invalid, "get")
 	
 End Sub

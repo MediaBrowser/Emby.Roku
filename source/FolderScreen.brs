@@ -5,7 +5,7 @@
 Function createFolderScreen(viewController as Object, item as Object) As Object
 
 	parentId = item.Id
-	title = item.Title
+	title = item.Title + "  (MENU *)"
 
 	if item.ContentType = "BoxSet" then
 		settingsPrefix = "movie"
@@ -17,7 +17,7 @@ Function createFolderScreen(viewController as Object, item as Object) As Object
 
     imageType      = (firstOf(RegUserRead(settingsPrefix + "ImageType"), "0")).ToInt()
 
-	names = [item.Title]
+	names = [title]
 	keys = [item.Id]
 
 	loader = CreateObject("roAssociativeArray")
