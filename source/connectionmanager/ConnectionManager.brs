@@ -70,19 +70,37 @@ function connectionManagerGetServers() as Object
 		
 	end for
 	
-	return ConnectionManager().GetSavedServerList()
+	servers = ConnectionManager().GetSavedServerList()
+	
+	RlMergeSort(servers, ServerComparator)
+	
+	Debug("connectionManagerGetServers returning " + tostr(servers.Count()) + " servers")
+	
+	return servers
 
 end function
 
-function connectToServers(servers) as Object
+function ServerComparator(serverA as Dynamic, serverB as Dynamic) as Integer
+    
+	a = firstOf(serverA.LastAccess, "0").toInt()
+	b = firstOf(serverB.LastAccess, "0").toInt()
+	
+	if a > b
+        return -1
+    else
+        return 1
+    end if
+end function
 
-	count = servers.Count()
+function connectToServers(serverList as Object) as Object
+
+	count = serverList.Count()
 	
 	Debug("connectToServers called with "+tostr(count)+" servers")
 	
 	if count = 1
 		
-		result = ConnectionManager().connectToServerInfo(servers[0])
+		result = ConnectionManager().connectToServerInfo(serverList[0])
 		
 		if result.State = "Unavailable" then
 			
@@ -98,7 +116,7 @@ function connectToServers(servers) as Object
 		
 	end if
 	
-	firstServer = servers[0]
+	firstServer = serverList[0]
 	
 	if firstServer <> invalid and firstOf(firstServer.AccessToken, "") <> "" and firstOf(firstServer.UserId, "") <> "" then
 		
@@ -111,7 +129,7 @@ function connectToServers(servers) as Object
 	end if
 	
 	finalResult = {
-		Servers: servers,
+		Servers: serverList,
 		ConnectUser: getCurrentConnectUser()
 	}
 	
@@ -215,6 +233,7 @@ function mgrConnectToServerInfo(server) as Object
 		result.State = "SignedIn"
 	end if
 	
+	m.SetServerData(server.Id, "LastAccess", tostr(CreateObject("roDateTime").AsSeconds()))
 	result.ConnectUser = getCurrentConnectUser()
 	result.Servers.push(server)
 	

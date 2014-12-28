@@ -19,7 +19,7 @@ End Function
 
 Function mrgGetSavedServerList () as Object
     InitServerData()
-	servers = []
+	servers = CreateObject("roArray", 3, true)
 	data = GetGlobalAA().serverData
 	
 	for each serverId in data
