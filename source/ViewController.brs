@@ -1452,7 +1452,10 @@ End Function
 
 Function GetItemsForPlayback(item) as Object
 
-    if item.Type = "MusicArtist" then
+	itemType = firstOf(item.ContentType, item.Type)
+	Debug ("GetItemsForPlayback item.ContentType=" + itemType)
+	
+    if itemType = "MusicArtist" then
 	
 		' URL
 		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&Artists=" + HttpEncode(item.Name) + "&ImageTypeLimit=1"
@@ -1469,7 +1472,7 @@ Function GetItemsForPlayback(item) as Object
 		end if
 		return invalid
 		
-    else if item.Type = "MusicAlbum" then
+    else if itemType = "MusicAlbum" then
 	
 		' URL
 		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&ParentId=" + HttpEncode(item.Id) + "&ImageTypeLimit=1"
@@ -1488,7 +1491,7 @@ Function GetItemsForPlayback(item) as Object
 		return invalid
 		
 		
-    else if item.Type = "PhotoAlbum" then
+    else if itemType = "PhotoAlbum" then
 	
 		' URL
 		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Photo&SortBy=SortName&ParentId=" + HttpEncode(item.Id) + "&ImageTypeLimit=1"
@@ -1507,7 +1510,7 @@ Function GetItemsForPlayback(item) as Object
 		return invalid
 		
 		
-    else if item.Type = "Playlist" then
+    else if itemType = "Playlist" then
 	
 		' URL
 		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?ParentId=" + HttpEncode(item.Id) + "&ImageTypeLimit=1"
@@ -1525,7 +1528,7 @@ Function GetItemsForPlayback(item) as Object
 		end if
 		return invalid		
 		
-    else if item.Type = "MusicGenre" then
+    else if itemType = "MusicGenre" then
 	
 		' URL
 		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&Genres=" + HttpEncode(item.Name)

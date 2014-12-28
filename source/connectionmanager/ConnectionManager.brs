@@ -145,7 +145,8 @@ function mgrConnectToServer(url) as Object
 		RemoteAddress: publicInfo.WanAddress,
 		ManualAddress: url,
 		MacAddress: publicInfo.MacAddress,
-		Local: "-1"
+		Local: "-1",
+		LastConnectionMode: "Manual"
 	}
 	
 	return ConnectionManager().connectToServerInfo(serverInfo)
