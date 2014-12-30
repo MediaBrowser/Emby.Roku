@@ -234,6 +234,19 @@ function mgrConnectToServerInfo(server) as Object
 	end if
 	
 	m.SetServerData(server.Id, "LastAccess", tostr(CreateObject("roDateTime").AsSeconds()))
+	
+	if firstOf(server.LocalAddress, "") <> "" then
+		m.SetServerData(server.Id, "LocalAddress", server.LocalAddress)
+	end if	
+	
+	if firstOf(server.RemoteAddress, "") <> "" then
+		m.SetServerData(server.Id, "RemoteAddress", server.RemoteAddress)
+	end if
+	
+	if firstOf(server.ManualAddress, "") <> "" then
+		m.SetServerData(server.Id, "ManualAddress", server.ManualAddress)
+	end if
+	
 	result.ConnectUser = getCurrentConnectUser()
 	result.Servers.push(server)
 	
