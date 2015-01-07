@@ -46,10 +46,6 @@ function connectionManagerGetServers() as Object
 		ConnectionManager().SetServerData(server.Id, "Name", server.Name)
 		ConnectionManager().SetServerData(server.Id, "LocalAddress", server.LocalAddress)
 		
-		' We know this server is on the local network.
-		' We don't want to waste time trying to talk to local addresses of servers we'll never be able to reach
-		ConnectionManager().SetServerData(server.Id, "Local", "1")
-		
 	end for
 	
 	ensureConnectUser()
@@ -147,7 +143,7 @@ function mgrConnectToServer(url) as Object
 
 	url = normalizeAddress(url)
 	
-	publicInfo = tryConnect(url)
+	publicInfo = tryConnect(url, 15)
 	
 	if publicInfo = invalid then
 		return {
@@ -181,16 +177,16 @@ function mgrConnectToServerInfo(server) as Object
 	
 	systemInfo = invalid 
 	
-	if systemInfo = invalid and firstOf(server.ManualAddress, "") <> "" and server.ManualAddress <> firstOf(server.LocalAddress, "") and server.ManualAddress <> firstOf(server.RemoteAddress, "") then
+	if systemInfo = invalid and firstOf(server.ManualAddress, "") <> "" and server.ManualAddress <> firstOf(server.LocalAddress, "") then
 	
-		systemInfo = tryConnect(server.ManualAddress)
+		systemInfo = tryConnect(server.ManualAddress, 15)
 		
 		if systemInfo <> invalid then result.ConnectionMode = "Manual"
 	end if
 	
-	if systemInfo = invalid and firstOf(server.Local, "0") <> "0" and firstOf(server.LocalAddress, "") <> "" then
+	if systemInfo = invalid and firstOf(server.LocalAddress, "") <> "" then
 		
-		systemInfo = tryConnect(server.LocalAddress)
+		systemInfo = tryConnect(server.LocalAddress, 5)
 		
 		if systemInfo = invalid and firstOf(server.MacAddress, "") <> "" then
 		
@@ -198,16 +194,16 @@ function mgrConnectToServerInfo(server) as Object
 			
 			sleep (10000)
 			
-			systemInfo = tryConnect(server.LocalAddress)
+			systemInfo = tryConnect(server.LocalAddress, 5)
 			
 		end if
 	
 		if systemInfo <> invalid then result.ConnectionMode = "Local"
 	end if
 	
-	if systemInfo = invalid and firstOf(server.RemoteAddress, "") <> "" then
+	if systemInfo = invalid and firstOf(server.RemoteAddress, "") <> "" and server.RemoteAddress <> firstOf(server.ManualAddress, "") then
 	
-		systemInfo = tryConnect(server.RemoteAddress)
+		systemInfo = tryConnect(server.RemoteAddress, 15)
 		
 		if systemInfo <> invalid then result.ConnectionMode = "Remote"
 	end if
@@ -264,7 +260,7 @@ function normalizeAddress(baseUrl) as Object
 	
 end function
 
-function tryConnect(url) as Object
+function tryConnect(url, timeout) as Object
 
 	url = url + "/mediabrowser/system/info/public?format=json"
 	
@@ -274,7 +270,7 @@ function tryConnect(url) as Object
     request = HttpRequest(url)
 
     ' Execute Request
-    response = request.GetToStringWithTimeout(5)
+    response = request.GetToStringWithTimeout(timeout)
     if response <> invalid
         metaData = ParseJSON(response)
 
