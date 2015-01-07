@@ -104,8 +104,6 @@ End Function
 
 Sub doInitialConnection()
 
-	ConnectionManager().setAppInfo("Roku", getGlobalVar("channelVersion", "Unknown"))
-	
 	result = ConnectionManager().connectInitial()
 	
 	Debug ("connectInitial returned State of " + firstOf(result.State, ""))
@@ -439,6 +437,8 @@ End Function
 Sub vcShow()
 
 	m.loadUserTheme()
+	
+	ConnectionManager().setAppInfo("Roku", getGlobalVar("channelVersion", "Unknown"))
 	
 	m.ShowInitialScreen()
 

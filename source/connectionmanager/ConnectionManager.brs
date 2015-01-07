@@ -580,7 +580,10 @@ End Function
 
 Sub addXApplicationHeader(http)
 
-	http.AddHeader("X-Application", ConnectionManager().appName + "/" + HttpEncode(ConnectionManager().appVersion))
+	appName = ConnectionManager().appName
+	appVersion = ConnectionManager().appVersion
+	
+	http.AddHeader("X-Application", appName + "/" + HttpEncode(appVersion))
 	
 End Sub
 
