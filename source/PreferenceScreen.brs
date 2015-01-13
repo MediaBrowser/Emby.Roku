@@ -358,18 +358,33 @@ End Function
 Function GetPreferenceVideoQuality() as Object
     prefOptions = [
         {
-            Title: "664 Kbps SD",
-            Id: "664",
+            Title: "500 Kbps SD",
+            Id: "500",
             IsDefault: false
         },
         {
-            Title: "996 Kbps HD",
-            Id: "996",
+            Title: "750 Kbps SD",
+            Id: "750",
             IsDefault: false
         },
         {
-            Title: "1.3 Mbps HD",
-            Id: "1320",
+            Title: "1 Mbps HD",
+            Id: "1000",
+            IsDefault: false
+        },
+        {
+            Title: "1.25 Mbps HD",
+            Id: "1250",
+            IsDefault: false
+        },
+        {
+            Title: "1.5 Mbps HD",
+            Id: "1500",
+            IsDefault: false
+        },
+        {
+            Title: "1.75 Mbps HD",
+            Id: "1750",
             IsDefault: false
         },
         {
@@ -378,8 +393,23 @@ Function GetPreferenceVideoQuality() as Object
             IsDefault: false
         },
         {
-            Title: "2.6 Mbps HD",
-            Id: "2600",
+            Title: "2.25 Mbps HD",
+            Id: "2250",
+            IsDefault: false
+        },
+        {
+            Title: "2.5 Mbps HD",
+            Id: "2500",
+            IsDefault: false
+        },
+        {
+            Title: "2.75 Mbps HD",
+            Id: "2750",
+            IsDefault: false
+        },
+        {
+            Title: "3 Mbps HD",
+            Id: "3000",
             IsDefault: false
         },
         {
@@ -388,58 +418,108 @@ Function GetPreferenceVideoQuality() as Object
             IsDefault: true
         },
         {
-            Title: "4.7 Mbps HD",
-            Id: "4700",
+            Title: "3.5 Mbps HD",
+            Id: "3500",
             IsDefault: false
         },
         {
-            Title: "6.2 Mbps HD",
-            Id: "6200",
+            Title: "4 Mbps HD",
+            Id: "4000",
             IsDefault: false
         },
         {
-            Title: "7.7 Mbps HD",
-            Id: "7700",
+            Title: "4.5 Mbps HD",
+            Id: "4500",
             IsDefault: false
         },
         {
-            Title: "9.2 Mbps HD",
-            Id: "9200",
+            Title: "5 Mbps HD",
+            Id: "5000",
             IsDefault: false
         },
         {
-            Title: "10.7 Mbps HD",
-            Id: "10700",
+            Title: "6 Mbps HD",
+            Id: "6000",
             IsDefault: false
         },
         {
-            Title: "12.2 Mbps HD",
-            Id: "12200",
+            Title: "7 Mbps HD",
+            Id: "7000",
             IsDefault: false
         },
         {
-            Title: "13.7 Mbps HD",
-            Id: "13700",
+            Title: "8 Mbps HD",
+            Id: "8000",
             IsDefault: false
         },
         {
-            Title: "15.2 Mbps HD",
-            Id: "15200",
+            Title: "9 Mbps HD",
+            Id: "9000",
             IsDefault: false
         },
         {
-            Title: "16.7 Mbps HD",
-            Id: "16700",
+            Title: "10 Mbps HD",
+            Id: "10000",
             IsDefault: false
         },
         {
-            Title: "18.2 Mbps HD",
-            Id: "18200",
+            Title: "11 Mbps HD",
+            Id: "11000",
+            IsDefault: false
+        },
+        {
+            Title: "12 Mbps HD",
+            Id: "12000",
+            IsDefault: false
+        },
+        {
+            Title: "13 Mbps HD",
+            Id: "13000",
+            IsDefault: false
+        },
+        {
+            Title: "14 Mbps HD",
+            Id: "14000",
+            IsDefault: false
+        },
+        {
+            Title: "15 Mbps HD",
+            Id: "15000",
+            IsDefault: false
+        },
+        {
+            Title: "16 Mbps HD",
+            Id: "16000",
+            IsDefault: false
+        },
+        {
+            Title: "17 Mbps HD",
+            Id: "17000",
+            IsDefault: false
+        },
+        {
+            Title: "18 Mbps HD",
+            Id: "18000",
+            IsDefault: false
+        },
+        {
+            Title: "19 Mbps HD",
+            Id: "19000",
             IsDefault: false
         },
         {
             Title: "20.0 Mbps HD",
             Id: "20000",
+            IsDefault: false
+        },
+        {
+            Title: "25.0 Mbps HD",
+            Id: "25000",
+            IsDefault: false
+        },
+        {
+            Title: "30.0 Mbps HD",
+            Id: "30000",
             IsDefault: false
         }
     ]
