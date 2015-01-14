@@ -183,7 +183,13 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 
 	player.SetContent(videoItem)
 
-    return player
+	versionArr = getGlobalVar("rokuVersion")
+	
+    if CheckMinimumVersion(versionArr, [4, 9]) AND videoItem.SubtitleUrl <> invalid then
+        player.ShowSubtitle(true)
+    end if
+	
+	return player
 End Function
 
 Sub videoPlayerShowPlaybackError()
