@@ -229,7 +229,7 @@ Sub addVideoPlaybackInfo(item, options)
 				Description: stream.Codec
 			}
 			
-			if subtitleInfo.Language = invalid then subtitleInfo.Language = "Unknown language"
+			if subtitleInfo.Language = invalid then subtitleInfo.Language = "und"
 			
 			item.SubtitleTracks.push(subtitleInfo)
 			
