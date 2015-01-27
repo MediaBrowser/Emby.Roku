@@ -1450,10 +1450,17 @@ Function vcCreateVideoPlayer(context, contextIndex, playOptions, show=true)
     return screen
 End Function
 
-Function GetItemsForPlayback(item) as Object
+Function GetContextForPlayback(context, contextIndex) as Object
 
+	obj = {
+		context: context
+		contextIndex: contextIndex
+	}
+	
+	item = context[contextIndex]
+	
 	itemType = firstOf(item.ContentType, item.Type)
-	Debug ("GetItemsForPlayback item.ContentType=" + itemType)
+	Debug ("GetContextForPlayback item.ContentType=" + itemType)
 	
     if itemType = "MusicArtist" then
 	
@@ -1467,10 +1474,11 @@ Function GetItemsForPlayback(item) as Object
 
 		' Execute Request
 		response = request.GetToStringWithTimeout(10)
+		
 		if response <> invalid
-			return parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+			obj.context= parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+			obj.contextIndex = 0
 		end if
-		return invalid
 		
     else if itemType = "MusicAlbum" then
 	
@@ -1486,10 +1494,9 @@ Function GetItemsForPlayback(item) as Object
 		response = request.GetToStringWithTimeout(10)
 		if response <> invalid
 
-			return parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+			obj.context= parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+			obj.contextIndex = 0
 		end if
-		return invalid
-		
 		
     else if itemType = "PhotoAlbum" then
 	
@@ -1505,10 +1512,9 @@ Function GetItemsForPlayback(item) as Object
 		response = request.GetToStringWithTimeout(10)
 		if response <> invalid
 
-			return parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+			obj.context=  parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+			obj.contextIndex = 0
 		end if
-		return invalid
-		
 		
     else if itemType = "Playlist" then
 	
@@ -1524,9 +1530,9 @@ Function GetItemsForPlayback(item) as Object
 		response = request.GetToStringWithTimeout(10)
 		if response <> invalid
 
-			return parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
-		end if
-		return invalid		
+			obj.context=  parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+			obj.contextIndex = 0
+		end if	
 		
     else if itemType = "MusicGenre" then
 	
@@ -1542,24 +1548,20 @@ Function GetItemsForPlayback(item) as Object
 		response = request.GetToStringWithTimeout(10)
 		if response <> invalid
 
-			return parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+			obj.context=  parseItemsResponse(response, 0, "two-row-flat-landscape-custom").Items
+			obj.contextIndex = 0
 		end if
-
-		return invalid
 	end if	
 		
-	items = []
-	items.push(item)
-	return items
+	return obj
 	
 End Function
 
 Function vcCreatePlayerForItem(context, contextIndex, playOptions)
 
-	if context.Count() = 1 then
-		context = GetItemsForPlayback(context[0])
-		contextIndex = 0
-	end if
+	obj = GetContextForPlayback(context, contextIndex)
+	context = obj.context
+	contextIndex = obj.contextIndex
 	
     item = context[contextIndex]
 
