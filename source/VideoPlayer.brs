@@ -123,8 +123,17 @@ Sub videoPlayerShow()
         m.popOnActivate = true
 
 	else
-		item = m.Context[m.CurIndex]		
-		m.PlayOptions = item.PlayOptions		
+		item = m.Context[m.CurIndex]
+		
+		if item.PlayOptions = invalid
+		
+		    'If we already have valid options use them.  Otherwise try the first one in the list
+		    if m.PlayOptions = invalid   
+		        m.PlayOptions = m.Context[0].PlayOptions
+		    end if
+		else 
+		    m.PlayOptions = item.PlayOptions		    
+		end if		
         m.Screen = m.CreateVideoPlayer(item, m.PlayOptions)
     end if
 
