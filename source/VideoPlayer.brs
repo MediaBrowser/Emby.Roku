@@ -125,16 +125,14 @@ Sub videoPlayerShow()
 	else
 		item = m.Context[m.CurIndex]
 		
-		if item.PlayOptions = invalid
+		m.PlayOptions = item.PlayOptions
 		
-		    'If we already have valid options use them.  Otherwise try the first one in the list
-		    if m.PlayOptions = invalid   
-		        m.PlayOptions = m.Context[0].PlayOptions
-		    end if
-		else 
-		    m.PlayOptions = item.PlayOptions		    
-		end if		
+		if m.PlayOptions = invalid
+		    m.PlayOptions = {}
+		end if	
+		
         m.Screen = m.CreateVideoPlayer(item, m.PlayOptions)
+		
     end if
 
 	m.changeStream = false
