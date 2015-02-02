@@ -174,7 +174,18 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 
     player.SetPositionNotificationPeriod(1)
 
-    m.IsTranscoded = videoItem.StreamInfo.IsDirectStream <> true
+	' Reset these
+	m.isPlayed = false
+    m.lastPosition = 0
+    m.playbackError = false
+	m.changeStream = false
+    m.underrunCount = 0
+    m.playbackTimer = createTimer()
+    m.timelineTimer = invalid
+    m.progressTimer = invalid
+    m.playState = "buffering"
+    
+	m.IsTranscoded = videoItem.StreamInfo.IsDirectStream <> true
     m.videoItem = videoItem
 
 	if m.IsTranscoded then
