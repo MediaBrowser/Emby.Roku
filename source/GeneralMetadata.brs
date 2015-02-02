@@ -195,6 +195,7 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
     metaData.ContentType = getContentType(i, mode)
 
     metaData.Id = i.Id
+	metaData.ServerId = i.ServerId
 
     metaData.Title = getTitle(i)
 

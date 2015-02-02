@@ -243,3 +243,26 @@ Function normalizeJson(json As String) as String
 	return json
 	
 End Function
+
+Function getInstalledPlugins() As Object
+
+    ' URL
+    url = GetServerBaseUrl() + "/Plugins"
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+
+		fixedResponse = normalizeJson(response)
+
+        return ParseJSON(fixedResponse)
+		
+    end if
+
+    return invalid
+End Function

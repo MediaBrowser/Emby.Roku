@@ -180,6 +180,7 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 	if m.IsTranscoded then
 		m.playMethod = "Transcode"	
 	else
+		addBifInfo(videoItem)
 		m.playMethod = "DirectStream"
 	end if
 	
@@ -197,6 +198,44 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
     end if
 	
 	return player
+End Function
+
+Sub addBifInfo(item)
+	
+	itemId = item.Id
+	mediaSourceId = item.StreamInfo.MediaSource.Id
+	
+	if IsBifServiceAvailable(item) = true then
+		item.HDBifUrl = GetServerBaseUrl() + "/Videos/" + itemId + "/index.bif?width=320&mediaSourceId=" + mediaSourceId
+		item.SDBifUrl = GetServerBaseUrl() + "/Videos/" + itemId + "/index.bif?width=240&mediaSourceId=" + mediaSourceId
+	end if
+		
+End Sub
+
+Function IsBifServiceAvailable(item)
+
+	if item.ServerId = invalid then
+		return false
+	end if
+	
+	viewController = GetViewController()
+	
+	if viewController.serverPlugins = invalid then
+		viewController.serverPlugins = CreateObject("roAssociativeArray")
+	end if
+	
+	if viewController.serverPlugins[item.ServerId] = invalid then
+		viewController.serverPlugins[item.ServerId] = getInstalledPlugins()
+	end if
+	
+	for each serverPlugin in viewController.serverPlugins[item.ServerId]
+		if serverPlugin.Name = "Roku Thumbnails" then
+			return true
+		end if
+	end for
+	
+	return false
+	
 End Function
 
 Sub videoPlayerShowPlaybackError()
