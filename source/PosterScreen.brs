@@ -307,7 +307,7 @@ Function posterHandleMessage(msg) As Boolean
 
                 Debug("Playing item directly from poster screen")
                 status = m.contentArray[m.focusedList]
-                m.ViewController.CreatePlayerForItem(status.content, status.focusedIndex)
+                m.ViewController.CreatePlayerForItem(status.content, status.focusedIndex, {})
 
             end if
         end if

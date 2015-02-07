@@ -139,9 +139,6 @@ Sub addVideoPlaybackInfo(item, options)
 			item.StreamFormat = mediaSource.Container
 		end if
 		
-		'item.HDBifUrl = GetServerBaseUrl() + "/Videos/" + item.Id + "/index.bif?maxWidth=320&mediaSourceId=" + mediaSourceId
-		'item.SDBifUrl = GetServerBaseUrl() + "/Videos/" + item.Id + "/index.bif?maxWidth=240&mediaSourceId=" + mediaSourceId
-		
 	else
 
 		url = GetServerBaseUrl() + "/Videos/" + item.Id + "/master.m3u8?mediaSourceId=" + mediaSourceId
