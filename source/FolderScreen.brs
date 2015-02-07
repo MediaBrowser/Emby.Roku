@@ -5,7 +5,8 @@
 Function createFolderScreen(viewController as Object, item as Object) As Object
 
 	parentId = item.Id
-	title = item.Title + "  (MENU *)"
+	
+	title = item.Title
 
 	if item.ContentType = "BoxSet" then
 		settingsPrefix = "movie"
@@ -13,6 +14,7 @@ Function createFolderScreen(viewController as Object, item as Object) As Object
 	else
 		settingsPrefix = "folders"
 		contextMenuType = "folders"
+		title = item.Title + "  (MENU *)"
 	End if
 
     imageType      = (firstOf(RegUserRead(settingsPrefix + "ImageType"), "0")).ToInt()
@@ -40,7 +42,12 @@ Function createFolderScreen(viewController as Object, item as Object) As Object
 	screen.settingsPrefix = settingsPrefix
 
 	screen.contextMenuType = contextMenuType
-    screen.displayDescription = (firstOf(RegUserRead(settingsPrefix + "Description"), "0")).ToInt()
+	
+	if imageType = 0 then
+		screen.displayDescription = 1
+	else
+		screen.displayDescription = (firstOf(RegUserRead(settingsPrefix + "Description"), "0")).ToInt()
+	end if
 
 	screen.createContextMenu = folderScreenCreateContextMenu
 
@@ -50,7 +57,12 @@ End Function
 Sub folderScreenActivate(priorScreen)
 
     imageType      = (firstOf(RegUserRead(m.settingsPrefix + "ImageType"), "0")).ToInt()
-	displayDescription = (firstOf(RegUserRead(m.settingsPrefix + "Description"), "0")).ToInt()
+	
+	if imageType = 0 then
+		displayDescription = 1
+	else
+		displayDescription = (firstOf(RegUserRead(m.settingsPrefix + "Description"), "0")).ToInt()
+	end if
 	
     if imageType = 0 then
 		gridStyle = "mixed-aspect-ratio"
