@@ -72,7 +72,7 @@ Function getUserViews() as Object
 			viewType = firstOf(i.CollectionType, "")
 			
 			' Filter out unsupported views
-			if viewType = "movies" or viewType = "music" or viewType = "tvshows" or viewType = "livetv" or viewType = "channels" or viewType = "folders" or viewType = "playlists" then
+			if viewType = "movies" or viewType = "music" or viewType = "tvshows" or viewType = "livetv" or viewType = "channels" or viewType = "folders" or viewType = "playlists" or viewType = "boxsets" then
 				views.push(i)
 			
 			' Treat all other types as folders for now
@@ -145,7 +145,7 @@ Function getHomeScreenRowUrl(row as Integer, id as String) as String
 		url = url  + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?sortby=sortname"
 		query.AddReplace("Fields", "PrimaryImageAspectRatio")
 		
-	else if id = "playlists"
+	else if id = "playlists" or id = "boxsets"
 	
 		url = url  + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?sortby=sortname"
 		
@@ -381,6 +381,8 @@ Function parseHomeScreenResult(row as Integer, id as string, startIndex as Integ
 	if id = "folders" then
 		return parseItemsResponse(json, 0, "two-row-flat-landscape-custom")
 	else if id = "playlists" then
+		return parseItemsResponse(json, 1, "two-row-flat-landscape-custom")
+	else if id = "boxsets" then
 		return parseItemsResponse(json, 1, "two-row-flat-landscape-custom")
 	else if id = "channels" then
 		return parseItemsResponse(json, 1, "two-row-flat-landscape-custom")
