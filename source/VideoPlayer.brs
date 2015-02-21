@@ -68,10 +68,6 @@ Function createVideoPlayerScreen(context, contextIndex, playOptions, viewControl
     obj.pingTimer = invalid
     obj.lastPosition = 0
 	obj.isPlayed = false
-	obj.isSkippedItem = false
-	obj.isBackItem = false
-	obj.isVList = false
-	obj.canvasShowingVideoLayer = false
     obj.playbackError = false
 	obj.changeStream = false
     obj.underrunCount = 0
@@ -111,22 +107,6 @@ Function VideoPlayer()
     end if
 End Function
 
-Sub CanvasShowVideo()
-	if (m.isVList = true) AND (m.canvasShowingVideoLayer = false) then
-		m.canvas.SwapLayers(0,1)
-		m.canvasShowingVideoLayer = true
-		m.canvas.Show()
-	end if
-End Sub
-
-Sub CanvasShowBlack()
-	if (m.isVList = true) AND (m.canvasShowingVideoLayer = true) then
-		m.canvas.SwapLayers(0,1)
-		m.canvasShowingVideoLayer = false
-		m.canvas.Show()
-	end if
-End Sub
-
 Sub videoPlayerShow()
     ' We only fall back automatically if we originally tried to Direct Play
     ' and the preference allows fallback. One potential quirk is that we do
@@ -143,8 +123,6 @@ Sub videoPlayerShow()
         m.popOnActivate = true
 
 	else
-		m.isVList = (m.Context.Count() > 1)
-	
 		item = m.Context[m.CurIndex]
 		
 		m.PlayOptions = item.PlayOptions
@@ -154,16 +132,6 @@ Sub videoPlayerShow()
 		end if	
 		
         m.Screen = m.CreateVideoPlayer(item, m.PlayOptions)
-		
-	if m.isVList
-		m.canvas = CreateObject("roImageCanvas")
-		m.canvas.SetLayer(0, "#000000")			
-		m.canvas.Show()                  'Show it now to hide the Springboard
-		m.canvas.SetLayer(1, { color: "#00000000", CompositionMode: "Source" })
-		m.canvas.SwapLayers(0,1)         'Now top layer is blank, under layer is video
-		m.canvasShowingVideoLayer = false
-		m.canvas.SetMessagePort(m.Port)
-	end if	
 		
     end if
 
@@ -188,12 +156,7 @@ Sub videoPlayerShow()
 
         m.playbackTimer.Mark()
         m.Screen.Show()
-		
-	if m.isVList
-		m.canvas.Show()  'Show canvas now to hide buffering
-	end if
-	    
-	NowPlayingManager().location = "fullScreenVideo"
+        NowPlayingManager().location = "fullScreenVideo"
     else
         m.ViewController.PopScreen(m)
         NowPlayingManager().location = "navigation"
@@ -213,8 +176,6 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 
 	' Reset these
 	m.isPlayed = false
-	m.isSkipItem = false
-	m.isBackItem = false
     m.lastPosition = 0
     m.playbackError = false
 	m.changeStream = false
@@ -300,39 +261,8 @@ End Sub
 Function videoPlayerHandleMessage(msg) As Boolean
 
     handled = false
-	
-	if type(msg) = "roImageCanvasEvent" then
-		
-		'If we are using the canvas to display, user interaction will come in as roImageCanvasEvent
-		'Unfortunately the canvas does not automatically handle all the stuff that roVideoScreen does.
-		'Tentatively set the controls for [UP]->Previous Item in Playlist, [Down]->Next Item in Playlist
-		'Left and Right, rewind and ff respectively
-		
-		'The good news is that it does pretty well with handing off to the existing message handler, when it
-		'is finished with the canvas event
-		
-		if msg.isRemoteKeyPressed() then
-            index = msg.GetIndex()
-            if index = 0
-				m.screen.Close()
-				m.canvas.Close()
-			else if index = 2
-				m.screen.close()
-				m.isBackItem = true
-			else if index = 3
-				Debug("Canvas Handled KeyPress: " + tostr(msg.GetIndex()))
-				m.screen.close()
-				m.isSkipItem = true
-			else if index = 4  'Seek Forward.  This could be enhanced.
-				m.screen.seek(m.lastPosition + 5)
-			else if index = 5  'Rewind.  This could also be enhanced.
-				m.screen.seek(m.lastPosition - 5)
-			end if
-        else
-            Debug("Unknown Canvas event: " + tostr(msg.GetType()) + " msg: " + tostr(msg.GetIndex()))
-		end if
-	
-    else if type(msg) = "roVideoScreenEvent" then
+
+    if type(msg) = "roVideoScreenEvent" then
 
         handled = true
 
@@ -351,22 +281,11 @@ Function videoPlayerHandleMessage(msg) As Boolean
             if m.isPlayed = true AND m.Context.Count() > (m.CurIndex + 1) then
 				m.CurIndex = m.CurIndex + 1
                 m.Show()
-			else if m.isSkipItem AND m.Context.Count() > (m.CurIndex + 1)
-				m.CurIndex = m.CurIndex + 1
-                m.Show()
-			else if m.isBackItem AND m.CurIndex > 0
-				m.CurIndex = m.CurIndex - 1
-                m.Show() 				
             else if m.changeStream
 				m.changeStream = false
                 m.Show()
             else
                 m.ViewController.PopScreen(m)
-				
-				if m.isVList
-					m.canvas.Close()
-				end if
-				
             end if
 
         else if msg.isStatusMessage() then
@@ -378,7 +297,7 @@ Function videoPlayerHandleMessage(msg) As Boolean
         else if msg.isStreamStarted() then
             Debug("MediaPlayer::playVideo::VideoScreenEvent::isStreamStarted: position -> " + tostr(m.lastPosition))
             Debug("Message data -> " + tostr(msg.GetInfo()))
-			
+
             if msg.GetInfo().IsUnderrun = true then
                 m.underrunCount = m.underrunCount + 1
                 if m.underrunCount = 4 then
@@ -391,10 +310,7 @@ Function videoPlayerHandleMessage(msg) As Boolean
 			m.StartTranscodeSessionRequest()
 
         else if msg.isPlaybackPosition() then
-		    
-			'Buffering should be complete here.  If Video is not already on top then swap layers.
-			CanvasShowVideo()
-		
+
             if m.bufferingTimer <> invalid then
                 m.bufferingTimer = invalid
             end if
