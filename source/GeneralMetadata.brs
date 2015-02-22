@@ -421,6 +421,13 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
             metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.BackdropImageTags[0], isPlayed, PlayedPercentage, UnplayedCount)
             metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.BackdropImageTags[0], isPlayed, PlayedPercentage, UnplayedCount)
 
+        else if i.ImageTags.Primary <> "" And i.ImageTags.Primary <> invalid
+				
+            imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.Id) + "/Images/Primary/0"
+
+            metaData.HDPosterUrl = BuildImage(imageUrl, sizes.hdWidth, sizes.hdHeight, i.ImageTags.Primary, isPlayed, PlayedPercentage, UnplayedCount)
+            metaData.SDPosterUrl = BuildImage(imageUrl, sizes.sdWidth, sizes.sdHeight, i.ImageTags.Primary, isPlayed, PlayedPercentage, UnplayedCount)
+
         else 
             metaData.HDPosterUrl = GetViewController().getThemeImageUrl("hd-landscape.jpg")
             metaData.SDPosterUrl = GetViewController().getThemeImageUrl("sd-landscape.jpg")
