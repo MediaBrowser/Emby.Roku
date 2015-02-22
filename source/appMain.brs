@@ -4,6 +4,8 @@
 
 Sub Main()
 
+	'deleteReg ("")  ' Delete all sections
+	
     'Initialize globals
     initGlobals()
 
@@ -21,6 +23,20 @@ Sub Main()
 
 End Sub
 
+'
+' Delete the entire registry or an individual registry section
+'
+Function deleteReg (section = "" As String) As Void
+    r = CreateObject ("roRegistry")
+    If section = ""
+        For Each regSection In r.GetSectionList ()
+            r.Delete (regSection)
+        End For
+    Else
+        r.Delete (section)
+    Endif
+    r.Flush ()
+End Function
 
 '*************************************************************
 '** Setup Global variables for the application

@@ -640,6 +640,10 @@ End Function
 
 Function shouldUseSoftSubs(stream) As Boolean
 
+	if stream.SupportsExternalStream <> invalid and stream.SupportsExternalStream = false
+        return false
+    end if
+
 	'if RegRead("softsubtitles", "preferences", "1") = "0" then return false
     'if stream.codec <> "srt" or stream.key = invalid then return false
 
