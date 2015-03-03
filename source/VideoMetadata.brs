@@ -112,6 +112,8 @@ Sub addVideoPlaybackInfo(item, options)
 	if streamInfo = invalid then return
 
 	item.StreamInfo = streamInfo
+	
+	accessToken = firstOf(ConnectionManager().GetServerData(item.ServerId, "AccessToken"), "")
 
 	' Setup Roku Stream
 	' http://sdkdocs.roku.com/display/sdkdoc/Content+Meta-Data
@@ -126,7 +128,7 @@ Sub addVideoPlaybackInfo(item, options)
 	if streamInfo.IsDirectStream Then
 
 		item.Stream = {
-			url: GetServerBaseUrl() + "/Videos/" + item.Id + "/stream?static=true&mediaSourceId=" + mediaSourceId,
+			url: GetServerBaseUrl() + "/Videos/" + item.Id + "/stream?static=true&mediaSourceId=" + mediaSourceId + "&api_key=" + accessToken,
 			contentid: "x-directstream",
 			bitrate: streamInfo.Bitrate / 1000,
 			quality: false
@@ -141,7 +143,7 @@ Sub addVideoPlaybackInfo(item, options)
 		
 	else
 
-		url = GetServerBaseUrl() + "/Videos/" + item.Id + "/master.m3u8?mediaSourceId=" + mediaSourceId
+		url = GetServerBaseUrl() + "/Videos/" + item.Id + "/master.m3u8?mediaSourceId=" + mediaSourceId + "&api_key=" + accessToken
 
 		if isDisplayHd then
 			url = url + "&maxWidth=1920"
@@ -178,7 +180,7 @@ Sub addVideoPlaybackInfo(item, options)
 				url = url + "&SubtitleStreamIndex=" + tostr(streamInfo.SubtitleStreamIndex)
 				enableSelectableSubtitleTracks = false
 			else
-				item.SubtitleUrl = GetServerBaseUrl()  + "/Videos/" + item.Id + "/" + mediaSourceId + "/Subtitles/" + tostr(streamInfo.SubtitleStreamIndex) + "/Stream.srt"
+				item.SubtitleUrl = GetServerBaseUrl()  + "/Videos/" + item.Id + "/" + mediaSourceId + "/Subtitles/" + tostr(streamInfo.SubtitleStreamIndex) + "/Stream.srt?api_key=" + accessToken
 								
 				item.SubtitleConfig = {
 					ShowSubtitle: 1
@@ -218,7 +220,7 @@ Sub addVideoPlaybackInfo(item, options)
 	for each stream in mediaSource.MediaStreams
 		if enableSelectableSubtitleTracks AND stream.IsTextSubtitleStream = true AND shouldUseSoftSubs(stream) = true then
 		
-			subUrl = GetServerBaseUrl()  + "/Videos/" + item.Id + "/" + mediaSourceId + "/Subtitles/" + tostr(stream.Index) + "/Stream.srt"
+			subUrl = GetServerBaseUrl()  + "/Videos/" + item.Id + "/" + mediaSourceId + "/Subtitles/" + tostr(stream.Index) + "/Stream.srt?api_key=" + accessToken
 								
 			subtitleInfo = {
 				Language: stream.Language

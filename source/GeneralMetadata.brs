@@ -958,6 +958,12 @@ Sub SetAudioStreamProperties(item as Object)
 		item.playMethod = "Transcode"
 		item.canSeek = item.Length <> invalid
     End If
+	
+	accessToken = ConnectionManager().GetServerData(item.ServerId, "AccessToken")
+		
+	if firstOf(accessToken, "") <> "" then
+		item.Url = item.Url + "&api_key=" + accessToken
+	end if	
 
 End Sub
 
