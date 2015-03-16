@@ -129,6 +129,21 @@ Function parseSearchResultsResponse(response as String) As Object
 
                 end if
 
+            else if i.Type = "Person"
+			
+                if i.PrimaryImageTag <> "" And i.PrimaryImageTag <> invalid
+                    imageUrl = GetServerBaseUrl() + "/Items/" + HttpEncode(i.ItemId) + "/Images/Primary/0"
+					
+					portraitSizes = GetImageSizes("flat-portrait")
+                    metaData.HDPosterUrl = BuildImage(imageUrl, portraitSizes.hdWidth, portraitSizes.hdHeight, i.PrimaryImageTag)
+                    metaData.SDPosterUrl = BuildImage(imageUrl, portraitSizes.sdWidth, portraitSizes.sdHeight, i.PrimaryImageTag)
+
+                else 
+                    metaData.HDPosterUrl = GetViewController().getThemeImageUrl("hd-landscape.jpg")
+                    metaData.SDPosterUrl = GetViewController().getThemeImageUrl("sd-landscape.jpg")
+
+                end if
+
             else
 
                 metaData.HDPosterUrl = GetViewController().getThemeImageUrl("hd-landscape.jpg")

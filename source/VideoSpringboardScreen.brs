@@ -24,6 +24,7 @@ Function createVideoSpringboardScreen(context, index, viewController) As Object
 	obj.RecordLiveTvProgram = springboardRecordProgram
 	obj.ShowStreamsDialog = springboardShowStreamsDialog
 	obj.ShowMoreDialog = springboardShowMoreDialog
+	obj.ShowFilmography = springboardShowFilmography
 	
 	obj.PlayOptions = {}
 
@@ -108,7 +109,11 @@ Sub videoSetupButtons()
     if video.ContentType = "Recording"
         m.AddButton("Delete", "delete")
     end if
-
+	
+	if video.ContentType = "Person"
+		m.AddButton("Filmography", "filmography")
+	end if
+	
     ' rewster: TV Program recording does not need a more button, and displaying it stops the back button from appearing on programmes that have past
 	if video.ContentType <> "Program"
 		m.AddButton("More...", "more")
@@ -302,6 +307,9 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
             else if buttonCommand = "record" then
                 m.RecordLiveTvProgram(item)
 
+            else if buttonCommand = "filmography" then
+                m.ShowFilmography(item)
+				
             else if buttonCommand = "more" then
                 m.ShowMoreDialog(item)
 
@@ -477,6 +485,13 @@ Function getItemPeopleDataContainer(viewController as Object, item as Object) as
 	return obj
 
 End Function
+
+Sub springboardShowFilmography(item)
+	newScreen = createFilmographyScreen(m.viewController, item)
+	newScreen.ScreenName = "Filmography" + item.Id		
+	m.ViewController.InitializeOtherScreen(newScreen, [item.Title, "Filmography"])
+	newScreen.Show()
+End Sub
 
 Sub springboardShowMoreDialog(item)
 

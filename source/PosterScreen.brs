@@ -49,6 +49,8 @@ Function CreatePosterScreen(viewController as Object, item as Object, style As S
     obj.Screen.SetListStyle(style)
     obj.Screen.SetDisplayMode("scale-to-fit")
 
+	obj.SeriesOptionsDialog = posterSeriesOptionsDialog
+	
     if NOT AudioPlayer().IsPlaying AND firstOf(RegRead("prefThemeMusic"), "yes") = "yes" then
         AudioPlayer().PlayThemeMusic(item)
         obj.Cleanup = baseStopAudioPlayer
@@ -237,6 +239,71 @@ Sub posterShowContentList(index)
 End Sub
 
 
+
+'**********************************************************
+'** posterSeriesShowOptionsDialog
+'**********************************************************
+
+Sub posterSeriesOptionsDialog()
+
+    dlg = createBaseDialog()
+    dlg.Title = "Series Options"
+
+	dlg.SetButton("cast", "Cast & Crew")
+
+	dlg.item = m.Item
+	dlg.parentScreen = m
+
+	dlg.HandleButton = handleSeriesOptionsButton
+
+    dlg.SetButton("close", "Close")
+    dlg.Show()
+
+End Sub
+
+'**********************************************************
+'** handleSeriesOptionsButton
+'**********************************************************
+
+Function handleSeriesOptionsButton(command, data) As Boolean
+
+	item = GetFullItemMetadata(m.item, false, {})
+	itemId = m.item.Id
+	screen = m.parentScreen
+
+	if command = "cast" then
+		newScreen = CreatePosterScreen(m.ViewController, item, "arced-poster")
+		newScreen.GetDataContainer = getSeriesPeopleDataContainer
+		newScreen.ScreenName = "People" + itemId
+        m.ViewController.InitializeOtherScreen(newScreen, [item.Title, "Cast & Crew"])
+		newScreen.Show()
+        return true
+    else if command = "close" then
+		m.Screen.Close()
+        return true
+    end if
+	
+    return false
+
+End Function
+
+Function getSeriesPeopleDataContainer(viewController as Object, item as Object) as Object
+
+    items = convertItemPeopleToMetadata(item.People)
+
+    if items = invalid
+        return invalid
+    end if
+
+	obj = CreateObject("roAssociativeArray")
+	obj.names = []
+	obj.keys = []
+	obj.items = items
+
+	return obj
+
+End Function
+
 '**********************************************************
 '** posterHandleMessage
 '**********************************************************
@@ -303,7 +370,10 @@ Function posterHandleMessage(msg) As Boolean
         
 		else if msg.isRemoteKeyPressed() then
 
-            if msg.GetIndex() = 13 then
+			if msg.GetIndex() = 10 then
+				m.SeriesOptionsDialog()
+				
+            else if msg.GetIndex() = 13 then
 
                 Debug("Playing item directly from poster screen")
                 status = m.contentArray[m.focusedList]

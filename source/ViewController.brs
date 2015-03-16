@@ -1232,7 +1232,7 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		screen = createMovieLibraryScreen(m, itemId)
         screenName = "MovieLibrary"
 
-    else if item.MediaType = "Video" or item.MediaType = "Game" or item.MediaType = "Book" or contentType = "ItemPerson" then
+    else if item.MediaType = "Video" or item.MediaType = "Game" or item.MediaType = "Book" or contentType = "ItemPerson" or contentType = "Person" then
 		Debug ("Calling createVideoSpringboardScreen")
 		screen = createVideoSpringboardScreen(context, contextIndex, m)
 		screenName = "VideoSpringboardScreen" + itemId
