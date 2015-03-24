@@ -1,5 +1,5 @@
 '**********************************************************
-'**  Media Browser Roku Client - Poster Screen
+'**  Emby Roku Client - Poster Screen
 '** Credit: Plex Roku https://github.com/plexinc/roku-client-public
 '**********************************************************
 

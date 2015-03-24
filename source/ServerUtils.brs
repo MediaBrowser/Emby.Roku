@@ -213,7 +213,7 @@ Function postCapabilities() As Boolean
 	
 	url = url + "?PlayableMediaTypes=Audio,Video,Photo&SupportsMediaControl=true"
 	url = url + "&SupportedCommands=MoveUp,MoveDown,MoveLeft,MoveRight,Select,Back,GoHome,SendString,GoToSearch,GoToSettings,DisplayContent,SetAudioStreamIndex,SetSubtitleStreamIndex"
-	url = url + "&MessageCallbackUrl=" + HttpEncode(":8324/mediabrowser/message")
+	url = url + "&MessageCallbackUrl=" + HttpEncode(":8324/emby/message")
 
 	' Prepare Request
     request = HttpRequest(url)

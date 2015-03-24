@@ -5,15 +5,15 @@ Function createConnectSignInScreen(viewController As Object) As Object
     screen = CreateObject("roCodeRegistrationScreen")
     screen.SetMessagePort(obj.Port)
 
-    screen.SetTitle("Media Browser Connect")
-    screen.AddParagraph("With Media Browser Connect you can easily access your Media Browser Server wherever you are and share with your family and friends.")
+    screen.SetTitle("Emby Connect")
+    screen.AddParagraph("With Emby Connect you can easily access your Emby Server wherever you are and share with your family and friends.")
     screen.AddParagraph(" ")
     screen.AddFocalText("From your computer,", "spacing-dense")
-    screen.AddFocalText("go to mediabrowser.tv/pin", "spacing-dense")
+    screen.AddFocalText("go to emby.media/pin", "spacing-dense")
     screen.AddFocalText("and enter this code:", "spacing-dense")
     screen.SetRegistrationCode("retrieving code...")
     screen.AddParagraph(" ")
-    screen.AddParagraph("This screen will automatically update once your Roku player has been linked to your Media Browser account.")
+    screen.AddParagraph("This screen will automatically update once your Roku player has been linked to your Emby account.")
 
     screen.AddButton(0, "get a new code")
     screen.AddButton(1, "skip (connect to server manually)")
@@ -24,7 +24,7 @@ Function createConnectSignInScreen(viewController As Object) As Object
     obj.HandleMessage = pinHandleMessage
     obj.OnUrlEvent = pinOnUrlEvent
     obj.OnTimerExpired = pinOnTimerExpired
-    obj.ScreenName = "MediaBrowserConnect"
+    obj.ScreenName = "EmbyConnect"
 
     obj.pinResult = invalid
 
@@ -99,7 +99,7 @@ Sub pinOnUrlEvent(msg, requestContext)
             Debug("Request for new PIN failed: " + tostr(msg.GetResponseCode()) + " - " + tostr(msg.GetFailureReason()))
             dialog = createBaseDialog()
             dialog.Title = "Server unavailable"
-            dialog.Text = "Media Browser Connect could not be reached, please try again later."
+            dialog.Text = "Emby Connect could not be reached, please try again later."
             dialog.Show()
 			
         else

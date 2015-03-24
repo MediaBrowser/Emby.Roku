@@ -1,5 +1,5 @@
 '*****************************************************************
-'**  Media Browser Roku Client - Server Screens
+'**  Emby Roku Client - Server Screens
 '*****************************************************************
 
 
@@ -9,11 +9,11 @@
 
 Function createServerFirstRunSetupScreen(viewController as Object)
 
-    header = "Welcome to Media Browser"
+    header = "Welcome to Emby"
     paragraphs = []
-    paragraphs.Push("With Media Browser you can easily stream videos, music and photos to Roku and other devices from your Media Browser server.")
-    paragraphs.Push("To begin, please make sure your Media Browser server is currently running. For information on how to download and install Media Browser, visit:")
-    paragraphs.Push("http://www.mediabrowser.tv")
+    paragraphs.Push("With Emby you can easily stream videos, music and photos to Roku and other devices from your Emby Server.")
+    paragraphs.Push("To begin, please make sure your Emby Server is currently running. For information on how to download and install Emby Server, visit:")
+    paragraphs.Push("http://www.emby.media")
 
     screen = createParagraphScreen(header, paragraphs, viewController)
     screen.ScreenName = "FirstRun"
@@ -112,8 +112,8 @@ Function createServerListScreen(viewController as Object)
 	if ConnectionManager().isLoggedIntoConnect() = true then
 	
 		entry = {
-            Title: ">> Sign out of Media Browser Connect",
-            ShortDescriptionLine1: "Sign out of Media Browser Connect",
+            Title: ">> Sign out of Emby Connect",
+            ShortDescriptionLine1: "Sign out of Emby Connect",
             Action: "signout",
             HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-server-lg.png"),
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-server-lg.png")
@@ -124,8 +124,8 @@ Function createServerListScreen(viewController as Object)
 	else
 	
 		entry = {
-            Title: ">> Sign in with Media Browser Connect",
-            ShortDescriptionLine1: "Sign in with Media Browser Connect",
+            Title: ">> Sign in with Emby Connect",
+            ShortDescriptionLine1: "Sign in with Emby Connect",
             Action: "signin",
             HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-server-lg.png"),
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-server-lg.png")

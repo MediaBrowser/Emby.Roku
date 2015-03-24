@@ -532,7 +532,7 @@ Sub InitWebServer(vc)
     globals.idletime = 60
     globals.wwwroot = "tmp:/"
     globals.index_name = "index.html"
-    globals.serverName = "MediaBrowser"
+    globals.serverName = "Emby"
     AddGlobals(globals)
     MimeType()
     HttpTitle()
@@ -568,6 +568,38 @@ Sub InitWebServer(vc)
 	
 	ClassReply().AddHandler("/mediabrowser/message/SetAudioStreamIndex", ProcessSetAudioStreamIndexRequest)
 	ClassReply().AddHandler("/mediabrowser/message/SetSubtitleStreamIndex", ProcessSetSubtitleStreamIndexRequest)
+    
+	ClassReply().AddHandler("/emby/message/MoveUp", ProcessNavigationMoveUp)
+	ClassReply().AddHandler("/emby/message/MoveRight", ProcessNavigationMoveRight)
+	ClassReply().AddHandler("/emby/message/MoveLeft", ProcessNavigationMoveLeft)
+	ClassReply().AddHandler("/emby/message/MoveDown", ProcessNavigationMoveDown)
+	ClassReply().AddHandler("/emby/message/Select", ProcessNavigationSelect)
+	ClassReply().AddHandler("/emby/message/GoHome", ProcessNavigationHome)
+	ClassReply().AddHandler("/emby/message/Back", ProcessNavigationBack)
+	ClassReply().AddHandler("/emby/message/GoToSettings", ProcessNavigationSettings)
+	ClassReply().AddHandler("/emby/message/GoToSearch", ProcessNavigationSearch)
+	ClassReply().AddHandler("/emby/message/SendString", ProcessApplicationSetText)
+	ClassReply().AddHandler("/emby/message/ShowNowPlaying", ProcessApplicationSetText)
+	ClassReply().AddHandler("/emby/message/Ping", ProcessPingRequest)
+	ClassReply().AddHandler("/emby/message/ServerRestarting", ProcessPingRequest)
+	ClassReply().AddHandler("/emby/message/ServerShuttingDown", ProcessPingRequest)
+	ClassReply().AddHandler("/emby/message/RestartRequired", ProcessPingRequest)
+	ClassReply().AddHandler("/emby/message/Stop", ProcessPlaybackStop)
+	ClassReply().AddHandler("/emby/message/Pause", ProcessPlaybackPause)
+	ClassReply().AddHandler("/emby/message/Unpause", ProcessPlaybackPlay)
+	ClassReply().AddHandler("/emby/message/NextTrack", ProcessPlaybackSkipNext)
+	ClassReply().AddHandler("/emby/message/PreviousTrack", ProcessPlaybackSkipPrevious)
+	ClassReply().AddHandler("/emby/message/Seek", ProcessPlaybackSeekTo)
+	ClassReply().AddHandler("/emby/message/Rewind", ProcessPlaybackStepBack)
+	ClassReply().AddHandler("/emby/message/FastForward", ProcessPlaybackStepForward)
+	ClassReply().AddHandler("/emby/message/DisplayContent", ProcessDisplayContent)
+
+	ClassReply().AddHandler("/emby/message/PlayNow", ProcessPlaybackPlayMedia)
+	ClassReply().AddHandler("/emby/message/PlayNext", ProcessPingRequest)
+	ClassReply().AddHandler("/emby/message/PlayLast", ProcessPingRequest)
+	
+	ClassReply().AddHandler("/emby/message/SetAudioStreamIndex", ProcessSetAudioStreamIndexRequest)
+	ClassReply().AddHandler("/emby/message/SetSubtitleStreamIndex", ProcessSetSubtitleStreamIndexRequest)
 
     vc.WebServer = InitServer({msgPort: vc.GlobalMessagePort, port: 8324})
 End Sub
