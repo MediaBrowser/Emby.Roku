@@ -62,7 +62,7 @@ Sub videoSetupButtons()
 			m.AddButton("Schedule recording", "record")
         end if
 
-    else if video.LocationType <> "Virtual" And video.PlayAccess = "Full"
+    else if (video.LocationType <> "Virtual" or video.ContentType = "TvChannel") And video.PlayAccess = "Full"
 
 		' This screen is also used for books and games, so don't show a play button
 		if video.MediaType = "Video" then
