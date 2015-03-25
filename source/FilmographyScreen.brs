@@ -18,7 +18,7 @@ Function createFilmographyScreen(viewController as Object, item as Object) As Ob
 	loader = CreateObject("roAssociativeArray")
 	loader.getUrl = getFilmographyRowScreenUrl
 	loader.parsePagedResult = parseFilmographyScreenResult
-	loader.personId = item.Title
+	loader.personId = item.Id
 	
     if imageType = 0 then
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "mixed-aspect-ratio")
@@ -101,7 +101,7 @@ Function getFilmographyRowScreenUrl(row as Integer, id as String) as String
 	end if
 	
 	query.AddReplace("Fields", "Overview")
-	query.AddReplace("Person", m.personId)
+	query.AddReplace("PersonIds", m.personId)
 
 	for each key in query
 		url = url + "&" + key +"=" + HttpEncode(query[key])

@@ -49,7 +49,7 @@ Sub videoSetupButtons()
 
 	video = m.metadata
 
-    if (video.ContentType = "Program") And video.PlayAccess = "Full"
+    if video.ContentType = "Program" And video.PlayAccess = "Full"
 	
         if canPlayProgram(video)
 			m.AddButton("Play", "play")
@@ -62,7 +62,7 @@ Sub videoSetupButtons()
 			m.AddButton("Schedule recording", "record")
         end if
 
-    else if (video.LocationType = "filesystem" Or video.LocationType = "remote") And video.PlayAccess = "Full" And video.IsPlaceHolder = false
+    else if video.LocationType <> "Virtual" And video.PlayAccess = "Full"
 
 		' This screen is also used for books and games, so don't show a play button
 		if video.MediaType = "Video" then

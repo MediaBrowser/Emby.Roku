@@ -509,7 +509,7 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 		FillPhotoInfo(metaData, i)
 	end if
 
-    metaData.LocationType = LCase(firstOf(i.LocationType, "FileSystem"))
+    metaData.LocationType = firstOf(i.LocationType, "FileSystem")
 
     ' Setup Chapters
 	
