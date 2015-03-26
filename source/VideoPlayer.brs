@@ -118,7 +118,7 @@ Sub videoPlayerShow()
     if m.playbackError then
 	
         Debug("Error while playing video, nothing left to fall back to")
-        m.ShowPlaybackError()
+        m.ShowPlaybackError("")
         m.Screen = invalid
         m.popOnActivate = true
 
@@ -167,6 +167,11 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 
     Debug("MediaPlayer::playVideo: Displaying video: " + tostr(item.title))
 
+	if item.IsPlaceHolder = true then
+		m.ShowPlaybackError("PlaceHolder")
+		return invalid
+	end if
+	
     videoItem = m.ConstructVideoItem(item, playOptions)
 
     player = CreateObject("roVideoScreen")
@@ -249,12 +254,17 @@ Function IsBifServiceAvailable(item)
 	
 End Function
 
-Sub videoPlayerShowPlaybackError()
+Sub videoPlayerShowPlaybackError(code)
     dialog = createBaseDialog()
 
     dialog.Title = "Video Unavailable"
-    dialog.Text = "We're unable to play this video, make sure the server is running and has access to this video."
-
+	
+	if code = "PlaceHolder" then
+		dialog.Text = "The content chosen is not playable from this device."
+	else
+		dialog.Text = "We're unable to play this video, make sure the server is running and has access to this video."
+	end if
+	
     dialog.Show()
 End Sub
 
