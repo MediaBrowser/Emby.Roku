@@ -240,7 +240,7 @@ End Function
 
 Sub createServerConfigurationScreen(parentScreen as Object) 
 
-	screen = GetViewController().CreateTextInputScreen("Enter Server Address", "Server IP Address (ex. 192.168.1.100)", ["Server Setup"], "", false)
+	screen = GetViewController().CreateTextInputScreen("Enter Server Address", "Server Address (ex. 192.168.1.100 or https://myserver.com)", ["Server Setup"], "", false)
 	screen.ValidateText = OnServerAddressTextValueEntered
 	screen.Show(true)
 
