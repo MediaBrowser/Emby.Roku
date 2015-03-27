@@ -209,18 +209,20 @@ End Function
 
 Function postCapabilities() As Boolean
 
-    url = GetServerBaseUrl() + "/Sessions/Capabilities"
+	Debug("Posting capabilities")
 	
-	url = url + "?PlayableMediaTypes=Audio,Video,Photo&SupportsMediaControl=true"
-	url = url + "&SupportedCommands=MoveUp,MoveDown,MoveLeft,MoveRight,Select,Back,GoHome,SendString,GoToSearch,GoToSettings,DisplayContent,SetAudioStreamIndex,SetSubtitleStreamIndex"
-	url = url + "&MessageCallbackUrl=" + HttpEncode(":8324/emby/message")
+    url = GetServerBaseUrl() + "/Sessions/Capabilities/Full"
+	
+	caps = getCapabilities()
 
 	' Prepare Request
     request = HttpRequest(url)
     request.AddAuthorization()
+	request.ContentType("json")
 
-    ' Execute Request
-    response = request.PostFromStringWithTimeout("", 5)
+	json = SimpleJSONBuilder(caps)
+    response = request.PostFromStringWithTimeout(json, 5)
+	
     if response <> invalid
         return true
     else
