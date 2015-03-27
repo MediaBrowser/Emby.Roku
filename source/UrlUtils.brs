@@ -129,6 +129,13 @@ Function http_authorization() As Void
 		end if		
 	end if
 	
+	currentUrl = firstOf(m.GetUrl(), "")
+	
+	if currentUrl.instr("https") > -1 then 
+		m.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
+		m.Http.InitClientCertificates()
+	end if
+	
 End Function
 
 
