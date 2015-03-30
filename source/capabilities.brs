@@ -93,11 +93,19 @@ Function getCodecProfiles()
 
 	maxRefFrames = firstOf(getGlobalVar("maxRefFrames"), 100)
 	
+	maxWidth = "1920"
+	maxHeight = "1080"
+	
+	if getGlobalVar("displayType") <> "HDTV" then
+		maxWidth = "1280"
+		maxHeight = "720"
+	end if
+
 	h264Conditions = []
 	h264Conditions.push({
 		Condition: "LessThanEqual"
 		Property: "RefFrames"
-		Value: maxRefFrames
+		Value: tostr(maxRefFrames)
 		IsRequired: false
 	})
 	h264Conditions.push({
@@ -108,13 +116,32 @@ Function getCodecProfiles()
 	})
 	h264Conditions.push({
 		Condition: "LessThanEqual"
+		Property: "Width"
+		Value: maxWidth
+		IsRequired: true
+	})
+	h264Conditions.push({
+		Condition: "LessThanEqual"
 		Property: "Height"
-		Value: "1080"
+		Value: maxHeight
+		IsRequired: true
 	})
 	h264Conditions.push({
 		Condition: "LessThanEqual"
 		Property: "VideoFramerate"
 		Value: "30"
+		IsRequired: false
+	})
+	h264Conditions.push({
+		Condition: "EqualsAny"
+		Property: "VideoProfile"
+		Value: "high|main|baseline|constrained baseline"
+		IsRequired: false
+	})
+	h264Conditions.push({
+		Condition: "LessThanEqual"
+		Property: "VideoLevel"
+		Value: "41"
 		IsRequired: false
 	})
 	h264Conditions.push({
@@ -126,8 +153,83 @@ Function getCodecProfiles()
 	
 	profiles.push({
 		Type: "Video"
-		Codec: "h264,mpeg4"
+		Codec: "h264"
 		Conditions: h264Conditions
+	})
+	
+	mpeg4Conditions = []
+	mpeg4Conditions.push({
+		Condition: "LessThanEqual"
+		Property: "RefFrames"
+		Value: tostr(maxRefFrames)
+		IsRequired: false
+	})
+	mpeg4Conditions.push({
+		Condition: "LessThanEqual"
+		Property: "VideoBitDepth"
+		Value: "8"
+		IsRequired: false
+	})
+	mpeg4Conditions.push({
+		Condition: "LessThanEqual"
+		Property: "Width"
+		Value: maxWidth
+		IsRequired: true
+	})
+	mpeg4Conditions.push({
+		Condition: "LessThanEqual"
+		Property: "Height"
+		Value: maxHeight
+		IsRequired: true
+	})
+	mpeg4Conditions.push({
+		Condition: "LessThanEqual"
+		Property: "VideoFramerate"
+		Value: "30"
+		IsRequired: false
+	})
+	mpeg4Conditions.push({
+		Condition: "Equals"
+		Property: "IsAnamorphic"
+		Value: "false"
+		IsRequired: false
+	})
+	
+	profiles.push({
+		Type: "Video"
+		Codec: "mpeg4"
+		Conditions: mpeg4Conditions
+	})
+	
+	surroundSound = SupportsSurroundSound(false, false)
+	audioOutput51 = getGlobalVar("audioOutput51")
+
+	audioConditions = [{
+		Condition: "Equals"
+		Property: "IsSecondaryAudio"
+		Value: "false"
+		IsRequired: false
+	}]
+	
+	audioChannels = "2"
+	if surroundSound = true and audioOutput51 = true then
+		audioChannels = "5"
+	end if
+		
+	profiles.push({
+		Type: "VideoAudio"
+			Conditions: [{
+			Condition: "Equals"
+			Property: "IsSecondaryAudio"
+			Value: "false"
+			IsRequired: false
+		},
+		{
+			Condition: "LessThanEqual"
+			Property: "AudioChannels"
+			Value: audioChannels
+			IsRequired: true
+		}]
 	})
 	
 	return profiles
@@ -138,6 +240,35 @@ Function getContainerProfiles()
 
 	profiles = []
 
+	videoContainerConditions = []
+	
+	versionArr = getGlobalVar("rokuVersion")
+    major = versionArr[0]
+
+    if major < 4 then
+		' If everything else looks ok and there are no audio streams, that's
+		' fine on Roku 2+.
+		videoContainerConditions.push({
+			Condition: "NotEquals"
+			Property: "NumAudioStreams"
+			Value: "0"
+			IsRequired: false
+		})
+	end if
+	
+	' Multiple video streams aren't supported, regardless of type.
+    videoContainerConditions.push({
+		Condition: "Equals"
+		Property: "NumVideoStreams"
+		Value: "1"
+		IsRequired: false
+	})
+		
+	profiles.push({
+		Type: "Video"
+		Conditions: videoContainerConditions
+	})
+	
 	return profiles
 
 End Function
@@ -145,7 +276,15 @@ End Function
 Function getSubtitleProfiles()
 
 	profiles = []
-
+	
+	profiles.push({
+		Format: "srt"
+		Method: "External"
+		
+		' If Roku adds support for non-Latin characters, remove this
+		Language: "und,afr,alb,baq,bre,cat,dan,eng,fao,glg,ger,ice,may,gle,ita,lat,ltz,nor,oci,por,roh,gla,spa,swa,swe,wln,est,fin,fre,dut"
+	})
+			
 	return profiles
 
 End Function
@@ -156,9 +295,9 @@ Function getDeviceProfile()
 	maxVideoBitrate = maxVideoBitrate.ToInt() * 1000
 	
 	profile = {
-		MaxStaticBitrate: 40000000
-		MaxStreamingBitrate: maxVideoBitrate
-		MusicStreamingTranscodingBitrate: 192000
+		MaxStaticBitrate: "40000000"
+		MaxStreamingBitrate: tostr(maxVideoBitrate)
+		MusicStreamingTranscodingBitrate: "192000"
 		
 		DirectPlayProfiles: getDirectPlayProfiles()
 		TranscodingProfiles: getTranscodingProfiles()

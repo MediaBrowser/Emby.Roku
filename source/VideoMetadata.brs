@@ -105,25 +105,8 @@ End Sub
 '** addVideoPlaybackInfo
 '**********************************************************
 
-Sub addVideoPlaybackInfo(item, options)
+Sub addVideoPlaybackInfo(item, mediaSource, options)
 
-	streamInfo = getPlaybackStreamInfo(item, options) 
-
-	if streamInfo = invalid then return
-
-	item.StreamInfo = streamInfo
-	
-	accessToken = firstOf(ConnectionManager().GetServerData(item.ServerId, "AccessToken"), "")
-
-	' Setup Roku Stream
-	' http://sdkdocs.roku.com/display/sdkdoc/Content+Meta-Data
-
-	mediaSource = streamInfo.MediaSource
-	mediaSourceId = mediaSource.Id
-	
-	isDisplayHd = getGlobalVar("displayType") = "HDTV"
-	
-	enableSelectableSubtitleTracks = true
 
 	if streamInfo.IsDirectStream Then
 
@@ -237,59 +220,6 @@ Sub addVideoPlaybackInfo(item, options)
 
 End Sub
 
-Function getPlaybackStreamInfo(item, options) as Object
-
-	streams = []
-
-	' Create streams for each media source
-	for each source in item.MediaSources
-		if options.MediaSourceId = invalid OR source.Id = options.MediaSourceId then
-
-			streams.push(getStreamInfo(source, options))
-		end if
-
-	end for
-
-	' If a specific media source was requested
-	if options.MediaSourceId <> invalid then
-		for each stream in streams
-			if stream.MediaSource.Id = options.MediaSourceId then
-			
-				if options.AudioStreamIndex = -1 then
-					stream.AudioStreamIndex = invalid
-				else if options.AudioStreamIndex <> invalid then
-					stream.AudioStreamIndex = options.AudioStreamIndex
-				end if
-				
-				if options.SubtitleStreamIndex = -1 then
-					stream.SubtitleStreamIndex = invalid
-				else if options.SubtitleStreamIndex <> invalid then
-					stream.SubtitleStreamIndex = options.SubtitleStreamIndex
-				end if
-				
-				return stream
-			end if
-		end for
-	end if
-
-	' Now choose the optimal one
-	for each stream in streams
-		if stream.IsDirectStream = true then
-			return stream
-		end if
-	end for
-
-	for each stream in streams
-		if stream.IsNativeVideo = true then
-			return stream
-		end if
-	end for
-
-	' No direct play or native video stream. Just take the first one
-	return streams[0]
-	
-End Function
-
 Function getStreamInfo(mediaSource as Object, options as Object) as Object
 
 	audioStream = getMediaStream(mediaSource.MediaStreams, "Audio", options.AudioStreamIndex, mediaSource.DefaultAudioStreamIndex)
@@ -301,318 +231,44 @@ Function getStreamInfo(mediaSource as Object, options as Object) as Object
 		VideoStream: videoStream,
 		AudioStream: audioStream,
 		SubtitleStream: subtitleStream,
+		LiveStreamId: mediaSource.LiveStreamId,
 		CanSeek: mediaSource.RunTimeTicks <> "" And mediaSource.RunTimeTicks <> invalid
 	}
 
-	if audioStream <> invalid then streamInfo.AudioStreamIndex = audioStream.Index
-	if subtitleStream <> invalid then streamInfo.SubtitleStreamIndex = subtitleStream.Index
+	if audioStream <> invalid then 
+		streamInfo.AudioStreamIndex = audioStream.Index
+	else
+		streamInfo.AudioStreamIndex = mediaSource.DefaultAudioStreamIndex
+	end if
+	
+	if subtitleStream <> invalid then 
+		streamInfo.SubtitleStreamIndex = subtitleStream.Index
+	else
+		streamInfo.SubtitleStreamIndex = mediaSource.DefaultSubtitleStreamIndex
+	end if
+	
+	if mediaSource.enableDirectPlay = true then
+	
+		streamInfo.PlayMethod = "DirectPlay"
+		streamInfo.Bitrate = mediaSource.Bitrate
+		
+	else if mediaSource.SupportsDirectStream = true then
 
-	if videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStream, options) then
-
-		streamInfo.IsDirectStream = true
+		streamInfo.PlayMethod = "DirectStream"
 		streamInfo.Bitrate = mediaSource.Bitrate
 
 	else
-		streamInfo.IsDirectStream = false
-
+	
+		streamInfo.PlayMethod = "Transcode"
 		maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
 		maxVideoBitrate = maxVideoBitrate.ToInt()
 	
-		streamInfo.VideoBitrate = maxVideoBitrate * 1000
-
-		streamInfo.AudioStreamIndex = mediaSource.DefaultAudioStreamIndex
-		streamInfo.SubtitleStreamIndex = mediaSource.DefaultSubtitleStreamIndex
-
-		' TODO: Support audio stream copy when possible
-		sourceAudioChannels = 2
-		if audioStream <> invalid and audioStream.Channels <> invalid then 
-			sourceAudioChannels = audioStream.Channels
-		end If
-
-		surroundSound = SupportsSurroundSound(false, false)
-		audioOutput51 = getGlobalVar("audioOutput51")
-
-		if sourceAudioChannels > 2 then
-			streamInfo.AudioCodec = "aac"
-			streamInfo.MaxAudioChannels = 2
-			streamInfo.AudioBitrate = 128000
-			
-		else if surroundSound and audioOutput51
-			streamInfo.AudioCodec = "ac3"
-			streamInfo.MaxAudioChannels = 5
-			streamInfo.AudioBitrate = 256000
-			
-		else
-			streamInfo.AudioCodec = "aac"
-			streamInfo.MaxAudioChannels = 2
-			streamInfo.AudioBitrate = 128000
-		end if
-
-		streamInfo.Bitrate = streamInfo.AudioBitrate + streamInfo.VideoBitrate
-
-		' If over 30, encode at 24fps - but don't force transcoding if between 24 and 30
-		if videoStream <> invalid and videoStream.AverageFrameRate <> invalid and videoStream.AverageFrameRate > 30 then
-			streamInfo.MaxFramerate = mediaSource.MaxFramerate
-		end if
-
-		' if stream.Codec = "aac" Or (stream.Codec = "ac3" And getGlobalVar("audioOutput51")) Or (stream.Codec = "dca" And getGlobalVar("audioOutput51") And getGlobalVar("audioDTS"))
+		streamInfo.Bitrate = maxVideoBitrate * 1000
 
 	end if
 
 	return streamInfo
 
-End Function
-
-Function videoCanDirectPlay(mediaSource, audioStream, videoStream, subtitleStream, options) As Boolean
-
-	if videoStream = invalid then 
-		Debug("videoCanDirectPlay: Unknown videoStream")
-		return false
-	end if
-
-	if mediaSource.Bitrate = invalid then
-		Debug("videoCanDirectPlay: Unknown source bitrate")
-		return false
-	else
-		maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
-		maxVideoBitrate = maxVideoBitrate.ToInt() * 1000
-
-		if maxVideoBitrate < mediaSource.Bitrate Then
-			Debug("videoCanDirectPlay: bitrate too high")
-			return false
-		end If
-
-	end If
-
-    ' With the Roku 3, the surround sound support may have changed because of
-    ' the headphones in the remote. If we have a cached direct play decision,
-    ' we need to make sure the surround sound support hasn't changed and
-    ' possibly reevaluate.
-    surroundSound = SupportsSurroundSound(false, false)
-
-	audioOutput51 = getGlobalVar("audioOutput51")
-    surroundSoundDCA = surroundSound AND audioOutput51 'AND (RegRead("fivepointoneDCA", "preferences", "1") = "1")
-    surroundSound = surroundSound AND audioOutput51 'AND (RegRead("fivepointone", "preferences", "1") = "1")
-
-    ' There doesn't seem to be a great way to do this, but we need to see if
-    ' the audio streams will support direct play. We'll assume that if there
-    ' are audio streams with different numbers of channels, they're probably
-    ' the same audio; if there are multiple streams with the same number of
-    ' channels, they're probably something like commentary or another language.
-    ' So if the selected stream is the first stream with that number of
-    ' channels, it might be chosen by the Roku when Direct Playing. We don't
-    ' just check the selected stream though, because if the 5.1 AC3 stream is
-    ' selected and there's also a stereo AAC stream, we can direct play.
-    ' But if there's a surround AAC stream before a stereo AAC stream, that
-    ' doesn't work.
-
-    stereoCodec = invalid
-    surroundCodec = invalid
-    secondaryStreamSelected = false
-    surroundStreamFirst = false
-    numAudioStreams = 0
-    numVideoStreams = 0
-    for each stream in mediaSource.MediaStreams
-        if stream.Type = "Audio" then
-            numAudioStreams = numAudioStreams + 1
-            numChannels = firstOf(stream.Channels, 0)
-            if numChannels <= 2 then
-                if stereoCodec = invalid then
-                    stereoCodec = stream.Codec
-                    surroundStreamFirst = (surroundCodec <> invalid)
-                else if stream.Index = audioStream.Index then
-                    secondaryStreamSelected = true
-                end if
-            else if numChannels >= 6 then
-                ' The Roku is just passing through the surround sound, so
-                ' it theoretically doesn't care whether there were 6 channels
-                ' or 60.
-                if surroundCodec = invalid then
-                    surroundCodec = stream.codec
-                else if stream.Index = audioStream.Index then
-                    secondaryStreamSelected = true
-                end if
-            else
-                Debug("Unexpected channels on audio stream: " + tostr(stream.channels))
-            end if
-        else if stream.Type = "Video" then
-            numVideoStreams = numVideoStreams + 1
-        end if
-    next
-	
-	container = mediaSource.Container
-	videoCodec = invalid
-	if videoStream <> invalid then videoCodec = videoStream.Codec
-	audioCodec = invalid
-	if audioStream <> invalid then audioCodec = audioStream.Codec
-	subtitleCodec = invalid
-	if subtitleStream <> invalid then subtitleCodec = subtitleStream.Codec
-
-    Debug("Media item container: " + tostr(container))
-    Debug("Media item video codec: " + tostr(videoCodec))
-    Debug("Media item audio codec: " + tostr(audioCodec))
-    Debug("Media item subtitles: " + tostr(subtitleCodec))
-    Debug("Media item stereo codec: " + tostr(stereoCodec))
-    Debug("Media item surround codec: " + tostr(surroundCodec))
-    Debug("Secondary audio stream selected: " + tostr(secondaryStreamSelected))
-
-    ' If no streams are provided, treat the Media audio codec as stereo.
-    if numAudioStreams = 0 then
-        stereoCodec = audioCodec
-    end if
-
-    ' Multiple video streams aren't supported, regardless of type.
-    if numVideoStreams > 1 then
-        Debug("videoCanDirectPlay: multiple video streams")
-        return false
-    end if
-
-    versionArr = getGlobalVar("rokuVersion")
-    major = versionArr[0]
-
-    if subtitleStream <> invalid then
-		if subtitleStream.IsTextSubtitleStream <> true OR shouldUseSoftSubs(subtitleStream) <> true then
-			Debug("videoCanDirectPlay: need to burn in subtitles")
-			return false
-		end if
-    end if
-
-    if secondaryStreamSelected then
-        Debug("videoCanDirectPlay: audio stream selected")
-        return false
-    end if
-
-	if (videoStream <> invalid AND videoStream.IsAnamorphic = true) AND NOT firstOf(getGlobalVar("playsAnamorphic"), false) then
-        Debug("videoCanDirectPlay: anamorphic videos not supported")
-        return false
-    end if
-
-    if videoStream <> invalid and videoStream.Height <> invalid and videoStream.Height > 1080 then
-        Debug("videoCanDirectPlay: height is greater than 1080: " + tostr(videoStream.Height))
-        return false
-    end if
-
-    if container = "mp4" OR container = "mov" OR container = "m4v" then
-
-        if (videoCodec <> "h264" AND videoCodec <> "mpeg4") then
-            Debug("videoCanDirectPlay: vc not h264/mpeg4")
-            return false
-        end if
-
-        if videoStream <> invalid and firstOf(videoStream.RefFrames, 0) > firstOf(getGlobalVar("maxRefFrames"), 0) then
-            ' Not only can we not Direct Play, but we want to make sure we
-            ' don't try to Direct Stream.
-            'mediaItem.forceTranscode = true
-            Debug("videoCanDirectPlay: too many ReFrames: " + tostr(videoStream.RefFrames))
-            return false
-        end if
-
-        if surroundSound AND (surroundCodec = "ac3" OR stereoCodec = "ac3") then
-            'mediaItem.canDirectPlay = true
-            return true
-        end if
-
-        if surroundStreamFirst then
-            Debug("videoCanDirectPlay: first audio stream is unsupported 5.1")
-            return false
-        end if
-
-        if stereoCodec = "aac" then
-            'mediaItem.canDirectPlay = true
-            return true
-        end if
-
-        if stereoCodec = invalid AND numAudioStreams = 0 AND major >= 4 then
-            ' If everything else looks ok and there are no audio streams, that's
-            ' fine on Roku 2+.
-            'mediaItem.canDirectPlay = true
-            return true
-        end if
-
-        Debug("videoCanDirectPlay: ac not aac/ac3")
-        return false
-    end if
-
-    if container = "wmv" then
-
-		' Apparently deprecated since 4.1:
-		' http://sdkdocs.roku.com/display/sdkdoc/Content+Meta-Data
-		return False
-
-        ' TODO: What exactly should we check here?
-        if major > 3 then
-            Debug("videoCanDirectPlay: wmv not supported by version " + tostr(major))
-            return false
-        end if
-
-        ' Based on docs, only WMA9.2 is supported for audio
-        if stereoCodec = invalid OR Left(stereoCodec, 3) <> "wma" then
-            Debug("videoCanDirectPlay: ac not stereo wmav2")
-            return false
-        end if
-
-        ' Video support is less obvious. WMV9 up to 480p, VC-1 up to 1080p?
-        if videoCodec <> "wmv3" AND videoCodec <> "vc1" then
-            Debug("videoCanDirectPlay: vc not wmv3/vc1")
-            return false
-        end if
-
-        'mediaItem.canDirectPlay = true
-        return true
-    end if
-
-    if container = "mkv" then
-        if NOT CheckMinimumVersion(versionArr, [5, 1]) then
-            Debug("videoCanDirectPlay: mkv not supported by version " + tostr(major))
-            return false
-        end if
-
-        if (videoCodec <> "h264" AND videoCodec <> "mpeg4") then
-            Debug("videoCanDirectPlay: vc not h264/mpeg4")
-            return false
-        end if
-
-        if videoStream <> invalid then
-            if firstOf(videoStream.RefFrames, 0) > firstOf(getGlobalVar("maxRefFrames"), 0) then
-                ' Not only can we not Direct Play, but we want to make sure we
-                ' don't try to Direct Stream.
-                'mediaItem.forceTranscode = true
-                Debug("videoCanDirectPlay: too many ReFrames: " + tostr(videoStream.RefFrames))
-                return false
-            end if
-
-            if firstOf(videoStream.BitDepth, 0) > 8 then
-                'mediaItem.forceTranscode = true
-                Debug("videoCanDirectPlay: bitDepth too high: " + tostr(videoStream.BitDepth))
-                return false
-            end if
-        end if
-
-        if surroundSound AND (surroundCodec = "ac3" OR stereoCodec = "ac3") then
-            'mediaItem.canDirectPlay = true
-            return true
-        end if
-
-        if surroundSoundDCA AND (surroundCodec = "dca" OR stereoCodec = "dca") then
-            'mediaItem.canDirectPlay = true
-            return true
-        end if
-
-        if surroundStreamFirst then
-            Debug("videoCanDirectPlay: first audio stream is unsupported 5.1")
-            return false
-        end if
-
-        if stereoCodec <> invalid AND (stereoCodec = "aac" OR stereoCodec = "mp3") then
-            'mediaItem.canDirectPlay = true
-            return true
-        end if
-
-        Debug("videoCanDirectPlay: ac not aac/ac3/mp3")
-        return false
-    end if
-
-    return false
 End Function
 
 Function getMediaStream(mediaStreams, streamType, optionIndex, defaultIndex) as Object
@@ -640,67 +296,11 @@ Function getMediaStream(mediaStreams, streamType, optionIndex, defaultIndex) as 
 
 End Function
 
-Function shouldUseSoftSubs(stream) As Boolean
-
-	if stream.SupportsExternalStream <> invalid and stream.SupportsExternalStream = false
-        return false
-    end if
-
-	'if RegRead("softsubtitles", "preferences", "1") = "0" then return false
-    'if stream.codec <> "srt" or stream.key = invalid then return false
-
-    ' TODO(schuyler) If Roku adds support for non-Latin characters, remove
-    ' this hackery. To the extent that we continue using this hackery, it
-    ' seems that the Roku requires UTF-8 subtitles but only supports characters
-    ' from Windows-1252. This should be the full set of languages that are
-    ' completely representable in Windows-1252. PMS should specifically be
-    ' returning ISO 639-2/B language codes.
-
-    if m.SoftSubLanguages = invalid then
-        m.SoftSubLanguages = {
-            afr: 1,
-            alb: 1,
-            baq: 1,
-            bre: 1,
-            cat: 1,
-            dan: 1,
-            eng: 1,
-            fao: 1,
-            glg: 1,
-            ger: 1,
-            ice: 1,
-            may: 1,
-            gle: 1,
-            ita: 1,
-            lat: 1,
-            ltz: 1,
-            nor: 1,
-            oci: 1,
-            por: 1,
-            roh: 1,
-            gla: 1,
-            spa: 1,
-            swa: 1,
-            swe: 1,
-            wln: 1,
-            est: 1,
-            fin: 1,
-            fre: 1,
-            dut: 1
-        }
-    end if
-
-    if stream.Language = invalid OR m.SoftSubLanguages.DoesExist(stream.Language) then return true
-
-    return false
-End Function
-
-
 '**********************************************************
 '** reportPlayback
 '**********************************************************
 
-Sub reportPlayback(id As String, mediaType as String, action As String, playMethod as String, isPaused as Boolean, canSeek as Boolean, position as Integer, mediaSourceId as String, audioStreamIndex = invalid, subtitleStreamIndex = invalid)
+Sub reportPlayback(id As String, mediaType as String, action As String, playMethod as String, isPaused as Boolean, canSeek as Boolean, position as Integer, mediaSourceId as String, liveStreamId = invalid, audioStreamIndex = invalid, subtitleStreamIndex = invalid)
 
     ' Format Position Seconds into Ticks
 	positionTicks = invalid
@@ -738,6 +338,10 @@ Sub reportPlayback(id As String, mediaType as String, action As String, playMeth
 	url = url + "&PlayMethod=" + playMethod
 	url = url + "&QueueableMediaTypes=" + mediaType
 	url = url + "&MediaSourceId=" + tostr(mediaSourceId)
+	
+    if liveStreamId <> invalid
+		url = url + "&LiveStreamId=" + tostr(liveStreamId)
+    end if
 	
     if audioStreamIndex <> invalid
 		url = url + "&AudioStreamIndex=" + tostr(audioStreamIndex)

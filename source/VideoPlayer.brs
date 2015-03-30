@@ -190,7 +190,7 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
     m.progressTimer = invalid
     m.playState = "buffering"
     
-	m.IsTranscoded = videoItem.StreamInfo.IsDirectStream <> true
+	m.IsTranscoded = videoItem.StreamInfo.PlayMethod = "Transcode"
     m.videoItem = videoItem
 
 	if m.IsTranscoded then
@@ -407,7 +407,7 @@ Sub videoPlayerReportPlayback(action as String)
 	position = m.lastPosition
 	playOptions = m.PlayOptions	
 
-	reportPlayback(m.videoItem.Id, "Video", action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
+	reportPlayback(m.videoItem.Id, "Video", action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.LiveStreamId, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
 End Sub
 
 Sub videoPlayerPause()
@@ -585,7 +585,7 @@ Function videoPlayerConstructVideoItem(item, options) as Object
 	releaseDate = item.ReleaseDate
 	serverStreamInfo = item.StreamInfo
 
-	if serverStreamInfo.IsDirectStream then
+	if serverStreamInfo.PlayMethod <> "Transcode" then
 
        audioCh = ""
 	   audioStream = serverStreamInfo.AudioStream

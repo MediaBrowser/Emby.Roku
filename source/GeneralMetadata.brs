@@ -1071,13 +1071,312 @@ Function GetFullItemMetadata(item, isForPlayback as Boolean, options as Object) 
     end if
 
 	if item.MediaType = "Video" or item.MediaType = "Audio" then
-		addVideoPlaybackInfo(item, options)
+		addPlaybackInfoFromMediaSource(item, item.MediaSources[0], options)
+	end if
+
+	if item.MediaType = "Video" and isForPlayback = true then
+		addPlaybackInfo(item, options)
 	end if
 	
 	return item
 
 End Function
 
+Sub addPlaybackInfo(item, options as Object)
+
+	startPositionTicks = tostr(firstOf(options.PlayStart, 0)) + "0000000"
+	
+	deviceProfile = getDeviceProfile()
+	
+	playbackInfo = getDynamicPlaybackInfo(item.Id, deviceProfile, startPositionTicks, options.MediaSourceId, options.AudioStreamIndex, options.SubtitleStreamIndex)
+
+	if validatePlaybackInfoResult(playbackInfo) = true then
+		
+		dynamicMediaSource = getOptimalMediaSource(item.MediaType, playbackInfo.MediaSources)
+		
+		if dynamicMediaSource <> invalid then
+		
+			if dynamicMediaSource.RequiresOpening = true then
+				liveStreamResult = getLiveStream(item.Id, deviceProfile, startPositionTicks, dynamicMediaSource, options.AudioStreamIndex, options.SubtitleStreamIndex)
+				
+				liveStreamResult.MediaSource.enableDirectPlay = supportsDirectPlay(liveStreamResult.MediaSource)
+				dynamicMediaSource = liveStreamResult.MediaSource
+				
+			end if
+			
+			addPlaybackInfoFromMediaSource(item, dynamicMediaSource, options)
+			
+		else
+			showPlaybackInfoErrorMessage("NoCompatibleStream")
+		end if
+		
+	end if
+End Sub
+
+Sub addPlaybackInfoFromMediaSource(item, mediaSource, options as Object)
+
+	streamInfo = getStreamInfo(mediaSource, options) 
+
+	if streamInfo = invalid then return
+
+	item.StreamInfo = streamInfo
+	
+	accessToken = firstOf(ConnectionManager().GetServerData(item.ServerId, "AccessToken"), "")
+
+	' Setup Roku Stream
+	' http://sdkdocs.roku.com/display/sdkdoc/Content+Meta-Data
+
+	mediaSourceId = mediaSource.Id
+	
+	enableSelectableSubtitleTracks = true
+
+	if streamInfo.PlayMethod = "DirectPlay" Then
+
+		item.Stream = {
+			url: mediaSource.Path
+			contentid: "x-directstream"
+			quality: false
+		}
+
+		' http://sdkdocs.roku.com/display/sdkdoc/Content+Meta-Data
+		if mediaSource.Container = "mov" or mediaSource.Container = "m4v" then
+			item.StreamFormat = "mp4"
+		else
+			item.StreamFormat = mediaSource.Container
+		end if
+		
+	else if streamInfo.PlayMethod = "DirectStream" Then
+
+		item.Stream = {
+			url: GetServerBaseUrl() + "/Videos/" + item.Id + "/stream?static=true&mediaSourceId=" + mediaSourceId + "&api_key=" + accessToken,
+			contentid: "x-directstream"
+			quality: false
+		}
+
+		' http://sdkdocs.roku.com/display/sdkdoc/Content+Meta-Data
+		if mediaSource.Container = "mov" or mediaSource.Container = "m4v" then
+			item.StreamFormat = "mp4"
+		else
+			item.StreamFormat = mediaSource.Container
+		end if
+		
+	else
+	
+		url = GetServerBaseUrl() + mediaSource.TranscodingUrl
+
+		if streamInfo.SubtitleStream <> invalid then
+		
+			if firstOf(streamInfo.SubtitleStream.DeliveryMethod, "") <> "External" then
+			
+				url = url + "&SubtitleStreamIndex=" + tostr(streamInfo.SubtitleStreamIndex)
+				enableSelectableSubtitleTracks = false
+				
+			else
+				item.SubtitleUrl = GetServerBaseUrl()  + streamInfo.SubtitleStream.DeliveryUrl
+								
+				item.SubtitleConfig = {
+					ShowSubtitle: 1
+					TrackName: item.SubtitleUrl
+				}
+			end if
+			
+		end if
+
+		item.Stream = {
+			url: url
+			contentid: "x-hls"
+			quality: false
+		}
+
+        item.StreamFormat = "hls"
+        item.SwitchingStrategy = "full-adaptation"
+
+	end if
+	
+	if streamInfo.Bitrate <> invalid then
+		item.Stream.Bitrate = streamInfo.Bitrate / 1000
+	end if
+
+	isDisplayHd = getGlobalVar("displayType") = "HDTV"
+	
+	if item.IsHD = true And isDisplayHd then item.Stream.quality = true
+	
+	item.SubtitleTracks = []
+	
+	for each stream in mediaSource.MediaStreams
+		if enableSelectableSubtitleTracks AND stream.Type = "Subtitle" and firstOf(stream.DeliveryMethod, "") = "External" then
+		
+			subUrl = GetServerBaseUrl()  + stream.DeliveryUrl
+								
+			subtitleInfo = {
+				Language: stream.Language
+				TrackName: subUrl
+				Description: stream.Codec
+			}
+			
+			if subtitleInfo.Language = invalid then subtitleInfo.Language = "und"
+			
+			item.SubtitleTracks.push(subtitleInfo)
+			
+		end if
+	end for
+	
+End Sub
+
+Function getOptimalMediaSource(mediaType, mediaSources) 
+
+	for each mediaSource in mediaSources
+	
+		mediaSource.enableDirectPlay = supportsDirectPlay(mediaSource)
+		
+		if mediaSource.enableDirectPlay = true then
+			return mediaSource
+		end if
+	end for
+	
+	for each mediaSource in mediaSources
+	
+		if mediaSource.SupportsDirectStream = true then
+			return mediaSource
+		end if
+	end for
+	
+	for each mediaSource in mediaSources
+	
+		if mediaSource.SupportsTranscoding = true then
+			return mediaSource
+		end if
+	end for
+	
+	return invalid
+
+End Function
+
+Function supportsDirectPlay(mediaSource)
+
+	if mediaSource.SupportsDirectPlay = true and mediaSource.Protocol = "Http" then
+
+		' TODO: Need to verify the host is going to be reachable
+		return true
+	end if
+
+	return false
+			
+End Function
+
+Function validatePlaybackInfoResult(playbackInfo)
+
+	return true
+	
+End Function
+
+function showPlaybackInfoErrorMessage(errorCode)
+
+End Function
+
+function getDynamicPlaybackInfo(itemId, deviceProfile, startPositionTicks, mediaSourceId, audioStreamIndex, subtitleStreamIndex) 
+
+	maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
+	maxVideoBitrate = maxVideoBitrate.ToInt() * 1000
+	
+	postData = {
+		DeviceProfile: deviceProfile
+	}
+
+	query = {
+		StartTimeTicks: startPositionTicks
+		MaxStreamingBitrate: maxVideoBitrate
+	}
+
+	if audioStreamIndex <> invalid then 
+		query.AudioStreamIndex = audioStreamIndex
+	end if
+	
+	if subtitleStreamIndex <> invalid then 
+		query.SubtitleStreamIndex = subtitleStreamIndex
+	end if
+	
+	if mediaSourceId <> invalid then
+		query.MediaSourceId = mediaSourceId
+	end if
+
+    url = GetServerBaseUrl() + "/Items/" + itemId + "/PlaybackInfo?UserId=" + getGlobalVar("user").Id
+
+	for each key in query
+		url = url + "&" + key +"=" + tostr(query[key])
+	end for
+
+	' Prepare Request
+    request = HttpRequest(url)
+    request.AddAuthorization()
+	request.ContentType("json")
+
+	json = SimpleJSONBuilder(postData)
+    response = request.PostFromStringWithTimeout(json, 10)
+
+	if response = invalid
+        return invalid
+    else
+	
+		fixedResponse = normalizeJson(response)
+        jsonObj     = ParseJSON(fixedResponse)	
+        
+		return jsonObj
+		
+    end if
+	
+End Function
+
+function getLiveStream(itemId, deviceProfile, startPositionTicks, mediaSource, audioStreamIndex, subtitleStreamIndex) 
+
+	maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
+	maxVideoBitrate = maxVideoBitrate.ToInt() * 1000
+	
+	postData = {
+		DeviceProfile: deviceProfile
+		OpenToken: mediaSource.OpenToken
+	}
+
+	query = {
+		StartTimeTicks: startPositionTicks
+		ItemId: itemId
+		MaxStreamingBitrate: maxVideoBitrate
+	}
+
+	if audioStreamIndex <> invalid then 
+		query.AudioStreamIndex = audioStreamIndex
+	end if
+	
+	if subtitleStreamIndex <> invalid then 
+		query.SubtitleStreamIndex = subtitleStreamIndex
+	end if
+
+    url = GetServerBaseUrl() + "/LiveStreams/Open?UserId=" + getGlobalVar("user").Id
+
+	for each key in query
+		url = url + "&" + key +"=" + tostr(query[key])
+	end for
+
+	' Prepare Request
+    request = HttpRequest(url)
+    request.AddAuthorization()
+	request.ContentType("json")
+
+	json = SimpleJSONBuilder(postData)
+    response = request.PostFromStringWithTimeout(json, 10)
+
+	if response = invalid
+        return invalid
+    else
+	
+		fixedResponse = normalizeJson(response)
+        jsonObj     = ParseJSON(fixedResponse)	
+        
+		return jsonObj
+		
+    end if
+	
+End Function
 
 '**********************************************************
 '** Format Time From Seconds
