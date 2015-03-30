@@ -41,7 +41,7 @@ End Function
 Function scanLocalNetwork() As Dynamic
 
     ' Setup Broadcast message and port
-    broadcastMessage = "who is MediaBrowserServer_v2?"
+    broadcastMessage = "who is EmbyServer?"
     broadcastPort = 7359
 
     success = false

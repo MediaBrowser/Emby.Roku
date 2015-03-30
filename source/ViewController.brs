@@ -527,7 +527,7 @@ Sub InitWebServer(vc)
 
     ' Initialize some globals for the web server
     globals = CreateObject("roAssociativeArray")
-    globals.pkgname = "Media Browser"
+    globals.pkgname = "Emby"
     globals.maxRequestLength = 4000
     globals.idletime = 60
     globals.wwwroot = "tmp:/"
