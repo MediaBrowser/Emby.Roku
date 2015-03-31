@@ -138,11 +138,14 @@ Sub videoPlayerShow()
 	m.changeStream = false
 	
     if m.Screen <> invalid then
+	
         if m.IsTranscoded then
             Debug("Starting to play transcoded video")
         else
             Debug("Starting to direct play video")
         end if
+		
+		Debug("Playback url: " + m.VideoItem.Stream.Url)
 
         m.timelineTimer = createTimer()
         m.timelineTimer.Name = "timeline"
@@ -205,6 +208,10 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 	Debug ("Setting PlayStart to " + tostr(playOptions.PlayStart))
 	videoItem.PlayStart = playOptions.PlayStart
 
+	if Instr(0, videoItem.Stream.Url, "https:") <> 0 then 
+		player.setCertificatesFile("common:/certs/ca-bundle.crt")
+	end if
+	
 	player.SetContent(videoItem)
 
 	versionArr = getGlobalVar("rokuVersion")

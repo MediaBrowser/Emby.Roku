@@ -91,7 +91,7 @@ Function getCodecProfiles()
 
 	profiles = []
 
-	maxRefFrames = firstOf(getGlobalVar("maxRefFrames"), 100)
+	maxRefFrames = firstOf(getGlobalVar("maxRefFrames"), 12)
 	
 	maxWidth = "1920"
 	maxHeight = "1080"
@@ -204,13 +204,6 @@ Function getCodecProfiles()
 	surroundSound = SupportsSurroundSound(false, false)
 	audioOutput51 = getGlobalVar("audioOutput51")
 
-	audioConditions = [{
-		Condition: "Equals"
-		Property: "IsSecondaryAudio"
-		Value: "false"
-		IsRequired: false
-	}]
-	
 	audioChannels = "2"
 	if surroundSound = true and audioOutput51 = true then
 		audioChannels = "5"

@@ -226,8 +226,9 @@ Sub videoActivate(priorScreen)
 		m.refreshOnActivate = false
 		
         if m.ContinuousPlay AND (priorScreen.isPlayed = true) then
+		
             m.GotoNextItem()
-
+			m.PlayOptions = {}
 			m.PlayOptions.PlayStart = 0
             
 			m.ViewController.CreatePlayerForItem([m.metadata], 0, m.PlayOptions)
@@ -261,6 +262,10 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
 
             if buttonCommand = "play" then
 
+				if firstOf(m.PlayOptions.HasSelection, false) = false then
+					m.PlayOptions = {}
+				end if
+				
                 m.PlayOptions.PlayStart = 0
 				m.ViewController.CreatePlayerForItem([item], 0, m.PlayOptions)
 
@@ -269,7 +274,11 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
 
             else if buttonCommand = "resume" then
 
-				m.PlayOptions.PlayStart = item.BookmarkPosition
+				if firstOf(m.PlayOptions.HasSelection, false) = false then
+					m.PlayOptions = {}
+				end if
+				
+                m.PlayOptions.PlayStart = item.BookmarkPosition
 				m.ViewController.CreatePlayerForItem([item], 0, m.PlayOptions)
 
                 ' Refresh play data after playing.
@@ -693,6 +702,8 @@ Function handleStreamSelectionButton(command, data) As Boolean
 
     if command = "none" then
 
+		m.playOptions.HasSelection = true
+		
 		if m.streamType = "Audio" then
 			m.playOptions.AudioStreamIndex = -1
 		else
@@ -709,6 +720,8 @@ Function handleStreamSelectionButton(command, data) As Boolean
 
 	else if command <> invalid then
 
+		m.playOptions.HasSelection = true
+		
 		if m.streamType = "Audio" then
 			m.playOptions.AudioStreamIndex = command.ToInt()
 		else

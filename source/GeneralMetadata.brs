@@ -1071,7 +1071,7 @@ Function GetFullItemMetadata(item, isForPlayback as Boolean, options as Object) 
     end if
 
 	if item.MediaType = "Video" or item.MediaType = "Audio" then
-		addPlaybackInfoFromMediaSource(item, item.MediaSources[0], options)
+		'addPlaybackInfoFromMediaSource(item, item.MediaSources[0], options)
 	end if
 
 	if item.MediaType = "Video" and isForPlayback = true then
@@ -1162,7 +1162,7 @@ Sub addPlaybackInfoFromMediaSource(item, mediaSource, options as Object)
 		
 	else
 	
-		url = GetServerBaseUrl() + mediaSource.TranscodingUrl
+		url = mediaSource.TranscodingUrl
 
 		if streamInfo.SubtitleStream <> invalid then
 		
@@ -1172,7 +1172,7 @@ Sub addPlaybackInfoFromMediaSource(item, mediaSource, options as Object)
 				enableSelectableSubtitleTracks = false
 				
 			else
-				item.SubtitleUrl = GetServerBaseUrl()  + streamInfo.SubtitleStream.DeliveryUrl
+				item.SubtitleUrl = streamInfo.SubtitleStream.DeliveryUrl
 								
 				item.SubtitleConfig = {
 					ShowSubtitle: 1
@@ -1206,11 +1206,9 @@ Sub addPlaybackInfoFromMediaSource(item, mediaSource, options as Object)
 	for each stream in mediaSource.MediaStreams
 		if enableSelectableSubtitleTracks AND stream.Type = "Subtitle" and firstOf(stream.DeliveryMethod, "") = "External" then
 		
-			subUrl = GetServerBaseUrl()  + stream.DeliveryUrl
-								
 			subtitleInfo = {
 				Language: stream.Language
-				TrackName: subUrl
+				TrackName: stream.DeliveryUrl
 				Description: stream.Codec
 			}
 			
