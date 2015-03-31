@@ -506,6 +506,9 @@ Sub validateLocalAuthentication(server, connectionMode)
         end if
 		
     else
+	
+		Debug ("Timed out validating local authentication, deleting saved userId and accessToke")
+		
 		server.UserId = invalid
 		server.AccessToken = invalid
 		
