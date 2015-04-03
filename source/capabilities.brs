@@ -200,18 +200,11 @@ Function getCodecProfiles()
 		Codec: "mpeg4"
 		Conditions: mpeg4Conditions
 	})
-	
-	surroundSound = SupportsSurroundSound(false, false)
-	audioOutput51 = getGlobalVar("audioOutput51")
-
-	audioChannels = "2"
-	if surroundSound = true and audioOutput51 = true then
-		audioChannels = "5"
-	end if
 		
 	profiles.push({
 		Type: "VideoAudio"
-			Conditions: [{
+		Codec: "aac"
+		Conditions: [{
 			Condition: "Equals"
 			Property: "IsSecondaryAudio"
 			Value: "false"
@@ -220,7 +213,24 @@ Function getCodecProfiles()
 		{
 			Condition: "LessThanEqual"
 			Property: "AudioChannels"
-			Value: audioChannels
+			Value: "2"
+			IsRequired: true
+		}]
+	})
+		
+	profiles.push({
+		Type: "VideoAudio"
+		Codec: "ac3"
+		Conditions: [{
+			Condition: "Equals"
+			Property: "IsSecondaryAudio"
+			Value: "false"
+			IsRequired: false
+		},
+		{
+			Condition: "LessThanEqual"
+			Property: "AudioChannels"
+			Value: "5"
 			IsRequired: true
 		}]
 	})
