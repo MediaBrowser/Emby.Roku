@@ -1162,7 +1162,7 @@ Sub addPlaybackInfoFromMediaSource(item, mediaSource, options as Object)
 		
 	else
 	
-		url = mediaSource.TranscodingUrl
+		url = GetServerBaseUrl() + mediaSource.TranscodingUrl
 
 		if streamInfo.SubtitleStream <> invalid then
 		
@@ -1172,7 +1172,11 @@ Sub addPlaybackInfoFromMediaSource(item, mediaSource, options as Object)
 				enableSelectableSubtitleTracks = false
 				
 			else
-				item.SubtitleUrl = streamInfo.SubtitleStream.DeliveryUrl
+				if streamInfo.SubtitleStream.IsExternalUrl then
+					item.SubtitleUrl = streamInfo.SubtitleStream.DeliveryUrl
+				else
+					item.SubtitleUrl = GetServerBaseUrl() + streamInfo.SubtitleStream.DeliveryUrl
+				end if
 								
 				item.SubtitleConfig = {
 					ShowSubtitle: 1
