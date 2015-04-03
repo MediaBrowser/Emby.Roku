@@ -1172,7 +1172,7 @@ Sub addPlaybackInfoFromMediaSource(item, mediaSource, options as Object)
 				enableSelectableSubtitleTracks = false
 				
 			else
-				if streamInfo.SubtitleStream.IsExternalUrl then
+				if streamInfo.SubtitleStream.IsExternalUrl = true then
 					item.SubtitleUrl = streamInfo.SubtitleStream.DeliveryUrl
 				else
 					item.SubtitleUrl = GetServerBaseUrl() + streamInfo.SubtitleStream.DeliveryUrl
@@ -1216,6 +1216,10 @@ Sub addPlaybackInfoFromMediaSource(item, mediaSource, options as Object)
 				Description: stream.Codec
 			}
 			
+			if stream.IsExternalUrl <> true then
+				subtitleInfo.TrackName = GetServerBaseUrl() + subtitleInfo.TrackName
+			end if
+								
 			if subtitleInfo.Language = invalid then subtitleInfo.Language = "und"
 			
 			item.SubtitleTracks.push(subtitleInfo)
