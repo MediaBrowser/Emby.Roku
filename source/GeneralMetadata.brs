@@ -1071,7 +1071,7 @@ Function GetFullItemMetadata(item, isForPlayback as Boolean, options as Object) 
     end if
 
 	if item.MediaType = "Video" or item.MediaType = "Audio" then
-		'addPlaybackInfoFromMediaSource(item, item.MediaSources[0], options)
+		item.StreamInfo = getStreamInfo(item.MediaSources[0], options) 
 	end if
 
 	if item.MediaType = "Video" and isForPlayback = true then
