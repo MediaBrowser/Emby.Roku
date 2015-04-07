@@ -110,6 +110,10 @@ Sub initGlobals()
         models["3500R"] = "Roku Streaming Stick (2014)"
         models["4200X"] = "Roku 3"
         models["4200R"] = "Roku 3"
+        models["4210X"] = "Roku 2 (2015)"
+        models["4210R"] = "Roku 2 (2015)"
+        models["4230X"] = "Roku 3 (2015)"
+        models["4230R"] = "Roku 3 (2015)"
 
         If models.DoesExist(modelNumber) Then
             modelName = models[modelNumber]
@@ -123,7 +127,7 @@ Sub initGlobals()
 
     ' Check for DTS passthrough support
     ' roku 3 with firmware 5.1 and higher
-    if left(modelNumber,4) = "4200" and major >= 5 and minor >= 1
+    if left(modelNumber,2) = "42" and major >= 5 and minor >= 1
         GetGlobalAA().AddReplace("audioDTS", true)
     else
         GetGlobalAA().AddReplace("audioDTS", false)
