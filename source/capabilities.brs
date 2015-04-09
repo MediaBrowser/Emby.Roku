@@ -307,6 +307,7 @@ Function getDeviceProfile()
 		CodecProfiles: getCodecProfiles()
 		ContainerProfiles: getContainerProfiles()
 		SubtitleProfiles: getSubtitleProfiles()
+		Name: "Roku"
 	}
 	
 	return profile
@@ -321,6 +322,7 @@ Function getCapabilities()
 		SupportedCommands: ["MoveUp","MoveDown","MoveLeft","MoveRight","Select","Back","GoHome","SendString","GoToSearch","GoToSettings","DisplayContent","SetAudioStreamIndex","SetSubtitleStreamIndex"]
 		MessageCallbackUrl: ":8324/emby/message"
 		DeviceProfile: getDeviceProfile()
+		SupportedLiveMediaTypes: ["Video"]
 	}
 	
 	return caps
