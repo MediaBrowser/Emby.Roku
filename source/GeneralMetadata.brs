@@ -1272,12 +1272,31 @@ End Function
 
 Function validatePlaybackInfoResult(playbackInfo)
 
+	if firstOf(playbackInfo.ErrorCode, "") <> "" then
+		showPlaybackInfoErrorMessage(errorCode)
+		return false
+	end if
+	
 	return true
 	
 End Function
 
 function showPlaybackInfoErrorMessage(errorCode)
 
+	message = ""
+	
+	if errorCode = "NotAllowed" then
+		message = "You're currently not authorized to play this content. Please contact your system administrator for details."
+	else if errorCode = "NoCompatibleStream" then
+		message = "No compatible streams are currently available. Please try again later or contact your system administrator for details."
+	else if errorCode = "RateLimitExceeded" then
+		message = "Your playback rate limit has been exceeded. Please contact your system administrator for details."
+	else
+		message = "There was an error processing the request. Please try again later."
+	end if
+	
+	createDialog("Playback Error", message, "Back", true)
+	
 End Function
 
 function getDynamicPlaybackInfo(itemId, deviceProfile, startPositionTicks, mediaSourceId, audioStreamIndex, subtitleStreamIndex) 

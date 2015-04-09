@@ -177,6 +177,10 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 	
     videoItem = m.ConstructVideoItem(item, playOptions)
 
+	if videoItem = invalid or videoItem.Stream = invalid then
+		return invalid
+	end if
+
     player = CreateObject("roVideoScreen")
     player.SetMessagePort(m.Port)
 
