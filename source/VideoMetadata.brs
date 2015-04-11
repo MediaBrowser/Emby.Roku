@@ -8,10 +8,8 @@
 '**********************************************************
 
 Function getVideoMetadata(videoId As String) As Object
-    ' Validate Parameter
-    if validateParam(videoId, "roString", "videometadata_details") = false return invalid
-
-    ' URL
+    
+	' URL
     url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items/" + HttpEncode(videoId)
 
     ' Prepare Request

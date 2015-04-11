@@ -1071,7 +1071,11 @@ Function GetFullItemMetadata(item, isForPlayback as Boolean, options as Object) 
     end if
 
 	if item.MediaType = "Video" or item.MediaType = "Audio" then
-		item.StreamInfo = getStreamInfo(item.MediaSources[0], options) 
+	
+		if item.MediaSources <> invalid then
+			item.StreamInfo = getStreamInfo(item.MediaSources[0], options) 
+		end if
+		
 	end if
 
 	if item.MediaType = "Video" and isForPlayback = true then
@@ -1084,7 +1088,9 @@ End Function
 
 Sub addPlaybackInfo(item, options as Object)
 
-	startPositionTicks = tostr(firstOf(options.PlayStart, 0)) + "0000000"
+	Debug("addPlaybackInfo item.Id: " + item.Id)
+	
+	startPositionTicks = strTrim(tostr(firstOf(options.PlayStart, 0)) + "0000000")
 	
 	deviceProfile = getDeviceProfile()
 	
@@ -1301,7 +1307,9 @@ End Function
 
 function getDynamicPlaybackInfo(itemId, deviceProfile, startPositionTicks, mediaSourceId, audioStreamIndex, subtitleStreamIndex) 
 
-	maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
+	Debug("getDynamicPlaybackInfo itemId: " + itemId)
+	
+    maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
 	maxVideoBitrate = maxVideoBitrate.ToInt() * 1000
 	
 	postData = {
@@ -1331,7 +1339,9 @@ function getDynamicPlaybackInfo(itemId, deviceProfile, startPositionTicks, media
 		url = url + "&" + key +"=" + tostr(query[key])
 	end for
 
-	' Prepare Request
+	Debug("getDynamicPlaybackInfo url: " + url)
+	
+    ' Prepare Request
     request = HttpRequest(url)
     request.AddAuthorization()
 	request.ContentType("json")
