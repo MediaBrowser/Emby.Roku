@@ -1090,6 +1090,8 @@ Sub addPlaybackInfo(item, options as Object)
 
 	Debug("addPlaybackInfo item.Id: " + item.Id)
 	
+	' Seeing an extra space here when coming from remote control
+	' We really should figure out why rather than fixing it here
 	startPositionTicks = strTrim(tostr(firstOf(options.PlayStart, 0)) + "0000000")
 	
 	deviceProfile = getDeviceProfile()
