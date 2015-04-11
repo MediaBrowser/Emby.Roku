@@ -1176,7 +1176,6 @@ Sub addPlaybackInfoFromMediaSource(item, mediaSource, options as Object)
 		
 			if firstOf(streamInfo.SubtitleStream.DeliveryMethod, "") <> "External" then
 			
-				url = url + "&SubtitleStreamIndex=" + tostr(streamInfo.SubtitleStreamIndex)
 				enableSelectableSubtitleTracks = false
 				
 			else
