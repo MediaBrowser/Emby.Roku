@@ -105,7 +105,7 @@ Function createLiveTvGuideScreen(viewController as Object) as Object
 	if IsActiveSupporter() then
 		limit = supporterLimit
 	else
-		createDialog("Support Media Browser", "Full use of the TV Guide requires an active supporter membership. Results will be limited to " + tostr(limit) + " channels. Become a supporter by visiting the server dashboard in the web interface.", "Back", true)
+		createDialog("Support Emby", "Full use of the TV Guide requires an active supporter membership. Results will be limited to " + tostr(limit) + " channels. Become a supporter by visiting the server dashboard in the web interface.", "Back", true)
 	end if
 	
 	result = getFavoriteChannels(limit)
@@ -140,7 +140,7 @@ End Function
 Function getProgramsForChannelUrl(row as Integer, id as String) as String
 
     ' URL
-    url = GetServerBaseUrl() + "/LiveTv/Programs?ChannelIds=" + id + "&UserId=" + getGlobalVar("user").Id
+    url = GetServerBaseUrl() + "/LiveTv/Programs?ChannelIds=" + id + "&HasAired=false&UserId=" + getGlobalVar("user").Id
 
     return url
 

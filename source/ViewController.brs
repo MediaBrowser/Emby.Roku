@@ -527,47 +527,47 @@ Sub InitWebServer(vc)
 
     ' Initialize some globals for the web server
     globals = CreateObject("roAssociativeArray")
-    globals.pkgname = "Media Browser"
+    globals.pkgname = "Emby"
     globals.maxRequestLength = 4000
     globals.idletime = 60
     globals.wwwroot = "tmp:/"
     globals.index_name = "index.html"
-    globals.serverName = "MediaBrowser"
+    globals.serverName = "Emby"
     AddGlobals(globals)
     MimeType()
     HttpTitle()
     
-	ClassReply().AddHandler("/mediabrowser/message/MoveUp", ProcessNavigationMoveUp)
-	ClassReply().AddHandler("/mediabrowser/message/MoveRight", ProcessNavigationMoveRight)
-	ClassReply().AddHandler("/mediabrowser/message/MoveLeft", ProcessNavigationMoveLeft)
-	ClassReply().AddHandler("/mediabrowser/message/MoveDown", ProcessNavigationMoveDown)
-	ClassReply().AddHandler("/mediabrowser/message/Select", ProcessNavigationSelect)
-	ClassReply().AddHandler("/mediabrowser/message/GoHome", ProcessNavigationHome)
-	ClassReply().AddHandler("/mediabrowser/message/Back", ProcessNavigationBack)
-	ClassReply().AddHandler("/mediabrowser/message/GoToSettings", ProcessNavigationSettings)
-	ClassReply().AddHandler("/mediabrowser/message/GoToSearch", ProcessNavigationSearch)
-	ClassReply().AddHandler("/mediabrowser/message/SendString", ProcessApplicationSetText)
-	ClassReply().AddHandler("/mediabrowser/message/ShowNowPlaying", ProcessApplicationSetText)
-	ClassReply().AddHandler("/mediabrowser/message/Ping", ProcessPingRequest)
-	ClassReply().AddHandler("/mediabrowser/message/ServerRestarting", ProcessPingRequest)
-	ClassReply().AddHandler("/mediabrowser/message/ServerShuttingDown", ProcessPingRequest)
-	ClassReply().AddHandler("/mediabrowser/message/RestartRequired", ProcessPingRequest)
-	ClassReply().AddHandler("/mediabrowser/message/Stop", ProcessPlaybackStop)
-	ClassReply().AddHandler("/mediabrowser/message/Pause", ProcessPlaybackPause)
-	ClassReply().AddHandler("/mediabrowser/message/Unpause", ProcessPlaybackPlay)
-	ClassReply().AddHandler("/mediabrowser/message/NextTrack", ProcessPlaybackSkipNext)
-	ClassReply().AddHandler("/mediabrowser/message/PreviousTrack", ProcessPlaybackSkipPrevious)
-	ClassReply().AddHandler("/mediabrowser/message/Seek", ProcessPlaybackSeekTo)
-	ClassReply().AddHandler("/mediabrowser/message/Rewind", ProcessPlaybackStepBack)
-	ClassReply().AddHandler("/mediabrowser/message/FastForward", ProcessPlaybackStepForward)
-	ClassReply().AddHandler("/mediabrowser/message/DisplayContent", ProcessDisplayContent)
+	ClassReply().AddHandler("/emby/message/MoveUp", ProcessNavigationMoveUp)
+	ClassReply().AddHandler("/emby/message/MoveRight", ProcessNavigationMoveRight)
+	ClassReply().AddHandler("/emby/message/MoveLeft", ProcessNavigationMoveLeft)
+	ClassReply().AddHandler("/emby/message/MoveDown", ProcessNavigationMoveDown)
+	ClassReply().AddHandler("/emby/message/Select", ProcessNavigationSelect)
+	ClassReply().AddHandler("/emby/message/GoHome", ProcessNavigationHome)
+	ClassReply().AddHandler("/emby/message/Back", ProcessNavigationBack)
+	ClassReply().AddHandler("/emby/message/GoToSettings", ProcessNavigationSettings)
+	ClassReply().AddHandler("/emby/message/GoToSearch", ProcessNavigationSearch)
+	ClassReply().AddHandler("/emby/message/SendString", ProcessApplicationSetText)
+	ClassReply().AddHandler("/emby/message/ShowNowPlaying", ProcessApplicationSetText)
+	ClassReply().AddHandler("/emby/message/Ping", ProcessPingRequest)
+	ClassReply().AddHandler("/emby/message/ServerRestarting", ProcessPingRequest)
+	ClassReply().AddHandler("/emby/message/ServerShuttingDown", ProcessPingRequest)
+	ClassReply().AddHandler("/emby/message/RestartRequired", ProcessPingRequest)
+	ClassReply().AddHandler("/emby/message/Stop", ProcessPlaybackStop)
+	ClassReply().AddHandler("/emby/message/Pause", ProcessPlaybackPause)
+	ClassReply().AddHandler("/emby/message/Unpause", ProcessPlaybackPlay)
+	ClassReply().AddHandler("/emby/message/NextTrack", ProcessPlaybackSkipNext)
+	ClassReply().AddHandler("/emby/message/PreviousTrack", ProcessPlaybackSkipPrevious)
+	ClassReply().AddHandler("/emby/message/Seek", ProcessPlaybackSeekTo)
+	ClassReply().AddHandler("/emby/message/Rewind", ProcessPlaybackStepBack)
+	ClassReply().AddHandler("/emby/message/FastForward", ProcessPlaybackStepForward)
+	ClassReply().AddHandler("/emby/message/DisplayContent", ProcessDisplayContent)
 
-	ClassReply().AddHandler("/mediabrowser/message/PlayNow", ProcessPlaybackPlayMedia)
-	ClassReply().AddHandler("/mediabrowser/message/PlayNext", ProcessPingRequest)
-	ClassReply().AddHandler("/mediabrowser/message/PlayLast", ProcessPingRequest)
+	ClassReply().AddHandler("/emby/message/PlayNow", ProcessPlaybackPlayMedia)
+	ClassReply().AddHandler("/emby/message/PlayNext", ProcessPingRequest)
+	ClassReply().AddHandler("/emby/message/PlayLast", ProcessPingRequest)
 	
-	ClassReply().AddHandler("/mediabrowser/message/SetAudioStreamIndex", ProcessSetAudioStreamIndexRequest)
-	ClassReply().AddHandler("/mediabrowser/message/SetSubtitleStreamIndex", ProcessSetSubtitleStreamIndexRequest)
+	ClassReply().AddHandler("/emby/message/SetAudioStreamIndex", ProcessSetAudioStreamIndexRequest)
+	ClassReply().AddHandler("/emby/message/SetSubtitleStreamIndex", ProcessSetSubtitleStreamIndexRequest)
 
     vc.WebServer = InitServer({msgPort: vc.GlobalMessagePort, port: 8324})
 End Sub
@@ -1232,7 +1232,7 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		screen = createMovieLibraryScreen(m, itemId)
         screenName = "MovieLibrary"
 
-    else if item.MediaType = "Video" or item.MediaType = "Game" or item.MediaType = "Book" or contentType = "ItemPerson" then
+    else if item.MediaType = "Video" or item.MediaType = "Game" or item.MediaType = "Book" or contentType = "ItemPerson" or contentType = "Person" then
 		Debug ("Calling createVideoSpringboardScreen")
 		screen = createVideoSpringboardScreen(context, contextIndex, m)
 		screenName = "VideoSpringboardScreen" + itemId
@@ -1465,7 +1465,7 @@ Function GetContextForPlayback(context, contextIndex) as Object
     if itemType = "MusicArtist" then
 	
 		' URL
-		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&Artists=" + HttpEncode(item.Name) + "&ImageTypeLimit=1"
+		url = GetServerBaseUrl() + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?IncludeItemTypes=Audio&Recursive=true&SortBy=SortName&ArtistIds=" + HttpEncode(item.Id) + "&ImageTypeLimit=1"
 
 		' Prepare Request
 		request = HttpRequest(url)

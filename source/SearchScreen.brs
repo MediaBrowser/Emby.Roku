@@ -103,9 +103,10 @@ Sub ssOnTimerExpired(timer)
 			UserId: getGlobalVar("user").Id
 			Limit: "15"
 			SearchTerm: term
-			IncludePeople: "false"
+			IncludePeople: "true"
 			IncludeStudios: "false"
-			IncludeItemTypes: "Movie,BoxSet,Series,Episode,Trailer,Video,AdultVideo,MusicVideo,Genre,MusicGenre,MusicArtist"
+			IncludeGenres: "false"
+			IncludeItemTypes: "Movie,BoxSet,Series,Episode,Trailer,Video,AdultVideo,MusicVideo,Genre,MusicGenre,MusicArtist,Person"
 		}
 
 		' Prepare Request
@@ -183,8 +184,8 @@ Function createSearchResultsScreen(viewController as Object, searchTerm As Strin
 
     imageType      = 0
 
-	names = ["Movies", "TV", "Trailers", "Videos", "Genres", "Artists"]
-	keys = ["0", "1", "2", "3", "4", "5"]
+	names = ["Movies", "TV", "People", "Trailers", "Videos", "Genres", "Artists"]
+	keys = ["0", "1", "2", "3", "4", "5", "6"]
 
 	loader = CreateObject("roAssociativeArray")
 	loader.getUrl = getSearchResultRowUrl
@@ -211,6 +212,9 @@ Function getSearchResultRowUrl(row as Integer, id as String) as String
 			SearchTerm: searchTerm
 			IncludePeople: "false"
 			IncludeStudios: "false"
+			IncludeGenres: "false"
+			IncludeArtists: "false"
+			IncludeMedia: "true"
 			IncludeItemTypes: "Movie,BoxSet"
 		}
 	else if row = 1
@@ -218,34 +222,58 @@ Function getSearchResultRowUrl(row as Integer, id as String) as String
 			SearchTerm: searchTerm
 			IncludePeople: "false"
 			IncludeStudios: "false"
+			IncludeGenres: "false"
+			IncludeArtists: "false"
+			IncludeMedia: "true"
 			IncludeItemTypes: "Series,Episode"
 		}
 	else if row = 2
 		query = {
 			SearchTerm: searchTerm
-			IncludePeople: "false"
+			IncludePeople: "true"
 			IncludeStudios: "false"
-			IncludeItemTypes: "Trailer"
+			IncludeGenres: "false"
+			IncludeArtists: "false"
+			IncludeMedia: "false"
 		}
 	else if row = 3
 		query = {
 			SearchTerm: searchTerm
 			IncludePeople: "false"
 			IncludeStudios: "false"
-			IncludeItemTypes: "Video,AdultVideo,MusicVideo"
+			IncludeGenres: "false"
+			IncludeArtists: "false"
+			IncludeMedia: "true"
+			IncludeItemTypes: "Trailer"
 		}
 	else if row = 4
 		query = {
 			SearchTerm: searchTerm
 			IncludePeople: "false"
 			IncludeStudios: "false"
-			IncludeItemTypes: "Genre,MusicGenre"
+			IncludeGenres: "false"
+			IncludeArtists: "false"
+			IncludeMedia: "true"
+			IncludeItemTypes: "Video,AdultVideo,MusicVideo"
 		}
 	else if row = 5
 		query = {
 			SearchTerm: searchTerm
 			IncludePeople: "false"
 			IncludeStudios: "false"
+			IncludeGenres: "true"
+			IncludeArtists: "false"
+			IncludeMedia: "false"
+			IncludeItemTypes: "Genre,MusicGenre"
+		}
+	else if row = 6
+		query = {
+			SearchTerm: searchTerm
+			IncludePeople: "false"
+			IncludeStudios: "false"
+			IncludeGenres: "false"
+			IncludeArtists: "true"
+			IncludeMedia: "true"
 			IncludeItemTypes: "MusicArtist"
 		}
 	end If

@@ -44,7 +44,7 @@ Sub DisplayScreenSaver(mode)
 End Sub
 
 Function GetScreenSaverImage()
-    'savedImage = ReadAsciiFile("tmp:/mediabrowser_screensaver")
+    'savedImage = ReadAsciiFile("tmp:/emby_screensaver")
    ' if savedImage <> "" then
         'tokens = savedImage.Tokenize("\")
         'width = tokens[0].toint()
@@ -86,11 +86,11 @@ End Function
 Sub SaveImagesForScreenSaver(item, sizes)
 
     if item = invalid then
-        WriteFileHelper("tmp:/mediabrowser_screensaver", invalid, invalid, invalid)
+        WriteFileHelper("tmp:/emby_screensaver", invalid, invalid, invalid)
     else if getGlobalVar("isHD") then
-        WriteFileHelper("tmp:/mediabrowser_screensaver", item.HDPosterURL + token, sizes.hdWidth, sizes.hdHeight)
+        WriteFileHelper("tmp:/emby_screensaver", item.HDPosterURL + token, sizes.hdWidth, sizes.hdHeight)
     else
-        WriteFileHelper("tmp:/mediabrowser_screensaver", item.SDPosterURL + token, sizes.sdWidth, sizes.sdHeight)
+        WriteFileHelper("tmp:/emby_screensaver", item.SDPosterURL + token, sizes.sdWidth, sizes.sdHeight)
     end if
 End Sub
 

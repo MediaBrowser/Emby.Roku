@@ -1,5 +1,5 @@
 '*****************************************************************
-'**  Media Browser Roku Client - Music Metadata Class
+'**  Emby Roku Client - Music Metadata Class
 '*****************************************************************
 
 

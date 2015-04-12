@@ -1,5 +1,5 @@
 '**********************************************************
-'**  Media Browser Roku Client - Grid Screen
+'**  Emby Roku Client - Grid Screen
 '** Credit: Plex Roku https://github.com/plexinc/roku-client-public
 '**********************************************************
 

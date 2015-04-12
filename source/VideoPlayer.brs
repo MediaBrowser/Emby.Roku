@@ -118,7 +118,7 @@ Sub videoPlayerShow()
     if m.playbackError then
 	
         Debug("Error while playing video, nothing left to fall back to")
-        m.ShowPlaybackError()
+        m.ShowPlaybackError("")
         m.Screen = invalid
         m.popOnActivate = true
 
@@ -138,11 +138,14 @@ Sub videoPlayerShow()
 	m.changeStream = false
 	
     if m.Screen <> invalid then
+	
         if m.IsTranscoded then
             Debug("Starting to play transcoded video")
         else
             Debug("Starting to direct play video")
         end if
+		
+		Debug("Playback url: " + m.VideoItem.Stream.Url)
 
         m.timelineTimer = createTimer()
         m.timelineTimer.Name = "timeline"
@@ -167,7 +170,16 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 
     Debug("MediaPlayer::playVideo: Displaying video: " + tostr(item.title))
 
+	if item.IsPlaceHolder = true then
+		m.ShowPlaybackError("PlaceHolder")
+		return invalid
+	end if
+	
     videoItem = m.ConstructVideoItem(item, playOptions)
+
+	if videoItem = invalid or videoItem.Stream = invalid then
+		return invalid
+	end if
 
     player = CreateObject("roVideoScreen")
     player.SetMessagePort(m.Port)
@@ -185,7 +197,7 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
     m.progressTimer = invalid
     m.playState = "buffering"
     
-	m.IsTranscoded = videoItem.StreamInfo.IsDirectStream <> true
+	m.IsTranscoded = videoItem.StreamInfo.PlayMethod = "Transcode"
     m.videoItem = videoItem
 
 	if m.IsTranscoded then
@@ -200,6 +212,10 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
 	Debug ("Setting PlayStart to " + tostr(playOptions.PlayStart))
 	videoItem.PlayStart = playOptions.PlayStart
 
+	if Instr(0, videoItem.Stream.Url, "https:") <> 0 then 
+		player.setCertificatesFile("common:/certs/ca-bundle.crt")
+	end if
+	
 	player.SetContent(videoItem)
 
 	versionArr = getGlobalVar("rokuVersion")
@@ -249,12 +265,17 @@ Function IsBifServiceAvailable(item)
 	
 End Function
 
-Sub videoPlayerShowPlaybackError()
+Sub videoPlayerShowPlaybackError(code)
     dialog = createBaseDialog()
 
     dialog.Title = "Video Unavailable"
-    dialog.Text = "We're unable to play this video, make sure the server is running and has access to this video."
-
+	
+	if code = "PlaceHolder" then
+		dialog.Text = "The content chosen is not playable from this device."
+	else
+		dialog.Text = "We're unable to play this video, make sure the server is running and has access to this video."
+	end if
+	
     dialog.Show()
 End Sub
 
@@ -397,7 +418,7 @@ Sub videoPlayerReportPlayback(action as String)
 	position = m.lastPosition
 	playOptions = m.PlayOptions	
 
-	reportPlayback(m.videoItem.Id, "Video", action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
+	reportPlayback(m.videoItem.Id, "Video", action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.LiveStreamId, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
 End Sub
 
 Sub videoPlayerPause()
@@ -575,7 +596,7 @@ Function videoPlayerConstructVideoItem(item, options) as Object
 	releaseDate = item.ReleaseDate
 	serverStreamInfo = item.StreamInfo
 
-	if serverStreamInfo.IsDirectStream then
+	if serverStreamInfo.PlayMethod <> "Transcode" then
 
        audioCh = ""
 	   audioStream = serverStreamInfo.AudioStream
