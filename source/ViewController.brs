@@ -1238,7 +1238,7 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		screenName = "VideoSpringboardScreen" + itemId
 
     else if contentType = "MusicGenre" then
-		screen = createMusicGenresScreen(m, item.Title)
+		screen = createMusicItemSpringboardScreen(context, contextIndex, m)
 		screenName = "MusicGenre " + item.Title
 
     else if contentType = "MovieGenre" then
@@ -1282,11 +1282,11 @@ Function vcCreateScreenForItem(context, contextIndex, breadcrumbs, show=true) As
 		screenName = "MusicLibrary"
 
     else if contentType = "MusicArtist" then
-		screen = createMusicAlbumsScreen(m, item)
+		screen = createMusicItemSpringboardScreen(context, contextIndex, m)
         screenName = "MusicArtist " + itemId
 
     else if contentType = "MusicAlbum" then
-		screen = createMusicSongsScreen(m, item)
+		screen = createMusicItemSpringboardScreen(context, contextIndex, m)
         screenName = "MusicAlbum " + itemId
 		
     else if contentType = "Playlist" and item.MediaType = "Audio" then
