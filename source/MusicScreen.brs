@@ -435,7 +435,8 @@ Function GetTotalDuration(songs As Object) As String
     
 	total = 0
     For each songData in songs
-        total = total + songData.Length
+		songLength = songData.Length
+        total = total + firstOf(songLength, 0)
     End For
 
     Return FormatTime(total)

@@ -1105,14 +1105,22 @@ Sub addPlaybackInfo(item, options as Object)
 		if dynamicMediaSource <> invalid then
 		
 			if dynamicMediaSource.RequiresOpening = true then
-				liveStreamResult = getLiveStream(item.Id, deviceProfile, startPositionTicks, dynamicMediaSource, options.AudioStreamIndex, options.SubtitleStreamIndex)
+			
+				facade = CreateObject("roOneLineDialog")
+				facade.SetTitle("Please wait...")
+				facade.ShowBusyAnimation()
+				facade.Show()
+								
+				liveStreamResult = getLiveStream(item.Id, playbackInfo.PlaySessionId, deviceProfile, startPositionTicks, dynamicMediaSource, options.AudioStreamIndex, options.SubtitleStreamIndex)
 				
+				facade.Close()
+
 				liveStreamResult.MediaSource.enableDirectPlay = supportsDirectPlay(liveStreamResult.MediaSource)
 				dynamicMediaSource = liveStreamResult.MediaSource
 				
 			end if
 			
-			addPlaybackInfoFromMediaSource(item, dynamicMediaSource, options)
+			addPlaybackInfoFromMediaSource(item, dynamicMediaSource, playbackInfo.PlaySessionId, options)
 			
 		else
 			showPlaybackInfoErrorMessage("NoCompatibleStream")
@@ -1121,12 +1129,14 @@ Sub addPlaybackInfo(item, options as Object)
 	end if
 End Sub
 
-Sub addPlaybackInfoFromMediaSource(item, mediaSource, options as Object)
+Sub addPlaybackInfoFromMediaSource(item, mediaSource, playSessionId, options as Object)
 
 	streamInfo = getStreamInfo(mediaSource, options) 
 
 	if streamInfo = invalid then return
 
+	streamInfo.playSessionId = playSessionId 
+	
 	item.StreamInfo = streamInfo
 	
 	accessToken = firstOf(ConnectionManager().GetServerData(item.ServerId, "AccessToken"), "")
@@ -1363,7 +1373,7 @@ function getDynamicPlaybackInfo(itemId, deviceProfile, startPositionTicks, media
 	
 End Function
 
-function getLiveStream(itemId, deviceProfile, startPositionTicks, mediaSource, audioStreamIndex, subtitleStreamIndex) 
+function getLiveStream(itemId, playSessionId, deviceProfile, startPositionTicks, mediaSource, audioStreamIndex, subtitleStreamIndex) 
 
 	maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
 	maxVideoBitrate = maxVideoBitrate.ToInt() * 1000
@@ -1377,6 +1387,7 @@ function getLiveStream(itemId, deviceProfile, startPositionTicks, mediaSource, a
 		StartTimeTicks: startPositionTicks
 		ItemId: itemId
 		MaxStreamingBitrate: maxVideoBitrate
+		PlaySessionId: playSessionId
 	}
 
 	if audioStreamIndex <> invalid then 

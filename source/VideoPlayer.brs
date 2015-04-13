@@ -71,7 +71,6 @@ Function createVideoPlayerScreen(context, contextIndex, playOptions, viewControl
     obj.playbackError = false
 	obj.changeStream = false
     obj.underrunCount = 0
-    obj.playbackTimer = createTimer()
     obj.timelineTimer = invalid
     obj.progressTimer = invalid
     obj.playState = "buffering"
@@ -155,9 +154,9 @@ Sub videoPlayerShow()
         m.progressTimer = createTimer()
         m.progressTimer.Name = "progress"
         m.progressTimer.SetDuration(2000, true)
+		m.progressTimer.Active = false
         m.ViewController.AddTimer(m.progressTimer, m)
-
-        m.playbackTimer.Mark()
+		
         m.Screen.Show()
         NowPlayingManager().location = "fullScreenVideo"
     else
@@ -192,7 +191,6 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
     m.playbackError = false
 	m.changeStream = false
     m.underrunCount = 0
-    m.playbackTimer = createTimer()
     m.timelineTimer = invalid
     m.progressTimer = invalid
     m.playState = "buffering"
@@ -297,7 +295,6 @@ Function videoPlayerHandleMessage(msg) As Boolean
 
 			m.ReportPlayback("stop")
             m.UpdateNowPlaying()
-            if m.IsTranscoded then m.StopTranscoding()
 
             if m.isPlayed = true AND m.Context.Count() > (m.CurIndex + 1) then
 				m.CurIndex = m.CurIndex + 1
@@ -341,8 +338,9 @@ Function videoPlayerHandleMessage(msg) As Boolean
             Debug("MediaPlayer::playVideo::VideoScreenEvent::isPlaybackPosition: set progress -> " + tostr(m.lastPosition))
 
             m.playState = "playing"
-            m.UpdateNowPlaying(true)
+			m.progressTimer.Active = true
 			m.ReportPlayback("progress")
+            m.UpdateNowPlaying(true)
 
         else if msg.isRequestFailed() then
             Debug("MediaPlayer::playVideo::VideoScreenEvent::isRequestFailed - message = " + tostr(msg.GetMessage()))
@@ -353,38 +351,40 @@ Function videoPlayerHandleMessage(msg) As Boolean
         else if msg.isPaused() then
             Debug("MediaPlayer::playVideo::VideoScreenEvent::isPaused: position -> " + tostr(m.lastPosition))
             m.playState = "paused"
-            m.UpdateNowPlaying("progress")
+			m.progressTimer.Active = true
 			m.ReportPlayback("progress")
+            m.UpdateNowPlaying("progress")
 
         else if msg.isResumed() then
             Debug("MediaPlayer::playVideo::VideoScreenEvent::isResumed")
             m.playState = "playing"
-            m.UpdateNowPlaying()
+			m.progressTimer.Active = true
 			m.ReportPlayback("progress")
+            m.UpdateNowPlaying()
 
         else if msg.isPartialResult() then
 		
             Debug("MediaPlayer::playVideo::VideoScreenEvent::isPartialResult: position -> " + tostr(m.lastPosition))
-			if m.IsTranscoded then m.StopTranscoding()
+			
+			m.progressTimer.Active = false
 			
 			if m.changeStream = false then 
 				m.playState = "stopped"
-				m.UpdateNowPlaying()
 				m.ReportPlayback("stop")
+				m.UpdateNowPlaying()
+			else
+				if m.IsTranscoded then m.StopTranscoding()
 			end if
-			
-			m.progressTimer.Active = false
 
         else if msg.isStreamSegmentInfo() then
             Debug("HLS Segment info: " + tostr(msg.GetType()) + " msg: " + tostr(msg.GetMessage()))
 
         else if msg.isFullResult() then
             Debug("MediaPlayer::playVideo::VideoScreenEvent::isFullResult: position -> " + tostr(m.lastPosition))
-            m.playState = "stopped"
-            m.UpdateNowPlaying()
-            if m.IsTranscoded then m.StopTranscoding()
+            m.progressTimer.Active = false
+			m.playState = "stopped"
 			m.ReportPlayback("stop")
-			m.progressTimer.Active = false
+            m.UpdateNowPlaying()
 			m.isPlayed = true
 
         else if msg.GetType() = 31 then
@@ -418,7 +418,7 @@ Sub videoPlayerReportPlayback(action as String)
 	position = m.lastPosition
 	playOptions = m.PlayOptions	
 
-	reportPlayback(m.videoItem.Id, "Video", action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.LiveStreamId, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
+	reportPlayback(m.videoItem.Id, "Video", action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.PlaySessionId, m.videoItem.StreamInfo.LiveStreamId, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
 End Sub
 
 Sub videoPlayerPause()
@@ -567,6 +567,8 @@ Sub videoPlayerOnTimerExpired(timer)
     
 	if timer.Name = "timeline"
         m.UpdateNowPlaying(true)
+    else if timer.Name = "progress"
+        m.ReportPlayback("progress")
     end if
 
 End Sub

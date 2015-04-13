@@ -179,7 +179,7 @@ End Function
 '** reportPlayback
 '**********************************************************
 
-Sub reportPlayback(id As String, mediaType as String, action As String, playMethod as String, isPaused as Boolean, canSeek as Boolean, position as Integer, mediaSourceId as String, liveStreamId = invalid, audioStreamIndex = invalid, subtitleStreamIndex = invalid)
+Sub reportPlayback(id As String, mediaType as String, action As String, playMethod as String, isPaused as Boolean, canSeek as Boolean, position as Integer, mediaSourceId as String, playSessionId = invalid, liveStreamId = invalid, audioStreamIndex = invalid, subtitleStreamIndex = invalid)
 
     ' Format Position Seconds into Ticks
 	positionTicks = invalid
@@ -218,6 +218,10 @@ Sub reportPlayback(id As String, mediaType as String, action As String, playMeth
 	url = url + "&QueueableMediaTypes=" + mediaType
 	url = url + "&MediaSourceId=" + tostr(mediaSourceId)
 	
+    if playSessionId <> invalid
+		url = url + "&PlaySessionId=" + tostr(playSessionId)
+    end if
+	
     if liveStreamId <> invalid
 		url = url + "&LiveStreamId=" + tostr(liveStreamId)
     end if
@@ -230,6 +234,8 @@ Sub reportPlayback(id As String, mediaType as String, action As String, playMeth
 		url = url + "&SubtitleStreamIndex=" + tostr(subtitleStreamIndex)
     end if
 
+	'Debug("Reporting playback to " + url)
+	
 	' Prepare Request
     request = HttpRequest(url)
     request.AddAuthorization()

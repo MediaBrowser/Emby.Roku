@@ -175,7 +175,7 @@ Sub audioPlayerReportPlayback(action as String)
 	
 	item = m.Context[m.CurIndex]
 
-	reportPlayback(item.Id, "Audio", action, item.playMethod, isPaused, item.canSeek, position, item.MediaSourceId, invalid, invalid)
+	reportPlayback(item.Id, "Audio", action, item.playMethod, isPaused, item.canSeek, position, item.MediaSourceId, invalid, invalid, invalid, invalid)
 End Sub
 
 Sub audioPlayerCleanup()
