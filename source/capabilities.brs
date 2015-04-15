@@ -230,7 +230,7 @@ Function getCodecProfiles()
 		{
 			Condition: "LessThanEqual"
 			Property: "AudioChannels"
-			Value: "5"
+			Value: "6"
 			IsRequired: false
 		}]
 	})
