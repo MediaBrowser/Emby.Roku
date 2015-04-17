@@ -344,7 +344,7 @@ Function vcGetDefaultTheme() as Object
         SpringboardAllow6Buttons: "true"
 
         SpringboardArtistColor: "#ffffff"
-        SpringboardArtistLabel: "#ffffff"
+        'SpringboardArtistLabel: "#ffffff"
         SpringboardArtistLabelColor: "#ffffff"
 
         SpringboardDirectorColor: "#ffffff"
