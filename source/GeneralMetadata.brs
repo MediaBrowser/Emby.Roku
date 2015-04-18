@@ -1410,7 +1410,7 @@ function getLiveStream(itemId, playSessionId, deviceProfile, startPositionTicks,
 	request.ContentType("json")
 
 	json = SimpleJSONBuilder(postData)
-    response = request.PostFromStringWithTimeout(json, 10)
+    response = request.PostFromStringWithTimeout(json, 30)
 
 	if response = invalid
         return invalid
