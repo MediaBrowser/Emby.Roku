@@ -122,7 +122,7 @@ Sub createContextViewMenuDialog(options as Object)
     imageStyleOptions = ["Poster", "Thumb", "Backdrop"]
     displayOptions    = ["No", "Yes"]
     imageType         = (firstOf(RegUserRead(options.settingsPrefix + "ImageType"), "0")).ToInt()
-	displayDescription    = (firstOf(RegUserRead(options.settingsPrefix + "Description"), "0")).ToInt()
+	displayDescription    = (firstOf(RegUserRead(options.settingsPrefix + "Description"), "1")).ToInt()
 
     ' Setup Buttons
     dlg.SetButton("image", "Image Style: " + imageStyleOptions[imageType])

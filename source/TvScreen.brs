@@ -279,7 +279,7 @@ Function createTvGenreScreen(viewController as Object, genre As String) As Objec
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
     End If
 
-    screen.displayDescription = (firstOf(RegUserRead("tvDescription"), "0")).ToInt()
+    screen.displayDescription = (firstOf(RegUserRead("tvDescription"), "1")).ToInt()
 
     return screen
 
@@ -340,7 +340,7 @@ Function createTvAlphabetScreen(viewController as Object, letter As String, pare
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
     End If
 
-	screen.displayDescription = (firstOf(RegUserRead("tvDescription"), "0")).ToInt()
+	screen.displayDescription = (firstOf(RegUserRead("tvDescription"), "1")).ToInt()
 
     return screen
 

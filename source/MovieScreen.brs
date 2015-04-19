@@ -184,7 +184,7 @@ Function createMovieAlphabetScreen(viewController as Object, letter As String, p
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
     End If
 
-	screen.displayDescription = (firstOf(RegUserRead("movieDescription"), "0")).ToInt()
+	screen.displayDescription = (firstOf(RegUserRead("movieDescription"), "1")).ToInt()
 
     if screen.displayDescription = 0 then
         screen.SetDescriptionVisible(false)
@@ -264,7 +264,7 @@ Function createMovieGenreScreen(viewController as Object, genre As String) As Ob
         screen = createPaginatedGridScreen(viewController, names, keys, loader, "two-row-flat-landscape-custom")
     End If
 
-    screen.displayDescription = (firstOf(RegUserRead("movieDescription"), "0")).ToInt()
+    screen.displayDescription = (firstOf(RegUserRead("movieDescription"), "1")).ToInt()
 
     if screen.displayDescription = 0 then
         screen.SetDescriptionVisible(false)
