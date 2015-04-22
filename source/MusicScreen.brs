@@ -268,10 +268,116 @@ Function getMusicGenreDataContainer(viewController as Object, item as Object) as
 End Function
 
 '**********************************************************
-'** createMusicSongsScreen
+'** createMusicItemSpringboardScreen
 '**********************************************************
 
-Function createMusicSongsScreen(viewController as Object, artistInfo As Object) As Object
+Function createMusicItemSpringboardScreen(context, index, viewController) As Dynamic
+
+    obj = createBaseSpringboardScreen(context, index, viewController)
+
+    obj.SetupButtons = musicItemSpringboardSetupButtons
+	
+    obj.superHandleMessage = obj.HandleMessage
+    obj.HandleMessage = musicItemSpringboardHandleMessage
+	
+	obj.GetMediaDetails = audioGetMediaDetails
+	
+	obj.itemInfo = context[index]
+
+	if (obj.itemInfo.ContentType <> "MusicAlbum") then
+		obj.screen.SetPosterStyle("rounded-rect-16x9-generic")
+	end if
+	
+    return obj
+End Function
+
+Sub musicItemSpringboardSetupButtons()
+    m.ClearButtons()
+	
+	if (m.itemInfo.ContentType = "MusicAlbum")
+		m.AddButton("Track List", "tracklist")
+	else
+		m.AddButton("Album List", "albumlist")
+	end if
+	
+	m.AddButton("Play All", "playall")
+	m.AddButton("Shuffle", "shuffle")
+	m.AddButton("Instant Mix", "instantmix")	
+End Sub
+
+'**********************************************************
+'** musicGetSongsForItem
+'**********************************************************
+
+Function musicGetSongsForItem(item) As Object
+	
+	songs = []
+	albums = []
+	
+	MusicMetadata = InitMusicMetadata()
+	
+	if (item.ContentType = "MusicArtist")
+		albumData = MusicMetadata.GetArtistAlbums(item.Title)
+		albums = albumData.Items
+	else if (item.ContentType = "MusicGenre")
+		albumData = MusicMetadata.GetGenreAlbums(item.Title)
+		albums = albumData.Items
+	else if (item.ContentType = "MusicAlbum")
+		albums = [item]
+	end if
+
+	for each a in albums	
+		aData = MusicMetadata.GetAlbumSongs(a.Id)
+		songs.Append(aData.Items)
+	end for	
+		
+	return songs	
+		
+End Function
+
+'**********************************************************
+'** musicGetInstantMixForItem
+'**********************************************************
+
+Function musicGetInstantMixForItem(item) As Object
+
+	mixItems = []
+		
+	url = GetServerBaseUrl()
+	userId = HttpEncode(getGlobalVar("user").Id)
+	fieldsString = "&fields=" + HttpEncode("PrimaryImageAspectRatio,MediaSources")
+	
+	if (item.ContentType = "MusicAlbum")
+		url = url + "/Albums/" + HttpEncode(item.id)
+	else if (item.ContentType = "MusicArtist")
+		url = url + "/Artists/" + HttpEncode(item.Title)
+	else if (item.ContentType = "MusicGenre")
+		url = url + "/MusicGenres/" + HttpEncode(item.Title)
+	end if
+	
+	url = url + "/InstantMix?UserId=" + userId + fieldsString + "&Limit=100"
+	
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+	
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+	
+	if response <> invalid	
+		container = parseItemsResponse(response, 0, "list")
+		mixItems = container.items
+	end if	
+	
+	return mixItems
+End Function
+
+'**********************************************************
+'** createMusicListScreen
+'**********************************************************
+
+Function createMusicListScreen(viewController as Object, tracks As Object) As Object
 
     screen = CreateListScreen(viewController)
 
@@ -280,13 +386,9 @@ Function createMusicSongsScreen(viewController as Object, artistInfo As Object) 
 
     player = AudioPlayer()
 
-    MusicMetadata = InitMusicMetadata()
+    totalDuration = GetTotalDuration(tracks)
 
-    musicData = MusicMetadata.GetAlbumSongs(artistInfo.Id)
-
-    totalDuration = GetTotalDuration(musicData.Items)
-
-    screen.SetHeader("Tracks (" + itostr(musicData.Items.Count()) + ") - " + totalDuration)
+    screen.SetHeader("Tracks (" + itostr(tracks.Count()) + ") - " + totalDuration)
 
     if getGlobalVar("legacyDevice")
         backButton = {
@@ -297,13 +399,13 @@ Function createMusicSongsScreen(viewController as Object, artistInfo As Object) 
         musicData.Items.Unshift( backButton )
     end if
 
-    screen.SetContent(musicData.Items)
+    screen.SetContent(tracks)
 
     player.SetRepeat(0)
 
     screen.prevIconIndex = invalid
     screen.focusedItemIndex = 0
-	screen.audioItems = musicData.Items
+	screen.audioItems = tracks
 
 	screen.IsShuffled = false
 	
@@ -311,6 +413,16 @@ Function createMusicSongsScreen(viewController as Object, artistInfo As Object) 
 
     return screen
 
+End Function
+
+'**********************************************************
+'** createMusicSongsScreen
+'**********************************************************
+
+Function createMusicSongsScreen(viewController as Object, artistInfo As Object) As Object
+    MusicMetadata = InitMusicMetadata()
+    musicData = MusicMetadata.GetAlbumSongs(artistInfo.Id)
+	return createMusicListScreen(viewController, musicData.Items)
 End Function
 
 Sub musicSongsPlayFromIndex(index)
@@ -426,6 +538,78 @@ Function musicSongsHandleMessage(msg) As Boolean
     return handled
 End Function
 
+'**********************************************************
+'** musicItemSpringboardHandleMessage
+'**********************************************************
+	
+Function musicItemSpringboardHandleMessage(msg) As Boolean
+    handled = false
+
+    if type(msg) = "roSpringboardScreenEvent" then
+        if msg.isButtonPressed() then
+            handled = true
+            buttonCommand = m.buttonCommands[str(msg.getIndex())]
+            Debug("Button command: " + tostr(buttonCommand))
+			
+		breadcrumbText = m.itemInfo.Title
+		screenName = tostr(buttonCommand) + " " + tostr(m.itemInfo.id)
+		startPlaying = true
+		busyDialog = invalid
+		
+		if (buttonCommand = "albumlist") then
+			if (m.itemInfo.ContentType = "MusicArtist")
+				listScreen = createMusicAlbumsScreen(m.ViewController, m.itemInfo)
+			else if (m.itemInfo.ContentType = "MusicGenre")
+				listScreen = createMusicGenresScreen(m.ViewController, m.itemInfo.Title)
+			end if
+			
+			startPlaying = false
+		else
+		
+			if (buttonCommand = "instantmix") then
+			
+				' This might take a few seconds.  
+				' Show dialog to keep the user informed.
+				
+				busyDialog = CreateObject("roMessageDialog")
+				busyDialog.SetTitle("Creating Playlist")
+				busyDialog.ShowBusyAnimation()
+				busyDialog.Show()
+				
+				tracks = musicGetInstantMixForItem(m.itemInfo)
+				breadcrumbText = "Instant Mix For " + breadcrumbText
+				screenName = "instantmix " + screenName
+			else
+				tracks = musicGetSongsForItem(m.itemInfo)
+				
+				if (buttonCommand = "shuffle") AND (tracks.Count() > 1) then 
+					startIndex = rnd(tracks.Count()) - 1
+					ShuffleArray(tracks, startIndex)
+				end if
+				
+				if (buttonCommand = "tracklist") then startPlaying = false
+				
+				if (m.itemInfo.ContentType = "MusicAlbum") AND (m.itemInfo.Artist <> invalid) AND (m.itemInfo.Artist <> "") then
+						breadcrumbText = m.itemInfo.Artist + " - " + breadcrumbText
+				end if	
+			end if	
+						
+			listScreen = createMusicListScreen(m.ViewController, tracks)
+		end if
+		
+		m.ViewController.AddBreadcrumbs(listScreen, [breadcrumbText])
+		m.ViewController.UpdateScreenProperties(listScreen)
+		m.ViewController.PushScreen(listScreen)
+		if (busyDialog <> invalid) then busyDialog.Close()
+		listScreen.Show()
+		
+		if (startPlaying) then listScreen.PlayFromIndex(0)
+							            
+		end if
+	end if
+
+	return handled OR m.superHandleMessage(msg)
+end Function	
 
 '**********************************************************
 '** GetTotalDuration
