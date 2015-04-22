@@ -295,14 +295,14 @@ Sub musicItemSpringboardSetupButtons()
     m.ClearButtons()
 	
 	if (m.itemInfo.ContentType = "MusicAlbum")
-		m.AddButton("Track List", "tracklist")
+		m.AddButton("Tracks", "tracklist")
 	else
-		m.AddButton("Album List", "albumlist")
+		m.AddButton("Albums", "albumlist")
 	end if
 	
-	m.AddButton("Play All", "playall")
+	m.AddButton("Play all", "playall")
 	m.AddButton("Shuffle", "shuffle")
-	m.AddButton("Instant Mix", "instantmix")	
+	m.AddButton("Instant mix", "instantmix")	
 End Sub
 
 '**********************************************************
