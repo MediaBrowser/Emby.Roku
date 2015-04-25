@@ -278,7 +278,9 @@ End Sub
 
 Sub audioPlayerSetContext(context, contextIndex, screen, startPlayer)
 
-    if startPlayer then
+    context = normalizeAudioItems(context)
+
+	if startPlayer then
         m.IgnoreTimelines = true
         m.Stop()
     end if
@@ -361,6 +363,56 @@ Sub audioPlayerSetContextFromItems(items, contextIndex, screen, startPlayer)
 	end if
 
 End Sub
+
+Function normalizeAudioItems(items)
+
+	Debug("normalizeAudioItems")
+	
+	requiresRefresh = false
+	
+	ids = ""
+	
+	for each item in items
+	
+		if ids <> "" then
+			ids = ids + ","
+		end if
+		
+		ids = ids + item.Id
+		
+		if firstOf(item.StreamFormat, "") = "" then
+			requiresRefresh = true
+		end if
+		
+	end for
+	
+	Debug("normalizeAudioItems ids: " + ids)
+	
+	if requiresRefresh = true
+	
+		url = GetServerBaseUrl()
+		userId = HttpEncode(getGlobalVar("user").Id)
+		
+		url = url + "/Users/"+userId+"/Items?" + "&fields=" + HttpEncode("PrimaryImageAspectRatio,MediaSources") + "&Ids=" + ids
+		
+		' Prepare Request
+		request = HttpRequest(url)
+		request.ContentType("json")
+		request.AddAuthorization()
+		
+		' Execute Request
+		response = request.GetToStringWithTimeout(10)
+		
+		if response <> invalid	
+			container = parseItemsResponse(response, 0, "list")
+			items = container.items
+		end if	
+	
+	end if
+	
+	return items
+
+End Function
 
 Sub audioPlayerShowContextMenu()
     dialog = createBaseDialog()
