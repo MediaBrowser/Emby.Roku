@@ -80,6 +80,11 @@ Function CreateURLTransferObject(url As String) as Object
     obj.SetPort(CreateObject("roMessagePort"))
     obj.SetUrl(url)
     obj.EnableEncodings(true)
+	
+	if url.instr("https") > -1 then 
+		obj.SetCertificatesFile("common:/certs/ca-bundle.crt")
+		obj.InitClientCertificates()
+	end if
 
     return obj
 End Function
@@ -130,11 +135,6 @@ Function http_authorization() As Void
 	end if
 	
 	currentUrl = firstOf(m.GetUrl(), "")
-	
-	if currentUrl.instr("https") > -1 then 
-		m.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
-		m.Http.InitClientCertificates()
-	end if
 	
 End Function
 
