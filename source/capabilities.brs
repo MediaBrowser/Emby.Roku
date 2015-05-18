@@ -329,7 +329,7 @@ Function getCapabilities()
 		DeviceProfile: getDeviceProfile()
 		SupportedLiveMediaTypes: ["Video"]
 		AppStoreUrl: "https://www.roku.com/channels#!details/44191/emby"
-		IconUrl: "https://raw.githubusercontent.com/wiki/MediaBrowser/MediaBrowser.Roku/Images/icon.png"
+		IconUrl: "https://raw.githubusercontent.com/wiki/MediaBrowser/Emby.Roku/Images/icon.png"
 	}
 	
 	return caps
