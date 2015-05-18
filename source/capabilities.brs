@@ -92,6 +92,7 @@ Function getCodecProfiles()
 	profiles = []
 
 	maxRefFrames = firstOf(getGlobalVar("maxRefFrames"), 12)
+	playsAnamorphic = firstOf(getGlobalVar("playsAnamorphic"), false)
 	
 	maxWidth = "1920"
 	maxHeight = "1080"
@@ -144,12 +145,14 @@ Function getCodecProfiles()
 		Value: "41"
 		IsRequired: false
 	})
+	if playsAnamorphic = false Then
 	h264Conditions.push({
 		Condition: "Equals"
 		Property: "IsAnamorphic"
 		Value: "false"
 		IsRequired: false
 	})
+	end if
 	
 	profiles.push({
 		Type: "Video"
@@ -188,12 +191,14 @@ Function getCodecProfiles()
 		Value: "30"
 		IsRequired: false
 	})
+	if playsAnamorphic = false Then
 	mpeg4Conditions.push({
 		Condition: "Equals"
 		Property: "IsAnamorphic"
 		Value: "false"
 		IsRequired: false
 	})
+	end if
 	
 	profiles.push({
 		Type: "Video"
