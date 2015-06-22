@@ -75,6 +75,7 @@ Function createVideoPlayerScreen(context, contextIndex, playOptions, viewControl
     obj.progressTimer = invalid
     obj.playState = "buffering"
     obj.bufferingTimer = createTimer()
+	obj.LastProgressReportTime = 0
 
     obj.ShowPlaybackError = videoPlayerShowPlaybackError
     obj.UpdateNowPlaying = videoPlayerUpdateNowPlaying
@@ -352,14 +353,14 @@ Function videoPlayerHandleMessage(msg) As Boolean
             Debug("MediaPlayer::playVideo::VideoScreenEvent::isPaused: position -> " + tostr(m.lastPosition))
             m.playState = "paused"
 			m.progressTimer.Active = true
-			m.ReportPlayback("progress")
+			m.ReportPlayback("progress", true)
             m.UpdateNowPlaying("progress")
 
         else if msg.isResumed() then
             Debug("MediaPlayer::playVideo::VideoScreenEvent::isResumed")
             m.playState = "playing"
 			m.progressTimer.Active = true
-			m.ReportPlayback("progress")
+			m.ReportPlayback("progress", true)
             m.UpdateNowPlaying()
 
         else if msg.isPartialResult() then
@@ -400,25 +401,40 @@ Function videoPlayerHandleMessage(msg) As Boolean
             ' sequence, URL, and start time.
 			Debug("HLS Segment info: " + tostr(msg.GetType()) + " msg: " + tostr(msg.GetMessage()))
         else
-            Debug("Unknown event: " + tostr(msg.GetType()) + " msg: " + tostr(msg.GetMessage()))
+            'Debug("Unknown event: " + tostr(msg.GetType()) + " msg: " + tostr(msg.GetMessage()))
         end if
     end if
 
     return handled
 End Function
 
-Sub videoPlayerReportPlayback(action as String)
+Sub videoPlayerReportPlayback(action as String, forceReport = false)
 
 	m.progressTimer.Mark()
 
 	isPaused = false
 
-	if m.playState = "paused" then isPaused = true
+	if m.playState = "paused" then 
+		isPaused = true
+	end if
 	
 	position = m.lastPosition
 	playOptions = m.PlayOptions	
+	
+	nowSeconds = CreateObject("roDateTime").AsSeconds()
+	
+	if action = "progress" and forceReport = false then
+		secondsSinceLastProgressReport = nowSeconds - m.LastProgressReportTime
+		
+		if secondsSinceLastProgressReport < 3
+			Debug ("Skipping progress report")
+		end if
+		
+	end if
 
+	m.LastProgressReportTime = nowSeconds
 	reportPlayback(m.videoItem.Id, "Video", action, m.playMethod, isPaused, m.canSeek, position, m.videoItem.StreamInfo.MediaSource.Id, m.videoItem.StreamInfo.PlaySessionId, m.videoItem.StreamInfo.LiveStreamId, m.videoItem.StreamInfo.AudioStreamIndex, m.videoItem.StreamInfo.SubtitleStreamIndex)
+	
 End Sub
 
 Sub videoPlayerPause()
