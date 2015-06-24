@@ -428,6 +428,7 @@ Sub videoPlayerReportPlayback(action as String, forceReport = false)
 		
 		if secondsSinceLastProgressReport < 3
 			Debug ("Skipping progress report")
+			return
 		end if
 		
 	end if
