@@ -1,7 +1,7 @@
 How to Contribute
 ============
 
-First enable devloper mode on your Roku device:
+First enable developer mode on your Roku device:
 
 http://sdkdocs.roku.com/display/sdkdoc/Developer+Guide
 
