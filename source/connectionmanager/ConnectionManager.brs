@@ -143,7 +143,7 @@ function mgrConnectToServer(url) as Object
 
 	url = normalizeAddress(url)
 	
-	publicInfo = tryConnect(url, 15)
+	publicInfo = tryConnect(url, 20)
 	
 	if publicInfo = invalid then
 		return {
@@ -179,14 +179,14 @@ function mgrConnectToServerInfo(server) as Object
 	
 	if systemInfo = invalid and firstOf(server.ManualAddress, "") <> "" and server.ManualAddress <> firstOf(server.LocalAddress, "") then
 	
-		systemInfo = tryConnect(server.ManualAddress, 15)
+		systemInfo = tryConnect(server.ManualAddress, 20)
 		
 		if systemInfo <> invalid then result.ConnectionMode = "Manual"
 	end if
 	
 	if systemInfo = invalid and firstOf(server.LocalAddress, "") <> "" then
 		
-		systemInfo = tryConnect(server.LocalAddress, 5)
+		systemInfo = tryConnect(server.LocalAddress, 10)
 		
 		if systemInfo = invalid and firstOf(server.MacAddress, "") <> "" then
 		
@@ -194,7 +194,7 @@ function mgrConnectToServerInfo(server) as Object
 			
 			sleep (10000)
 			
-			systemInfo = tryConnect(server.LocalAddress, 5)
+			systemInfo = tryConnect(server.LocalAddress, 10)
 			
 		end if
 	
@@ -203,7 +203,7 @@ function mgrConnectToServerInfo(server) as Object
 	
 	if systemInfo = invalid and firstOf(server.RemoteAddress, "") <> "" and server.RemoteAddress <> firstOf(server.ManualAddress, "") then
 	
-		systemInfo = tryConnect(server.RemoteAddress, 15)
+		systemInfo = tryConnect(server.RemoteAddress, 20)
 		
 		if systemInfo <> invalid then result.ConnectionMode = "Remote"
 	end if
@@ -343,7 +343,7 @@ function getConnectServersFromService(connectUserId, connectAccessToken) as Obje
 	addXApplicationHeader(request.Http)
 
     ' Execute Request
-    response = request.GetToStringWithTimeout(5)
+    response = request.GetToStringWithTimeout(20)
     if response <> invalid
         metaData = ParseJSON(response)
 
@@ -377,7 +377,7 @@ function getConnectUserFromServer(id, accessToken) as Object
 	addXApplicationHeader(request.Http)
 
     ' Execute Request
-    response = request.GetToStringWithTimeout(5)
+    response = request.GetToStringWithTimeout(20)
     if response <> invalid
         metaData = ParseJSON(response)
 
@@ -426,7 +426,7 @@ Sub addAuthenticationInfoFromConnect(server, connectionMode)
 	connectionManager = ConnectionManager()
 	
     ' Execute Request
-    response = request.GetToStringWithTimeout(5)
+    response = request.GetToStringWithTimeout(20)
     if response <> invalid
         metaData = ParseJSON(response)
 
@@ -489,7 +489,7 @@ Sub validateLocalAuthentication(server, connectionMode)
     request.Http.AddHeader("X-MediaBrowser-Token", accessToken)
 
     ' Execute Request
-    response = request.GetToStringWithTimeout(5)
+    response = request.GetToStringWithTimeout(20)
     if response <> invalid
         metaData = ParseJSON(response)
 
