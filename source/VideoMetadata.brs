@@ -193,6 +193,7 @@ Sub reportPlayback(id As String, mediaType as String, action As String, playMeth
     if action = "start"
         ' URL
         url = GetServerBaseUrl() + "/Sessions/Playing"
+		Debug ("Reporting playback start")
 		
     else if action = "progress"
 	
@@ -203,6 +204,7 @@ Sub reportPlayback(id As String, mediaType as String, action As String, playMeth
 	
         ' URL
         url = GetServerBaseUrl() + "/Sessions/Playing/Stopped"
+		Debug ("Reporting playback stopped")
 		
     end if
 
@@ -234,7 +236,9 @@ Sub reportPlayback(id As String, mediaType as String, action As String, playMeth
 		url = url + "&SubtitleStreamIndex=" + tostr(subtitleStreamIndex)
     end if
 
-	'Debug("Reporting playback to " + url)
+	if action <> "progress" then
+		Debug("Reporting playback to " + url)
+	end if
 	
 	' Prepare Request
     request = HttpRequest(url)

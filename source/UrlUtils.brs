@@ -121,7 +121,7 @@ Function http_authorization() As Void
         authString = authString + ", UserId=" + Quote() + HttpEncode(getGlobalVar("user").Id) + Quote()
     end if
 
-    m.Http.AddHeader("Authorization", authString)
+    m.Http.AddHeader("X-Emby-Authorization", authString)
 	
 	activeServerId = RegRead("currentServerId")
 	
