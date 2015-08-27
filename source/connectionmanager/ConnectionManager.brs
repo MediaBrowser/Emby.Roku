@@ -262,7 +262,7 @@ end function
 
 function tryConnect(url, timeout) as Object
 
-	url = url + "/mediabrowser/system/info/public?format=json"
+	url = url + "/emby/system/info/public?format=json"
 	
 	Debug("Attempting to connect to " + url)
 	
@@ -334,7 +334,7 @@ function getConnectServersFromService(connectUserId, connectAccessToken) as Obje
 	end if
 	
 	' Prepare Request
-    request = HttpRequest("https://connect.mediabrowser.tv/service/servers?userId=" + tostr(connectUserId))
+    request = HttpRequest("https://connect.emby.media/service/servers?userId=" + tostr(connectUserId))
 	
     request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
     request.Http.InitClientCertificates()
@@ -368,7 +368,7 @@ function getConnectUserFromServer(id, accessToken) as Object
 	end if
 	
 	' Prepare Request
-    request = HttpRequest("https://connect.mediabrowser.tv/service/user?id=" + tostr(id))
+    request = HttpRequest("https://connect.emby.media/service/user?id=" + tostr(id))
 	
     request.Http.SetCertificatesFile("common:/certs/ca-bundle.crt")
     request.Http.InitClientCertificates()
@@ -415,7 +415,7 @@ Sub addAuthenticationInfoFromConnect(server, connectionMode)
 		url = server.RemoteAddress
 	end if
 	
-	url = url + "/mediabrowser/Connect/Exchange?format=json&ConnectUserId=" + connectUserId
+	url = url + "/emby/Connect/Exchange?format=json&ConnectUserId=" + connectUserId
 
     ' Prepare Request
     request = HttpRequest(url)
@@ -480,7 +480,7 @@ Sub validateLocalAuthentication(server, connectionMode)
 		url = server.RemoteAddress
 	end if
 	
-	url = url + "/mediabrowser/system/info?format=json"
+	url = url + "/emby/system/info?format=json"
 
     ' Prepare Request
     request = HttpRequest(url)
@@ -597,7 +597,7 @@ End Sub
 
 Function mgrGetPinCreationHttpRequest()
 
-	url = "https://connect.mediabrowser.tv/service/pin"
+	url = "https://connect.emby.media/service/pin"
 
     ' Prepare Request
     request = HttpRequest(url)
@@ -614,7 +614,7 @@ End Function
 
 Function mgrGetPinStatusHttpRequest(pinResult)
 
-	url = "https://connect.mediabrowser.tv/service/pin?pin=" + pinResult.Pin + "&deviceId=" + pinResult.DeviceId
+	url = "https://connect.emby.media/service/pin?pin=" + pinResult.Pin + "&deviceId=" + pinResult.DeviceId
 
     ' Kick off a polling request
     Debug("Sending pin poll request to " + url)
@@ -633,7 +633,7 @@ End Function
 
 Function mgrGetPinExchangeHttpRequest(pinResult)
 
-	url = "https://connect.mediabrowser.tv/service/pin/authenticate"
+	url = "https://connect.emby.media/service/pin/authenticate"
 
     ' Prepare Request
     request = HttpRequest(url)

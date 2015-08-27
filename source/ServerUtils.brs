@@ -10,7 +10,7 @@ Function GetServerBaseUrl(baseUrl = "")
 		baseUrl = "http://" + baseUrl
 	end if
 	
-    return baseUrl + "/mediabrowser"
+    return baseUrl + "/emby"
 End Function
 
 
