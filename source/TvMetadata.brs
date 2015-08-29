@@ -17,9 +17,7 @@ Function getTvSeasons(seriesId As String) As Object
     ' Query
     query = {
         UserId: getGlobalVar("user").Id
-        IsMissing: "false"
-        IsVirtualUnaired: "false"
-		fields: "PrimaryImageAspectRatio"
+        fields: "PrimaryImageAspectRatio"
     }
 
     ' Prepare Request
@@ -45,9 +43,6 @@ Function getTvSeasons(seriesId As String) As Object
         end if
 
         for each i in jsonObj.Items
-            ' Exclude empty seasons
-            itemCount = firstOf(i.RecursiveItemCount, 0)
-            if itemCount > 0
                 ' Set the Id
                 listIds.push( i.Id )
 
@@ -55,7 +50,6 @@ Function getTvSeasons(seriesId As String) As Object
                 listNames.push( firstOf(i.Name, "Unknown") )
 				
 				listNumbers.push(firstOf(i.IndexNumber, -1))
-            end if
         end for
         
         return [listIds, listNames, listNumbers]
