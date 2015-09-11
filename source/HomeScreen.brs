@@ -76,7 +76,7 @@ Function getUserViews() as Object
 				views.push(i)
 			
 			' Treat all other types as folders for now
-			else if i.ContentType <> "Channel" then
+			else 
 				viewType = "folders"
 				views.push(i)
 			end if
