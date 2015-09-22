@@ -113,7 +113,7 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
 		query.AddReplace("IncludeItemTypes", "BoxSet")
 		query.AddReplace("Fields", "Overview")
 		query.AddReplace("SortBy", "SortName")
-		query.AddReplace("ParentId", m.parentId)
+		'query.AddReplace("ParentId", m.parentId)
 		query.AddReplace("ImageTypeLimit", "1")
 
 	else if row = 3
