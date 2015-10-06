@@ -130,7 +130,7 @@ Function http_authorization() As Void
 		accessToken = ConnectionManager().GetServerData(activeServerId, "AccessToken")
 		
 		if firstOf(accessToken, "") <> "" then
-			m.Http.AddHeader("X-MediaBrowser-Token", accessToken)
+			m.Http.AddHeader("X-Emby-Token", accessToken)
 		end if		
 	end if
 	

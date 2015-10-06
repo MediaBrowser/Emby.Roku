@@ -421,7 +421,7 @@ Sub addAuthenticationInfoFromConnect(server, connectionMode)
     request = HttpRequest(url)
     request.ContentType("json")
 	
-    request.Http.AddHeader("X-MediaBrowser-Token", exchangeToken)
+    request.Http.AddHeader("X-Emby-Token", exchangeToken)
 
 	connectionManager = ConnectionManager()
 	
@@ -486,7 +486,7 @@ Sub validateLocalAuthentication(server, connectionMode)
     request = HttpRequest(url)
     request.ContentType("json")
 	
-    request.Http.AddHeader("X-MediaBrowser-Token", accessToken)
+    request.Http.AddHeader("X-Emby-Token", accessToken)
 
     ' Execute Request
     response = request.GetToStringWithTimeout(20)
