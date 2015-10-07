@@ -1184,11 +1184,9 @@ Sub addPlaybackInfoFromMediaSource(item, mediaSource, playSessionId, options as 
 
 		if streamInfo.SubtitleStream <> invalid then
 		
-			if firstOf(streamInfo.SubtitleStream.DeliveryMethod, "") <> "External" then
-			
-				enableSelectableSubtitleTracks = false
+			if firstOf(streamInfo.SubtitleStream.DeliveryMethod, "") = "Embed" then
 				
-			else
+			else if firstOf(streamInfo.SubtitleStream.DeliveryMethod, "") = "External" then
 				if streamInfo.SubtitleStream.IsExternalUrl = true then
 					item.SubtitleUrl = streamInfo.SubtitleStream.DeliveryUrl
 				else
@@ -1199,6 +1197,8 @@ Sub addPlaybackInfoFromMediaSource(item, mediaSource, playSessionId, options as 
 					ShowSubtitle: 1
 					TrackName: item.SubtitleUrl
 				}
+			else
+				enableSelectableSubtitleTracks = false
 			end if
 			
 		end if
@@ -1225,7 +1225,7 @@ Sub addPlaybackInfoFromMediaSource(item, mediaSource, playSessionId, options as 
 	item.SubtitleTracks = []
 	
 	for each stream in mediaSource.MediaStreams
-		if enableSelectableSubtitleTracks AND stream.Type = "Subtitle" and firstOf(stream.DeliveryMethod, "") = "External" then
+		if enableSelectableSubtitleTracks AND stream.Type = "Subtitle" and firstOf(stream.DeliveryMethod, "") <> "Encode" then
 		
 			subtitleInfo = {
 				Language: stream.Language
