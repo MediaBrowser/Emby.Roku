@@ -60,7 +60,7 @@ Function tvScreenCreateContextMenu()
 	options = {
 		settingsPrefix: "tv"
 		sortOptions: ["Name", "Date Added", "Premiere Date"]
-		filterOptions: ["None", "Continuing", "Ended"]
+		filterOptions: ["None", "Continuing", "Ended", "Played", "Unplayed"]
 		showSortOrder: true
 	}
 	createContextMenuDialog(options)
@@ -103,6 +103,10 @@ Function getTvLibraryRowScreenUrl(row as Integer, id as String) as String
 			query.AddReplace("SeriesStatus", "Continuing")
 		else if filterBy = 2
 			query.AddReplace("SeriesStatus", "Ended")
+		else if filterBy = 3
+			query.AddReplace("Filters", "IsPlayed")
+		else if filterBy = 4
+			query.AddReplace("Filters", "IsUnPlayed")
 		end if
 
 		if sortBy = 1
