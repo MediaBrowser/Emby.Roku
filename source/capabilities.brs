@@ -191,6 +191,18 @@ Function getCodecProfiles()
 		Value: "30"
 		IsRequired: false
 	})
+	mpeg4Conditions.push({
+		Condition: "NotEquals"
+		Property: "CodecTag"
+		Value: "DX50"
+		IsRequired: false
+	})
+	mpeg4Conditions.push({
+		Condition: "NotEquals"
+		Property: "CodecTag"
+		Value: "XVID"
+		IsRequired: false
+	})
 	if playsAnamorphic = false Then
 	mpeg4Conditions.push({
 		Condition: "Equals"
