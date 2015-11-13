@@ -49,6 +49,10 @@ Function getDirectPlayProfiles()
             mkvAudio = mkvAudio + ",dca"
         end if
 
+	if CheckMinimumVersion(versionArr, [5, 3]) then
+		mkvAudio = mkvAudio + ",flac"
+	end if
+	
         profiles.push({
 			Type: "Video"
 			Container: "mkv"
