@@ -2,19 +2,13 @@
 ' Creates the capabilities object that is reported to Emby servers
 '******************************************************
 
-Function getDirectPlayProfiles()
+Function getDirectPlayProfiles(surroundSound, surroundSoundDCA)
 
 	profiles = []
 	
 	versionArr = getGlobalVar("rokuVersion")
 	audioContainers = "mp3,wma"
 	
-	surroundSound = SupportsSurroundSound(false, false)
-
-	audioOutput51 = getGlobalVar("audioOutput51")
-    surroundSoundDCA = surroundSound AND audioOutput51 'AND (RegRead("fivepointoneDCA", "preferences", "1") = "1")
-    surroundSound = surroundSound AND audioOutput51 'AND (RegRead("fivepointone", "preferences", "1") = "1")
-  
 	if CheckMinimumVersion(versionArr, [5, 3]) then
 		audioContainers = audioContainers + ",flac"
 	end if
@@ -66,7 +60,7 @@ Function getDirectPlayProfiles()
 
 End Function
 
-Function getTranscodingProfiles()
+Function getTranscodingProfiles(surroundSound)
 
 	profiles = []
 	
@@ -78,10 +72,16 @@ Function getTranscodingProfiles()
 		Protocol: "Http"
 	})
 	
+	videoAudioCodec = "mp3,aac"
+	
+	if surroundSound then
+		videoAudioCodec = videoAudioCodec + ",ac3"
+	end if
+	
 	profiles.push({
 		Type: "Video"
 		Container: "ts"
-		AudioCodec: "mp3"
+		AudioCodec: videoAudioCodec
 		VideoCodec: "h264"
 		Context: "Streaming"
 		Protocol: "Hls"
@@ -326,13 +326,19 @@ Function getDeviceProfile()
 	maxVideoBitrate = firstOf(RegRead("prefVideoQuality"), "3200")
 	maxVideoBitrate = maxVideoBitrate.ToInt() * 1000
 	
+	surroundSound = SupportsSurroundSound(false, false)
+
+	audioOutput51 = getGlobalVar("audioOutput51")
+    surroundSoundDCA = surroundSound AND audioOutput51 'AND (RegRead("fivepointoneDCA", "preferences", "1") = "1")
+    surroundSound = surroundSound AND audioOutput51 'AND (RegRead("fivepointone", "preferences", "1") = "1")
+  
 	profile = {
 		MaxStaticBitrate: "40000000"
 		MaxStreamingBitrate: tostr(maxVideoBitrate)
 		MusicStreamingTranscodingBitrate: "192000"
 		
-		DirectPlayProfiles: getDirectPlayProfiles()
-		TranscodingProfiles: getTranscodingProfiles()
+		DirectPlayProfiles: getDirectPlayProfiles(surroundSound, surroundSoundDCA)
+		TranscodingProfiles: getTranscodingProfiles(surroundSound)
 		CodecProfiles: getCodecProfiles()
 		ContainerProfiles: getContainerProfiles()
 		SubtitleProfiles: getSubtitleProfiles()
