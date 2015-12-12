@@ -81,7 +81,7 @@ Function getTranscodingProfiles()
 	profiles.push({
 		Type: "Video"
 		Container: "ts"
-		AudioCodec: "aac"
+		AudioCodec: "mp3"
 		VideoCodec: "h264"
 		Context: "Streaming"
 		Protocol: "Hls"
@@ -224,7 +224,7 @@ Function getCodecProfiles()
 		
 	profiles.push({
 		Type: "VideoAudio"
-		Codec: "aac"
+		Codec: "aac,mp3"
 		Conditions: [{
 			Condition: "Equals"
 			Property: "IsSecondaryAudio"

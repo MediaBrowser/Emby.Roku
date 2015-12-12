@@ -202,8 +202,28 @@ End Sub
 
 Sub vcOnSignedIn(serverId, serverUrl, localUserId)
 
+	if firstOf(serverId, "") = "" then
+		Debug("Empty serverId passed into OnSignedIn!")
+		return
+	end if
+
+	if firstOf(serverUrl, "") = "" then
+		Debug("Empty serverUrl passed into OnSignedIn!")
+		return
+	end if
+
+	if firstOf(localUserId, "") = "" then
+		Debug("Empty localUserId passed into OnSignedIn!")
+		return
+	end if
+
 	RegWrite("currentServerId", serverId)
-	
+
+	if firstOf(RegRead("currentServerId"), "") <> serverId then
+		Debug("currentServerId doesnt match RegRead result!")
+		return
+	end if
+
 	m.serverUrl = serverUrl
 	postCapabilities()
 	

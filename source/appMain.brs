@@ -13,11 +13,6 @@ Sub Main()
     'prepare the screen for display and get ready to begin
     viewController = createViewController()
 	
-	' Uncomment this as needed to debug startup sequence
-	RegDelete("activeServerId")
-	RegDelete("serverList1")
-	RegDelete("userId")
-	
 	'RunScreenSaver()
 	viewController.Show()
 
