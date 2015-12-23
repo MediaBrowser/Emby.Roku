@@ -199,6 +199,7 @@ Function getMetadataFromServerItem(i as Object, imageType as Integer, primaryIma
 
     metaData.Title = getTitle(i)
 
+	metaData.CanDelete = i.CanDelete
 	metaData.IsFolder = i.IsFolder
 	metaData.MediaType = i.MediaType
 	metaData.PrimaryImageAspectRatio = i.PrimaryImageAspectRatio

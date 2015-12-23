@@ -106,7 +106,7 @@ Sub videoSetupButtons()
 
     end if
 
-    if video.ContentType = "Recording"
+    if video.CanDelete = true
         m.AddButton("Delete", "delete")
     end if
 	
