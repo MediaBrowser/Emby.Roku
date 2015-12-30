@@ -105,7 +105,7 @@ Function createLiveTvGuideScreen(viewController as Object) as Object
 	if IsActiveSupporter() then
 		limit = supporterLimit
 	else
-		createDialog("Support Emby", "Full use of the TV Guide requires an active supporter membership. Results will be limited to " + tostr(limit) + " channels. Become a supporter by visiting the server dashboard in the web interface.", "Back", true)
+		createDialog("Support Emby", "Full use of the TV Guide requires an active Emby Premiere subscription. Results will be limited to " + tostr(limit) + " channels. Get Emby Premiere by visiting the server dashboard in the web interface.", "Back", true)
 	end if
 	
 	result = getFavoriteChannels(limit)
