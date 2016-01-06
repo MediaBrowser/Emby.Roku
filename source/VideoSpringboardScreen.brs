@@ -106,8 +106,15 @@ Sub videoSetupButtons()
 
     end if
 
-    if video.CanDelete = true
-        m.AddButton("Delete", "delete")
+    ' Check for special features
+    if video.People <> invalid and video.People.Count() > 0
+
+		if video.MediaType = "Video" then
+			m.AddButton("Cast & Crew", "cast")
+		else
+			m.AddButton("People", "people")
+		end If
+
     end if
 	
 	if video.ContentType = "Person"
@@ -322,6 +329,20 @@ Function handleVideoSpringboardScreenMessage(msg) As Boolean
             else if buttonCommand = "more" then
                 m.ShowMoreDialog(item)
 
+			else if buttonCommand = "cast" then
+				newScreen = createPeopleScreen(m.ViewController, item)
+				newScreen.ScreenName = "People" + itemId
+				m.ViewController.InitializeOtherScreen(newScreen, [item.Title, "Cast & Crew"])
+				newScreen.Show()
+				return true
+
+			else if buttonCommand = "people" then
+				newScreen = createPeopleScreen(m.ViewController, item)
+				newScreen.ScreenName = "People" + itemId
+				m.ViewController.InitializeOtherScreen(newScreen, [item.Title, "People"])
+				newScreen.Show()
+				return true
+
 			' rewster: handle the back button
 			else if buttonCommand = "back" then
 				m.ViewController.PopScreen(m)
@@ -521,15 +542,8 @@ Sub springboardShowMoreDialog(item)
         dlg.SetButton("markfavorite", "Mark as favorite")
     end if
 
-    ' Check for special features
-    if item.People <> invalid and item.People.Count() > 0
-
-		if item.MediaType = "Video" then
-			dlg.SetButton("cast", "Cast & Crew")
-		else
-			dlg.SetButton("people", "People")
-		end If
-
+    if item.CanDelete = true
+       dlg.SetButton("delete", "Delete")
     end if
 
     ' Check for special features
@@ -586,6 +600,9 @@ Function handleMoreOptionsButton(command, data) As Boolean
 		newScreen.ScreenName = "People" + itemId
         m.ViewController.InitializeOtherScreen(newScreen, [item.Title, "People"])
 		newScreen.Show()
+        return true
+    else if command = "delete" then
+        m.parentScreen.DeleteLiveTvRecording(item)
         return true
     else if command = "close" then
 		m.Screen.Close()
