@@ -6,8 +6,8 @@ Function createMovieLibraryScreen(viewController as Object, parentId as String) 
 
     imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
 
-	names = ["Movies", "Jump In", "Collections", "Genres"]
-	keys = ["0", "1", "2", "3"]
+	names = ["Movies  ( Press * for Options )", "Jump In", "Collections", "Favorite Movies", "Genres"]
+	keys = ["0", "1", "2", "3", "4"]
 
 	loader = CreateObject("roAssociativeArray")
 	loader.getUrl = getMovieLibraryRowScreenUrl
@@ -115,8 +115,17 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
 		query.AddReplace("SortBy", "SortName")
 		'query.AddReplace("ParentId", m.parentId)
 		query.AddReplace("ImageTypeLimit", "1")
-
 	else if row = 3
+		url = url + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?includeitemtypes=Movie"
+
+		query.AddReplace("recursive", "true")
+		query.AddReplace("fields", "PrimaryImageAspectRatio")
+		query.AddReplace("sortby", "SortName")
+		query.AddReplace("sortorder", "Ascending")
+		query.AddReplace("filters", "IsFavorite")
+		query.AddReplace("ImageTypeLimit", "1")
+
+	else if row = 4
 		url = url  + "/Genres?recursive=true"
 
 		query.AddReplace("SortBy", "SortName")
@@ -124,6 +133,7 @@ Function getMovieLibraryRowScreenUrl(row as Integer, id as String) as String
 		query.AddReplace("IncludeItemTypes", "Movie")
 		query.AddReplace("ParentId", m.parentId)
 		query.AddReplace("ImageTypeLimit", "1")
+
 	end If
 
 	for each key in query
@@ -140,7 +150,7 @@ Function parseMovieLibraryScreenResult(row as Integer, id as string, startIndex 
 	primaryImageStyle = "mixed-aspect-ratio-portrait"
 	mode = ""
 
-	if row = 3
+	if row = 4
 		mode = "moviegenre"
 	end if
 
