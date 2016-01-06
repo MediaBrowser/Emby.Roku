@@ -527,16 +527,60 @@ Sub vcShow()
         next
     end while
 
-    ' Clean up some references on the way out
-    AudioPlayer().Cleanup()
-    m.Home = invalid
-    m.WebServer = invalid
-    m.Timers.Clear()
-    m.PendingRequests.Clear()
-    m.SocketListeners.Clear()
+    closeChannel = true
 
-    Debug("Finished global message loop")
-	
+    ' Exit confirmation?
+    if FirstOf(RegRead("prefExit"),"1") = "1" then 
+
+    	port = CreateObject("roMessagePort")
+    	dialog = CreateObject("roMessageDialog")
+    	dialog.SetMessagePort(port) 
+    	dialog.SetTitle("Are you sure you want to exit emby?")
+
+    	dialog.AddButton(1, "Yes")
+    	dialog.AddButton(2, "No")
+    	dialog.EnableBackButton(false)
+    	dialog.Show()
+
+    	closeChannel = false
+
+    	' for now this will be a blocking request. The control has been stopped, so the 
+    	' channel is not listening anymore more onHandle events. 
+    	' pretty basic while loop - button index 2 will cancel the close/exit
+    	while True
+        	dlgMsg = wait(0, dialog.GetMessagePort())
+        	if type(dlgMsg) = "roMessageDialogEvent"
+            		if dlgMsg.isButtonPressed()
+                		if dlgMsg.GetIndex() = 1
+                    			closeChannel = true
+                		end if
+                		exit while
+            		else if dlgMsg.isScreenClosed()
+                		exit while
+            		end if
+		end if
+    	end while 
+    	dialog.Close()
+
+     end if
+
+    ' user chose not to exit, we need to set the profileExit invalid, recreate the 
+    ' homescreen, refresh the homescreen and start control again
+    if NOT closeChannel then 
+       m.Home = m.CreateHomeScreen()
+       m.Home.loader.refreshdata()
+       m.Show()
+    else
+    	' Clean up some references on the way out
+    	AudioPlayer().Cleanup()
+    	m.Home = invalid
+    	m.WebServer = invalid
+    	m.Timers.Clear()
+    	m.PendingRequests.Clear()
+    	m.SocketListeners.Clear()
+
+    	Debug("Finished global message loop")
+    end if
 End Sub
 
 Function vcGetPort()
