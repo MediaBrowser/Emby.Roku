@@ -6,7 +6,7 @@ Function createTvLibraryScreen(viewController as Object, parentId as String) As 
 
     imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
 
-	names = ["TV Shows  ( Press * for Options )", "Jump In", "Next Up", "Favorite TV Series", "Favorite TV Episodes", "Upcoming TV Episodes", "Genres"]
+	names = ["TV Shows  ( Press * for Options )", "Jump In", "Next Up", "Favorite Series", "Favorite Episodes", "Upcoming", "Genres"]
 	keys = ["0", "1", "2", "3", "4", "5", "6"]
 
 	loader = CreateObject("roAssociativeArray")
