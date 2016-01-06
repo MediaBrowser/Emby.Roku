@@ -6,8 +6,8 @@ Function createTvLibraryScreen(viewController as Object, parentId as String) As 
 
     imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
 
-	names = ["Shows", "Jump In", "Next Up", "Genres"]
-	keys = ["0", "1", "2", "3"]
+	names = ["TV Shows  ( Press * for Options )", "Jump In", "Next Up", "Favorite TV Series", "Favorite TV Episodes", "Upcoming TV Episodes", "Genres"]
+	keys = ["0", "1", "2", "3", "4", "5", "6"]
 
 	loader = CreateObject("roAssociativeArray")
 	loader.getUrl = getTvLibraryRowScreenUrl
@@ -61,6 +61,7 @@ Function tvScreenCreateContextMenu()
 		settingsPrefix: "tv"
 		sortOptions: ["Name", "Date Added", "Premiere Date"]
 		filterOptions: ["None", "Continuing", "Ended", "Played", "Unplayed"]
+
 		showSortOrder: true
 	}
 	createContextMenuDialog(options)
@@ -128,15 +129,39 @@ Function getTvLibraryRowScreenUrl(row as Integer, id as String) as String
 	else if row = 2
 		' Tv next up
 		url = url  + "/Shows/NextUp?fields=Overview"
-
 		query.AddReplace("userid", getGlobalVar("user").Id)
 		query.AddReplace("SortBy", "SortName")
 		query.AddReplace("ParentId", m.parentId)
 		query.AddReplace("ImageTypeLimit", "1")
 	else if row = 3
+		' Tv Favorites Series
+		url = url + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?includeitemtypes=Series"
+		query.AddReplace("recursive", "true")
+		query.AddReplace("fields", "PrimaryImageAspectRatio")
+		query.AddReplace("sortby", "SortName")
+		query.AddReplace("sortorder", "Ascending")
+		query.AddReplace("filters", "IsFavorite")
+		query.AddReplace("ImageTypeLimit", "1")
+	else if row = 4
+		' Tv Favorite Episodes
+		url = url + "/Users/" + HttpEncode(getGlobalVar("user").Id) + "/Items?includeitemtypes=Episode"
+		query.AddReplace("recursive", "true")
+		query.AddReplace("fields", "PrimaryImage")
+		query.AddReplace("sortby", "SortName")
+		query.AddReplace("sortorder", "Ascending")
+		query.AddReplace("filters", "IsFavorite")
+		query.AddReplace("ImageTypeLimit", "1")
+	else if row = 5
+		' Upcoming Tv Shows
+		url = url + "/Shows/Upcoming?limit=100"
+		query.AddReplace("fields", "Overview")
+		query.AddReplace("userid", getGlobalVar("user").Id)
+		'query.AddReplace("SortBy", "SortName")
+		'query.AddReplace("ParentId", m.parentId)
+		query.AddReplace("ImageTypeLimit", "1")
+	else if row = 6
 		' Tv genres
 		url = url  + "/Genres?recursive=true"
-
 		query.AddReplace("userid", getGlobalVar("user").Id)
 		query.AddReplace("IncludeItemTypes", "Series")
 		query.AddReplace("SortBy", "SortName")
@@ -146,7 +171,6 @@ Function getTvLibraryRowScreenUrl(row as Integer, id as String) as String
 	for each key in query
 		url = url + "&" + key +"=" + HttpEncode(query[key])
 	end for
-
     return url
 
 End Function
@@ -159,8 +183,12 @@ Function parseTvLibraryScreenResult(row as Integer, id as string, startIndex as 
 
 	if row = 2 
 		mode = "seriesimageasprimary" 
-	else if row = 3
+	else if row = 6
 		mode = "tvgenre"
+	else if row = 4
+		mode = "seriesimageasprimary"
+	else if row = 5
+		mode = "seriesimageasprimary"
 	end if
 
     return parseItemsResponse(json, imageType, primaryImageStyle, mode)
@@ -232,7 +260,7 @@ Function getTvSeasonsDataContainer(viewController as Object, item as Object) as 
 
     seasonIds   = seasonData[0]
     seasonNames = seasonData[1]
-	seasonNumbers = seasonData[2]
+    seasonNumbers = seasonData[2]
 
 	obj = CreateObject("roAssociativeArray")
 	obj.names = seasonNames
@@ -255,6 +283,9 @@ Function getTvSeasonsDataContainer(viewController as Object, item as Object) as 
 		end for
 
 		obj.focusedIndex = index
+		obj.focusedIndexItem = nextEpisode.Episode
+		debug("FocusedIndex: " + tostr(index))
+		debug("FocusedIndexItem: " + tostr(nextEpisode.Episode))
 
 	end if
 
