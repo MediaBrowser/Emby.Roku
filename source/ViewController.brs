@@ -530,12 +530,12 @@ Sub vcShow()
     closeChannel = true
 
     ' Exit confirmation?
-    if FirstOf(RegRead("prefExit"),"1") = "1" then 
+    if FirstOf(RegRead("prefExit"),"0") = "1" then 
 
     	port = CreateObject("roMessagePort")
     	dialog = CreateObject("roMessageDialog")
     	dialog.SetMessagePort(port) 
-    	dialog.SetTitle("Are you sure you want to exit emby?")
+    	dialog.SetTitle("Are you sure you wish to exit Emby?")
 
     	dialog.AddButton(1, "Yes")
     	dialog.AddButton(2, "No")

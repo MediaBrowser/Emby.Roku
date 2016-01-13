@@ -306,13 +306,12 @@ Function GetPreferenceList() as Object
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
         },
         {
-            Title: "Confirm Exit: " + GetSelectedPreference(GetPreferenceExit(), RegRead("prefExit")),
-            ShortTitle: "Confirm Exit?",
+            Title: "Confirm App Exit: " + GetSelectedPreference(GetPreferenceExit(), RegRead("prefExit")),
+            ShortTitle: "Confirm App Exit?",
             ID: "prefExit",
             ContentType: "pref",
 			PrefType: "list",
-            ShortDescriptionLine1: "Confirm with a dialog before exiting?",
-            ShortDescriptionLine2: "No accidental exits",
+            ShortDescriptionLine1: "Confirm with a dialog before exiting the app?",
             HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-preferences-lg.png"),
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
         },
@@ -593,14 +592,14 @@ End Function
 Function GetPreferenceExit() as Object
     prefOptions = [
         {
-            Title: "Yes [default]",
+            Title: "Yes",
             Id: "1",
-            IsDefault: true
+            IsDefault: false
         },
         {
-            Title: "No",
+            Title: "No [default]",
             Id: "0",
-            IsDefault: false
+            IsDefault: true
         }
     ]
 
