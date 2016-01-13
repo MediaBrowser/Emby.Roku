@@ -52,6 +52,7 @@ Function handlePreferencesScreenMessage(msg) as Boolean
 					GetPreferenceTVThemeMusic,
 					GetPreferenceTVThemeMusicRepeat,
 					GetPreferenceRememberUser,
+					GetPreferenceExit,
 					GetPreferenceEnhancedImages,
 					GetPreferenceMediaIndicators,
 					GetPreferenceShowClock,
@@ -301,6 +302,17 @@ Function GetPreferenceList() as Object
             ContentType: "pref",
 			PrefType: "list",
             ShortDescriptionLine1: "Remember the current logged in user for next time you open the channel.",
+            HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-preferences-lg.png"),
+            SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
+        },
+        {
+            Title: "Confirm Exit: " + GetSelectedPreference(GetPreferenceExit(), RegRead("prefExit")),
+            ShortTitle: "Confirm Exit?",
+            ID: "prefExit",
+            ContentType: "pref",
+			PrefType: "list",
+            ShortDescriptionLine1: "Confirm with a dialog before exiting?",
+            ShortDescriptionLine2: "No accidental exits",
             HDBackgroundImageUrl: viewController.getThemeImageUrl("hd-preferences-lg.png"),
             SDBackgroundImageUrl: viewController.getThemeImageUrl("sd-preferences-lg.png")
         },
@@ -571,6 +583,23 @@ Function GetPreferenceRememberUser() as Object
         {
             Title: "No",
             Id: "no",
+            IsDefault: false
+        }
+    ]
+
+    return prefOptions
+End Function
+
+Function GetPreferenceExit() as Object
+    prefOptions = [
+        {
+            Title: "Yes [default]",
+            Id: "1",
+            IsDefault: true
+        },
+        {
+            Title: "No",
+            Id: "0",
             IsDefault: false
         }
     ]
