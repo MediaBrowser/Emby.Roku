@@ -13,6 +13,11 @@ Function getDirectPlayProfiles(surroundSound, surroundSoundDCA)
 		audioContainers = audioContainers + ",flac"
 	end if
 	
+	' roku 4 supports apple lossless audio codec
+	if model = "4400" then
+		audioContainers = audioContainers + ",alac"
+	end if
+	  
 	profiles.push({
 		Type: "Audio"
 		Container: audioContainers
@@ -24,6 +29,13 @@ Function getDirectPlayProfiles(surroundSound, surroundSoundDCA)
 		mp4Audio = mp4Audio + ",ac3"
 	end if
 	
+	mp4Video = "h264,mpeg4"
+	
+	' roku 4 has support for hevc and vp9
+	if model = "4400" then
+		mp4Video = mp4Video + ",hevc,vp9"
+	end if
+	  
 	profiles.push({
 		Type: "Video"
 		Container: "mp4,mov,m4v"
@@ -33,9 +45,15 @@ Function getDirectPlayProfiles(surroundSound, surroundSoundDCA)
 	
 	mkvAudio = "aac,mp3"
 	
+	mkvVideo = "h264,mpeg4"
+	' roku 4 has support for hevc and vp9
+	if model = "4400" then
+		mkvVideo = mkvVideo + ",hevc,vp9"
+	end if
+	  
 	if CheckMinimumVersion(versionArr, [5, 1]) then
 	
-		if surroundSound then
+	if surroundSound then
             mkvAudio = mkvAudio + ",ac3"
         end if
 
@@ -157,6 +175,63 @@ Function getCodecProfiles()
 		IsRequired: false
 	})
 	end if
+	
+		' roku4 has ability to direct play h265/hevc
+	if model = "4400" then
+
+	hevcConditions = []
+	hevcConditions.push({
+		Condition: "LessThanEqual"
+		Property: "Width"
+		Value: max4kWidth
+		IsRequired: true
+	})
+	hevcConditions.push({
+		Condition: "LessThanEqual"
+		Property: "Height"
+		Value: max4kHeight
+		IsRequired: true
+	})
+	hevcConditions.push({
+		Condition: "LessThanEqual"
+		Property: "VideoFramerate"
+		Value: "60"
+		IsRequired: false
+	})
+	
+	profiles.push({
+		Type: "Video"
+		Codec: "hevc"
+		Conditions: hevcConditions
+	})
+
+	' roku4 has ability to direct play vp9 too
+	vp9Conditions = []
+	vp9Conditions.push({
+		Condition: "LessThanEqual"
+		Property: "Width"
+		Value: max4kWidth
+		IsRequired: true
+	})
+	vp9Conditions.push({
+		Condition: "LessThanEqual"
+		Property: "Height"
+		Value: max4kHeight
+		IsRequired: true
+	})
+	vp9Conditions.push({
+		Condition: "LessThanEqual"
+		Property: "VideoFramerate"
+		Value: "30"
+		IsRequired: false
+	})
+
+	profiles.push({
+		Type: "Video"
+		Codec: "vp9"
+		Conditions: vp9Conditions
+	})
+	end if ' roku 4
 	
 	profiles.push({
 		Type: "Video"
