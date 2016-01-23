@@ -305,7 +305,7 @@ Function getCodecProfiles()
 		
 	profiles.push({
 		Type: "VideoAudio"
-		Codec: "aac,mp3"
+		Codec: "mp3"
 		Conditions: [{
 			Condition: "Equals"
 			Property: "IsSecondaryAudio"
@@ -316,6 +316,29 @@ Function getCodecProfiles()
 			Condition: "LessThanEqual"
 			Property: "AudioChannels"
 			Value: "2"
+			IsRequired: true
+		}]
+	})
+	
+	if model = "4400" then
+		AACchannels = 6
+	else
+		AACchannels = 2
+	end if
+	
+	profiles.push({
+		Type: "VideoAudio"
+		Codec: "aac"
+		Conditions: [{
+			Condition: "Equals"
+			Property: "IsSecondaryAudio"
+			Value: "false"
+			IsRequired: false
+		},
+		{
+			Condition: "LessThanEqual"
+			Property: "AudioChannels"
+			Value: AACchannels
 			IsRequired: true
 		}]
 	})
