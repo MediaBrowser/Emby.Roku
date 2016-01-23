@@ -12,7 +12,10 @@ Function getDirectPlayProfiles(surroundSound, surroundSoundDCA)
 	if CheckMinimumVersion(versionArr, [5, 3]) then
 		audioContainers = audioContainers + ",flac"
 	end if
-	
+
+	device = CreateObject("roDeviceInfo")
+ 	model = left(device.GetModel(),4)
+ 	
 	' roku 4 supports apple lossless audio codec
 	if model = "4400" then
 		audioContainers = audioContainers + ",alac"
@@ -80,6 +83,9 @@ End Function
 
 Function getTranscodingProfiles(surroundSound)
 
+	device = CreateObject("roDeviceInfo")
+ 	model = left(device.GetModel(),4)
+ 	
 	profiles = []
 	
 	profiles.push({
