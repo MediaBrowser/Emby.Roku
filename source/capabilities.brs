@@ -321,9 +321,9 @@ Function getCodecProfiles()
 	})
 	
 	if model = "4400" then
-		AACchannels = 6
+		AACchannels = "6"
 	else
-		AACchannels = 2
+		AACchannels = "2"
 	end if
 	
 	profiles.push({
