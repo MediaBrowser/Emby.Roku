@@ -83,8 +83,6 @@ End Function
 
 Function getTranscodingProfiles(surroundSound)
 
-	device = CreateObject("roDeviceInfo")
- 	
 	profiles = []
 	
 	profiles.push({
@@ -120,7 +118,8 @@ Function getCodecProfiles()
 
 	maxRefFrames = firstOf(getGlobalVar("maxRefFrames"), 12)
 	playsAnamorphic = firstOf(getGlobalVar("playsAnamorphic"), false)
- 	model = left(device.GetModel(),4)
+ 	device = CreateObject("roDeviceInfo")
+	model = left(device.GetModel(),4)
 	
 	maxWidth = "1920"
 	maxHeight = "1080"
