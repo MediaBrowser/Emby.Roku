@@ -123,6 +123,8 @@ Function getCodecProfiles()
 	
 	maxWidth = "1920"
 	maxHeight = "1080"
+	max4kWidth = "3840"
+	max4kHeight = "2160"
 	
 	if getGlobalVar("displayType") <> "HDTV" then
 		maxWidth = "1280"
