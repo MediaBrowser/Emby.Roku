@@ -140,6 +140,7 @@ Function getLiveTvPrograms(channelId As String, filters = invalid As Object) As 
     query = {
         UserId: getGlobalVar("user").Id
         ChannelIds: channelId
+		SortBy: "StartDate"
     }
 
     ' Filter/Sort Query
