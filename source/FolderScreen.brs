@@ -46,7 +46,7 @@ Function createFolderScreen(viewController as Object, item as Object) As Object
 	if imageType = 0 then
 		screen.displayDescription = 1
 	else
-		screen.displayDescription = (firstOf(RegUserRead(settingsPrefix + "Description"), "0")).ToInt()
+		screen.displayDescription = (firstOf(RegUserRead(settingsPrefix + "Description"), "1")).ToInt()
 	end if
 
 	screen.createContextMenu = folderScreenCreateContextMenu
@@ -61,7 +61,7 @@ Sub folderScreenActivate(priorScreen)
 	if imageType = 0 then
 		displayDescription = 1
 	else
-		displayDescription = (firstOf(RegUserRead(m.settingsPrefix + "Description"), "0")).ToInt()
+		displayDescription = (firstOf(RegUserRead(m.settingsPrefix + "Description"), "1")).ToInt()
 	end if
 	
     if imageType = 0 then

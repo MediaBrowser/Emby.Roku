@@ -26,7 +26,7 @@ Function createMovieLibraryScreen(viewController as Object, parentId as String) 
 
 	screen.recreateOnActivate = true
 
-    screen.displayDescription = (firstOf(RegUserRead("movieDescription"), "0")).ToInt()
+    screen.displayDescription = (firstOf(RegUserRead("movieDescription"), "1")).ToInt()
 
 	screen.createContextMenu = movieScreenCreateContextMenu
 
@@ -37,7 +37,7 @@ End Function
 Sub movieScreenActivate(priorScreen)
 
     imageType      = (firstOf(RegUserRead("movieImageType"), "0")).ToInt()
-	displayDescription = (firstOf(RegUserRead("movieDescription"), "0")).ToInt()
+	displayDescription = (firstOf(RegUserRead("movieDescription"), "1")).ToInt()
 	
     if imageType = 0 then
 		gridStyle = "mixed-aspect-ratio"

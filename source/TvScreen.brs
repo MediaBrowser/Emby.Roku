@@ -24,7 +24,7 @@ Function createTvLibraryScreen(viewController as Object, parentId as String) As 
 	screen.baseActivate = screen.Activate
 	screen.Activate = tvScreenActivate
 
-    screen.displayDescription = (firstOf(RegUserRead("tvDescription"), "0")).ToInt()
+    screen.displayDescription = (firstOf(RegUserRead("tvDescription"), "1")).ToInt()
 
 	screen.createContextMenu = tvScreenCreateContextMenu
 
@@ -35,7 +35,7 @@ End Function
 Sub tvScreenActivate(priorScreen)
 
     imageType      = (firstOf(RegUserRead("tvImageType"), "0")).ToInt()
-	displayDescription = (firstOf(RegUserRead("tvDescription"), "0")).ToInt()
+	displayDescription = (firstOf(RegUserRead("tvDescription"), "1")).ToInt()
 	
     if imageType = 0 then
 		gridStyle = "mixed-aspect-ratio"
