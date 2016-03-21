@@ -9,7 +9,7 @@ Function createFolderScreen(viewController as Object, item as Object) As Object
 	title = item.Title
 
 	if item.ContentType = "BoxSet" then
-		settingsPrefix = "movie"
+		settingsPrefix = "boxset"
 		contextMenuType = invalid
 	else
 		settingsPrefix = "folders"
@@ -90,14 +90,13 @@ Function getFolderItemsQuery(settingsPrefix as String, contentType as String) as
 
     query = {}
 
-    if filterBy = 1
-        query.AddReplace("Filters", "IsUnPlayed")
-    else if filterBy = 2
-        query.AddReplace("Filters", "IsPlayed")
-    end if
-
 	' Just take the default sort order for collections
 	if contentType <> "BoxSet" then
+		if filterBy = 1
+			query.AddReplace("Filters", "IsUnPlayed")
+		else if filterBy = 2
+			query.AddReplace("Filters", "IsPlayed")
+		end if
 		if sortBy = 1
 			query.AddReplace("SortBy", "DateCreated,SortName")
 		else if sortBy = 2
