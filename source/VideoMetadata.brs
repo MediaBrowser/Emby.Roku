@@ -389,3 +389,27 @@ Function getVideoIntros(videoId As String) As Object
 
     return invalid
 End Function
+
+'**********************************************************
+'** Get Additional Parts
+'**********************************************************
+
+Function getAdditionalParts(videoId As String) As Object
+    ' URL
+    url = GetServerBaseUrl() + "/Videos/" + HttpEncode(videoId) + "/AdditionalParts?UserId=" + HttpEncode(getGlobalVar("user").Id)
+
+    ' Prepare Request
+    request = HttpRequest(url)
+    request.ContentType("json")
+    request.AddAuthorization()
+
+    ' Execute Request
+    response = request.GetToStringWithTimeout(10)
+    if response <> invalid
+	return parseItemsResponse(response, 0, "flat-episodic-16x9")
+    else
+	createDialog("Response Error!", "Failed to Get Additional Parts", "OK", true)
+    end if
+
+    return invalid
+End Function

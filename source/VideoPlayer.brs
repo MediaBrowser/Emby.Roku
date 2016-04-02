@@ -39,6 +39,19 @@ Function getPlayConfiguration(context, contextIndex, playOptions)
 		currentIndex = currentIndex + 1
 	end for
 	
+        if initialItem.partCount <> invalid and initialItem.partCount > 1 then
+		additional = getAdditionalParts(initialItem.Id)
+
+        	if additional <> invalid
+		
+			for each i in additional.Items		
+				i.PlayOptions = {}
+				list.push(i)
+			end for
+			
+		end if
+	end if
+	
 	return {
 		Context: list
 		CurIndex: 0
