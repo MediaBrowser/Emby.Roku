@@ -139,9 +139,6 @@ Sub videoPlayerShow()
 		item = m.Context[m.CurIndex]
 		if item.PlayOptions <> invalid
 			m.PlayOptions = item.PlayOptions
-			if m.PlayOptions = invalid
-				m.PlayOptions = {}
-			end if
 		else
 			m.PlayOptions = {}
 		end if
