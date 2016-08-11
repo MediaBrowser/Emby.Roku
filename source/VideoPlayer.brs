@@ -137,15 +137,12 @@ Sub videoPlayerShow()
 
 	else
 		item = m.Context[m.CurIndex]
-		
-		m.PlayOptions = item.PlayOptions
-		
-		if m.PlayOptions = invalid
-		    m.PlayOptions = {}
-		end if	
-		
-        m.Screen = m.CreateVideoPlayer(item, m.PlayOptions)
-		
+		if item.PlayOptions <> invalid
+			m.PlayOptions = item.PlayOptions
+		else
+			m.PlayOptions = {}
+		end if
+		m.Screen = m.CreateVideoPlayer(item, m.PlayOptions)
     end if
 
 	m.changeStream = false
