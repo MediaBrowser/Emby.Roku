@@ -172,7 +172,7 @@ Sub initGlobals()
     ' number increased, starting with 8.
     if left(modelNumber,1) = "4" and major >=5 then
 	GetGlobalAA().AddReplace("maxRefFrames", 15)
-    elseif major >= 4 then
+    else if major >= 4 then
         GetGlobalAA().AddReplace("maxRefFrames", 8)
     else
         GetGlobalAA().AddReplace("maxRefFrames", 5)

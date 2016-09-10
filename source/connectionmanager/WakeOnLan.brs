@@ -40,7 +40,7 @@ Sub mgrSendWol(machineID as String, screen=invalid)
         ' only send the broadcast 5 (numReqToSend) times per requested mac address
         WOLcounterKey = "WOLCounter" + tostr(mac)
         if GetGlobalAA().lookup(WOLcounterKey) = invalid then GetGlobalAA().AddReplace(WOLcounterKey, 0)
-        GetGlobalAA()[WOLcounterKey] = GetGlobalAA().[WOLcounterKey]  + 1
+        GetGlobalAA()[WOLcounterKey] = GetGlobalAA()[WOLcounterKey] + 1
 
         ' return if we have already send enough requests
         if GetGlobalAA()[WOLcounterKey] > numReqToSend then 
