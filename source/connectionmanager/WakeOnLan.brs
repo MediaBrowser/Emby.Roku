@@ -49,17 +49,21 @@ Sub mgrSendWol(machineID as String, screen=invalid)
             return
         end if
 
-        ' Get our secure on pass
-        pass = m.GetServerData(machineID, "WOLPass")
-        if pass = invalid or Len(pass) <> 12 then pass = "ffffffffffff"
-               
+          
+        pass = "ffffffffffff"
+            
         header = "ffffffffffff"
+        
         For k=1 To 16
             header = header + mac
         End For
         
-        'Append our SecureOn password
-        header = header + pass
+'        ' Get our secure on pass
+'        pass = m.GetServerData(machineID, "WOLPass")
+'        if pass = invalid or Len(pass) <> 12 then pass = "ffffffffffff"
+'        'Append our SecureOn password
+'        header = header + pass
+
         Debug ("SendWOL:: header " + tostr(header))
         
         port = CreateObject("roMessagePort")
