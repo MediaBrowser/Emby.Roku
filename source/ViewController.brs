@@ -266,11 +266,13 @@ Function vcCreateHomeScreen()
     screen.ScreenName = "Home"
     m.InitializeOtherScreen(screen, invalid)
     screen.Screen.SetBreadcrumbEnabled(true)
-
+ 
 	screen.refreshBreadcrumb()
 
     screen.Show()
 
+    CheckDisplayBetaHint()
+    
     return screen
 End Function
 
@@ -1798,4 +1800,66 @@ Sub vcDestroyGlitchyScreens()
             screen.DestroyAndRecreate()
         end if
     next
+End Sub
+
+Sub CheckDisplayBetaHint()
+
+    lastDateString = RegRead("lastBetaHintDisplay")
+    
+    nowDate = CreateObject("roDateTime")
+    last = CreateObject("roDateTime")
+    
+    If lastDateString <> invalid And lastDateString <> "" Then
+        last.FromISO8601String(lastDateString)
+    Else
+        last.FromSeconds(0)
+    End If
+    
+    nowSeconds = nowDate.AsSeconds()
+    lastSeconds = last.AsSeconds()
+    
+    diff = nowSeconds - lastSeconds
+    
+    If diff < 7 * 24 * 60 * 60 Then
+        ' Message has already been displayed during the last 7 days
+        return
+    End If
+    
+    last.Mark()
+    
+    lastSeconds = last.ToISOString()
+    
+    RegWrite("lastBetaHintDisplay", lastSeconds)
+    
+    port = CreateObject("roMessagePort")
+    dialog = CreateObject("roMessageDialog")
+    dialog.SetMessagePort(port) 
+    dialog.SetTitle("Try a Preview of our fresh new app")
+    dialog.AddStaticText("Preview the upcoming much improved Emby Roku app now!  A beautifully redesigned interface that allows you to view your Emby content on your Roku like never before.  Try it now by installing the private preview channel at http://emby.media/roku")
+    
+    dialog.AddButton(1, "OK")
+    dialog.EnableBackButton(false)
+    dialog.Show()
+
+    closeChannel = false
+
+    ' for now this will be a blocking request. The control has been stopped, so the 
+    ' channel is not listening anymore more onHandle events. 
+    ' pretty basic while loop - button index 2 will cancel the close/exit
+    while True
+        dlgMsg = wait(0, dialog.GetMessagePort())
+        if type(dlgMsg) = "roMessageDialogEvent"
+                if dlgMsg.isButtonPressed()
+                    if dlgMsg.GetIndex() = 1
+                            closeChannel = true
+                    end if
+                    exit while
+                else if dlgMsg.isScreenClosed()
+                    exit while
+                end if
+        end if
+    end while 
+    dialog.Close()
+
+
 End Sub
