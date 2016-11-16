@@ -1,1 +1,2 @@
+0 - this will keep the message from showing
 Try Our Fresh New App|Preview the upcoming much improved Emby Roku app.  A beautifully redesigned interface that allows you to view your Emby content on your Roku like never before.  Try it now by installing the private preview channel from http://emby.media/roku
