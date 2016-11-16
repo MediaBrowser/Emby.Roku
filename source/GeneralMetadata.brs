@@ -1291,7 +1291,7 @@ End Function
 Function validatePlaybackInfoResult(playbackInfo)
 
 	if firstOf(playbackInfo.ErrorCode, "") <> "" then
-		showPlaybackInfoErrorMessage(errorCode)
+		showPlaybackInfoErrorMessage(playbackInfo.ErrorCode)
 		return false
 	end if
 	
