@@ -194,6 +194,8 @@ Function videoPlayerCreateVideoPlayer(item, playOptions)
     player = CreateObject("roVideoScreen")
     player.SetMessagePort(m.Port)
 
+    player.SetConnectionTimeout(30)
+
     player.SetPositionNotificationPeriod(1)
 
 	' Reset these
