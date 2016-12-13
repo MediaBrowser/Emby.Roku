@@ -411,7 +411,7 @@ Function getSubtitleProfiles()
 		Method: "External"
 		
 		' If Roku adds support for non-Latin characters, remove this
-		Language: "und,afr,alb,baq,bre,cat,dan,eng,fao,glg,ger,ice,may,gle,ita,lat,ltz,nor,oci,por,roh,gla,spa,swa,swe,wln,est,fin,fre,dut"
+		Language: "und,afr,alb,baq,bre,cat,dan,eng,fao,glg,ger,ice,may,gle,ita,lat,ltz,nor,oci,por,roh,gla,spa,swa,swe,wln,est,fin,fre,dut,fra"
 	})
 	
 	profiles.push({
@@ -419,7 +419,7 @@ Function getSubtitleProfiles()
 		Method: "Embed"
 		
 		' If Roku adds support for non-Latin characters, remove this
-		Language: "und,afr,alb,baq,bre,cat,dan,eng,fao,glg,ger,ice,may,gle,ita,lat,ltz,nor,oci,por,roh,gla,spa,swa,swe,wln,est,fin,fre,dut"
+		Language: "und,afr,alb,baq,bre,cat,dan,eng,fao,glg,ger,ice,may,gle,ita,lat,ltz,nor,oci,por,roh,gla,spa,swa,swe,wln,est,fin,fre,dut,fra"
 	})
 			
 	return profiles
